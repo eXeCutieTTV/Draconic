@@ -1,11 +1,11 @@
-.subjectprefix {
+.objectsuffix {
     width: 90%;
     margin-bottom: 0px;
     margin-left: 2%;
     padding: 10px;
 }
 
-/* subjectprefix Hover */
-.subjectprefix td:hover {
+/* objectsuffix Hover */
+.objectsuffix td:hover {
     background-color: #f1d3d3;
 }
