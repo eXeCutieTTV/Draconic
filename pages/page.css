@@ -9,4 +9,5 @@
 .pages,
 .page {
     background-color: transparent; /* let table background show */
+    margin-bottom: 45px; /* space for nav buttons */
 }

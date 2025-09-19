@@ -1,0 +1,11 @@
+.exalted4table {
+    width: 33%;
+    height: 106px;
+    margin-bottom: 0px;
+    margin-left: 2%;
+}
+
+/* exalted4table Hover */
+.exalted4table td:hover {
+    background-color: #f1d3d3;
+}
