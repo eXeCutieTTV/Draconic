@@ -1,0 +1,17 @@
+/* TableWrapper */
+.TableWrapperp2 {
+    display: flex;
+}
+
+
+.Leftdivp2 {
+    display: inline;
+    flex: 0.75;
+}
+
+.rightdivp2 {
+    display: inline;
+    flex: 0.8;
+    margin-left: 25px;
+    margin-right: 25px;
+}

@@ -1,0 +1,11 @@
+.Leftdivp2 table, .rightdivp2 table {
+    width: 100%;
+    margin-bottom: 20px;
+    margin-left: 2%;
+}
+.Leftdivp2 td:hover {
+    background-color: #f1d3d3;
+}
+.rightdivp2 td:hover {
+    background-color: #f1d3d3;
+}
