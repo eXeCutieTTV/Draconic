@@ -1,0 +1,11 @@
+.dictionary {
+    width: 50%;
+    margin-bottom: 0px;
+    margin-left: 2%;
+    padding: 10px;
+}
+
+/* dictionary Hover */
+.dictionary td:hover {
+    background-color: #f1d3d3;
+}
