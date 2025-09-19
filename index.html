@@ -61,122 +61,42 @@
       <!-- ConsonantsTable -->
       <div class="TableWrapper">
         <div class="Leftdiv">
-          <table border="0" class="ConsonantsTable">
-            <tr class="ConsonantsTableTr">
-              <th style="font-size: 24px; width: 100px;">Consonants</th>
-              <th>Bilabial</th>
-              <th>Dental</th>
-              <th>Post-Alveolar</th>
-              <th>Velar</th>
-              <th>Uvular</th>
-              <th>Pharyngeal</th>
-              <th>Glottal</th>
-            </tr>
-            <tr>
-              <th style="width: 100px;">Plosive</th>
-              <td> </td>
-              <td>/t̪/ t</td>
-              <td> </td>
-              <td>/k/ k</td>
-              <td>/q/ q</td>
-              <td>/ʡ/ q̇</td>
-              <td>/ʔ/ ‘</td>
-            </tr>
-            <tr>
-              <th style="width: 100px;">Pyric Plosive</th>
-              <td> </td>
-              <td> </td>
-              <td>/t͡s̠/ c</td>
-              <td>/k͡x/</td>
-              <td>/q͡χ/</td>
-              <td> </td>
-              <td> </td>
-            </tr>
-            <tr>
-              <th style="width: 100px;">Affricative</th>
-              <td> </td>
-              <td> </td>
-              <td> </td>
-              <td> </td>
-              <td>/qˤʰ/ qħ</td>
-              <td>/ʡˤʰ/ q̇ħ</td>
-              <td> </td>
-            </tr>
-            <tr>
-              <th style="width: 100px;">Fricative</th>
-              <td>/ɸ/ f</td>
-              <td>/θ/ th, /ð/ d</td>
-              <td>/s̠/ s, /z̠/ z</td>
-              <td>/x/, /ɣ/ g</td>
-              <td>/χ/ χ</td>
-              <td> </td>
-              <td>/h/ h</td>
-            </tr>
-            <tr>
-              <th style="width: 100px;">Pyric Fricative</th>
-              <td> </td>
-              <td> </td>
-              <td> </td>
-              <td> </td>
-              <td>/χˤʰ/ χħ</td>
-              <td>/ħ/ ħ</td>
-              <td> </td>
-            </tr>
-            <tr>
-              <th style="width: 100px;">Lateral</th>
-              <td> </td>
-              <td>/l̪/ l, /r ~ ɾ/ r</td>
-              <td>/ɬ/ ll</td>
-              <td> </td>
-              <td> </td>
-              <td> </td>
-              <td> </td>
-            </tr>
-            <tr>
-              <th style="width: 100px;">Nasal</th>
-              <td>/m/ m</td>
-              <td> </td>
-              <td>/n/ n</td>
-              <td>/ŋ/ ŋ</td>
-              <td> </td>
-              <td> </td>
-              <td> </td>
-            </tr>
-          </table>
+          <include-html src="tables/consonantstable.html"></include-html>
+          
           <!-- VowelTable -->
-          <table border="0" class="VowelTable">
-            <tr>
-              <th style="font-size: 24px; width: 135px;">Vowels</th>
-              <th>Front</th>
-              <th>Central</th>
-              <th>Back</th>
-              <th>Pyric</th>
-            </tr>
-            <tr>
-              <th style="width: 100px;">Close</td>
-              <td>/i/, /iː/ ī</td>
-              <td></td>
-              <td>/u/, /uː/ ū</td>
-              <td>/ṳˤ/ ú, /ṳˤː/ û</td>
-            </tr>
-            <tr>
-              <th style="width: 100px;">Mid</td>
-              <td>/e/, /eː/ ē</td>
-              <td>/ə/ y</td>
-              <td></td>
-              <td>/o̤ˤ/ ó, /o̤ˤː/ ô</td>
-            </tr>
-            <tr>
-              <th style="width: 100px;">Open</td>
-              <td>/a/, æ</td>
-              <td></td>
-              <td>/ɑ/ a, /ɑː/ ā</td>
-              <td>/ɑ̤ˤ/ á, /ɑ̤ˤː/ â</td>
-            </tr>
-          </table>
+          <include-html src="tables/voweltable.html"></include-html>
+
+          <div class="VowelText">
+            <p>
+              <headtext>Vowel Allophony</headtext>
+            </p>
+            <p>- all vowels have retracted tongue root before or after laryngeal consonants </p>
+            <p>- short vowels are slightly more lax and central than long vowels </p>
+            <p>- æ, a realized as [æ], [ä] in front of front consonants </p>
+            <p>- u, ū, o, and ō become [ʉ̜], [ʉ̜ː], [ɵ̜], and [ɵ̜ː] before post-alveolar consonants </p>
+            <p>- u, ū, o, and ō are often slightly unrounded</p>
+            <p>- y often elided adjacent to a sonorant when unstressed</p>
+            <p>- Pyric vowels are often realized with breathy voice, especially after voiceless fricatives, uvulars,
+              laryngeals, and word-finally </p>
+          </div>
+          <div class=StressText>
+            <p>
+              <headtext>Stress</headtext>
+            </p>
+            <p>- stress of a word is initially determined by it's root, ignoring all prefixes/suffixes </p>
+            <p>- stress is on the final syllable of the root if it is a closed syllable AND contains a long vowel </p>
+            <p>- otherwise, stress is on the penult of the root if it is a closed syllable OR contains a long vowel </p>
+            <p>- otherwise, stress is on the antepenult of the root </p>
+            <p>- if rules determine that the stress falls outside the root, stress can land on prefixes. If there are
+              none, stress appears on the first syllable </p>
+            <p>- the only exceptions to the stress rule are for the copula lur, explain in the sheet named "To Be" </p>
+          </div>
         </div>
         <div class="rightdiv">
-          <div class="TableText">
+          <div class="ConsonantsText">
+            <p>
+              <headtext>Consonants Allophony</headtext>
+            </p>
             <p>/t̪/ <enbolden>→</enbolden> [t̪̚] if word-finally or before obstruent</p>
             <p>/k/ <enbolden>→</enbolden> [c] if before i, ī; [ɡ̥] if intervocalically; [k̚] if word-finally or before
               obstruent</p>
