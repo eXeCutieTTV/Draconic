@@ -1,0 +1,10 @@
+.exhalteddir {
+    width: 40%;
+    margin-bottom: 0px;
+    margin-left: 2%;
+}
+
+/* exhalteddir Hover */
+.exhalteddir td:hover {
+    background-color: #f1d3d3;
+}

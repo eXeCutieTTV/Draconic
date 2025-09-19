@@ -2,6 +2,10 @@
     display: none;
 }
 
+.pages {
+    padding-bottom: 65px; /* space for nav buttons */
+}
+
 .page.active {
     display: block;
 }
@@ -9,5 +13,4 @@
 .pages,
 .page {
     background-color: transparent; /* let table background show */
-    margin-bottom: 45px; /* space for nav buttons */
 }
