@@ -18,3 +18,9 @@ headtext {
   font-weight: bold;
   font-size: 35px;
 }
+
+/* less bold function */
+lilbold {
+  font-weight: bold;
+  font-size: 15px;
+}
