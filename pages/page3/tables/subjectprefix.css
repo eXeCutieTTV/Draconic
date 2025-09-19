@@ -1,0 +1,12 @@
+.subjectprefix {
+    width: 80%;
+    height: 125px;
+    margin-bottom: 25px;
+    margin-left: 2%;
+    padding: 10px;
+}
+
+/* subjectprefix Hover */
+.subjectprefix td:hover {
+    background-color: #f1d3d3;
+}
