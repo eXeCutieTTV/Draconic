@@ -6,41 +6,6 @@ body {
   height: 100vh;
 }
 
-/* default table */
-/* global table container */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  border-spacing: 0;
-  color: black;
-}
-
-/* global table header */
-th {
-  padding: 8px;
-  text-align: center;
-  /* horizontal center */
-  vertical-align: middle;
-  /* vertical center */
-  border: 1px solid transparent;
-  background-color: #e26b6b;
-  /* header only */
-  color: black;
-}
-
-/* global table cells */
-td {
-  padding: 8px;
-  text-align: center;
-  /* horizontal center */
-  vertical-align: middle;
-  /* vertical center */
-  border: 1px solid transparent;
-  background-color: #f2c8c8;
-  /* inherits table background */
-  color: black;
-}
-
 /* functions */
 /* bold function */
 enbolden {

@@ -8,6 +8,5 @@
 
 .pages,
 .page {
-    background-color: transparent;
-    /* let table background show */
+    background-color: transparent; /* let table background show */
 }
