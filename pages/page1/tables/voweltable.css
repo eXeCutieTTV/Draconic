@@ -1,0 +1,10 @@
+.VowelTable {
+    width: 100%;
+    height: 125px;
+    margin-bottom: 25px;
+}
+
+/* VowelTable Hover */
+.VowelTable td:hover {
+    background-color: #f1d3d3;
+}

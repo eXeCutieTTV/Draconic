@@ -1,0 +1,19 @@
+/* TableWrapper */
+.TableWrapper {
+    display: flex;
+}
+
+
+.Leftdiv {
+    display: inline;
+    flex: 1;
+    margin-bottom: 45px;
+}
+
+.rightdiv {
+    display: inline;
+    flex: 0.8;
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-bottom: 45px;
+}

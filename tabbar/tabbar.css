@@ -1,0 +1,32 @@
+.pages {
+    flex: 1;
+    padding: 20px;
+}
+
+.tab-bar {
+    display: flex;
+    background: #f0f0f0;
+    border-top: 1px solid #ccc;
+    z-index: 99999;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    border-right: 1px solid #ccc;
+}
+
+.tab.active {
+    background: white;
+    font-weight: bold;
+    border: 1px solid #ff0000;
+    border-top: 2px solid #ff0000;
+    border-bottom: 0px solid #ff0000;
+}
+

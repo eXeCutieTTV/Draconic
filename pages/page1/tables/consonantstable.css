@@ -1,0 +1,10 @@
+.ConsonantsTable {
+    width: 100%;
+    height: 125px;
+    margin-bottom: 25px;
+}
+
+/* ConsonantsTable Hover */
+.ConsonantsTable td:hover {
+    background-color: #f1d3d3;
+}
