@@ -15,6 +15,11 @@ body {
   display: flex;
   background: #f0f0f0;
   border-top: 1px solid #ccc;
+  z-index: 99999;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
 }
 
 .tab {
@@ -25,18 +30,17 @@ body {
   border-right: 1px solid #ccc;
 }
 
-
 table,
 .tab.active {
   border: 1px solid #ff0000;
 }
+
 .tab.active {
   background: white;
   font-weight: bold;
   border-top: 2px solid #ff0000;
   border-bottom: 0px solid #ff0000;
 }
-
 
 .page {
   display: none;
@@ -53,7 +57,7 @@ table,
   border-width: 1px;
   border-color: #000000;
   background-color: #f2c8c8;
-  
+
   margin-top: 10vh;
   margin-bottom: 10px;
   margin-left: 2px;
@@ -63,37 +67,45 @@ table,
 }
 
 /* default table */
-  /* global table container */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    border-spacing: 0;
-    color: black;
-  }
+/* global table container */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+}
 
-  /* global table header */
-  th {
-    padding: 8px;
-    text-align: center;       /* horizontal center */
-    vertical-align: middle;   /* vertical center */
-    border: 1px solid transparent;
-    background-color: #e26b6b; /* header only */
-    color: black;
-  }
+/* global table header */
+th {
+  padding: 8px;
+  text-align: center;
+  /* horizontal center */
+  vertical-align: middle;
+  /* vertical center */
+  border: 1px solid transparent;
+  background-color: #e26b6b;
+  /* header only */
+  color: black;
+}
 
-  /* global table cells */
-  td {
-    padding: 8px;
-    text-align: center;       /* horizontal center */
-    vertical-align: middle;   /* vertical center */
-    border: 1px solid transparent;
-    background-color: #f2c8c8; /* inherits table background */
-    color: black;
-  }
+/* global table cells */
+td {
+  padding: 8px;
+  text-align: center;
+  /* horizontal center */
+  vertical-align: middle;
+  /* vertical center */
+  border: 1px solid transparent;
+  background-color: #f2c8c8;
+  /* inherits table background */
+  color: black;
+}
 
 /* page container */
-.content, .page {
-  background-color: transparent; /* let table background show */
+.content,
+.page {
+  background-color: transparent;
+  /* let table background show */
 }
 
 /* WelcomeTable */
@@ -101,6 +113,7 @@ table,
 .WelcomeTable td {
   text-align: left;
 }
+
 .WelcomeTable tr:hover td {
   background-color: #f1d3d3;
 }
@@ -108,47 +121,61 @@ table,
 
 /* ConsonantsTable */
 .ConsonantsTable {
-  width: 50%;
+  width: 100%;
   height: 125px;
+  margin-bottom: 25px;
 }
-.ConsonantsTable td:hover  {
+
+.ConsonantsTable td:hover {
   background-color: #f1d3d3;
 }
 
 /* VowelTable */
 .VowelTable {
-  width: 50%;
+  width: 100%;
   height: 125px;
 }
+
 /* VowelTable Hover */
-.VowelTable td:hover  {
+.VowelTable td:hover {
   background-color: #f1d3d3;
 }
 
-/* ConsonantsTableWrapper */
-.ConsonantsTableWrapper {
+/* TableWrapper */
+.TableWrapper {
   display: flex;
 }
 
-.ConsonantsTableText {
-  display: inline;
-  flex: 1;
+.TableText {
   border-radius: 10px;
   border-style: solid;
   border-width: 1px;
   border-color: #000000;
   background-color: #f2c8c8;
-  
+
   margin-top: 2px;
   margin-bottom: 2px;
-  margin-left: 25px;
-  margin-right: 2px;
 
   padding: 10px;
+  right: 0;
+  width: 100%;
 }
 
 /* bold function */
 enbolden {
   font-weight: bold;
   font-size: 25px;
+}
+
+.Leftdiv {
+  display: inline;
+  flex: 1;
+}
+
+.rightdiv {
+  display: inline;
+  flex: 0.8;
+  margin-left: 25px;
+  margin-right: 25px;
+  ;
 }
