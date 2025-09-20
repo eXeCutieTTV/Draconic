@@ -39,18 +39,36 @@ document.getElementById('search_button').addEventListener('click', () => {
     }
 
     if (foundRow) {
-        const cellsToShow = foundRow.slice(startIndex, startIndex + 5); // get 5 cells
+        // Build exactly 5 cells from the match to the right
+        const cellsToShow = [];
+        for (let i = 0; i < 5; i++) {
+            cellsToShow.push(foundRow[startIndex + i] ?? "");
+        }
 
+        // Always target the existing <tbody>
+        const tableBody = document.querySelector('#resultTable tbody');
+        tableBody.innerHTML = ''; // clear old rows
+
+        // Create the row and cells
         const tr = document.createElement('tr');
         cellsToShow.forEach(cell => {
             const td = document.createElement('td');
-            td.textContent = cell ?? ""; // ensures <td></td> for empty cells
+            td.textContent = String(cell ?? ""); // ensures <td></td> for empty cells
             tr.appendChild(td);
         });
+
+        // Append the row to the <tbody>
         tableBody.appendChild(tr);
+
+        // Debug: check what was inserted
+        console.log('Inserted row:', tableBody.innerHTML);
     } else {
         alert('No matching row found.');
     }
-});
 
-console.log(workbookData);
+
+    console.log(workbookData);
+    console.log("Found row:", foundRow);
+    console.log("Start index:", startIndex);
+    console.log("Cells to show:", foundRow.slice(startIndex, startIndex + 5));
+});
