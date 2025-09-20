@@ -1,0 +1,10 @@
+.table1 {
+    width: 50%;
+    height: 125px;
+    margin-bottom: 25px;
+}
+
+/* table1 Hover */
+.table1 td:hover {
+    background-color: #f1d3d3;
+}
