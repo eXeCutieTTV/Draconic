@@ -19,6 +19,51 @@ fetch('13-05-2025.xlsx')
 document.getElementById('search_button').addEventListener('click', () => {
     const keyword = document.getElementById('search_field').value.trim().toLowerCase();
 
+    // Create tables
+    function createTable(keyword) {
+        // Avoid duplicates: if table already exists, return it
+        const existing = document.getElementById(`resultTable_${keyword}`);
+        if (existing) return existing;
+
+        const table = document.createElement('table');
+        table.id = `resultTable_${keyword}`;
+
+        // 1️⃣ Create the header row (constant names)
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+
+        // Define your constant column names here:
+        const headers = ["Word", "Declension", "Definition", "Forms", "Usage Notes"];
+        headers.forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            headerRow.appendChild(th);
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // 2️⃣ Create the body with one row of empty cells
+        const tbody = document.createElement('tbody');
+        const row = document.createElement('tr');
+
+        for (let i = 0; i < 5; i++) {
+            const cell = document.createElement('td');
+            cell.id = `cell${i}_${keyword}`;
+            row.appendChild(cell);
+        }
+
+        tbody.appendChild(row);
+        table.appendChild(tbody);
+
+        // 3️⃣ Append table to container
+        document.getElementById('tablesContainer').appendChild(table);
+
+        return table;
+    }
+    createTable(keyword)
+
+
     if (!keyword || workbookData.length === 0) {
         alert('Please enter a search term and ensure the file is loaded.');
         return;
