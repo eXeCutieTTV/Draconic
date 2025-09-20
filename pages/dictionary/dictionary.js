@@ -1,13 +1,3 @@
-console.log("Script loaded");
-
-const btn = document.getElementById('search_button');
-console.log("Button element:", btn);
-
-if (btn) {
-    btn.addEventListener('click', () => {
-        console.log("Button clicked!");
-    });
-}
 // === Page mapping ===
 const pagess = {
     "ax": "page999",
@@ -114,23 +104,20 @@ document.getElementById('search_button').addEventListener('click', () => {
         return;
     }
 
-    // 1️⃣ Go to the correct page (no tab highlighting)
+    // Go to the correct page (no tab highlighting)
     openPage(targetPageId);
 
-    // 2️⃣ Find that page's container
+    // Find that page's container
     const pageContainer = document.querySelector(`#${targetPageId} .tablesContainer`);
     if (!pageContainer) {
         console.error(`No .tablesContainer found inside #${targetPageId}`);
         return;
     }
-    console.log("Target page ID:", targetPageId);
-    console.log("Page element:", document.getElementById(targetPageId));
-    console.log("Container element:", document.querySelector(`#${targetPageId} .tablesContainer`));
 
-    // 3️⃣ Create table (replaces old one if exists)
+    // Create table (replaces old one if exists)
     const table = createTable(keyword, pageContainer);
 
-    // 4️⃣ Fill table from Excel
+    // Fill table from Excel
     fillTable(keyword, table);
 });
 
