@@ -18,17 +18,29 @@ fetch('13-05-2025.xlsx')
 // Search button click event
 document.getElementById('search_button').addEventListener('click', () => {
     const keyword = document.getElementById('search_field').value.trim().toLowerCase();
-    const tableBody = document.querySelector('#resultTable tbody');
-    tableBody.innerHTML = '';
 
     if (!keyword || workbookData.length === 0) {
         alert('Please enter a search term and ensure the file is loaded.');
         return;
     }
 
+    // Build the table ID dynamically
+    const tableId = `resultTable_${keyword}`;
+    const table = document.getElementById(tableId);
+
+    if (!table) {
+        alert(`No table found with ID "${tableId}"`);
+        return;
+    }
+
+    // Clear old values from this table's cells
+    const cells = table.querySelectorAll('td');
+    cells.forEach(cell => cell.textContent = '');
+
     let foundRow = null;
     let startIndex = -1;
 
+    // Search for the keyword in the Excel data
     for (const row of workbookData) {
         const colIndex = row.findIndex(cell => String(cell).toLowerCase() === keyword);
         if (colIndex !== -1) {
@@ -39,36 +51,20 @@ document.getElementById('search_button').addEventListener('click', () => {
     }
 
     if (foundRow) {
-        // Build exactly 5 cells from the match to the right
-        const cellsToShow = [];
+        // Fill the first 5 cells in this table
         for (let i = 0; i < 5; i++) {
-            cellsToShow.push(foundRow[startIndex + i] ?? "");
+            const cell = table.querySelector(`#cell${i}_${keyword}`);
+            if (cell) {
+                cell.textContent = foundRow[startIndex + i] ?? '';
+            }
         }
-
-        // Always target the existing <tbody>
-        const tableBody = document.querySelector('#resultTable tbody');
-        tableBody.innerHTML = ''; // clear old rows
-
-        // Create the row and cells
-        const tr = document.createElement('tr');
-        cellsToShow.forEach(cell => {
-            const td = document.createElement('td');
-            td.textContent = String(cell ?? ""); // ensures <td></td> for empty cells
-            tr.appendChild(td);
-        });
-
-        // Append the row to the <tbody>
-        tableBody.appendChild(tr);
-
-        // Debug: check what was inserted
-        console.log('Inserted row:', tableBody.innerHTML);
     } else {
         alert('No matching row found.');
     }
 
-
-    console.log(workbookData);
     console.log("Found row:", foundRow);
     console.log("Start index:", startIndex);
-    console.log("Cells to show:", foundRow.slice(startIndex, startIndex + 5));
+    if (foundRow) {
+        console.log("Cells to show:", foundRow.slice(startIndex, startIndex + 5));
+    }
 });
