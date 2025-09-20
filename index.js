@@ -13,7 +13,7 @@ function openPage(pageId, element) {
   element.classList.add('active');
 }
 
-// import tables function
+// import html function
 class IncludeHTML extends HTMLElement {
   connectedCallback() {
     const src = this.getAttribute('src');

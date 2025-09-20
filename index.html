@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <title>Revisioned Draconic spreadsheet</title>
   <link rel="stylesheet" href="index.css"> <!--index.css link-->
-  <script src="index.js"></script> <!--index.js link-->
   <link rel="stylesheet" href="pages\defaultable.css"> <!--defaultable.css link-->
 </head>
 
@@ -26,7 +25,7 @@
 
     <!-- Page 4 -->
     <include-html src="pages\page4\page4.html"></include-html>
-    
+
     <!-- Page 5 -->
     <include-html src="pages\page5\page5.html"></include-html>
 
@@ -37,11 +36,35 @@
     <include-html src="pages\page7\page7.html"></include-html>
 
     <!-- Page 8 -->
-    <include-html src="pages\page8\page8.html"></include-html>
+    <div id="page8" class="page">
+      <h2>Sheet 4</h2>
+      <p>This is the fourth sheet.</p>
+
+      <button id="search_button">Go</button>
+      <input id="search_field" type="text" placeholder="Search..." />
+
+    </div>
+
+
+    <!--dictionary pages-->
+    <!-- Page 999 -->
+    <include-html src="pages\dictionary\page999ax\page999.html"></include-html>
+
+    <!-- Page 998 -->
+    <include-html src="pages\dictionary\page998aef\page998.html"></include-html>
+
+    <!-- Page 997 -->
+    <include-html src="pages\dictionary\page997aekluu\page997.html"></include-html>
+
   </div>
 
   <!-- Tab bar -->
   <include-html src="tabbar\tabbar.html"></include-html>
+
+
 </body>
+
+<script src="index.js"></script> <!--index.js link-->
+<script src="pages\page8\dictionary.js"></script> <!--dictionary.js link-->
 
 </html>
