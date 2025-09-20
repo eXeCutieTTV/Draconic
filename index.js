@@ -10,7 +10,9 @@ function openPage(pageId, element) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
 
   // Highlight current tab
-  element.classList.add('active');
+  if (element) {
+    element.classList.add('active');
+  }
 }
 
 // import html function

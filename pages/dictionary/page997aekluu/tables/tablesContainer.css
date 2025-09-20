@@ -1,10 +1,10 @@
-.table1 {
+.tablesContainer {
     width: 50%;
     height: 125px;
     margin-bottom: 25px;
 }
 
-/* table1 Hover */
-.table1 td:hover {
+/* tablesContainer Hover */
+.tablesContainer td:hover {
     background-color: #f1d3d3;
 }
