@@ -34,14 +34,14 @@ function loadTableFiles(stem) {
     const leftContainer = document.getElementById("leftleftdivdictionary");
     const rightContainer = document.getElementById("rightleftdivdictionary");
 
-    const leftPromise = fetch(`pages/page2/tables/declensiontables/${stem}dir.html`)
+    const leftPromise = fetch(`pages/page8/tables/declensiontables/${stem}dir.html`)
         .then(res => res.text())
         .then(html => {
             leftContainer.insertAdjacentHTML("beforeend", html);
             return waitForTable(leftContainer);
         });
 
-    const rightPromise = fetch(`pages/page2/tables/declensiontables/${stem}rec.html`)
+    const rightPromise = fetch(`pages/page8/tables/declensiontables/${stem}rec.html`)
         .then(res => res.text())
         .then(html => {
             rightContainer.insertAdjacentHTML("beforeend", html);
@@ -106,25 +106,20 @@ function filterImportedTablesByRow(dataRowNumber) {
         "#leftleftdivdictionary table, #rightleftdivdictionary table"
     );
 
-    importedTables.forEach((table, tIndex) => {
+    importedTables.forEach((table) => {
         const body = table.querySelector("tbody") || table;
         const allRows = Array.from(body.querySelectorAll("tr"));
 
-        // Always keep the first two rows as headers
         const headerRows = allRows.slice(0, 2);
         const dataRows = allRows.slice(2);
 
-        console.log(`Table ${tIndex + 1}: keeping first 2 header rows + data row ${dataRowNumber}`);
-
         dataRows.forEach((row, idx) => {
-            // idx is relative to dataRows, so 0 = first data row after headers
             if (idx !== dataRowNumber - 1) {
                 row.remove();
             }
         });
     });
 }
-
 
 // Main function
 function runTableLoader() {
@@ -164,13 +159,19 @@ function runTableLoader() {
         setTimeout(() => {
             const cell1 = document.getElementById('cell1');
             if (cell1) {
-                const dataRowNumber = parseInt(cell1.textContent.trim(), 10);
-                if (!isNaN(dataRowNumber) && dataRowNumber > 0) {
+                const raw = cell1.textContent.trim();
+                const dataRowNumber = Number(raw);
+                console.log("cell1 raw text:", JSON.stringify(raw));
+                console.log("parsed dataRowNumber:", dataRowNumber);
+
+                if (Number.isInteger(dataRowNumber) && dataRowNumber > 0) {
                     filterImportedTablesByRow(dataRowNumber);
                 }
             }
-        }, 1000); // adjust delay if needed
+        }, 1000);
     });
+    document.querySelectorAll("#leftleftdivdictionary table tr, #rightleftdivdictionary table tr")
+        .forEach((r, i) => console.log(i + 1, r.textContent.trim()));
 
 }
 
