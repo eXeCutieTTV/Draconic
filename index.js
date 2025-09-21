@@ -1,8 +1,15 @@
 // tab functionality
 function openPage(pageId, element) {
+
+  const pageEl = document.getElementById(pageId);
+  if (!pageEl) {
+    console.error(`openPage: No element found with id "${pageId}"`);
+    return;
+  }
+  pageEl.classList.add('active');
   // Hide all pages
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  
+
   // Show selected page
   document.getElementById(pageId).classList.add('active');
 

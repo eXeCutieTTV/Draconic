@@ -1,14 +1,5 @@
-// === Page mapping ===
-const pagess = {
-    "ax": "page999",
-    "æf": "page998",
-    "æklū": "page997",
-    "āfu": "page996",
-    "afuχ": "page995"
-    // add more mappings here
-};
-
-// === Excel data store ===
+// === Excel data ===
+let pagess = {};
 let workbookData = [];
 
 // === Load Excel once ===
@@ -16,26 +7,38 @@ fetch('13-05-2025.xlsx')
     .then(response => response.arrayBuffer())
     .then(data => {
         const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        workbookData = XLSX.utils.sheet_to_json(worksheet, {
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+        // Build pagess from G5 to G332
+        let pageNumber = 999;
+        for (let row = 5; row <= 332; row++) {
+            const cell = sheet[`G${row}`];
+            if (cell && cell.v) {
+                const word = cell.v.toString().trim().toLowerCase();
+                pagess[word] = `page${pageNumber}`;
+                pageNumber--;
+            }
+        }
+
+        // Build workbookData for table filling
+        workbookData = XLSX.utils.sheet_to_json(sheet, {
             header: 1,
             blankrows: true,
-            defval: "" // fill empty cells with empty string
+            defval: ""
         });
+
+        console.log('pagess mapping:', pagess);
     })
     .catch(err => console.error('Error loading Excel file:', err));
 
 // === Create table inside a given container ===
 function createTable(keyword, container) {
-    // Remove any existing table in this container
     const existing = container.querySelector('table');
     if (existing) existing.remove();
 
     const table = document.createElement('table');
     table.id = `resultTable_${keyword}`;
 
-    // Header row
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
     const headers = ["Word", "Declension", "Definition", "Forms", "Usage Notes"];
@@ -47,7 +50,6 @@ function createTable(keyword, container) {
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
-    // Body row
     const tbody = document.createElement('tbody');
     const row = document.createElement('tr');
     for (let i = 0; i < 5; i++) {
@@ -61,7 +63,6 @@ function createTable(keyword, container) {
     container.appendChild(table);
     return table;
 }
-
 
 // === Fill table from Excel data ===
 function fillTable(keyword, table) {
@@ -104,7 +105,28 @@ document.getElementById('search_button').addEventListener('click', () => {
         return;
     }
 
-    // Go to the correct page (no tab highlighting)
+    // Find or create the .pages wrapper
+    let pagesWrap = document.querySelector('.pages');
+    if (!pagesWrap) {
+        pagesWrap = document.createElement('div');
+        pagesWrap.className = 'pages';
+        document.body.appendChild(pagesWrap);
+    }
+
+    // Create the page if it doesn't exist
+    if (!document.getElementById(targetPageId)) {
+        const pageDiv = document.createElement('div');
+        pageDiv.id = targetPageId;
+        pageDiv.className = 'page';
+        pageDiv.innerHTML = `
+            <h2>${keyword}</h2>
+            <p>${keyword} is a noun</p>
+            <div class="tablesContainer"></div>
+        `;
+        pagesWrap.appendChild(pageDiv);
+    }
+
+    // Go to the correct page
     openPage(targetPageId);
 
     // Find that page's container
@@ -114,10 +136,7 @@ document.getElementById('search_button').addEventListener('click', () => {
         return;
     }
 
-    // Create table (replaces old one if exists)
+    // Create and fill the table
     const table = createTable(keyword, pageContainer);
-
-    // Fill table from Excel
     fillTable(keyword, table);
 });
-
