@@ -1,6 +1,8 @@
 
 let keywordDisplay = "";
 let keyword = "";
+let newSearchField = "";
+let newSearchButton = "";
 
 // === Excel data ===
 let pagess = {};
@@ -160,8 +162,8 @@ function doSearch() {
         const includeEl = pageDiv.querySelector('include-html');
         includeEl.addEventListener('html-included', () => {
 
-            const newSearchField = pageDiv.querySelector('.search_field');
-            const newSearchButton = pageDiv.querySelector('.search_button');
+            newSearchField = pageDiv.querySelector('.search_field');
+            newSearchButton = pageDiv.querySelector('.search_button');
             if (newSearchField && newSearchButton) {
                 newSearchButton.addEventListener('click', () => {
                     doSearchFromField(newSearchField);
@@ -186,12 +188,6 @@ function doSearch() {
             }
         });
 
-        // update outererestp
-        const outererestp = document.getElementById("outererestp");
-        outererestp.className = 'outererestp';
-        outererestp.id = 'outererestp';
-        const leftdivdictionary = document.getElementById("leftdivdictionary");
-        leftdivdictionary.appendChild(outererestp);
     }
 
     // Go to the correct page
@@ -217,12 +213,35 @@ function doSearch() {
         field2.focus();
     }
 
+    
+    const identifier = "mun."; // what you're looking for
+    // Get the table element
+    // Get the 4th cell (index 3)
+    const cell = document.getElementById('cell3');
+
+    if (cell && cell.textContent.toLowerCase().includes(identifier.toLowerCase())) {
+        console.log("yes");
+
+        fetch("pages/page2/tables/declensiontables/mundanedir.html")
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById("leftleftdivdictionary").insertAdjacentHTML("beforeend", html);
+            })
+            .catch(err => console.error("Error loading HTML:", err));
+        fetch("pages/page2/tables/declensiontables/mundanerec.html")
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById("rightleftdivdictionary").insertAdjacentHTML("beforeend", html);
+            })
+            .catch(err => console.error("Error loading HTML:", err));
+    }
+    
 }
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
     doSearch();
     field1 = document.getElementById('search_field1');
-    outererestp.innerHTML = keyword; // set outererestp innerHTML
+    keywordp.innerHTML = keyword; // set outererestp innerHTML
 });
 document.addEventListener('click', (e) => {
     if (e.target.id === 'search_button1') {

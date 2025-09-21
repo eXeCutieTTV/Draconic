@@ -36,3 +36,36 @@
     padding: 50px;
     margin-inline: 50px;
 }
+
+#includeTarget {
+    display: flex;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+}
+
+#leftleftdivdictionary {
+    display: inline;
+    flex: 0.45;
+    text-align: left;
+    margin-left: auto;
+    margin-right: 2.5%;
+    padding: 0px;
+}
+
+#rightleftdivdictionary {
+    display: inline;
+    flex: 0.45;
+    text-align: right;
+    margin-right: auto;
+    margin-left:2.5%;
+    padding: 0px;
+}
+
+.leftdivdictionary td:hover {
+    background-color: #f1d3d3;
+}
+
+.rightdivdictionary td:hover {
+    background-color: #f1d3d3;
+}

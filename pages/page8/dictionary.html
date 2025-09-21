@@ -1,20 +1,31 @@
 <div class="outerdiv">
     <div id="leftdivdictionary" class="leftdivdictionary">
         <div class="keyworddiv"></div>
-        <h2 class="keyword">keyword1</h2>
-        <p>keyword1</p>
+        <h2>
+            <p id="keywordp1">Keyword</p>
+        </h2>
+        <p id="keywordp">keyword</p>
         <p> is a noun</p>
-        <p id="outererestp">1</p>
-        <p>1</p>
+        <p id="keywordp2">keyword</p>
         <script>
-            // Get the existing <p>
-            const originalP = document.getElementById('outererestp');
+            // update keywordp
+            const keywordp = document.getElementById("keywordp");
+            keywordp.innerHTML = keyword; // set keywordp innerHTML
 
-            // Clone it (deep = true to include text and nested tags)
-            const clonedP = originalP.cloneNode(true);
+            // copy <p>
+            const sourceP = document.getElementById('keywordp'); // Get the source <p>
+            const text = sourceP.textContent; // Get its text
 
+            // Put that text into other <p> elements
+            document.getElementById('keywordp1').textContent = text;
+            document.getElementById('keywordp2').textContent = text;
         </script>
         <div class="tablesContainer"></div>
+
+        <div id="includeTarget">
+            <div id="leftleftdivdictionary"></div>
+            <div id="rightleftdivdictionary"></div>
+        </div>
     </div>
     <div id="rightdivdictionary" class="rightdivdictionary">
         <div class="pageSearch">
