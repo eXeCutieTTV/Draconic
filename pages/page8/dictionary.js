@@ -1,5 +1,3 @@
-
-
 // === Excel data ===
 let pagess = {};
 let workbookData = [];
@@ -116,8 +114,11 @@ function fillTable(keyword, table) {
 
 // === dosearch function ===
 function doSearch() {
-    const searchField = document.getElementById('search_field');
-    const keyword = searchField.value.trim().toLowerCase();
+    // Prefer value from #search_field if not empty, else #search_field1
+    let field1 = document.getElementById('search_field');
+    let field2 = document.getElementById('search_field1');
+    const keywordDisplay = (field1?.value.trim() || field2?.value.trim());
+    const keyword = keywordDisplay.toLowerCase();
 
     if (!keyword || workbookData.length === 0) {
         alert('Please enter a search term and ensure the file is loaded.');
@@ -195,7 +196,15 @@ function doSearch() {
 
 }
 // === Search button click ===
-document.getElementById('search_button').addEventListener('click', doSearch);
+document.getElementById('search_button').addEventListener('click', () => {
+    doSearch();
+    field1 = document.getElementById('search_field1');
+});
+document.addEventListener('click', (e) => {
+    if (e.target.id === 'search_button1') {
+        doSearch();
+    }
+});
 
 
 // === Trigger search on Enter key ===

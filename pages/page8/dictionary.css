@@ -1,0 +1,31 @@
+.outerdiv {
+    display: flex;
+}
+
+.rightdivdictionary {
+    display: inline;
+    flex: 0.75;
+    margin-left: auto;
+    margin-right: 8px;
+    vertical-align: top;
+    padding-top: 0px;
+    margin-top: 0px;
+}
+
+.leftdivdictionary {
+    display: inline;
+    flex: 0.25;
+    margin-left: 8px;
+    margin-right: auto;
+}
+
+.pageSearch {
+    vertical-align: top;
+    text-align: right;
+}
+
+.keyword {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-top: 0px;
+}

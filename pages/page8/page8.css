@@ -1,0 +1,30 @@
+.outerdivp8 {
+    display: flex;
+}
+
+.rightdivp8 {
+    display: inline;
+    flex: 0.75;
+    margin-left: auto;
+    margin-right: 8px;
+    vertical-align: top;
+    padding-top: 0px;
+    margin-top: 0px;
+}
+
+.leftdivp8 {
+    display: inline;
+    flex: 0.25;
+    margin-left: 8px;
+    margin-right: auto;
+}
+
+.page8Search {
+    vertical-align: top;
+    text-align: right;
+}
+
+.headerp8 {
+    margin-top: 0px;
+    padding-top: 0px;
+}
