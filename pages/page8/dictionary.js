@@ -29,69 +29,151 @@ const groupMap = {
 // Track loaded stems to avoid duplicates
 const loaded = new Set();
 
-// ===== HELPER FUNCTIONS =====
-
-// Fetch and insert HTML into left/right containers
+// Fetch and insert HTML into left/right containers, return a Promise
 function loadTableFiles(stem) {
-    fetch(`pages/page2/tables/declensiontables/${stem}dir.html`)
-        .then(res => res.text())
-        .then(html => {
-            document.getElementById("leftleftdivdictionary")
-                .insertAdjacentHTML("beforeend", html);
-        })
-        .catch(err => console.error(`Error loading ${stem}dir.html:`, err));
+    const leftContainer = document.getElementById("leftleftdivdictionary");
+    const rightContainer = document.getElementById("rightleftdivdictionary");
 
-    fetch(`pages/page2/tables/declensiontables/${stem}rec.html`)
+    const leftPromise = fetch(`pages/page2/tables/declensiontables/${stem}dir.html`)
         .then(res => res.text())
         .then(html => {
-            document.getElementById("rightleftdivdictionary")
-                .insertAdjacentHTML("beforeend", html);
-        })
-        .catch(err => console.error(`Error loading ${stem}rec.html:`, err));
+            leftContainer.insertAdjacentHTML("beforeend", html);
+            return waitForTable(leftContainer);
+        });
+
+    const rightPromise = fetch(`pages/page2/tables/declensiontables/${stem}rec.html`)
+        .then(res => res.text())
+        .then(html => {
+            rightContainer.insertAdjacentHTML("beforeend", html);
+            return waitForTable(rightContainer);
+        });
+
+    return Promise.all([leftPromise, rightPromise]);
 }
 
-// ===== MAIN FUNCTION =====
+// Wait until a <table> with at least one data row exists in the given container
+function waitForTable(container) {
+    return new Promise(resolve => {
+        const hasRows = () => {
+            const table = container.querySelector("table");
+            if (!table) return false;
+            const body = table.querySelector("tbody") || table;
+            return body.querySelectorAll("tr").length > 0;
+        };
 
-function runTableLoader() {
-    // Clear old content
-    document.getElementById("leftleftdivdictionary").innerHTML = "";
-    document.getElementById("rightleftdivdictionary").innerHTML = "";
+        if (hasRows()) {
+            resolve();
+            return;
+        }
 
-    // Reset loaded set
-    loaded.clear();
+        const observer = new MutationObserver(() => {
+            if (hasRows()) {
+                observer.disconnect();
+                resolve();
+            }
+        });
+        observer.observe(container, { childList: true, subtree: true });
+    });
+}
 
-    // Get the updated cell after table changes
-    const cell = document.getElementById('cell3');
-    if (!cell) {
-        console.error('cell3 not found');
+// Wait until at least one <tr> exists in either container
+function waitForRows(callback) {
+    const containers = [
+        document.getElementById("leftleftdivdictionary"),
+        document.getElementById("rightleftdivdictionary")
+    ];
+
+    const hasRows = () => containers.some(c => c.querySelector("tr"));
+
+    if (hasRows()) {
+        callback();
         return;
     }
 
-    const cellText = cell.textContent.toLowerCase();
+    const observer = new MutationObserver(() => {
+        if (hasRows()) {
+            observer.disconnect();
+            callback();
+        }
+    });
 
-    // 1. Check for group identifiers (exact word match)
+    containers.forEach(c => observer.observe(c, { childList: true, subtree: true }));
+}
+
+// Keep only the specified row number in each imported table
+function filterImportedTablesByRow(dataRowNumber) {
+    const importedTables = document.querySelectorAll(
+        "#leftleftdivdictionary table, #rightleftdivdictionary table"
+    );
+
+    importedTables.forEach((table, tIndex) => {
+        const body = table.querySelector("tbody") || table;
+        const allRows = Array.from(body.querySelectorAll("tr"));
+
+        // Always keep the first two rows as headers
+        const headerRows = allRows.slice(0, 2);
+        const dataRows = allRows.slice(2);
+
+        console.log(`Table ${tIndex + 1}: keeping first 2 header rows + data row ${dataRowNumber}`);
+
+        dataRows.forEach((row, idx) => {
+            // idx is relative to dataRows, so 0 = first data row after headers
+            if (idx !== dataRowNumber - 1) {
+                row.remove();
+            }
+        });
+    });
+}
+
+
+// Main function
+function runTableLoader() {
+    document.getElementById("leftleftdivdictionary").innerHTML = "";
+    document.getElementById("rightleftdivdictionary").innerHTML = "";
+    loaded.clear();
+
+    const cell = document.getElementById('cell3');
+    if (!cell) return;
+
+    const cellText = cell.textContent.toLowerCase();
+    const loadPromises = [];
+
+    // Group check
     for (const [groupId, stems] of Object.entries(groupMap)) {
-        const pattern = new RegExp(`\\b${groupId}\\b`, "i"); // word boundary, case-insensitive
+        const pattern = new RegExp(`\\b${groupId}\\b`, "i");
         if (pattern.test(cellText)) {
-            console.log(`Matched group: ${groupId}`);
             stems.forEach(stem => {
                 if (!loaded.has(stem)) {
-                    loadTableFiles(stem);
+                    loadPromises.push(loadTableFiles(stem));
                     loaded.add(stem);
                 }
             });
         }
     }
 
-    // 2. Check for single identifiers (substring match)
+    // Single check
     for (const [id, stem] of Object.entries(tableMap)) {
         if (cellText.includes(id.toLowerCase()) && !loaded.has(stem)) {
-            console.log(`Matched single: ${stem}`);
-            loadTableFiles(stem);
+            loadPromises.push(loadTableFiles(stem));
             loaded.add(stem);
         }
     }
+
+    // Run cropper after a short delay to ensure tables are in DOM
+    Promise.all(loadPromises).then(() => {
+        setTimeout(() => {
+            const cell1 = document.getElementById('cell1');
+            if (cell1) {
+                const dataRowNumber = parseInt(cell1.textContent.trim(), 10);
+                if (!isNaN(dataRowNumber) && dataRowNumber > 0) {
+                    filterImportedTablesByRow(dataRowNumber);
+                }
+            }
+        }, 1000); // adjust delay if needed
+    });
+
 }
+
 
 // === Load Excel once ===
 fetch('13-05-2025.xlsx')
