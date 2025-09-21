@@ -2,6 +2,11 @@
 let pagess = {};
 let workbookData = [];
 
+// Helper: make a safe string for IDs/selectors
+function safeIdPart(str) {
+    return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash
+}
+
 // === Load Excel once ===
 fetch('13-05-2025.xlsx')
     .then(response => response.arrayBuffer())
@@ -10,7 +15,7 @@ fetch('13-05-2025.xlsx')
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
         // Build pagess from G5 to G332
-        let pageNumber = 999;
+        let pageNumber = 9999;
         for (let row = 5; row <= 332; row++) {
             const cell = sheet[`G${row}`];
             if (cell && cell.v) {
@@ -33,11 +38,12 @@ fetch('13-05-2025.xlsx')
 
 // === Create table inside a given container ===
 function createTable(keyword, container) {
+    // Remove any existing table in this container
     const existing = container.querySelector('table');
     if (existing) existing.remove();
 
     const table = document.createElement('table');
-    table.id = `resultTable_${keyword}`;
+    table.id = 'resultTable'; // no keyword in ID
 
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
@@ -52,11 +58,14 @@ function createTable(keyword, container) {
 
     const tbody = document.createElement('tbody');
     const row = document.createElement('tr');
+
+    // Create 5 cells with stable IDs (no keyword)
     for (let i = 0; i < 5; i++) {
-        const cell = document.createElement('td');
-        cell.id = `cell${i}_${keyword}`;
-        row.appendChild(cell);
+        const td = document.createElement('td');
+        td.id = `cell${i}`;
+        row.appendChild(td);
     }
+
     tbody.appendChild(row);
     table.appendChild(tbody);
 
@@ -68,9 +77,10 @@ function createTable(keyword, container) {
 function fillTable(keyword, table) {
     let foundRow = null;
     let startIndex = -1;
+    const kw = String(keyword).toLowerCase();
 
     for (const row of workbookData) {
-        const colIndex = row.findIndex(cell => String(cell).toLowerCase() === keyword);
+        const colIndex = row.findIndex(cell => String(cell).toLowerCase() === kw);
         if (colIndex !== -1) {
             foundRow = row;
             startIndex = colIndex;
@@ -78,9 +88,22 @@ function fillTable(keyword, table) {
         }
     }
 
+    if (!foundRow) {
+        alert('No matching row found.');
+        return;
+    }
+
+    for (let i = 0; i < 5; i++) {
+        const td = table.querySelector(`#cell${i}`);
+        if (td) {
+            td.textContent = foundRow[startIndex + i] ?? '';
+        }
+    }
+
+
     if (foundRow) {
         for (let i = 0; i < 5; i++) {
-            const cell = table.querySelector(`#cell${i}_${keyword}`);
+            const cell = table.querySelector(`#cell${i}_${safeKeyword}`);
             if (cell) {
                 cell.textContent = foundRow[startIndex + i] ?? '';
             }
