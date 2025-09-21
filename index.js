@@ -20,17 +20,25 @@ function openPage(pageId, element) {
   if (element) {
     element.classList.add('active');
   }
-}
-
-// import html function
-class IncludeHTML extends HTMLElement {
-  connectedCallback() {
-    const src = this.getAttribute('src');
-    if (src) {
-      fetch(src)
-        .then(r => r.text())
-        .then(html => this.innerHTML = html);
+  // If pageId number is above 1000, highlight a constant tab
+  const match = pageId.match(/\d+/); // extract number from pageId
+  if (match && parseInt(match[0], 10) > 1000) {
+    const constantTab = document.getElementById('permatab'); // <-- your fixed tab's ID
+    if (constantTab) {
+      constantTab.classList.add('active');
     }
   }
 }
-customElements.define('include-html', IncludeHTML);
+
+  // import html function
+  class IncludeHTML extends HTMLElement {
+    connectedCallback() {
+      const src = this.getAttribute('src');
+      if (src) {
+        fetch(src)
+          .then(r => r.text())
+          .then(html => this.innerHTML = html);
+      }
+    }
+  }
+  customElements.define('include-html', IncludeHTML);
