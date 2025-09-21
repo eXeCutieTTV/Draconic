@@ -190,9 +190,14 @@ function doSearch() {
     const table = createTable(keyword, pageContainer);
     fillTable(keyword, table);
 
-    // Clear and refocus the textbox
-    searchField.value = '';
-    searchField.focus();
+    // Clear and refocus whichever field was used
+    if (field1 && field1.value.trim() !== '') {
+        field1.value = '';
+        field1.focus();
+    } else if (field2) {
+        field2.value = '';
+        field2.focus();
+    }
 
 }
 // === Search button click ===
@@ -205,7 +210,6 @@ document.addEventListener('click', (e) => {
         doSearch();
     }
 });
-
 
 // === Trigger search on Enter key ===
 document.getElementById('search_field').addEventListener('keydown', (event) => {
