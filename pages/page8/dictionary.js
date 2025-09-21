@@ -213,11 +213,13 @@ function doSearch() {
         field2.focus();
     }
 
-    
-    const identifier = "mun."; // what you're looking for
-    // Get the table element
-    // Get the 4th cell (index 3)
-    const cell = document.getElementById('cell3');
+    // import declension tables
+    let identifier = "";
+    let cell = "";
+
+    // mundane
+    identifier = "mun."; // what you're looking for
+    cell = document.getElementById('cell3');
 
     if (cell && cell.textContent.toLowerCase().includes(identifier.toLowerCase())) {
         console.log("yes");
@@ -235,7 +237,27 @@ function doSearch() {
             })
             .catch(err => console.error("Error loading HTML:", err));
     }
-    
+    // abstract
+    identifier = "a."; // what you're looking for
+    cell = document.getElementById('cell3');
+
+    if (cell && cell.textContent.toLowerCase().includes(identifier.toLowerCase())) {
+        console.log("yes");
+
+        fetch("pages/page2/tables/declensiontables/abstractdir.html")
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById("leftleftdivdictionary").insertAdjacentHTML("beforeend", html);
+            })
+            .catch(err => console.error("Error loading HTML:", err));
+        fetch("pages/page2/tables/declensiontables/abstractrec.html")
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById("rightleftdivdictionary").insertAdjacentHTML("beforeend", html);
+            })
+            .catch(err => console.error("Error loading HTML:", err));
+    }
+
 }
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
