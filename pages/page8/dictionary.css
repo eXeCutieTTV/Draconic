@@ -29,3 +29,10 @@
     margin-bottom: 0px;
     padding-top: 0px;
 }
+
+.outererestp {
+    font-size: large;
+    margin: 50px;
+    padding: 50px;
+    margin-inline: 50px;
+}

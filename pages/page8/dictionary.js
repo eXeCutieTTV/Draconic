@@ -1,3 +1,7 @@
+
+let keywordDisplay = "";
+let keyword = "";
+
 // === Excel data ===
 let pagess = {};
 let workbookData = [];
@@ -117,8 +121,8 @@ function doSearch() {
     // Prefer value from #search_field if not empty, else #search_field1
     let field1 = document.getElementById('search_field');
     let field2 = document.getElementById('search_field1');
-    const keywordDisplay = (field1?.value.trim() || field2?.value.trim());
-    const keyword = keywordDisplay.toLowerCase();
+    keywordDisplay = (field1?.value.trim() || field2?.value.trim());
+    keyword = keywordDisplay.toLowerCase();
 
     if (!keyword || workbookData.length === 0) {
         alert('Please enter a search term and ensure the file is loaded.');
@@ -149,16 +153,8 @@ function doSearch() {
         pageDiv.className = 'page';
         pageDiv.innerHTML = `<include-html src="pages/page8/dictionary.html"></include-html>`;
 
-        // create outererestp
-        const outererestp = document.createElement('p');
-        outererestp.className = 'outerestdiv';
-        outererestp.innerHTML = keyword;
-        console.log(pageDiv.innerHTML);
-        console.log(outererestp.innerHTML);
-
-        // appendChild
         pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
-        pageDiv.appendChild(outererestp); // append outerestp in pageDiv
+
 
         // includeEL
         const includeEl = pageDiv.querySelector('include-html');
@@ -179,7 +175,9 @@ function doSearch() {
                     }
                 });
             }
+
         });
+
 
         newSearchField.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
@@ -187,6 +185,13 @@ function doSearch() {
                 doSearchFromField(newSearchField);
             }
         });
+
+        // update outererestp
+        const outererestp = document.getElementById("outererestp");
+        outererestp.className = 'outererestp';
+        outererestp.id = 'outererestp';
+        const leftdivdictionary = document.getElementById("leftdivdictionary");
+        leftdivdictionary.appendChild(outererestp);
     }
 
     // Go to the correct page
@@ -217,6 +222,7 @@ function doSearch() {
 document.getElementById('search_button').addEventListener('click', () => {
     doSearch();
     field1 = document.getElementById('search_field1');
+    outererestp.innerHTML = keyword; // set outererestp innerHTML
 });
 document.addEventListener('click', (e) => {
     if (e.target.id === 'search_button1') {

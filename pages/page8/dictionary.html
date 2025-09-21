@@ -1,8 +1,19 @@
 <div class="outerdiv">
-    <div class="leftdivdictionary">
+    <div id="leftdivdictionary" class="leftdivdictionary">
         <div class="keyworddiv"></div>
         <h2 class="keyword">keyword1</h2>
-        <p>keyword1</p><p> is a noun</p>
+        <p>keyword1</p>
+        <p> is a noun</p>
+        <p id="outererestp">1</p>
+        <p>1</p>
+        <script>
+            // Get the existing <p>
+            const originalP = document.getElementById('outererestp');
+
+            // Clone it (deep = true to include text and nested tags)
+            const clonedP = originalP.cloneNode(true);
+
+        </script>
         <div class="tablesContainer"></div>
     </div>
     <div id="rightdivdictionary" class="rightdivdictionary">
