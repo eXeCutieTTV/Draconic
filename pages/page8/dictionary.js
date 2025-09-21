@@ -142,12 +142,25 @@ function doSearch() {
     // Create the page if it doesn't exist
     const existingPage = document.getElementById(targetPageId);
     if (!existingPage) {
+
+        // create pageDiv
         const pageDiv = document.createElement('div');
         pageDiv.id = targetPageId;
         pageDiv.className = 'page';
         pageDiv.innerHTML = `<include-html src="pages/page8/dictionary.html"></include-html>`;
-        pagesWrap.appendChild(pageDiv);
 
+        // create outererestp
+        const outererestp = document.createElement('p');
+        outererestp.className = 'outerestdiv';
+        outererestp.innerHTML = keyword;
+        console.log(pageDiv.innerHTML);
+        console.log(outererestp.innerHTML);
+
+        // appendChild
+        pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
+        pageDiv.appendChild(outererestp); // append outerestp in pageDiv
+
+        // includeEL
         const includeEl = pageDiv.querySelector('include-html');
         includeEl.addEventListener('html-included', () => {
 

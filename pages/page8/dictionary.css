@@ -4,7 +4,7 @@
 
 .rightdivdictionary {
     display: inline;
-    flex: 0.75;
+    flex: 0.25;
     margin-left: auto;
     margin-right: 8px;
     vertical-align: top;
@@ -14,7 +14,7 @@
 
 .leftdivdictionary {
     display: inline;
-    flex: 0.25;
+    flex: 0.75;
     margin-left: 8px;
     margin-right: auto;
 }
