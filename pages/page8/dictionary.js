@@ -96,9 +96,19 @@ function fillTable(keyword, table) {
     for (let i = 0; i < 5; i++) {
         const td = table.querySelector(`#cell${i}`);
         if (td) {
-            td.textContent = foundRow[startIndex + i] ?? '';
+            const raw = String(foundRow[startIndex + i] ?? '');
+
+            // Replace every "-" except the first one with "<br>-"
+            let count = 0;
+            const html = raw.replace(/-/g, () => {
+                count += 1;
+                return count === 1 ? '- ' : '<br>- ';
+            });
+
+            td.innerHTML = html;
         }
     }
+
 }
 
 // === Search button click ===

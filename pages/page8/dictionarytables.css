@@ -13,6 +13,10 @@
   vertical-align: top;    /* pushes text to the top */
 }
 
+.tablesContainer, #cell2 {
+    text-align: left;
+}
+
 .tablesContainer th {
     white-space: nowrap;
     font-size: large;
