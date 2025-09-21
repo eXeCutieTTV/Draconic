@@ -8,7 +8,38 @@ function safeIdPart(str) {
 }
 
 // declension tables
-// Map of single identifiers → file stem
+// === Create the two summary tables ===
+function createSummaryTables() {
+    const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Abstract", "Magical", "Mundane"];
+    const numbers = ["Singular", "Dual", "Plural"];
+
+    function buildTable(id) {
+        const table = document.createElement("table");
+        table.id = id;
+        table.border = "1";
+
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        headerRow.innerHTML = `<th>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        genders.forEach(gender => {
+            const row = document.createElement("tr");
+            row.innerHTML = `<th>${gender}</th>` + numbers.map(() => `<td></td>`).join("");
+            tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+
+        document.body.appendChild(table);
+    }
+
+    buildTable("dirSummaryTable");
+    buildTable("recSummaryTable");
+}
+
+// === Map of identifiers to stems ===
 const tableMap = {
     "a.": "abstract",
     "e.": "exhalted",
@@ -19,162 +50,110 @@ const tableMap = {
     "r.": "rational"
 };
 
-// Map of group identifiers → array of stems
 const groupMap = {
     all: ["magical", "mundane", "abstract", "exhalted", "monstrous", "irrational", "rational"],
     animates: ["exhalted", "monstrous", "irrational", "rational"],
     inanimates: ["magical", "mundane", "abstract"]
 };
 
-// Track loaded stems to avoid duplicates
 const loaded = new Set();
 
-// Fetch and insert HTML into left/right containers, return a Promise
-function loadTableFiles(stem) {
-    const leftContainer = document.getElementById("leftleftdivdictionary");
-    const rightContainer = document.getElementById("rightleftdivdictionary");
-
-    const leftPromise = fetch(`pages/page8/tables/declensiontables/${stem}dir.html`)
+// === Fetch a stem's dir/rec tables and paste into summary ===
+function loadTableFiles(stem, rowNumber, gender) {
+    const dirPromise = fetch(`pages/page8/tables/declensiontables/${stem}dir.html`)
         .then(res => res.text())
-        .then(html => {
-            leftContainer.insertAdjacentHTML("beforeend", html);
-            return waitForTable(leftContainer);
-        });
+        .then(html => pasteFromHTML(html, rowNumber, gender, "dir"));
 
-    const rightPromise = fetch(`pages/page8/tables/declensiontables/${stem}rec.html`)
+    const recPromise = fetch(`pages/page8/tables/declensiontables/${stem}rec.html`)
         .then(res => res.text())
-        .then(html => {
-            rightContainer.insertAdjacentHTML("beforeend", html);
-            return waitForTable(rightContainer);
-        });
+        .then(html => pasteFromHTML(html, rowNumber, gender, "rec"));
 
-    return Promise.all([leftPromise, rightPromise]);
+    return Promise.all([dirPromise, recPromise]);
 }
 
-// Wait until a <table> with at least one data row exists in the given container
-function waitForTable(container) {
-    return new Promise(resolve => {
-        const hasRows = () => {
-            const table = container.querySelector("table");
-            if (!table) return false;
-            const body = table.querySelector("tbody") || table;
-            return body.querySelectorAll("tr").length > 0;
-        };
+// === Extract the correct row from fetched HTML and paste into summary table ===
+function pasteFromHTML(html, rowNumber, gender, type) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
 
-        if (hasRows()) {
-            resolve();
-            return;
-        }
+    const table = doc.querySelector("table");
+    if (!table) return;
 
-        const observer = new MutationObserver(() => {
-            if (hasRows()) {
-                observer.disconnect();
-                resolve();
+    const allRows = Array.from((table.querySelector("tbody") || table).querySelectorAll("tr"));
+    const dataRows = allRows.slice(2); // skip first two header rows
+    const targetRow = dataRows[rowNumber - 1];
+    if (!targetRow) return;
+
+    // Expand colspans so we always get 3 values
+    let cells = [];
+    Array.from(targetRow.cells)
+        .slice(1) // skip label
+        .forEach(cell => {
+            const span = parseInt(cell.getAttribute("colspan") || "1", 10);
+            const text = cell.textContent.trim();
+            for (let i = 0; i < span; i++) {
+                cells.push(text);
             }
         });
-        observer.observe(container, { childList: true, subtree: true });
-    });
-}
 
-// Wait until at least one <tr> exists in either container
-function waitForRows(callback) {
-    const containers = [
-        document.getElementById("leftleftdivdictionary"),
-        document.getElementById("rightleftdivdictionary")
-    ];
+    console.log(`Pasting for ${gender} (${type}):`, cells);
 
-    const hasRows = () => containers.some(c => c.querySelector("tr"));
+    const summaryTableId = type === "dir" ? "dirSummaryTable" : "recSummaryTable";
+    const summaryTable = document.getElementById(summaryTableId);
+    if (!summaryTable) return;
 
-    if (hasRows()) {
-        callback();
-        return;
-    }
-
-    const observer = new MutationObserver(() => {
-        if (hasRows()) {
-            observer.disconnect();
-            callback();
-        }
-    });
-
-    containers.forEach(c => observer.observe(c, { childList: true, subtree: true }));
-}
-
-// Keep only the specified row number in each imported table
-function filterImportedTablesByRow(dataRowNumber) {
-    const importedTables = document.querySelectorAll(
-        "#leftleftdivdictionary table, #rightleftdivdictionary table"
+    const summaryRows = Array.from(summaryTable.querySelectorAll("tbody tr"));
+    const summaryRow = summaryRows.find(r =>
+        r.querySelector("th").textContent.trim().toLowerCase() === gender.toLowerCase()
     );
+    if (!summaryRow) return;
 
-    importedTables.forEach((table) => {
-        const body = table.querySelector("tbody") || table;
-        const allRows = Array.from(body.querySelectorAll("tr"));
-
-        const headerRows = allRows.slice(0, 2);
-        const dataRows = allRows.slice(2);
-
-        dataRows.forEach((row, idx) => {
-            if (idx !== dataRowNumber - 1) {
-                row.remove();
-            }
-        });
+    const summaryCells = summaryRow.querySelectorAll("td");
+    cells.forEach((val, idx) => {
+        if (summaryCells[idx]) {
+            summaryCells[idx].textContent = val;
+        }
     });
 }
 
-// Main function
+
+// === Main loader ===
 function runTableLoader() {
-    document.getElementById("leftleftdivdictionary").innerHTML = "";
-    document.getElementById("rightleftdivdictionary").innerHTML = "";
     loaded.clear();
 
-    const cell = document.getElementById('cell3');
-    if (!cell) return;
+    const cell3 = document.getElementById('cell3');
+    const cell1 = document.getElementById('cell1');
+    if (!cell3 || !cell1) return;
 
-    const cellText = cell.textContent.toLowerCase();
+    const cellText = cell3.textContent.toLowerCase();
+    const rowNumber = parseInt(cell1.textContent.trim(), 10);
+    if (isNaN(rowNumber) || rowNumber <= 0) return;
+
     const loadPromises = [];
 
-    // Group check
     for (const [groupId, stems] of Object.entries(groupMap)) {
         const pattern = new RegExp(`\\b${groupId}\\b`, "i");
         if (pattern.test(cellText)) {
             stems.forEach(stem => {
                 if (!loaded.has(stem)) {
-                    loadPromises.push(loadTableFiles(stem));
+                    loadPromises.push(loadTableFiles(stem, rowNumber, stem));
                     loaded.add(stem);
                 }
             });
         }
     }
 
-    // Single check
     for (const [id, stem] of Object.entries(tableMap)) {
         if (cellText.includes(id.toLowerCase()) && !loaded.has(stem)) {
-            loadPromises.push(loadTableFiles(stem));
+            loadPromises.push(loadTableFiles(stem, rowNumber, stem));
             loaded.add(stem);
         }
     }
 
-    // Run cropper after a short delay to ensure tables are in DOM
     Promise.all(loadPromises).then(() => {
-        setTimeout(() => {
-            const cell1 = document.getElementById('cell1');
-            if (cell1) {
-                const raw = cell1.textContent.trim();
-                const dataRowNumber = Number(raw);
-                console.log("cell1 raw text:", JSON.stringify(raw));
-                console.log("parsed dataRowNumber:", dataRowNumber);
-
-                if (Number.isInteger(dataRowNumber) && dataRowNumber > 0) {
-                    filterImportedTablesByRow(dataRowNumber);
-                }
-            }
-        }, 1000);
+        console.log("Summary tables updated.");
     });
-    document.querySelectorAll("#leftleftdivdictionary table tr, #rightleftdivdictionary table tr")
-        .forEach((r, i) => console.log(i + 1, r.textContent.trim()));
-
 }
-
 
 // === Load Excel once ===
 fetch('13-05-2025.xlsx')
@@ -241,6 +220,7 @@ function createTable(keyword, container) {
     container.appendChild(table);
     return table;
 }
+
 
 // === Fill table from Excel data ===
 function fillTable(keyword, table) {
@@ -376,6 +356,7 @@ function doSearch() {
         field2.focus();
     }
     runTableLoader(); // call your declension table logic here
+    createSummaryTables(); // declensiontable
 }
 
 // === Search button click ===
