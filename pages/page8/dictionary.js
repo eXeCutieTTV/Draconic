@@ -383,7 +383,10 @@ function doSearch() {
                 event.preventDefault();
                 doSearchFromField(newSearchField);
             }
+
         });
+
+
 
     }
 
@@ -412,17 +415,33 @@ function doSearch() {
     runTableLoader(); // call your declension table logic here
     createSummaryTables(); // declensiontable
 }
+// clone <p> element with keyword data
+function cloneKeywordText() {
+    const source = document.getElementById('keywordp');
+    if (!source) return;
+
+    const sourceText = source.textContent;
+
+    for (let i = 1; i <= 100; i++) { // Adjust 100 to your max expected number
+        const target = document.getElementById('keywordp' + i);
+        if (target) {
+            target.textContent = sourceText;
+        }
+    }
+}
 
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
     doSearch();
     field1 = document.getElementById('search_field1');
     keywordp.innerHTML = keyword; // set outererestp innerHTML
+    cloneKeywordText();
 });
 document.addEventListener('click', (e) => {
     if (e.target.id === 'search_button1') {
         doSearch();
         keywordp.innerHTML = keyword; // set outererestp innerHTML
+        cloneKeywordText();
     }
 });
 
@@ -435,3 +454,5 @@ document.getElementById('search_field').addEventListener('keydown', (event) => {
     }
 
 });
+
+
