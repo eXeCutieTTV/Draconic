@@ -58,12 +58,30 @@
     flex: 0.45;
     text-align: right;
     margin-right: auto;
-    margin-left:2.5%;
+    margin-left: 2.5%;
     padding: 0px;
 }
 
 
 /* hovers */
-#dirSummaryTable td:hover, #recSummaryTable td:hover, .leftdivdictionary td:hover, .rightdivdictionary td:hover{
+#dirSummaryTable td:hover,
+#recSummaryTable td:hover,
+.leftdivdictionary td:hover,
+.rightdivdictionary td:hover {
     background-color: #f1d3d3;
+}
+
+#dirSummaryTable,
+#recSummaryTable {
+    width: 50%;
+    margin-bottom: 100px;
+}
+
+#dirSummaryTable-header,
+#recSummaryTable-header {
+    text-align: center;
+    font-size: 1.2em;
+    padding: 6px;
+    font-weight: bold;
+    background-color: rgb(202, 79, 79);
 }

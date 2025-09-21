@@ -13,15 +13,27 @@ function createSummaryTables() {
     const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Abstract", "Magical", "Mundane"];
     const numbers = ["Singular", "Dual", "Plural"];
 
-    function buildTable(id) {
+    function buildTable(id, label) {
         const table = document.createElement("table");
         table.id = id;
         table.border = "1";
 
         const thead = document.createElement("thead");
+
+        // Merged header row
+        const mergedRow = document.createElement("tr");
+        const mergedCell = document.createElement("th");
+        mergedCell.id = id + "-header";
+        mergedCell.colSpan = 4;
+        mergedCell.textContent = label;
+        mergedRow.appendChild(mergedCell);
+        thead.appendChild(mergedRow);
+
+        // Column header row
         const headerRow = document.createElement("tr");
         headerRow.innerHTML = `<th>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
         thead.appendChild(headerRow);
+
         table.appendChild(thead);
 
         const tbody = document.createElement("tbody");
@@ -35,9 +47,11 @@ function createSummaryTables() {
         document.body.appendChild(table);
     }
 
-    buildTable("dirSummaryTable");
-    buildTable("recSummaryTable");
+    buildTable("dirSummaryTable", "Directive");
+    buildTable("recSummaryTable", "Recessive");
 }
+
+
 
 // === Map of identifiers to stems ===
 const tableMap = {
