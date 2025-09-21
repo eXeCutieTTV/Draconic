@@ -99,18 +99,6 @@ function fillTable(keyword, table) {
             td.textContent = foundRow[startIndex + i] ?? '';
         }
     }
-
-
-    if (foundRow) {
-        for (let i = 0; i < 5; i++) {
-            const cell = table.querySelector(`#cell${i}_${safeKeyword}`);
-            if (cell) {
-                cell.textContent = foundRow[startIndex + i] ?? '';
-            }
-        }
-    } else {
-        alert('No matching row found.');
-    }
 }
 
 // === Search button click ===
