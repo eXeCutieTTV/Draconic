@@ -1,3 +1,5 @@
+
+
 // === Excel data ===
 let pagess = {};
 let workbookData = [];
@@ -98,7 +100,7 @@ function fillTable(keyword, table) {
         if (td) {
             const raw = String(foundRow[startIndex + i] ?? '');
 
-            // Replace every "-" except the first one with "<br>-"
+            // Replace every "- " except the first one with "<br>- "
             let count = 0;
             const html = raw.replace(/-/g, () => {
                 count += 1;
@@ -108,12 +110,14 @@ function fillTable(keyword, table) {
             td.innerHTML = html;
         }
     }
-
 }
 
-// === Search button click ===
-document.getElementById('search_button').addEventListener('click', () => {
-    const keyword = document.getElementById('search_field').value.trim().toLowerCase();
+
+
+// === dosearch function ===
+function doSearch() {
+    const searchField = document.getElementById('search_field');
+    const keyword = searchField.value.trim().toLowerCase();
 
     if (!keyword || workbookData.length === 0) {
         alert('Please enter a search term and ensure the file is loaded.');
@@ -135,16 +139,40 @@ document.getElementById('search_button').addEventListener('click', () => {
     }
 
     // Create the page if it doesn't exist
-    if (!document.getElementById(targetPageId)) {
+    const existingPage = document.getElementById(targetPageId);
+    if (!existingPage) {
         const pageDiv = document.createElement('div');
         pageDiv.id = targetPageId;
         pageDiv.className = 'page';
-        pageDiv.innerHTML = `
-            <h2>${keyword}</h2>
-            <p>${keyword} is a noun</p>
-            <div class="tablesContainer"></div>
-        `;
+        pageDiv.innerHTML = `<include-html src="pages/page8/dictionary.html"></include-html>`;
         pagesWrap.appendChild(pageDiv);
+
+        const includeEl = pageDiv.querySelector('include-html');
+        includeEl.addEventListener('html-included', () => {
+
+            const newSearchField = pageDiv.querySelector('.search_field');
+            const newSearchButton = pageDiv.querySelector('.search_button');
+            if (newSearchField && newSearchButton) {
+                newSearchButton.addEventListener('click', () => {
+                    doSearchFromField(newSearchField);
+                });
+
+
+                newSearchField.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        doSearchFromField(newSearchField);
+                    }
+                });
+            }
+        });
+
+        newSearchField.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                doSearchFromField(newSearchField);
+            }
+        });
     }
 
     // Go to the correct page
@@ -160,4 +188,19 @@ document.getElementById('search_button').addEventListener('click', () => {
     // Create and fill the table
     const table = createTable(keyword, pageContainer);
     fillTable(keyword, table);
+
+    // Clear and refocus the textbox
+    searchField.value = '';
+    searchField.focus();
+}
+
+// === Search button click ===
+document.getElementById('search_button').addEventListener('click', doSearch);
+
+// === Trigger search on Enter key ===
+document.getElementById('search_field').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // prevent form submission
+        doSearch();
+    }
 });
