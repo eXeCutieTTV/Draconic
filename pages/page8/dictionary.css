@@ -1,3 +1,9 @@
+p.inline {
+    display: inline;
+    margin: 0px;
+    padding: 0px;
+}
+
 .outerdiv {
     display: flex;
 }
