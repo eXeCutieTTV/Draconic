@@ -71,6 +71,27 @@ function loadTableFiles(stem, rowNumber, gender) {
     return Promise.all([dirPromise, recPromise]);
 }
 
+// === Normalize text and hide empty rows ===
+function normalizeText(s) {
+    return (s || "").replace(/\u00a0/g, " ").trim();
+}
+function hideEmptySummaryRowsIn(summaryTableId) {
+    const table = document.getElementById(summaryTableId);
+    if (!table) return;
+
+    const rows = table.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll("td"));
+        const hasData = cells.some(td => {
+            const text = td.textContent.replace(/\u00a0/g, " ").trim();
+            return text !== "";
+        });
+
+        // Force visibility for filled rows, hide empty ones
+        row.style.display = hasData ? "table-row" : "none";
+    });
+}
+
 // === Extract the correct row from fetched HTML and paste into summary table ===
 function pasteFromHTML(html, rowNumber, gender, type) {
     const parser = new DOMParser();
@@ -90,13 +111,11 @@ function pasteFromHTML(html, rowNumber, gender, type) {
         .slice(1) // skip label
         .forEach(cell => {
             const span = parseInt(cell.getAttribute("colspan") || "1", 10);
-            const text = cell.textContent.trim();
+            const text = normalizeText(cell.textContent);
             for (let i = 0; i < span; i++) {
                 cells.push(text);
             }
         });
-
-    console.log(`Pasting for ${gender} (${type}):`, cells);
 
     const summaryTableId = type === "dir" ? "dirSummaryTable" : "recSummaryTable";
     const summaryTable = document.getElementById(summaryTableId);
@@ -104,7 +123,7 @@ function pasteFromHTML(html, rowNumber, gender, type) {
 
     const summaryRows = Array.from(summaryTable.querySelectorAll("tbody tr"));
     const summaryRow = summaryRows.find(r =>
-        r.querySelector("th").textContent.trim().toLowerCase() === gender.toLowerCase()
+        normalizeText(r.querySelector("th").textContent).toLowerCase() === gender.toLowerCase()
     );
     if (!summaryRow) return;
 
@@ -114,8 +133,10 @@ function pasteFromHTML(html, rowNumber, gender, type) {
             summaryCells[idx].textContent = val;
         }
     });
-}
 
+    // Hide all empty rows in this summary table
+    hideEmptySummaryRowsIn(summaryTableId);
+}
 
 // === Main loader ===
 function runTableLoader() {
@@ -152,6 +173,8 @@ function runTableLoader() {
 
     Promise.all(loadPromises).then(() => {
         console.log("Summary tables updated.");
+        hideEmptySummaryRowsIn("dirSummaryTable");
+        hideEmptySummaryRowsIn("recSummaryTable");
     });
 }
 
