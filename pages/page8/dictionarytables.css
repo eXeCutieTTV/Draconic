@@ -8,3 +8,12 @@
 .tablesContainer td:hover {
     background-color: #f1d3d3;
 }
+
+.tablesContainer td {
+  vertical-align: top;    /* pushes text to the top */
+}
+
+.tablesContainer th {
+    white-space: nowrap;
+    font-size: large;
+}
