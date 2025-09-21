@@ -58,6 +58,9 @@ p.inline {
     margin-right: 0px;
     padding: 0px;
 }
+#rightleftdivdictionary {
+    width: 45%;
+}
 
 /* hovers */
 #dirSummaryTable td:hover,
@@ -80,4 +83,9 @@ p.inline {
     padding: 6px;
     font-weight: bold;
     background-color: rgb(202, 79, 79);
+}
+
+.tablesContainer {
+    margin: 0px;
+    padding: 0px;
 }
