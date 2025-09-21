@@ -1,9 +1,3 @@
-
-let keywordDisplay = "";
-let keyword = "";
-let newSearchField = "";
-let newSearchButton = "";
-
 // === Excel data ===
 let pagess = {};
 let workbookData = [];
@@ -11,6 +5,92 @@ let workbookData = [];
 // Helper: make a safe string for IDs/selectors
 function safeIdPart(str) {
     return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash
+}
+
+// declension tables
+// Map of single identifiers → file stem
+const tableMap = {
+    "a.": "abstract",
+    "e.": "exhalted",
+    "i.": "irrational",
+    "mag.": "magical",
+    "mon.": "monstrous",
+    "mun.": "mundane",
+    "r.": "rational"
+};
+
+// Map of group identifiers → array of stems
+const groupMap = {
+    all: ["magical", "mundane", "abstract", "exhalted", "monstrous", "irrational", "rational"],
+    animates: ["exhalted", "monstrous", "irrational", "rational"],
+    inanimates: ["magical", "mundane", "abstract"]
+};
+
+// Track loaded stems to avoid duplicates
+const loaded = new Set();
+
+// ===== HELPER FUNCTIONS =====
+
+// Fetch and insert HTML into left/right containers
+function loadTableFiles(stem) {
+    fetch(`pages/page2/tables/declensiontables/${stem}dir.html`)
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("leftleftdivdictionary")
+                .insertAdjacentHTML("beforeend", html);
+        })
+        .catch(err => console.error(`Error loading ${stem}dir.html:`, err));
+
+    fetch(`pages/page2/tables/declensiontables/${stem}rec.html`)
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("rightleftdivdictionary")
+                .insertAdjacentHTML("beforeend", html);
+        })
+        .catch(err => console.error(`Error loading ${stem}rec.html:`, err));
+}
+
+// ===== MAIN FUNCTION =====
+
+function runTableLoader() {
+    // Clear old content
+    document.getElementById("leftleftdivdictionary").innerHTML = "";
+    document.getElementById("rightleftdivdictionary").innerHTML = "";
+
+    // Reset loaded set
+    loaded.clear();
+
+    // Get the updated cell after table changes
+    const cell = document.getElementById('cell3');
+    if (!cell) {
+        console.error('cell3 not found');
+        return;
+    }
+
+    const cellText = cell.textContent.toLowerCase();
+
+    // 1. Check for group identifiers (exact word match)
+    for (const [groupId, stems] of Object.entries(groupMap)) {
+        const pattern = new RegExp(`\\b${groupId}\\b`, "i"); // word boundary, case-insensitive
+        if (pattern.test(cellText)) {
+            console.log(`Matched group: ${groupId}`);
+            stems.forEach(stem => {
+                if (!loaded.has(stem)) {
+                    loadTableFiles(stem);
+                    loaded.add(stem);
+                }
+            });
+        }
+    }
+
+    // 2. Check for single identifiers (substring match)
+    for (const [id, stem] of Object.entries(tableMap)) {
+        if (cellText.includes(id.toLowerCase()) && !loaded.has(stem)) {
+            console.log(`Matched single: ${stem}`);
+            loadTableFiles(stem);
+            loaded.add(stem);
+        }
+    }
 }
 
 // === Load Excel once ===
@@ -212,133 +292,9 @@ function doSearch() {
         field2.value = '';
         field2.focus();
     }
-
-    // import declension tables
-    let identifier = "";
-    let cell = "";
-
-
-    // abstract
-    identifier = "a."; // what you're looking for
-    cell = document.getElementById('cell3');
-
-    if (cell && cell.textContent.toLowerCase().includes(identifier.toLowerCase())) {
-        console.log("yes");
-
-        fetch("pages/page2/tables/declensiontables/abstractdir.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("leftleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-        fetch("pages/page2/tables/declensiontables/abstractrec.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("rightleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-    }
-    // exhalted
-    identifier = "e."; // what you're looking for
-    cell = document.getElementById('cell3');
-
-    if (cell && cell.textContent.toLowerCase().includes(identifier.toLowerCase())) {
-        console.log("yes");
-
-        fetch("pages/page2/tables/declensiontables/exhalteddir.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("leftleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-        fetch("pages/page2/tables/declensiontables/exhaltedrec.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("rightleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-    }
-    // irrational
-    identifier = "i."; // what you're looking for
-    cell = document.getElementById('cell3');
-
-    if (cell && cell.textContent.toLowerCase().includes(identifier.toLowerCase())) {
-        console.log("yes");
-
-        fetch("pages/page2/tables/declensiontables/irrationaldir.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("leftleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-        fetch("pages/page2/tables/declensiontables/irrationalrec.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("rightleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-    }
-    // magical
-    identifier = "mag."; // what you're looking for
-    cell = document.getElementById('cell3');
-
-    if (cell && cell.textContent.toLowerCase().includes(identifier.toLowerCase())) {
-        console.log("yes");
-
-        fetch("pages/page2/tables/declensiontables/magicaldir.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("leftleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-        fetch("pages/page2/tables/declensiontables/magicalrec.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("rightleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-    }
-    // mundane
-    identifier = "mun."; // what you're looking for
-    cell = document.getElementById('cell3');
-
-    if (cell && cell.textContent.toLowerCase().includes(identifier.toLowerCase())) {
-        console.log("yes");
-
-        fetch("pages/page2/tables/declensiontables/mundanedir.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("leftleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-        fetch("pages/page2/tables/declensiontables/mundanerec.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("rightleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-    }
-    // rational
-    identifier = "r."; // what you're looking for
-    cell = document.getElementById('cell3');
-
-    if (cell && cell.textContent.toLowerCase().includes(identifier.toLowerCase())) {
-        console.log("yes");
-
-        fetch("pages/page2/tables/declensiontables/rationaldir.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("leftleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-        fetch("pages/page2/tables/declensiontables/rationalrec.html")
-            .then(res => res.text())
-            .then(html => {
-                document.getElementById("rightleftdivdictionary").insertAdjacentHTML("beforeend", html);
-            })
-            .catch(err => console.error("Error loading HTML:", err));
-    }
+    runTableLoader(); // call your declension table logic here
 }
+
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
     doSearch();
@@ -348,6 +304,7 @@ document.getElementById('search_button').addEventListener('click', () => {
 document.addEventListener('click', (e) => {
     if (e.target.id === 'search_button1') {
         doSearch();
+        keywordp.innerHTML = keyword; // set outererestp innerHTML
     }
 });
 
@@ -356,6 +313,7 @@ document.getElementById('search_field').addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault(); // prevent form submission
         doSearch();
+        keywordp.innerHTML = keyword; // set outererestp innerHTML
     }
 
 });
