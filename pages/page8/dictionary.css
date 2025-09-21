@@ -39,29 +39,19 @@
 
 #includeTarget {
     display: flex;
-    margin: 0px;
-    padding: 0px;
+    margin-left: 0px;
+    padding-left: 0px;
     width: 100%;
 }
 
-#leftleftdivdictionary {
+#leftleftdivdictionary, #rightleftdivdictionary{
     display: inline;
     flex: 0.45;
     text-align: left;
-    margin-left: auto;
-    margin-right: 2.5%;
+    margin-left: 0px;
+    margin-right: 0px;
     padding: 0px;
 }
-
-#rightleftdivdictionary {
-    display: inline;
-    flex: 0.45;
-    text-align: right;
-    margin-right: auto;
-    margin-left: 2.5%;
-    padding: 0px;
-}
-
 
 /* hovers */
 #dirSummaryTable td:hover,
@@ -73,7 +63,7 @@
 
 #dirSummaryTable,
 #recSummaryTable {
-    width: 50%;
+    width: 100%;
     margin-bottom: 100px;
 }
 

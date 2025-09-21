@@ -13,7 +13,17 @@ function createSummaryTables() {
     const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Abstract", "Magical", "Mundane"];
     const numbers = ["Singular", "Dual", "Plural"];
 
+    // Remove existing tables if they exist
+    ["dirSummaryTable", "recSummaryTable"].forEach(id => {
+        const oldTable = document.getElementById(id);
+        if (oldTable) {
+            oldTable.parentElement.remove(); // remove the wrapper div
+        }
+    });
+
     function buildTable(id, label) {
+        const wrapper = document.createElement("div");
+
         const table = document.createElement("table");
         table.id = id;
         table.border = "1";
@@ -44,7 +54,14 @@ function createSummaryTables() {
         });
         table.appendChild(tbody);
 
-        document.body.appendChild(table);
+        wrapper.appendChild(table);
+        document.body.appendChild(wrapper);
+
+        const container = document.getElementById("leftleftdivdictionary");
+        if (!container) return;
+
+        container.appendChild(wrapper);
+
     }
 
     buildTable("dirSummaryTable", "Directive");
