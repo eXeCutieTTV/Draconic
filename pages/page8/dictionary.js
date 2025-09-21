@@ -196,8 +196,8 @@ function fillTable(keyword, table) {
     }
 }
 
-
-
+let newSearchField = null;
+let newSearchButton = null;
 // === dosearch function ===
 function doSearch() {
     // Prefer value from #search_field if not empty, else #search_field1
