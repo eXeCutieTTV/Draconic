@@ -192,10 +192,11 @@ function doSearch() {
     // Clear and refocus the textbox
     searchField.value = '';
     searchField.focus();
-}
 
+}
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', doSearch);
+
 
 // === Trigger search on Enter key ===
 document.getElementById('search_field').addEventListener('keydown', (event) => {
@@ -203,4 +204,5 @@ document.getElementById('search_field').addEventListener('keydown', (event) => {
         event.preventDefault(); // prevent form submission
         doSearch();
     }
+
 });
