@@ -35,3 +35,9 @@ lilitalic {
   display: inline;
   height: 500px;
 }
+
+p.inline {
+    display: inline;
+    margin: 0px;
+    padding: 0px;
+}
