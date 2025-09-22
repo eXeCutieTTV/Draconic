@@ -42,3 +42,58 @@ class IncludeHTML extends HTMLElement {
   }
 }
 customElements.define('include-html', IncludeHTML);
+
+
+// get data from official sheet
+let dictionaryData = [];
+
+function loadDictionaryData() {
+  const userKey = prompt("Enter your Google Sheets API key:");
+  if (!userKey) {
+    alert("API key is required to load the dictionary.");
+    return;
+  }
+
+  const SHEET_ID = "168-Rzwk2OjxKJfHy-xNYvwPmDTi5Olv9KTgAs4v33HE";
+  const RANGE = "Dictionary!A2:E8";
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${userKey}`;
+
+  const container = document.getElementById("sheet-data");
+  container.textContent = "Loading...";
+
+  fetch(url)
+    .then(response => {
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      return response.json();
+    })
+    .then(data => {
+      dictionaryData = data.values;
+
+      if (!dictionaryData || dictionaryData.length === 0) {
+        container.textContent = "No data found.";
+        return;
+      }
+
+      const table = document.createElement("table");
+      table.border = "1";
+
+      dictionaryData.forEach(row => {
+        const tr = document.createElement("tr");
+
+        for (let i = 0; i < 5; i++) {
+          const td = document.createElement("td");
+          td.textContent = row[i] || "";
+          tr.appendChild(td);
+        }
+
+        table.appendChild(tr);
+      });
+
+      container.innerHTML = "";
+      container.appendChild(table);
+    })
+    .catch(error => {
+      console.error("Failed to load sheet:", error);
+      container.textContent = "Error loading sheet.";
+    });
+}
