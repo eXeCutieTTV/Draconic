@@ -536,16 +536,6 @@ function doSearch() {
         });
 
 
-        newSearchField.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                doSearchFromField(newSearchField);
-            }
-
-        });
-
-
-
     }
 
     // Go to the correct page
