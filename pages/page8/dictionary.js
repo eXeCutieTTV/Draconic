@@ -16,7 +16,6 @@ function loadDictionaryData() {
     }
 }
 
-
 function loadFromGoogleSheets(apiKey) {
     const SHEET_ID = "168-Rzwk2OjxKJfHy-xNYvwPmDTi5Olv9KTgAs4v33HE";
     const RANGE = "Dictionary!A2:E999";
@@ -112,8 +111,6 @@ function renderTable(data) {
     processDictionaryTable();
 }
 
-
-
 // Helper: make a safe string for IDs/selectors
 function safeIdPart(str) {
     return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash
@@ -173,14 +170,11 @@ function createSummaryTables() {
         if (!container) return;
 
         container.appendChild(wrapper);
-
     }
 
     buildTable("dirSummaryTable", "Directive");
     buildTable("recSummaryTable", "Recessive");
 }
-
-
 
 // === Map of identifiers to stems ===
 const tableMap = {
@@ -218,6 +212,7 @@ function loadTableFiles(stem, rowNumber, gender) {
 function normalizeText(s) {
     return (s || "").replace(/\u00a0/g, " ").trim();
 }
+
 function hideEmptySummaryRowsIn(summaryTableId) {
     const table = document.getElementById(summaryTableId);
     if (!table) return;
@@ -281,7 +276,6 @@ function pasteFromHTML(html, rowNumber, gender, type) {
     hideEmptySummaryRowsIn(summaryTableId);
 }
 
-
 // processDictionaryTable
 function processDictionaryTable() {
     if (!dictionaryData || dictionaryData.length === 0) {
@@ -317,7 +311,6 @@ function processDictionaryTable() {
         }
     });
 }
-
 
 // === Main loader ===
 function runTableLoader() {
@@ -392,8 +385,6 @@ function buildFromDictionaryTable() {
     console.log("workbookData:", workbookData);
 }
 
-
-
 // === Create table inside a given container ===
 function createTable(keyword, container) {
     // Remove any existing table in this container
@@ -430,7 +421,6 @@ function createTable(keyword, container) {
     container.appendChild(table);
     return table;
 }
-
 
 // === Fill table from Excel data ===
 function fillTable(keyword, table) {
@@ -476,11 +466,98 @@ function fillTable(keyword, table) {
     }
 }
 
+// Helper function to wait for element to exist
+function waitForElement(selector, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+        const startTime = Date.now();
+        
+        function check() {
+            const element = document.querySelector(selector);
+            if (element) {
+                resolve(element);
+            } else if (Date.now() - startTime > timeout) {
+                reject(new Error(`Element ${selector} not found within ${timeout}ms`));
+            } else {
+                setTimeout(check, 50);
+            }
+        }
+        
+        check();
+    });
+}
 
-let newSearchField = null;
-let newSearchButton = null;
+// Helper function to setup search functionality for a page
+function setupPageSearchHandlers(pageId) {
+    const searchFieldSelector = `#${pageId} #search_field1`;
+    const searchButtonSelector = `#${pageId} #search_button1`;
+    
+    Promise.all([
+        waitForElement(searchFieldSelector),
+        waitForElement(searchButtonSelector)
+    ]).then(([searchField, searchButton]) => {
+        // Remove any existing listeners to prevent duplicates
+        const newSearchButton = searchButton.cloneNode(true);
+        searchButton.parentNode.replaceChild(newSearchButton, searchButton);
+        
+        const newSearchField = searchField.cloneNode(true);
+        searchField.parentNode.replaceChild(newSearchField, searchField);
+        
+        // Add click listener to button
+        newSearchButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            doSearchFromPage(pageId);
+        });
+        
+        // Add enter key listener to field
+        newSearchField.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                doSearchFromPage(pageId);
+            }
+        });
+        
+        console.log(`Search handlers setup for ${pageId}`);
+    }).catch(error => {
+        console.error(`Failed to setup search handlers for ${pageId}:`, error);
+    });
+}
+
+// Function to handle search from a specific page
+function doSearchFromPage(pageId) {
+    const searchField = document.querySelector(`#${pageId} #search_field1`);
+    if (!searchField) return;
+    
+    const searchTerm = searchField.value.trim();
+    if (!searchTerm) return;
+    
+    // Update the global search field and trigger search
+    const mainSearchField = document.getElementById('search_field');
+    if (mainSearchField) {
+        mainSearchField.value = searchTerm;
+    }
+    
+    doSearch();
+}
+
 // === dosearch function ===
 function doSearch() {
+    // Auto-load dictionary data if not already loaded
+    if (!dictionaryData || dictionaryData.length === 0) {
+        loadDictionaryData();
+        // Wait for data to load before continuing
+        const checkDataLoaded = setInterval(() => {
+            if (dictionaryData && dictionaryData.length > 0) {
+                clearInterval(checkDataLoaded);
+                performSearch();
+            }
+        }, 100);
+        return;
+    }
+    
+    performSearch();
+}
+
+function performSearch() {
     // Prefer value from #search_field if not empty, else #search_field1
     let field1 = document.getElementById('search_field');
     let field2 = document.getElementById('search_field1');
@@ -509,7 +586,6 @@ function doSearch() {
     // Create the page if it doesn't exist
     const existingPage = document.getElementById(targetPageId);
     if (!existingPage) {
-
         // create pageDiv
         const pageDiv = document.createElement('div');
         pageDiv.id = targetPageId;
@@ -517,57 +593,45 @@ function doSearch() {
         pageDiv.innerHTML = `<include-html src="pages/page8/dictionary.html"></include-html>`;
 
         pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
-
-
-        // includeEL
-        const includeEl = pageDiv.querySelector('include-html');
-        includeEl.addEventListener('html-included', () => {
-
-            newSearchField = pageDiv.querySelector('.search_field');
-            newSearchButton = pageDiv.querySelector('.search_button');
-            if (newSearchField && newSearchButton) {
-                newSearchButton.addEventListener('click', () => {
-                    doSearchFromField(newSearchField);
-                });
-
-
-            }
-
-        });
-
-        newSearchField.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                doSearchFromField(newSearchField);
-            }
-        });
+        
+        // Setup search handlers for the new page after a short delay
+        setTimeout(() => {
+            setupPageSearchHandlers(targetPageId);
+        }, 100);
     }
 
     // Go to the correct page
     openPage(targetPageId);
 
-    // Find that page's container
-    const pageContainer = document.querySelector(`#${targetPageId} .tablesContainer`);
-    if (!pageContainer) {
-        console.error(`No .tablesContainer found inside #${targetPageId}`);
-        return;
-    }
-
-    // Create and fill the table
-    const table = createTable(keyword, pageContainer);
-    fillTable(keyword, table);
-
-    // Clear and refocus whichever field was used
-    if (field1 && field1.value.trim() !== '') {
-        field1.value = '';
-        field1.focus();
-    } else if (field2) {
-        field2.value = '';
-        field2.focus();
-    }
-    runTableLoader(); // call your declension table logic here
-    createSummaryTables(); // declensiontable
+    // Wait for the page content to load, then setup the table
+    waitForElement(`#${targetPageId} .tablesContainer`).then(pageContainer => {
+        // Create and fill the table
+        const table = createTable(keyword, pageContainer);
+        fillTable(keyword, table);
+        
+        // Update keyword displays
+        const keywordp = document.getElementById("keywordp");
+        if (keywordp) {
+            keywordp.innerHTML = keywordDisplay;
+        }
+        cloneKeywordText();
+        
+        // Clear and refocus whichever field was used
+        if (field1 && field1.value.trim() !== '') {
+            field1.value = '';
+            field1.focus();
+        } else if (field2) {
+            field2.value = '';
+            field2.focus();
+        }
+        
+        runTableLoader(); // call your declension table logic here
+        createSummaryTables(); // declensiontable
+    }).catch(error => {
+        console.error(`Failed to find page container for ${targetPageId}:`, error);
+    });
 }
+
 // clone <p> element with keyword data
 function cloneKeywordText() {
     const source = document.getElementById('keywordp');
@@ -586,15 +650,11 @@ function cloneKeywordText() {
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
     doSearch();
-    field1 = document.getElementById('search_field1');
-    keywordp.innerHTML = keyword; // set outererestp innerHTML
-    cloneKeywordText();
 });
+
 document.addEventListener('click', (e) => {
     if (e.target.id === 'search_button1') {
         doSearch();
-        keywordp.innerHTML = keyword; // set outererestp innerHTML
-        cloneKeywordText();
     }
 });
 
@@ -603,9 +663,5 @@ document.getElementById('search_field').addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault(); // prevent form submission
         doSearch();
-        keywordp.innerHTML = keyword; // set outererestp innerHTML
     }
-
 });
-
-

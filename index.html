@@ -6,6 +6,8 @@
   <title>Revisioned Draconic spreadsheet</title>
   <link rel="stylesheet" href="index.css"> <!--index.css link-->
   <link rel="stylesheet" href="pages\defaultable.css"> <!--defaultable.css link-->
+
+  <link rel="stylesheet" href="https://supduzz.github.io/Draconic/shared/alphabet.css" />
 </head>
 
 <body>
@@ -51,14 +53,14 @@
             <button id="search_button">Search</button>
             <input id="search_field" type="text" placeholder="Search..." />
             <br>
-            <input style="transform: scale(0.9); vertical-align: middle;" type="checkbox" id="myCheckbox" name="myCheckbox">
+            <input style="transform: scale(0.9); vertical-align: middle;" type="checkbox" id="myCheckbox"
+              name="myCheckbox">
             <p class="inline" style="margin: 0px; margin-top: 10px; font-size: smaller;">If you dont use Api key,</p>
             <p class="inline" style="margin: 0px; font-size: smaller;"><br>you may get old information</p>
           </div>
         </div>
       </div>
       <input type="file" id="excel-upload" accept=".xlsx" style="display:none">
-      <button onclick="loadDictionaryData()">Load Dictionary</button>
       <div id="sheet-data"></div>
 
 
@@ -75,5 +77,6 @@
 
 <script src="index.js"></script> <!--index.js link-->
 <script src="pages\page8\dictionary.js"></script> <!--dictionary.js link-->
+<script src="https://supduzz.github.io/Draconic/js/alphabetMap.js"></script>
 
 </html>
