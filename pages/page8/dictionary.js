@@ -98,12 +98,15 @@ function renderTable(data) {
 
     container.innerHTML = "";
     container.appendChild(table);
+
+    // Build pagess and workbookData from table
+    buildFromDictionaryTable();
+
+    // Continue with declension logic
+    processDictionaryTable();
 }
 
 
-// === Excel data ===
-let pagess = {};
-let workbookData = [];
 
 // Helper: make a safe string for IDs/selectors
 function safeIdPart(str) {
@@ -272,6 +275,44 @@ function pasteFromHTML(html, rowNumber, gender, type) {
     hideEmptySummaryRowsIn(summaryTableId);
 }
 
+
+// processDictionaryTable
+function processDictionaryTable() {
+    if (!dictionaryData || dictionaryData.length === 0) {
+        console.warn("No dictionary data available.");
+        return;
+    }
+
+    dictionaryData.forEach((row, index) => {
+        const paddedRow = [];
+        for (let i = 0; i < 5; i++) {
+            paddedRow[i] = row[i] || "";
+        }
+
+        let word = paddedRow[0];
+        const wordclass = paddedRow[1];
+        let extractedNumber = "";
+
+        if ((wordclass === "adj" || wordclass === "n") && /\(\d\)/.test(word)) {
+            const match = word.match(/\((\d)\)/);
+            if (match) {
+                extractedNumber = match[1];
+                word = word.replace(/\(\d\)/, "").trim();
+            }
+        }
+
+        const stemPrefix = paddedRow[4]; // assuming column 5 holds the identifier like "mag.", "r.", etc.
+        const stem = tableMap[stemPrefix];
+        const gender = paddedRow[3]; // assuming column 4 holds gender
+        const rowNumber = parseInt(extractedNumber, 10);
+
+        if (stem && gender && rowNumber) {
+            loadTableFiles(stem, rowNumber, gender);
+        }
+    });
+}
+
+
 // === Main loader ===
 function runTableLoader() {
     loaded.clear();
@@ -312,34 +353,40 @@ function runTableLoader() {
     });
 }
 
-// === Load Excel once ===
-fetch('13-05-2025.xlsx')
-    .then(response => response.arrayBuffer())
-    .then(data => {
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+// === Build pagess and workbookData from dictionaryData ===
+function buildFromDictionaryTable() {
+    if (!dictionaryData || dictionaryData.length === 0) {
+        console.warn("No dictionary data available.");
+        return;
+    }
 
-        // Build pagess from G5 to G332
-        let pageNumber = 9999;
-        for (let row = 5; row <= 332; row++) {
-            const cell = sheet[`G${row}`];
-            if (cell && cell.v) {
-                const word = cell.v.toString().trim().toLowerCase();
-                pagess[word] = `page${pageNumber}`;
-                pageNumber--;
-            }
+    pagess = {};
+    workbookData = [];
+
+    let pageNumber = 10000; // Start counting up from 10000
+
+    dictionaryData.forEach((row, index) => {
+        const paddedRow = [];
+        for (let i = 0; i < 5; i++) {
+            paddedRow[i] = row[i] || "";
         }
 
-        // Build workbookData for table filling
-        workbookData = XLSX.utils.sheet_to_json(sheet, {
-            header: 1,
-            blankrows: true,
-            defval: ""
-        });
+        const wordRaw = paddedRow[0];
+        const word = wordRaw.replace(/\(\d\)/, "").trim().toLowerCase();
 
-        console.log('pagess mapping:', pagess);
-    })
-    .catch(err => console.error('Error loading Excel file:', err));
+        if (word) {
+            pagess[word] = `page${pageNumber}`;
+            pageNumber++; // Count upward
+        }
+
+        workbookData.push(paddedRow);
+    });
+
+    console.log("pagess mapping:", pagess);
+    console.log("workbookData:", workbookData);
+}
+
+
 
 // === Create table inside a given container ===
 function createTable(keyword, container) {
@@ -381,40 +428,48 @@ function createTable(keyword, container) {
 
 // === Fill table from Excel data ===
 function fillTable(keyword, table) {
-    let foundRow = null;
-    let startIndex = -1;
     const kw = String(keyword).toLowerCase();
+    const sourceTable = document.querySelector("#sheet-data table");
+    if (!sourceTable) {
+        alert("Source table not found.");
+        return;
+    }
 
-    for (const row of workbookData) {
-        const colIndex = row.findIndex(cell => String(cell).toLowerCase() === kw);
-        if (colIndex !== -1) {
-            foundRow = row;
-            startIndex = colIndex;
+    const rows = Array.from(sourceTable.querySelectorAll("tbody tr, tr")); // support both tbody and flat tables
+    let foundRow = null;
+
+    for (const row of rows) {
+        const cells = Array.from(row.querySelectorAll("td"));
+        if (cells.length < 6) continue;
+
+        const word = cells[0].textContent.trim().toLowerCase();
+        if (word === kw) {
+            foundRow = cells;
             break;
         }
     }
 
     if (!foundRow) {
-        alert('No matching row found.');
+        alert("No matching row found.");
         return;
     }
 
     for (let i = 0; i < 5; i++) {
         const td = table.querySelector(`#cell${i}`);
         if (td) {
-            const raw = String(foundRow[startIndex + i] ?? '');
+            const raw = foundRow[i].textContent;
 
-            // Replace every "- " except the first one with "<br>- "
             let count = 0;
             const html = raw.replace(/-/g, () => {
                 count += 1;
-                return count === 1 ? '- ' : '<br>- ';
+                return count === 1 ? "- " : "<br>- ";
             });
 
             td.innerHTML = html;
         }
     }
 }
+
 
 let newSearchField = null;
 let newSearchButton = null;
@@ -426,7 +481,7 @@ function doSearch() {
     keywordDisplay = (field1?.value.trim() || field2?.value.trim());
     keyword = keywordDisplay.toLowerCase();
 
-    if (!keyword || workbookData.length === 0) {
+    if (!keyword || dictionaryData.length === 0) {
         alert('Please enter a search term and ensure the file is loaded.');
         return;
     }
