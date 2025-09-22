@@ -80,14 +80,45 @@ function loadDictionaryData() {
       dictionaryData.forEach(row => {
         const tr = document.createElement("tr");
 
+        // Ensure row has at least 5 elements
+        const paddedRow = [];
         for (let i = 0; i < 5; i++) {
-          const td = document.createElement("td");
-          td.textContent = row[i] || "";
-          tr.appendChild(td);
+          paddedRow[i] = row[i] || "";
         }
+
+        // Extract word and number if applicable
+        let word = paddedRow[0];
+        const wordclass = paddedRow[1];
+        let extractedNumber = "";
+
+        if ((wordclass === "adj" || wordclass === "n") && /\(\d\)/.test(word)) {
+          const match = word.match(/\((\d)\)/);
+          if (match) {
+            extractedNumber = match[1];
+            word = word.replace(/\(\d\)/, "").trim();
+          }
+        }
+
+        // Reordered cells: [word, number, meaning, extra, extra, wordclass]
+        const cells = [
+          word,
+          extractedNumber,
+          paddedRow[2],
+          paddedRow[3],
+          paddedRow[4],
+          wordclass
+        ];
+
+        cells.forEach(cell => {
+          const td = document.createElement("td");
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
 
         table.appendChild(tr);
       });
+
+
 
       container.innerHTML = "";
       container.appendChild(table);
