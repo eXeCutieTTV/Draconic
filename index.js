@@ -30,6 +30,22 @@ function openPage(pageId, element) {
   }
 }
 
+function openPageAndScroll(pageId, tabSelector, targetId) {
+  const tabElement = document.querySelector(tabSelector);
+  openPage(pageId, tabElement);
+
+  // Wait for the page to render before scrolling
+  setTimeout(() => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      console.warn(`No element found with id "${targetId}"`);
+    }
+  }, 100); // Adjust delay if needed
+}
+
+
 // import html function
 class IncludeHTML extends HTMLElement {
   connectedCallback() {
