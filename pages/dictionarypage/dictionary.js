@@ -130,7 +130,7 @@ function createSummaryTables() {
         }
     });
 
-    function buildTable(id, label) {
+    function buildTable(id, label, containerId) {
         const wrapper = document.createElement("div");
 
         const table = document.createElement("table");
@@ -164,16 +164,15 @@ function createSummaryTables() {
         table.appendChild(tbody);
 
         wrapper.appendChild(table);
-        document.body.appendChild(wrapper);
 
-        const container = document.getElementById("leftleftdivdictionary");
+        const container = document.getElementById(containerId);
         if (!container) return;
 
         container.appendChild(wrapper);
     }
 
-    buildTable("dirSummaryTable", "Directive");
-    buildTable("recSummaryTable", "Recessive");
+    buildTable("dirSummaryTable", "Directive", "leftleftdivdictionary");
+    buildTable("recSummaryTable", "Recessive", "rightleftdivdictionary");
 }
 
 // === Map of identifiers to stems ===
@@ -470,7 +469,7 @@ function fillTable(keyword, table) {
 function waitForElement(selector, timeout = 5000) {
     return new Promise((resolve, reject) => {
         const startTime = Date.now();
-        
+
         function check() {
             const element = document.querySelector(selector);
             if (element) {
@@ -481,7 +480,7 @@ function waitForElement(selector, timeout = 5000) {
                 setTimeout(check, 50);
             }
         }
-        
+
         check();
     });
 }
@@ -490,7 +489,7 @@ function waitForElement(selector, timeout = 5000) {
 function setupPageSearchHandlers(pageId) {
     const searchFieldSelector = `#${pageId} #search_field1`;
     const searchButtonSelector = `#${pageId} #search_button1`;
-    
+
     Promise.all([
         waitForElement(searchFieldSelector),
         waitForElement(searchButtonSelector)
@@ -498,16 +497,16 @@ function setupPageSearchHandlers(pageId) {
         // Remove any existing listeners to prevent duplicates
         const newSearchButton = searchButton.cloneNode(true);
         searchButton.parentNode.replaceChild(newSearchButton, searchButton);
-        
+
         const newSearchField = searchField.cloneNode(true);
         searchField.parentNode.replaceChild(newSearchField, searchField);
-        
+
         // Add click listener to button
         newSearchButton.addEventListener('click', (e) => {
             e.preventDefault();
             doSearchFromPage(pageId);
         });
-        
+
         // Add enter key listener to field
         newSearchField.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
@@ -515,7 +514,7 @@ function setupPageSearchHandlers(pageId) {
                 doSearchFromPage(pageId);
             }
         });
-        
+
         console.log(`Search handlers setup for ${pageId}`);
     }).catch(error => {
         console.error(`Failed to setup search handlers for ${pageId}:`, error);
@@ -526,16 +525,16 @@ function setupPageSearchHandlers(pageId) {
 function doSearchFromPage(pageId) {
     const searchField = document.querySelector(`#${pageId} #search_field1`);
     if (!searchField) return;
-    
+
     const searchTerm = searchField.value.trim();
     if (!searchTerm) return;
-    
+
     // Update the global search field and trigger search
     const mainSearchField = document.getElementById('search_field');
     if (mainSearchField) {
         mainSearchField.value = searchTerm;
     }
-    
+
     doSearch();
 }
 
@@ -553,7 +552,7 @@ function doSearch() {
         }, 100);
         return;
     }
-    
+
     performSearch();
 }
 
@@ -593,7 +592,7 @@ function performSearch() {
         pageDiv.innerHTML = `<include-html src="pages/dictionarypage/dictionary.html"></include-html>`;
 
         pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
-        
+
         // Setup search handlers for the new page after a short delay
         setTimeout(() => {
             setupPageSearchHandlers(targetPageId);
@@ -608,14 +607,14 @@ function performSearch() {
         // Create and fill the table
         const table = createTable(keyword, pageContainer);
         fillTable(keyword, table);
-        
+
         // Update keyword displays
         const keywordp = document.getElementById("keywordp");
         if (keywordp) {
             keywordp.innerHTML = keywordDisplay;
         }
         cloneKeywordText();
-        
+
         // Clear and refocus whichever field was used
         if (field1 && field1.value.trim() !== '') {
             field1.value = '';
@@ -624,7 +623,7 @@ function performSearch() {
             field2.value = '';
             field2.focus();
         }
-        
+
         runTableLoader(); // call your declension table logic here
         createSummaryTables(); // declensiontable
     }).catch(error => {

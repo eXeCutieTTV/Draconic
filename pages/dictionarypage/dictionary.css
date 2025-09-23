@@ -48,13 +48,13 @@
     width: 100%;
 }
 
-#leftleftdivdictionary, #rightleftdivdictionary{
-    display: inline;
-    flex: 0.45;
+#leftleftdivdictionary, 
+#rightleftdivdictionary{
+    width: 50%;
     text-align: left;
     margin-left: 0px;
     margin-right: 0px;
-    padding: 0px;
+    padding: 0;
 }
 #rightleftdivdictionary {
     width: 45%;
