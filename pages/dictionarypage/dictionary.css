@@ -44,16 +44,24 @@
 #includeTarget {
     display: flex;
     margin-left: 0px;
+    margin-right: 0px;
     padding-left: 0px;
     width: 100%;
 }
 
-#leftleftdivdictionary, 
-#rightleftdivdictionary{
-    width: 50%;
+#leftleftdivdictionary{
+    width: 65%;
     text-align: left;
     margin-left: 0px;
     margin-right: 20px;
+    padding: 0;
+}
+
+#rightleftdivdictionary{
+    width: 35%;
+    text-align: left;
+    margin-left: 0px;
+    margin-right: 0px;
     padding: 0;
 }
 
@@ -83,4 +91,8 @@
 .tablesContainer {
     margin: 0px;
     padding: 0px;
+}
+
+#dirSummaryTable, #recSummaryTable {
+    margin-bottom: 30px;
 }

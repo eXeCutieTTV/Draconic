@@ -172,7 +172,7 @@ function createSummaryTables() {
     }
 
     buildTable("dirSummaryTable", "Directive", "leftleftdivdictionary");
-    buildTable("recSummaryTable", "Recessive", "rightleftdivdictionary");
+    buildTable("recSummaryTable", "Recessive", "leftleftdivdictionary");
 }
 
 // === Map of identifiers to stems ===
