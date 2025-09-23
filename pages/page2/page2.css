@@ -1,32 +1,17 @@
 /* TableWrapper */
-.TableWrapperp2 {
+.TableWrapperp1 {
     display: flex;
 }
 
 
-.Leftdivp2 {
+.Leftdivp1 {
     display: inline;
-    flex: 0.25;
-    margin-left: 8px;
-    margin-right: auto;
+    flex: 1;
 }
 
-.rightdivp2 {
+.rightdivp1 {
     display: inline;
-    flex: 0.25;
-    margin-left: auto;
-    margin-right: 8px;
-}
-
-.mid1p2 {
-    display: inline;
-    flex: 0.25;
-    margin-left: 8px;
-    margin-right: 4px;
-}
-.mid2p2 {
-    display: inline;
-    flex: 0.25;
-    margin-left: 4px;
-    margin-right: 8px;
+    flex: 0.8;
+    margin-left: 25px;
+    margin-right: 25px;
 }
