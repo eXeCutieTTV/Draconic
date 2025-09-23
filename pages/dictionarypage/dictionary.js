@@ -197,11 +197,11 @@ const loaded = new Set();
 
 // === Fetch a stem's dir/rec tables and paste into summary ===
 function loadTableFiles(stem, rowNumber, gender) {
-    const dirPromise = fetch(`pages/page8/tables/declensiontables/${stem}dir.html`)
+    const dirPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}dir.html`)
         .then(res => res.text())
         .then(html => pasteFromHTML(html, rowNumber, gender, "dir"));
 
-    const recPromise = fetch(`pages/page8/tables/declensiontables/${stem}rec.html`)
+    const recPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}rec.html`)
         .then(res => res.text())
         .then(html => pasteFromHTML(html, rowNumber, gender, "rec"));
 
@@ -590,7 +590,7 @@ function performSearch() {
         const pageDiv = document.createElement('div');
         pageDiv.id = targetPageId;
         pageDiv.className = 'page';
-        pageDiv.innerHTML = `<include-html src="pages/page8/dictionary.html"></include-html>`;
+        pageDiv.innerHTML = `<include-html src="pages/dictionarypage/dictionary.html"></include-html>`;
 
         pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
         
