@@ -170,11 +170,16 @@ function createSummaryTables() {
 
         container.appendChild(wrapper);
     }
+    const dirsummarytablefinalwrapper = document.createElement("div");
+    const recsummarytablefinalwrapper = document.createElement("div");
+    dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
+    recsummarytablefinalwrapper.id = "recSummaryTablediv";
+    leftleftdivdictionary.appendChild(dirsummarytablefinalwrapper);
+    leftleftdivdictionary.appendChild(recsummarytablefinalwrapper);
 
-    buildTable("dirSummaryTable", "Directive", "leftleftdivdictionary");
-    buildTable("recSummaryTable", "Recessive", "leftleftdivdictionary");
+    buildTable("dirSummaryTable", "Directive", "dirSummaryTablediv");
+    buildTable("recSummaryTable", "Recessive", "recSummaryTablediv");
 }
-
 // === Map of identifiers to stems ===
 const tableMap = {
     "a.": "abstract",
