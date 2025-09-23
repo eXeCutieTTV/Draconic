@@ -58,3 +58,7 @@ class IncludeHTML extends HTMLElement {
   }
 }
 customElements.define('include-html', IncludeHTML);
+
+function deletealphabet () {
+  document.getElementById("alphabet").textContent = ("");
+};
