@@ -228,7 +228,7 @@ function createVerbSummaryTables() {
     }
 
     // Remove existing tables if they exist
-    ["verbPrefixTable", "verbSuffixTable"].forEach(id => {
+    ["dictionaryVerbPrefixTable", "dictionaryVerbSuffixTable"].forEach(id => {
         const oldTable = document.getElementById(id);
         if (oldTable) {
             oldTable.parentElement.remove();
@@ -244,12 +244,12 @@ function createVerbSummaryTables() {
     verbFormsWrapper.id = "verbSuffixTablediv";
     leftleftdivdictionary.appendChild(verbFormsWrapper);
 
-    buildVerbTable("pages/verbspage/tables/subjectprefix.html",
+    buildVerbTable("pages/dictionarypage/tables/subjectprefix.html",
         "verbPrefixTablediv",
         "verbPrefixTable",
         keyword,
         true);
-    buildVerbTable("pages/verbspage/tables/objectsuffix.html",
+    buildVerbTable("pages/dictionarypage/tables/objectsuffix.html",
         "verbSuffixTablediv",
         "verbSuffixTable",
         keyword,
