@@ -124,124 +124,118 @@ function safeIdPart(str) {
 // declension tables
 // === Create the two summary tables ===
 function createSummaryTables() {
-    // Get current word class to determine which tables to create
-    const currentWordClass = getCurrentWordClass();
-
-    if (currentWordClass === 'n') {
-        createNounSummaryTables();
-        populateNounSummaryTables(keyword, false);
-    } else if (currentWordClass === 'v') {
-        createVerbSummaryTables();
-    } else if (currentWordClass === 'adv') {
-        createAdverbSummaryTables();
-    } else if (currentWordClass === 'aux') {
-        createAuxiliarySummaryTables();
+    switch (getCurrentWordClass()) {
+        case 'n': createNounSummaryTables(); setTimeout(() => { populateNounSummaryTables(keyword, { dirSummaryTable: true, recSummaryTable: true }); }, 500); break;
+        case 'v': createVerbSummaryTables(); setTimeout(() => { populateNounSummaryTables(keyword, { dictionaryVerbPrefixTable: false, dictionaryVerbSuffixTable: true }); }, 500); break;
+        case 'adv': createAdverbSummaryTables(); break;
+        case 'aux': createAuxiliarySummaryTables(); break;
     }
-    // Add more word classes as needed
 }
 
 // Helper function to get current word class from the displayed table
 function getCurrentWordClass() {
     const cell5 = document.getElementById('cell5'); // wordclass is in cell5 (6th column)
-    if (cell5) {
-        return cell5.textContent.trim();
-    }
-    return null;
+    if (!cell5) return null;
+    return cell5.textContent.trim();
 }
 
 // === Create noun summary tables (existing functionality) ===
 function createNounSummaryTables() {
-    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-    if (!leftleftdivdictionary) {
-        console.error("leftleftdivdictionary element not found");
-        return;
-    }
-
-    // local copies (if you prefer to use external arrays, remove these)
-    const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Abstract", "Magical", "Mundane"];
-    const numbers = ["Singular", "Dual", "Plural"];
-
-    // Remove existing tables if they exist
-    ["dirSummaryTable", "recSummaryTable"].forEach(id => {
-        const oldTable = document.getElementById(id);
-        if (oldTable && oldTable.parentElement) {
-            oldTable.parentElement.remove();
+    return new Promise((resolve, reject) => {
+        const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+        if (!leftleftdivdictionary) {
+            return reject(new Error("leftleftdivdictionary element not found"));
         }
-    });
 
-    // internal builder that sets data-raw on each TD
-    function buildTable(id, label, containerId) {
-        const wrapper = document.createElement("div");
+        const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Abstract", "Magical", "Mundane"];
+        const numbers = ["Singular", "Dual", "Plural"];
 
-        const table = document.createElement("table");
-        table.id = id;
-
-        const thead = document.createElement("thead");
-
-        // Merged header row
-        const mergedRow = document.createElement("tr");
-        const mergedCell = document.createElement("th");
-        mergedCell.id = id + "-header";
-        mergedCell.colSpan = 4;
-        mergedCell.textContent = label;
-        mergedRow.appendChild(mergedCell);
-        thead.appendChild(mergedRow);
-
-        // Column header row
-        const headerRow = document.createElement("tr");
-        headerRow.innerHTML = `<th>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
-        thead.appendChild(headerRow);
-
-        table.appendChild(thead);
-
-        const tbody = document.createElement("tbody");
-        genders.forEach(gender => {
-            const row = document.createElement("tr");
-            // create TDs and set data-raw="" so you can populate later
-            const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
-            row.innerHTML = `<th>${gender}</th>` + cellsHtml;
-            tbody.appendChild(row);
+        // Remove existing tables if they exist
+        ["dirSummaryTable", "recSummaryTable"].forEach(id => {
+            const oldTable = document.getElementById(id);
+            if (oldTable && oldTable.parentElement) {
+                oldTable.parentElement.remove();
+            }
         });
-        table.appendChild(tbody);
 
-        wrapper.appendChild(table);
+        // internal builder that sets data-raw on each TD
+        function buildTable(id, label, containerId) {
+            const wrapper = document.createElement("div");
+            const table = document.createElement("table");
+            table.id = id;
 
-        const container = document.getElementById(containerId);
-        if (!container) return;
+            const thead = document.createElement("thead");
 
-        container.appendChild(wrapper);
-    }
+            // Merged header row
+            const mergedRow = document.createElement("tr");
+            const mergedCell = document.createElement("th");
+            mergedCell.id = id + "-header";
+            mergedCell.colSpan = 4;
+            mergedCell.textContent = label;
+            mergedRow.appendChild(mergedCell);
+            thead.appendChild(mergedRow);
 
-    // create wrapper divs and attach them
-    const dirsummarytablefinalwrapper = document.createElement("div");
-    const recsummarytablefinalwrapper = document.createElement("div");
-    dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
-    recsummarytablefinalwrapper.id = "recSummaryTablediv";
-    leftleftdivdictionary.appendChild(dirsummarytablefinalwrapper);
-    leftleftdivdictionary.appendChild(recsummarytablefinalwrapper);
+            // Column header row
+            const headerRow = document.createElement("tr");
+            headerRow.innerHTML = `<th>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
+            thead.appendChild(headerRow);
 
-    buildTable("dirSummaryTable", "Directive", "dirSummaryTablediv");
-    buildTable("recSummaryTable", "Recessive", "recSummaryTablediv");
+            table.appendChild(thead);
+
+            const tbody = document.createElement("tbody");
+            genders.forEach(gender => {
+                const row = document.createElement("tr");
+                const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
+                row.innerHTML = `<th>${gender}</th>` + cellsHtml;
+                tbody.appendChild(row);
+            });
+            table.appendChild(tbody);
+
+            wrapper.appendChild(table);
+
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.appendChild(wrapper);
+        }
+
+        // create wrapper divs and attach them
+        const dirsummarytablefinalwrapper = document.createElement("div");
+        const recsummarytablefinalwrapper = document.createElement("div");
+        dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
+        recsummarytablefinalwrapper.id = "recSummaryTablediv";
+        leftleftdivdictionary.appendChild(dirsummarytablefinalwrapper);
+        leftleftdivdictionary.appendChild(recsummarytablefinalwrapper);
+
+        buildTable("dirSummaryTable", "Directive", "dirSummaryTablediv");
+        buildTable("recSummaryTable", "Recessive", "recSummaryTablediv");
+
+        // Allow a paint cycle so the DOM is actually available to queries/measurements
+        requestAnimationFrame(() => resolve());
+    });
 }
-function populateNounSummaryTables(keyword, isPrefixForRecTable = false) {
-    ["dirSummaryTable", "recSummaryTable"].forEach(tableId => {
+
+function populateNounSummaryTables(keyword, tables) {
+    Object.keys(tables).forEach(tableId => { // tables = {tableID: isPrefix, ...} //???
         const table = document.getElementById(tableId);
         if (!table) return;
-        const isPrefix = (tableId === "recSummaryTable") ? isPrefixForRecTable : false;
-
         const tds = table.querySelectorAll("tbody td");
         tds.forEach(td => {
-            // prefer original stored raw suffix (data-raw) if present
+            // prefer original stored raw suffix (data-raw) if present 
             const raw = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
 
-            // process raw through phonology function
-            const cleaned = processSuffixCellContent(raw, keyword);
+            // process raw
+            let entries;
+            if (tables[tableId]) entries = connect_split(keyword, raw, "");
+            else entries = connect_split("", raw, keyword);
+            // if (tables[tableId]) console.log(entries_to_text(connect(keyword, raw, "")));
+            // else entries = console.log(entries_to_text(connect("", raw, keyword))); 
+            console.log(entries_to_text(connect(keyword, raw, ""))); //omfg wtf
+            td.innerHTML = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
 
             // place keyword as prefix or suffix (you can change behavior per table)
-            td.innerHTML = isPrefix
-                ? `${cleaned}<strong>${keyword}</strong>`
-                : `<strong>${keyword}</strong>${cleaned}`;
-        });
+
+        });//now we need more logic. if last letter of word vowel && first letter of suffix is vowel, then remove keyword vowel. its already doing it?
+        // 
     });
 }
 // === Create verb summary tables ===
@@ -280,8 +274,6 @@ function createVerbSummaryTables() {
         keyword,
         false);
 }
-
-
 
 // === Create adverb summary tables ===
 function createAdverbSummaryTables() {
@@ -329,9 +321,12 @@ function createAuxiliarySummaryTables() {
     buildAuxiliaryTable("auxiliaryFormsTable", "Auxiliary Forms", "auxiliaryFormsTablediv");
 }
 // Define your  glyph classes
-const conlangVowels = ["i", "ī", "e", "ē", "æ", "y", "u", "ū", "o", "ō", "a", "ā", "ú", "û", "ó", "ô", "á", "â"]; // customize as needed
-const conlangConsonants = ["t", "k", "q", "q̇", "‘", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"]; // customize as needed
+const conlangVowels = ["i", "ī", "e", "ē", "æ", "y", "u", "ū", "o", "ō", "a", "ā", "ú", "û", "ó", "ô", "á", "â"];
+const conlangConsonants = ["t", "k", "q", "q̇", "‘", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"];
+console.log(conlangVowels);
+console.log(conlangConsonants);
 
+// will redo -lirox
 function normalizeGlyph(glyph) {
     return glyph.normalize("NFC").toLowerCase();
 }
@@ -344,24 +339,9 @@ function isConlangConsonant(char) {
     return conlangConsonants.includes(normalizeGlyph(char));
 }
 
-function processSuffixCellContent(cellText, keyword) {
-    const lastChar = normalizeGlyph(keyword.slice(-1));
-    const match = cellText.match(/\(([^)]+)\)/);
+// yeet -lirox if it breaks - istg... xd
 
-    if (!match) return cellText.replace(/-/g, "");
-
-    const glyph = normalizeGlyph(match[1]);
-    const keywordIsVowel = isConlangVowel(lastChar);
-    const glyphIsVowel = isConlangVowel(glyph);
-
-    if (keywordIsVowel === glyphIsVowel) {
-        return cellText.replace(/\([^)]+\)/, "").replace(/-/g, "");
-    } else {
-        return cellText.replace(/\(([^)]+)\)/, "$1").replace(/-/g, "");
-    }
-}
-
-function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) {
+function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) { // ----
     fetch(sourcePath)
         .then(response => {
             if (!response.ok) throw new Error(`Failed to load ${sourcePath}: ${response.status}`);
@@ -381,14 +361,11 @@ function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix
 
                     const cells = table.querySelectorAll("td");
                     cells.forEach(cell => {
-                        let originalText = cell.textContent.trim();
-                        let cleanedText = isPrefix
-                            ? originalText.replace(/-/g, "")
-                            : processSuffixCellContent(originalText, searchedWord);
-
+                        let originalText = cell.textContent.trim(); // var for cell data
+                        let cleanedText = entries_to_text(text_to_entries(originalText)) // 
                         cell.innerHTML = isPrefix
-                            ? `${cleanedText}<strong>${searchedWord}</strong>`
-                            : `<strong>${searchedWord}</strong>${cleanedText}`;
+                            ? `${cleanedText}<strong>${searchedWord}</strong>` // cleanedtext should be the clean text - without (x) & -. seachedword is just an identyfier for the function.
+                            : `<strong>${searchedWord}</strong>${cleanedText}`; // either sets keyword+affix or affix+keyword. and bold. it will. my verbtable is broken. brother. the js was working before xd, i just needed to call the function correctly...
                     });
                 }, 0);
             }
@@ -503,7 +480,7 @@ function loadTableFiles(stem, rowNumber, gender) {
 // === Normalize text and hide empty rows ===
 function normalizeText(s) {
     return (s || "").replace(/\u00a0/g, " ").trim();
-    
+
 }
 
 function hideEmptySummaryRowsIn(summaryTableId) {
