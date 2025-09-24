@@ -124,7 +124,7 @@ function safeIdPart(str) {
 function createSummaryTables() {
     // Get current word class to determine which tables to create
     const currentWordClass = getCurrentWordClass();
-
+    
     if (currentWordClass === 'n' || currentWordClass === 'adj') {
         createNounSummaryTables();
     } else if (currentWordClass === 'v') {
@@ -148,6 +148,13 @@ function getCurrentWordClass() {
 
 // === Create noun/adjective summary tables (existing functionality) ===
 function createNounSummaryTables() {
+    // Get the current page's leftleftdivdictionary element
+    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+    if (!leftleftdivdictionary) {
+        console.error("leftleftdivdictionary element not found");
+        return;
+    }
+
     const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Abstract", "Magical", "Mundane"];
     const numbers = ["Singular", "Dual", "Plural"];
 
@@ -212,6 +219,12 @@ function createNounSummaryTables() {
 
 // === Create verb summary tables ===
 function createVerbSummaryTables() {
+    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+    if (!leftleftdivdictionary) {
+        console.error("leftleftdivdictionary element not found");
+        return;
+    }
+
     // Remove existing tables if they exist
     ["verbConjugationTable", "verbFormsTable"].forEach(id => {
         const oldTable = document.getElementById(id);
@@ -219,9 +232,6 @@ function createVerbSummaryTables() {
             oldTable.parentElement.remove();
         }
     });
-
-    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-    if (!leftleftdivdictionary) return;
 
     // Create verb conjugation table
     const verbConjWrapper = document.createElement("div");
@@ -238,6 +248,12 @@ function createVerbSummaryTables() {
 
 // === Create adverb summary tables ===
 function createAdverbSummaryTables() {
+    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+    if (!leftleftdivdictionary) {
+        console.error("leftleftdivdictionary element not found");
+        return;
+    }
+
     // Remove existing tables if they exist
     ["adverbFormsTable"].forEach(id => {
         const oldTable = document.getElementById(id);
@@ -245,9 +261,6 @@ function createAdverbSummaryTables() {
             oldTable.parentElement.remove();
         }
     });
-
-    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-    if (!leftleftdivdictionary) return;
 
     const adverbWrapper = document.createElement("div");
     adverbWrapper.id = "adverbFormsTablediv";
@@ -258,6 +271,12 @@ function createAdverbSummaryTables() {
 
 // === Create auxiliary summary tables ===
 function createAuxiliarySummaryTables() {
+    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+    if (!leftleftdivdictionary) {
+        console.error("leftleftdivdictionary element not found");
+        return;
+    }
+
     // Remove existing tables if they exist
     ["auxiliaryFormsTable"].forEach(id => {
         const oldTable = document.getElementById(id);
@@ -265,9 +284,6 @@ function createAuxiliarySummaryTables() {
             oldTable.parentElement.remove();
         }
     });
-
-    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-    if (!leftleftdivdictionary) return;
 
     const auxWrapper = document.createElement("div");
     auxWrapper.id = "auxiliaryFormsTablediv";
@@ -523,12 +539,12 @@ function processDictionaryTable() {
 // === runTableLoader ===
 function runTableLoader() {
     const currentWordClass = getCurrentWordClass();
-
+    
     // Only run the existing noun declension logic for nouns and adjectives
     if (currentWordClass !== 'n' && currentWordClass !== 'adj') {
         return;
     }
-
+    
     loaded.clear();
 
     const cell3 = document.getElementById('cell3');
@@ -877,7 +893,7 @@ function loadWordClassContent(wordClass, pageId) {
 
     // Load the appropriate content
     rightDiv.innerHTML = `<include-html src="${contentFile}"></include-html>`;
-
+    
     // Trigger the include-html custom element to load the content
     const includeElement = rightDiv.querySelector('include-html');
     if (includeElement && includeElement.connectedCallback) {
