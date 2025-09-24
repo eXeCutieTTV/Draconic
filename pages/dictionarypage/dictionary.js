@@ -1,4 +1,4 @@
-// get data from official sheet
+// loadDictionaryData
 let dictionaryData = [];
 
 function loadDictionaryData() {
@@ -19,6 +19,7 @@ function loadDictionaryData() {
     }
 }
 
+// loadFromGoogleSheets
 function loadFromGoogleSheets(apiKey) {
     const SHEET_ID = "168-Rzwk2OjxKJfHy-xNYvwPmDTi5Olv9KTgAs4v33HE";
     const RANGE = "Dictionary!A2:E999";
@@ -42,6 +43,7 @@ function loadFromGoogleSheets(apiKey) {
         });
 }
 
+// loadFromExcelFile
 function loadFromExcelFile(filename) {
     const container = document.getElementById("sheet-data");
     container.textContent = "Loading local Excel file…";
@@ -124,7 +126,7 @@ function safeIdPart(str) {
 function createSummaryTables() {
     // Get current word class to determine which tables to create
     const currentWordClass = getCurrentWordClass();
-    
+
     if (currentWordClass === 'n' || currentWordClass === 'adj') {
         createNounSummaryTables();
     } else if (currentWordClass === 'v') {
@@ -226,7 +228,7 @@ function createVerbSummaryTables() {
     }
 
     // Remove existing tables if they exist
-    ["verbConjugationTable", "verbFormsTable"].forEach(id => {
+    ["verbPrefixTable", "verbSuffixTable"].forEach(id => {
         const oldTable = document.getElementById(id);
         if (oldTable) {
             oldTable.parentElement.remove();
@@ -235,16 +237,26 @@ function createVerbSummaryTables() {
 
     // Create verb conjugation table
     const verbConjWrapper = document.createElement("div");
-    verbConjWrapper.id = "verbConjugationTablediv";
+    verbConjWrapper.id = "verbPrefixTablediv";
     leftleftdivdictionary.appendChild(verbConjWrapper);
 
     const verbFormsWrapper = document.createElement("div");
-    verbFormsWrapper.id = "verbFormsTablediv";
+    verbFormsWrapper.id = "verbSuffixTablediv";
     leftleftdivdictionary.appendChild(verbFormsWrapper);
 
-    buildVerbTable("verbConjugationTable", "Verb Conjugation", "verbConjugationTablediv");
-    buildVerbTable("verbFormsTable", "Verb Forms", "verbFormsTablediv");
+    buildVerbTable("pages/verbspage/tables/subjectprefix.html",
+        "verbPrefixTablediv",
+        "verbPrefixTable",
+        keyword,
+        true);
+    buildVerbTable("pages/verbspage/tables/objectsuffix.html",
+        "verbSuffixTablediv",
+        "verbSuffixTable",
+        keyword,
+        false);
 }
+
+
 
 // === Create adverb summary tables ===
 function createAdverbSummaryTables() {
@@ -291,42 +303,74 @@ function createAuxiliarySummaryTables() {
 
     buildAuxiliaryTable("auxiliaryFormsTable", "Auxiliary Forms", "auxiliaryFormsTablediv");
 }
+// Define your  glyph classes
+const conlangVowels = ["i", "ī", "e", "ē", "æ", "y", "u", "ū", "o", "ō", "a", "ā", "ú", "û", "ó", "ô", "á", "â"]; // customize as needed
+const conlangConsonants = ["t", "k", "q", "q̇", "‘", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"]; // customize as needed
 
-// Helper function to build verb tables
-function buildVerbTable(id, label, containerId) {
-    const wrapper = document.createElement("div");
-    const table = document.createElement("table");
-    table.id = id;
-    table.border = "1";
+function normalizeGlyph(glyph) {
+    return glyph.normalize("NFC").toLowerCase();
+}
 
-    const thead = document.createElement("thead");
-    const mergedRow = document.createElement("tr");
-    const mergedCell = document.createElement("th");
-    mergedCell.id = id + "-header";
-    mergedCell.colSpan = 3;
-    mergedCell.textContent = label;
-    mergedRow.appendChild(mergedCell);
-    thead.appendChild(mergedRow);
+function isConlangVowel(char) {
+    return conlangVowels.includes(normalizeGlyph(char));
+}
 
-    const headerRow = document.createElement("tr");
-    headerRow.innerHTML = `<th>Form</th><th>Episodic</th><th>Gnomic</th>`;
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
+function isConlangConsonant(char) {
+    return conlangConsonants.includes(normalizeGlyph(char));
+}
 
-    const tbody = document.createElement("tbody");
-    const forms = ["Present", "Past"];
-    forms.forEach(form => {
-        const row = document.createElement("tr");
-        row.innerHTML = `<th>${form}</th><td></td><td></td>`;
-        tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
+function processSuffixCellContent(cellText, keyword) {
+    const lastChar = normalizeGlyph(keyword.slice(-1));
+    const match = cellText.match(/\(([^)]+)\)/);
 
-    wrapper.appendChild(table);
-    const container = document.getElementById(containerId);
-    if (container) {
-        container.appendChild(wrapper);
+    if (!match) return cellText.replace(/-/g, "");
+
+    const glyph = normalizeGlyph(match[1]);
+    const keywordIsVowel = isConlangVowel(lastChar);
+    const glyphIsVowel = isConlangVowel(glyph);
+
+    if (keywordIsVowel === glyphIsVowel) {
+        return cellText.replace(/\([^)]+\)/, "").replace(/-/g, "");
+    } else {
+        return cellText.replace(/\(([^)]+)\)/, "$1").replace(/-/g, "");
     }
+}
+
+function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) {
+    fetch(sourcePath)
+        .then(response => {
+            if (!response.ok) throw new Error(`Failed to load ${sourcePath}: ${response.status}`);
+            return response.text();
+        })
+        .then(html => {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = html;
+
+                setTimeout(() => {
+                    const table = document.getElementById(tableId);
+                    if (!table) {
+                        console.warn(`Table with ID "${tableId}" not found.`);
+                        return;
+                    }
+
+                    const cells = table.querySelectorAll("td");
+                    cells.forEach(cell => {
+                        let originalText = cell.textContent.trim();
+                        let cleanedText = isPrefix
+                            ? originalText.replace(/-/g, "")
+                            : processSuffixCellContent(originalText, searchedWord);
+
+                        cell.innerHTML = isPrefix
+                            ? `${cleanedText}<strong>${searchedWord}</strong>`
+                            : `<strong>${searchedWord}</strong>${cleanedText}`;
+                    });
+                }, 0);
+            }
+        })
+        .catch(error => {
+            console.error("Error loading table:", error);
+        });
 }
 
 // Helper function to build adverb tables
@@ -334,7 +378,6 @@ function buildAdverbTable(id, label, containerId) {
     const wrapper = document.createElement("div");
     const table = document.createElement("table");
     table.id = id;
-    table.border = "1";
 
     const thead = document.createElement("thead");
     const mergedRow = document.createElement("tr");
@@ -539,12 +582,12 @@ function processDictionaryTable() {
 // === runTableLoader ===
 function runTableLoader() {
     const currentWordClass = getCurrentWordClass();
-    
+
     // Only run the existing noun declension logic for nouns and adjectives
     if (currentWordClass !== 'n' && currentWordClass !== 'adj') {
         return;
     }
-    
+
     loaded.clear();
 
     const cell3 = document.getElementById('cell3');
@@ -876,24 +919,24 @@ function loadWordClassContent(wordClass, pageId) {
     switch (wordClass) {
         case 'n':
         case 'adj':
-            contentFile = 'pages/nounspage/text/nountextbox.html';
+            contentFile = 'pages/dictionarypage/text/nountextbox.html'; // nouns text
             break;
         case 'v':
-            contentFile = 'pages/verbspage/text/verbtextbox.html'; // You'll need to create this
+            contentFile = 'pages/dictionarypage/text/verbtextbox.html'; // verbs text
             break;
         case 'adv':
-            contentFile = 'pages/adverbspage/text/adverbtextbox.html'; // You'll need to create this
+            contentFile = 'pages/dictionarypage/text/adverbtextbox.html'; // adverbs text
             break;
         case 'aux':
-            contentFile = 'pages/auxilariespage/text/auxiliarytextbox.html'; // You'll need to create this
+            contentFile = 'pages/dictionarypage/text/auxiliarytextbox.html'; // auxiliaries text
             break;
         default:
-            contentFile = 'pages/nounspage/text/nountextbox.html'; // Default fallback
+            contentFile = 'pages/dictionarypage/text/nountextbox.html'; // Default fallback text
     }
 
     // Load the appropriate content
     rightDiv.innerHTML = `<include-html src="${contentFile}"></include-html>`;
-    
+
     // Trigger the include-html custom element to load the content
     const includeElement = rightDiv.querySelector('include-html');
     if (includeElement && includeElement.connectedCallback) {
