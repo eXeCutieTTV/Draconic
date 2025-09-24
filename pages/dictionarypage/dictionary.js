@@ -64,7 +64,6 @@ function loadFromExcelFile(filename) {
 function renderTable(data) {
     const container = document.getElementById("sheet-data");
     const table = document.createElement("table");
-    table.border = "1";
 
     data.forEach(row => {
         const tr = document.createElement("tr");
@@ -114,10 +113,11 @@ function renderTable(data) {
     processDictionaryTable();
 }
 
-// Helper: make a safe string for IDs/selectors
+// Helper: make a safe string for IDs/selectors (words containing the ax symbol can now still be converted into ids)
 function safeIdPart(str) {
     return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash
 }
+
 
 // declension tables
 // === Create the two summary tables ===
@@ -319,7 +319,7 @@ function processDictionaryTable() {
     });
 }
 
-// === Main loader ===
+// === runTableLoader ===
 function runTableLoader() {
     loaded.clear();
 
