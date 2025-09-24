@@ -127,8 +127,9 @@ function createSummaryTables() {
     // Get current word class to determine which tables to create
     const currentWordClass = getCurrentWordClass();
 
-    if (currentWordClass === 'n' || currentWordClass === 'adj') {
+    if (currentWordClass === 'n') {
         createNounSummaryTables();
+        populateNounSummaryTables(keyword, false);
     } else if (currentWordClass === 'v') {
         createVerbSummaryTables();
     } else if (currentWordClass === 'adv') {
