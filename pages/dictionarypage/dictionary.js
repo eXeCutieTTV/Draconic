@@ -173,7 +173,6 @@ function createNounSummaryTables() {
 
         const table = document.createElement("table");
         table.id = id;
-        table.border = "1";
 
         const thead = document.createElement("thead");
 
