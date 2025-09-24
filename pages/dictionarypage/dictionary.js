@@ -122,6 +122,32 @@ function safeIdPart(str) {
 // declension tables
 // === Create the two summary tables ===
 function createSummaryTables() {
+    // Get current word class to determine which tables to create
+    const currentWordClass = getCurrentWordClass();
+
+    if (currentWordClass === 'n' || currentWordClass === 'adj') {
+        createNounSummaryTables();
+    } else if (currentWordClass === 'v') {
+        createVerbSummaryTables();
+    } else if (currentWordClass === 'adv') {
+        createAdverbSummaryTables();
+    } else if (currentWordClass === 'aux') {
+        createAuxiliarySummaryTables();
+    }
+    // Add more word classes as needed
+}
+
+// Helper function to get current word class from the displayed table
+function getCurrentWordClass() {
+    const cell5 = document.getElementById('cell5'); // wordclass is in cell5 (6th column)
+    if (cell5) {
+        return cell5.textContent.trim();
+    }
+    return null;
+}
+
+// === Create noun/adjective summary tables (existing functionality) ===
+function createNounSummaryTables() {
     const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Abstract", "Magical", "Mundane"];
     const numbers = ["Singular", "Dual", "Plural"];
 
@@ -183,6 +209,181 @@ function createSummaryTables() {
     buildTable("dirSummaryTable", "Directive", "dirSummaryTablediv");
     buildTable("recSummaryTable", "Recessive", "recSummaryTablediv");
 }
+
+// === Create verb summary tables ===
+function createVerbSummaryTables() {
+    // Remove existing tables if they exist
+    ["verbConjugationTable", "verbFormsTable"].forEach(id => {
+        const oldTable = document.getElementById(id);
+        if (oldTable) {
+            oldTable.parentElement.remove();
+        }
+    });
+
+    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+    if (!leftleftdivdictionary) return;
+
+    // Create verb conjugation table
+    const verbConjWrapper = document.createElement("div");
+    verbConjWrapper.id = "verbConjugationTablediv";
+    leftleftdivdictionary.appendChild(verbConjWrapper);
+
+    const verbFormsWrapper = document.createElement("div");
+    verbFormsWrapper.id = "verbFormsTablediv";
+    leftleftdivdictionary.appendChild(verbFormsWrapper);
+
+    buildVerbTable("verbConjugationTable", "Verb Conjugation", "verbConjugationTablediv");
+    buildVerbTable("verbFormsTable", "Verb Forms", "verbFormsTablediv");
+}
+
+// === Create adverb summary tables ===
+function createAdverbSummaryTables() {
+    // Remove existing tables if they exist
+    ["adverbFormsTable"].forEach(id => {
+        const oldTable = document.getElementById(id);
+        if (oldTable) {
+            oldTable.parentElement.remove();
+        }
+    });
+
+    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+    if (!leftleftdivdictionary) return;
+
+    const adverbWrapper = document.createElement("div");
+    adverbWrapper.id = "adverbFormsTablediv";
+    leftleftdivdictionary.appendChild(adverbWrapper);
+
+    buildAdverbTable("adverbFormsTable", "Adverb Forms", "adverbFormsTablediv");
+}
+
+// === Create auxiliary summary tables ===
+function createAuxiliarySummaryTables() {
+    // Remove existing tables if they exist
+    ["auxiliaryFormsTable"].forEach(id => {
+        const oldTable = document.getElementById(id);
+        if (oldTable) {
+            oldTable.parentElement.remove();
+        }
+    });
+
+    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+    if (!leftleftdivdictionary) return;
+
+    const auxWrapper = document.createElement("div");
+    auxWrapper.id = "auxiliaryFormsTablediv";
+    leftleftdivdictionary.appendChild(auxWrapper);
+
+    buildAuxiliaryTable("auxiliaryFormsTable", "Auxiliary Forms", "auxiliaryFormsTablediv");
+}
+
+// Helper function to build verb tables
+function buildVerbTable(id, label, containerId) {
+    const wrapper = document.createElement("div");
+    const table = document.createElement("table");
+    table.id = id;
+    table.border = "1";
+
+    const thead = document.createElement("thead");
+    const mergedRow = document.createElement("tr");
+    const mergedCell = document.createElement("th");
+    mergedCell.id = id + "-header";
+    mergedCell.colSpan = 3;
+    mergedCell.textContent = label;
+    mergedRow.appendChild(mergedCell);
+    thead.appendChild(mergedRow);
+
+    const headerRow = document.createElement("tr");
+    headerRow.innerHTML = `<th>Form</th><th>Episodic</th><th>Gnomic</th>`;
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    const forms = ["Present", "Past"];
+    forms.forEach(form => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<th>${form}</th><td></td><td></td>`;
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+
+    wrapper.appendChild(table);
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.appendChild(wrapper);
+    }
+}
+
+// Helper function to build adverb tables
+function buildAdverbTable(id, label, containerId) {
+    const wrapper = document.createElement("div");
+    const table = document.createElement("table");
+    table.id = id;
+    table.border = "1";
+
+    const thead = document.createElement("thead");
+    const mergedRow = document.createElement("tr");
+    const mergedCell = document.createElement("th");
+    mergedCell.id = id + "-header";
+    mergedCell.colSpan = 2;
+    mergedCell.textContent = label;
+    mergedRow.appendChild(mergedCell);
+    thead.appendChild(mergedRow);
+
+    const headerRow = document.createElement("tr");
+    headerRow.innerHTML = `<th>Form</th><th>Value</th>`;
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    const forms = ["Base Form", "Elative Form"];
+    forms.forEach(form => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<th>${form}</th><td></td>`;
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+
+    wrapper.appendChild(table);
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.appendChild(wrapper);
+    }
+}
+
+// Helper function to build auxiliary tables
+function buildAuxiliaryTable(id, label, containerId) {
+    const wrapper = document.createElement("div");
+    const table = document.createElement("table");
+    table.id = id;
+    table.border = "1";
+
+    const thead = document.createElement("thead");
+    const mergedRow = document.createElement("tr");
+    const mergedCell = document.createElement("th");
+    mergedCell.id = id + "-header";
+    mergedCell.colSpan = 4;
+    mergedCell.textContent = label;
+    mergedRow.appendChild(mergedCell);
+    thead.appendChild(mergedRow);
+
+    const headerRow = document.createElement("tr");
+    headerRow.innerHTML = `<th>Form</th><th>Episodic Past</th><th>Gnomic Non-Past</th><th>Gnomic Past</th>`;
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    const row = document.createElement("tr");
+    row.innerHTML = `<th>Forms</th><td></td><td></td><td></td>`;
+    tbody.appendChild(row);
+    table.appendChild(tbody);
+
+    wrapper.appendChild(table);
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.appendChild(wrapper);
+    }
+}
+
 // === Map of identifiers to stems ===
 const tableMap = {
     "a.": "abstract",
@@ -321,6 +522,13 @@ function processDictionaryTable() {
 
 // === runTableLoader ===
 function runTableLoader() {
+    const currentWordClass = getCurrentWordClass();
+
+    // Only run the existing noun declension logic for nouns and adjectives
+    if (currentWordClass !== 'n' && currentWordClass !== 'adj') {
+        return;
+    }
+
     loaded.clear();
 
     const cell3 = document.getElementById('cell3');
@@ -403,7 +611,7 @@ function createTable(keyword, container) {
 
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-    const headers = ["Word", "Declension", "Definition", "Forms", "Usage Notes"];
+    const headers = ["Word", "Declension", "Definition", "Forms", "Usage Notes", "Word Class"];
     headers.forEach(text => {
         const th = document.createElement('th');
         th.textContent = text;
@@ -415,8 +623,8 @@ function createTable(keyword, container) {
     const tbody = document.createElement('tbody');
     const row = document.createElement('tr');
 
-    // Create 5 cells with stable IDs (no keyword)
-    for (let i = 0; i < 5; i++) {
+    // Create 6 cells with stable IDs (no keyword) - added one for word class
+    for (let i = 0; i < 6; i++) {
         const td = document.createElement('td');
         td.id = `cell${i}`;
         row.appendChild(td);
@@ -443,7 +651,7 @@ function fillTable(keyword, table) {
 
     for (const row of rows) {
         const cells = Array.from(row.querySelectorAll("td"));
-        if (cells.length < 6) continue;
+        if (cells.length < 6) continue; // Now expecting 6 cells including word class
 
         const word = cells[0].textContent.trim().toLowerCase();
         if (word === kw) {
@@ -457,7 +665,7 @@ function fillTable(keyword, table) {
         return;
     }
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) { // Now filling 6 cells including word class
         const td = table.querySelector(`#cell${i}`);
         if (td) {
             const raw = foundRow[i].textContent;
@@ -623,6 +831,10 @@ function performSearch() {
         }
         cloneKeywordText();
 
+        // Load appropriate content based on word class
+        const currentWordClass = getCurrentWordClass();
+        loadWordClassContent(currentWordClass, targetPageId);
+
         // Clear and refocus whichever field was used
         if (field1 && field1.value.trim() !== '') {
             field1.value = '';
@@ -637,6 +849,40 @@ function performSearch() {
     }).catch(error => {
         console.error(`Failed to find page container for ${targetPageId}:`, error);
     });
+}
+
+// Load appropriate HTML content based on word class
+function loadWordClassContent(wordClass, pageId) {
+    const rightDiv = document.querySelector(`#${pageId} #rightleftdivdictionary`);
+    if (!rightDiv) return;
+
+    let contentFile = '';
+    switch (wordClass) {
+        case 'n':
+        case 'adj':
+            contentFile = 'pages/nounspage/text/nountextbox.html';
+            break;
+        case 'v':
+            contentFile = 'pages/verbspage/text/verbtextbox.html'; // You'll need to create this
+            break;
+        case 'adv':
+            contentFile = 'pages/adverbspage/text/adverbtextbox.html'; // You'll need to create this
+            break;
+        case 'aux':
+            contentFile = 'pages/auxilariespage/text/auxiliarytextbox.html'; // You'll need to create this
+            break;
+        default:
+            contentFile = 'pages/nounspage/text/nountextbox.html'; // Default fallback
+    }
+
+    // Load the appropriate content
+    rightDiv.innerHTML = `<include-html src="${contentFile}"></include-html>`;
+
+    // Trigger the include-html custom element to load the content
+    const includeElement = rightDiv.querySelector('include-html');
+    if (includeElement && includeElement.connectedCallback) {
+        includeElement.connectedCallback();
+    }
 }
 
 // clone <p> element with keyword data
