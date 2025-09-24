@@ -903,8 +903,11 @@ function performSearch() {
             field2.focus();
         }
 
-        runTableLoader(); // call your declension table logic here
-        createSummaryTables(); // declensiontable
+        // Add a small delay to ensure the table content is fully processed
+        setTimeout(() => {
+            runTableLoader(); // call your declension table logic here
+            createSummaryTables(); // declensiontable
+        }, 50);
     }).catch(error => {
         console.error(`Failed to find page container for ${targetPageId}:`, error);
     });
