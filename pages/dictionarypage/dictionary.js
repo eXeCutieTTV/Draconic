@@ -2,17 +2,20 @@
 let dictionaryData = [];
 
 function loadDictionaryData() {
-    const checkbox = document.getElementById("myCheckbox");
+    const APIfield = document.getElementById("api_field");
 
-    if (checkbox && checkbox.checked) {
-        const userKey = prompt("Enter your Google Sheets API key:");
+    if (APIfield && APIfield.value) {
+        const userKey = APIfield.value.trim();
         if (userKey) {
             loadFromGoogleSheets(userKey);
+            console.log("loaded from official sheet");
         } else {
             loadFromExcelFile("22-09-2025.xlsx");
+            console.log("loaded from excel file(may be outdated)");
         }
     } else {
         loadFromExcelFile("22-09-2025.xlsx");
+        console.log("loaded from excel file(may be outdated)");
     }
 }
 
