@@ -234,8 +234,7 @@ function populateNounSummaryTables(keyword, tables) {
 
             // place keyword as prefix or suffix (you can change behavior per table)
 
-        });//now we need more logic. if last letter of word vowel && first letter of suffix is vowel, then remove keyword vowel. its already doing it?
-        // 
+        });//actually. the logic is bit more complicated than that. it should first be, if letter in parenthesis is not opposite of last/first letter class in keyword, then letter in parenthesis disappears. NOW if vowels touch, then keyword vowel gets cut, same for consonant
     });
 }
 // === Create verb summary tables ===
