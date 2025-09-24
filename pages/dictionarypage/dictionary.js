@@ -229,7 +229,7 @@ function populateNounSummaryTables(keyword, tables) {
             else entries = connect_split("", raw, keyword);
             // if (tables[tableId]) console.log(entries_to_text(connect(keyword, raw, "")));
             // else entries = console.log(entries_to_text(connect("", raw, keyword))); 
-            console.log(entries_to_text(connect(keyword, raw, ""))); //omfg wtf
+            // console.log(entries_to_text(connect(keyword, raw, ""))); //omfg wtf
             td.innerHTML = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
 
             // place keyword as prefix or suffix (you can change behavior per table)
