@@ -1,0 +1,18 @@
+.objectsuffix, .subjectprefix {
+    width: 90%;
+    margin-bottom: 0px;
+    margin-left: 2%;
+    padding: 10px;
+}
+
+/* normalAffix Hover */
+.normalAffix:hover {
+    background-color: #f1d3d3;
+}
+
+.rareAffix {
+    background-color: #C29A9A;
+}
+.rareAffix:hover{
+    background-color: #f2c8c8;
+}
