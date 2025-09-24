@@ -12,6 +12,9 @@
     bottom: 0;
     left: 0;
     width: 100%;
+    scroll-behavior: auto;
+    scrollbar-width:auto;
+    text-wrap: nowrap;
 }
 
 .tab {

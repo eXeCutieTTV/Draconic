@@ -1,0 +1,10 @@
+#wrapperp7{
+    display: flex;
+    width: 100%;
+}
+#leftdivp7{
+    flex: 0.75;
+}
+#rightdivp7{
+    flex: 0.25;
+}

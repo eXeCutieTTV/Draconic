@@ -108,7 +108,9 @@
 
         Nine times out of ten, you can just use the Directive without thinking
         about it.
-        <a href="reference">Read more about reccesive here.</a> <!-- MAKE SURE TO LINK TO THE RIGHT PAGE -->
+        <a href="#"
+            onclick="event.preventDefault(); openPageAndScroll('page3', '.tab-bar .tab:nth-child(4)', 'RecDir')">Read
+            more about reccesive here.</a>
     </p>
     <p style="margin-top: 33px; width: 80%;">
         Nouns will have different forms depending on gender, number, and case. Take, for example, <lilitalic>trærūn
@@ -129,7 +131,9 @@
         . <br>The suffixes will
         be different depending on declension and gender. <br>A full set of all suffixes for all genders and declensions
         is
-        available <a href="reference">here</a>.
+        available 
+        <a href="#"
+            onclick="event.preventDefault(); openPageAndScroll('page3', '.tab-bar .tab:nth-child(4)', 'declensiontablesheader')">here</a>.
     </p>
     <p style="width: 80%;">
         A handful of nouns, referred to as <lilbold>“defective</lilbold>,” do not inflect for case, and always use the
@@ -142,6 +146,7 @@
         be inflected into genders not listed in the dictionary.
     </p>
     <!--declensiontables-->
+    <h id="declensiontablesheader" style="margin-left:2%;"><enbolden>Declension Tables</enbolden></h>
     <div class="TableWrapperp2">
         <div class="Leftdivp2">
             <include-html src="pages\nounspage\tables\declensiontables\directive.html"></include-html>
@@ -181,7 +186,9 @@
         number and case. The use of <lilbold>distal demonstratives</lilbold> can not only indicate <lilbold>physical
         </lilbold> proximity, but also <lilbold>social</lilbold> or
         <lilbold>contextual</lilbold> proximity, or even <lilbold>obviation</lilbold>. <br>Though nominalized adjectives
-        must follow the <lilbold>animacy hierarchy</lilbold> (<a href="reference">see more here</a>), nominalized
+        must follow the <lilbold>animacy hierarchy</lilbold> (<a href="#"
+            onclick="event.preventDefault(); openPageAndScroll('page7', '.tab-bar .tab:nth-child(8)', 'animacy&agency')">see
+            more here</a>), nominalized
         determiners do not, although both obey the presumed agency hierarchy.
     </p>
     <p style="width: 80%;">
