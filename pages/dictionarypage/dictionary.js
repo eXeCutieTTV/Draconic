@@ -125,8 +125,8 @@ function safeIdPart(str) {
 // === Create the two summary tables ===
 function createSummaryTables() {
     switch (getCurrentWordClass()) {
-        case 'n': createNounSummaryTables(); setTimeout(() => { populateNounSummaryTables(keyword, { dirSummaryTable: true, recSummaryTable: true }); }, 500); break;
-        case 'v': createVerbSummaryTables(); setTimeout(() => { populateNounSummaryTables(keyword, { dictionaryVerbPrefixTable: false, dictionaryVerbSuffixTable: true }); }, 500); break;
+        case 'n': createNounSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: true, recSummaryTable: true }); }, 500); break;
+        case 'v': createVerbSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: false, dictionaryVerbSuffixTable: true }); }, 500); break;
         case 'adv': createAdverbSummaryTables(); break;
         case 'aux': createAuxiliarySummaryTables(); break;
     }
@@ -188,6 +188,7 @@ function createNounSummaryTables() {
                 const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
                 row.innerHTML = `<th>${gender}</th>` + cellsHtml;
                 tbody.appendChild(row);
+                processSuffixCellContent(td, keyword);
             });
             table.appendChild(tbody);
 
@@ -213,8 +214,25 @@ function createNounSummaryTables() {
         requestAnimationFrame(() => resolve());
     });
 }
+// keep parenthesis data?
+function processSuffixCellContent(cellText, keyword) {
+    const lastChar = normalizeGlyph(keyword.slice(-1));
+    const match = cellText.match(/\(([^)]+)\)/);
 
-function populateNounSummaryTables(keyword, tables) {
+    if (!match) return cellText.replace(/-/g, "");
+
+    const glyph = normalizeGlyph(match[1]);
+    const keywordIsVowel = isConlangVowel(lastChar);
+    const glyphIsVowel = isConlangVowel(glyph);
+
+ //   if (keywordIsVowel === glyphIsVowel) {
+ //       return cellText.replace(/\([^)]+\)/, "").replace(/-/g, "");
+ //   } else {
+ //       return cellText.replace(/\(([^)]+)\)/, "$1").replace(/-/g, "");
+  //  }// replaced by lirox' entries_to_text thingy.
+}
+
+function populateSummaryTables(keyword, tables) {
     Object.keys(tables).forEach(tableId => { // tables = {tableID: isPrefix, ...} //???
         const table = document.getElementById(tableId);
         if (!table) return;
@@ -229,7 +247,7 @@ function populateNounSummaryTables(keyword, tables) {
             else entries = connect_split("", raw, keyword);
             // if (tables[tableId]) console.log(entries_to_text(connect(keyword, raw, "")));
             // else entries = console.log(entries_to_text(connect("", raw, keyword))); 
-            // console.log(entries_to_text(connect(keyword, raw, ""))); //omfg wtf
+            // console.log(entries_to_text(connect(keyword, raw, "")));
             td.innerHTML = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
 
             // place keyword as prefix or suffix (you can change behavior per table)
@@ -585,8 +603,8 @@ function processDictionaryTable() {
 function runTableLoader() {
     const currentWordClass = getCurrentWordClass();
 
-    // Only run the existing noun declension logic for nouns and adjectives
-    if (currentWordClass !== 'n' && currentWordClass !== 'adj') {
+    // Only run the existing noun declension logic for nouns
+    if (currentWordClass !== 'n') {
         return;
     }
 
@@ -920,7 +938,6 @@ function loadWordClassContent(wordClass, pageId) {
     let contentFile = '';
     switch (wordClass) {
         case 'n':
-        case 'adj':
             contentFile = 'pages/dictionarypage/text/nountextbox.html'; // nouns text
             break;
         case 'v':
@@ -961,6 +978,7 @@ function cloneKeywordText() {
     }
 }
 
+// put buttons on index.js?
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
     doSearch();
