@@ -148,26 +148,27 @@ function getCurrentWordClass() {
     return null;
 }
 
-// === Create noun/adjective summary tables (existing functionality) ===
+// === Create noun summary tables (existing functionality) ===
 function createNounSummaryTables() {
-    // Get the current page's leftleftdivdictionary element
     const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
     if (!leftleftdivdictionary) {
         console.error("leftleftdivdictionary element not found");
         return;
     }
 
+    // local copies (if you prefer to use external arrays, remove these)
     const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Abstract", "Magical", "Mundane"];
     const numbers = ["Singular", "Dual", "Plural"];
 
     // Remove existing tables if they exist
     ["dirSummaryTable", "recSummaryTable"].forEach(id => {
         const oldTable = document.getElementById(id);
-        if (oldTable) {
-            oldTable.parentElement.remove(); // remove the wrapper div
+        if (oldTable && oldTable.parentElement) {
+            oldTable.parentElement.remove();
         }
     });
 
+    // internal builder that sets data-raw on each TD
     function buildTable(id, label, containerId) {
         const wrapper = document.createElement("div");
 
@@ -195,7 +196,9 @@ function createNounSummaryTables() {
         const tbody = document.createElement("tbody");
         genders.forEach(gender => {
             const row = document.createElement("tr");
-            row.innerHTML = `<th>${gender}</th>` + numbers.map(() => `<td></td>`).join("");
+            // create TDs and set data-raw="" so you can populate later
+            const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
+            row.innerHTML = `<th>${gender}</th>` + cellsHtml;
             tbody.appendChild(row);
         });
         table.appendChild(tbody);
@@ -207,6 +210,8 @@ function createNounSummaryTables() {
 
         container.appendChild(wrapper);
     }
+
+    // create wrapper divs and attach them
     const dirsummarytablefinalwrapper = document.createElement("div");
     const recsummarytablefinalwrapper = document.createElement("div");
     dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
@@ -217,7 +222,27 @@ function createNounSummaryTables() {
     buildTable("dirSummaryTable", "Directive", "dirSummaryTablediv");
     buildTable("recSummaryTable", "Recessive", "recSummaryTablediv");
 }
+function populateNounSummaryTables(keyword, isPrefixForRecTable = false) {
+    ["dirSummaryTable", "recSummaryTable"].forEach(tableId => {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const isPrefix = (tableId === "recSummaryTable") ? isPrefixForRecTable : false;
 
+        const tds = table.querySelectorAll("tbody td");
+        tds.forEach(td => {
+            // prefer original stored raw suffix (data-raw) if present
+            const raw = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
+
+            // process raw through phonology function
+            const cleaned = processSuffixCellContent(raw, keyword);
+
+            // place keyword as prefix or suffix (you can change behavior per table)
+            td.innerHTML = isPrefix
+                ? `${cleaned}<strong>${keyword}</strong>`
+                : `<strong>${keyword}</strong>${cleaned}`;
+        });
+    });
+}
 // === Create verb summary tables ===
 function createVerbSummaryTables() {
     const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
@@ -477,6 +502,7 @@ function loadTableFiles(stem, rowNumber, gender) {
 // === Normalize text and hide empty rows ===
 function normalizeText(s) {
     return (s || "").replace(/\u00a0/g, " ").trim();
+    
 }
 
 function hideEmptySummaryRowsIn(summaryTableId) {
@@ -902,8 +928,8 @@ function performSearch() {
             field2.focus();
         }
 
-            runTableLoader(); // call your declension table logic here
-            createSummaryTables(); // declensiontable
+        runTableLoader(); // call your declension table logic here
+        createSummaryTables(); // declensiontable
     }).catch(error => {
         console.error(`Failed to find page container for ${targetPageId}:`, error);
     });
