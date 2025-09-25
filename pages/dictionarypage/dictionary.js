@@ -120,16 +120,33 @@ function safeIdPart(str) {
     return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash
 }
 
+// dictionary tables
+// === Create the summary tables ===
 let CurrentWordClassAsText = "";
 let dictionaryPageReference = "";
-// declension tables
-// === Create the summary tables ===
 function createSummaryTables() {
     switch (getCurrentWordClass()) {
-        case 'n': createNounSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false }); }, 50); CurrentWordClassAsText = "noun"; dictionaryPageReference = () => openPage('page3', document.querySelector('.tab-bar .tab:nth-child(5)')); break;
-        case 'v': createVerbSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false }); }, 50); CurrentWordClassAsText = "verb"; dictionaryPageReference = () => openPage('page4', document.querySelector('.tab-bar .tab:nth-child(6)')); break;
-        case 'adv': createAdverbSummaryTables(); break;
-        case 'aux': createAuxiliarySummaryTables(); break;
+        case 'n': createNounSummaryTables();
+            setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false }); }, 25);
+            CurrentWordClassAsText = "noun";
+            dictionaryPageReference = () => openPage('page3', document.querySelector('.tab-bar .tab:nth-child(5)'));
+            break;
+
+        case 'v': createVerbSummaryTables();
+            setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false }); }, 25);
+            CurrentWordClassAsText = "verb";
+            dictionaryPageReference = () => openPage('page4', document.querySelector('.tab-bar .tab:nth-child(6)'));
+            break;
+
+        case 'adv': createAdverbSummaryTables();
+            CurrentWordClassAsText = "adverb";
+            dictionaryPageReference = () => openPage('page5', document.querySelector('.tab-bar .tab:nth-child(7)'));
+            break;
+
+        case 'aux': createAuxiliarySummaryTables();
+            CurrentWordClassAsText = "auxilar"; //no -y, since that allows me to make it plural without an extra function. (auxilaries in plural)
+            dictionaryPageReference = () => openPage('page6', document.querySelector('.tab-bar .tab:nth-child(8)'));
+            break;
     }
 }
 
