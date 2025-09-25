@@ -268,7 +268,7 @@ function populateSummaryTables(keyword, tables) {
             // prefer original stored raw suffix (data-raw) if present 
             const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
             // ^^^ turns out i mixed up raw and keyword
-            console.log(td.innerHTML)
+            console.log(td.innerHTML);
 
             // process raw
             let entries;
@@ -365,7 +365,7 @@ function createAuxiliarySummaryTables() {
 }
 // Define your  glyph classes
 const conlangVowels = ["i", "ī", "e", "ē", "æ", "y", "u", "ū", "o", "ō", "a", "ā", "ú", "û", "ó", "ô", "á", "â"];
-const conlangConsonants = ["t", "k", "q", "q̇", "‘", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"];
+const conlangConsonants = ["t", "k", "q", "q̇", "'", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"];
 console.log(conlangVowels);
 console.log(conlangConsonants);
 
@@ -405,7 +405,7 @@ function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix
                     const cells = table.querySelectorAll("td");
                     cells.forEach(cell => {
                         let originalText = cell.textContent.trim(); // var for cell data
-                        let cleanedText = entries_to_text(text_to_entries(originalText)) // 
+                        let cleanedText = entries_to_text(text_to_entries(originalText)); // 
                         cell.innerHTML = isPrefix
                             ? `${cleanedText}<strong>${searchedWord}</strong>` // cleanedtext should be the clean text - without (x) & -. seachedword is just an identyfier for the function.
                             : `<strong>${searchedWord}</strong>${cleanedText}`; // either sets keyword+affix or affix+keyword. and bold. it will. my verbtable is broken. brother. the js was working before xd, i just needed to call the function correctly...
