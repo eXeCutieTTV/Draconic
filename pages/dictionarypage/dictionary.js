@@ -151,13 +151,15 @@ function createNounSummaryTables() {
         const numbers = ["Singular", "Dual", "Plural"];
 
         // Remove existing tables if they exist
-        ["dirSummaryTable", "recSummaryTable"].forEach(id => {
-            const oldTable = document.getElementById(id);
-            if (oldTable && oldTable.parentElement) {
-                oldTable.parentElement.remove();
-            }
-        });
-
+        if (["dirSummaryTable", "recSummaryTable"]) {
+            ["dirSummaryTable", "recSummaryTable"].forEach(id => {
+                const oldTable = document.getElementById(id);
+                if (oldTable && oldTable.parentElement) {
+                    oldTable.parentElement.remove();
+                    oldTable.remove();
+                }
+            });
+        }
         // internal builder that sets data-raw on each TD
         function buildTable(id, label, containerId) {
             const wrapper = document.createElement("div");
@@ -188,9 +190,6 @@ function createNounSummaryTables() {
                 const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
                 row.innerHTML = `<th>${gender}</th>` + cellsHtml;
                 tbody.appendChild(row);
-                setTimeout(() => {
-                    processSuffixCellContent(cellsHtml, keyword);
-                }, 50);
             });
             table.appendChild(tbody);
 
