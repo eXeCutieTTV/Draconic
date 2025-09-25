@@ -353,8 +353,8 @@ function createAuxiliarySummaryTables() {
 // Define your  glyph classes
 const conlangVowels = ["i", "ī", "e", "ē", "æ", "y", "u", "ū", "o", "ō", "a", "ā", "ú", "û", "ó", "ô", "á", "â"];
 const conlangConsonants = ["t", "k", "q", "q̇", "‘", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"];
-console.log(conlangVowels);
-console.log(conlangConsonants);
+console.log(`Vowels = ${conlangVowels}`);
+console.log(`Consonants = ${conlangConsonants}`);
 
 // will redo -lirox
 function normalizeGlyph(glyph) {
