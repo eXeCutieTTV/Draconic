@@ -369,8 +369,6 @@ function isConlangConsonant(char) {
     return text_to_entries(char)[0].properties.includes(window.REG.CONSONANT);
 }
 
-// yeet -lirox if it breaks - istg... xd
-
 function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) { // ----
     fetch(sourcePath)
         .then(response => {
@@ -455,8 +453,6 @@ function buildAdverbTable(id, label, containerId) {
     const container = document.getElementById(containerId);
     if (container) container.appendChild(wrapper);
 }
-
-
 
 // Helper function to build auxiliary tables
 function buildAuxiliaryTable(id, label, containerId) {
