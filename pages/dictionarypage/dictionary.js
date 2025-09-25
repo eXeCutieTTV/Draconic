@@ -122,11 +122,11 @@ function safeIdPart(str) {
 
 
 // declension tables
-// === Create the two summary tables ===
+// === Create the summary tables ===
 function createSummaryTables() {
     switch (getCurrentWordClass()) {
-        case 'n': createNounSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false }); }, 1000); break;
-        case 'v': createVerbSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false }); }, 1000); break;
+        case 'n': createNounSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false }); }, 50); break;
+        case 'v': createVerbSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false }); }, 50); break;
         case 'adv': createAdverbSummaryTables(); break;
         case 'aux': createAuxiliarySummaryTables(); break;
     }
@@ -188,9 +188,6 @@ function createNounSummaryTables() {
                 const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
                 row.innerHTML = `<th>${gender}</th>` + cellsHtml;
                 tbody.appendChild(row);
-                setTimeout(() => {
-                    processSuffixCellContent(cellsHtml, keyword);
-                }, 50);
             });
             table.appendChild(tbody);
 
@@ -216,23 +213,6 @@ function createNounSummaryTables() {
         requestAnimationFrame(() => resolve());
     });
 }
-// keep parenthesis data?
-//function processSuffixCellContent(cellText, keyword) {
-//  const lastChar = normalizeGlyph(keyword.slice(-1));
-//const match = cellText.match(/\(([^)]+)\)/);
-
-// if (!match) return cellText.replace(/-/g, "");
-
-//    const glyph = normalizeGlyph(match[1]);
-//  const keywordIsVowel = isConlangVowel(lastChar);
-//const glyphIsVowel = isConlangVowel(glyph);
-
-//    if (keywordIsVowel === glyphIsVowel) {
-//      return cellText.replace(/\([^)]+\)/, "").replace(/-/g, "");
-//} else {
-//     return cellText.replace(/\(([^)]+)\)/, "$1").replace(/-/g, "");
-// }// replaced by lirox' entries_to_text thingy.
-//}
 
 function populateSummaryTables(keyword, tables) {
     Object.keys(tables).forEach(tableId => { // tables = {tableID: isPrefix, ...} //???
@@ -253,7 +233,7 @@ function populateSummaryTables(keyword, tables) {
 
             // place keyword as prefix or suffix (you can change behavior per table)
 
-        });//actually. the logic is bit more complicated than that. it should first be, if letter in parenthesis is not opposite of last/first letter class in keyword, then letter in parenthesis disappears. NOW if vowels touch, then keyword vowel gets cut, same for consonant
+        });
     });
 }
 // === Create verb summary tables ===
