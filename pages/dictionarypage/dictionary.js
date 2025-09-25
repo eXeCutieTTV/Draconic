@@ -147,7 +147,7 @@ function createNounSummaryTables() {
             return reject(new Error("leftleftdivdictionary element not found"));
         }
 
-        const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Abstract", "Magical", "Mundane"];
+        const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
         const numbers = ["Singular", "Dual", "Plural"];
 
         // Remove existing tables if they exist
@@ -294,6 +294,15 @@ function createAdverbSummaryTables() {
     leftleftdivdictionary.appendChild(adverbWrapper);
 
     buildAdverbTable("adverbFormsTable", "Adverb Forms", "adverbFormsTablediv");
+    // populate the created td
+    const baseSource = document.getElementById("cell0");
+    const elativeSource = document.getElementById("cell3");
+
+    const baseTd = document.getElementById(`adverbFormsTable-base-form`);
+    const elativeTd = document.getElementById(`adverbFormsTable-elative-form`);
+
+    if (baseTd && baseSource) baseTd.textContent = baseSource.textContent;
+    if (elativeTd && elativeSource) elativeTd.textContent = elativeSource.textContent;
 }
 
 // === Create auxiliary summary tables ===
@@ -379,6 +388,14 @@ function buildAdverbTable(id, label, containerId) {
     const table = document.createElement("table");
     table.id = id;
 
+    // fixed column width via colgroup
+    const colgroup = document.createElement("colgroup");
+    const col1 = document.createElement("col");
+    col1.style.width = "120px";
+    const col2 = document.createElement("col");
+    colgroup.append(col1, col2);
+    table.appendChild(colgroup);
+
     const thead = document.createElement("thead");
     const mergedRow = document.createElement("tr");
     const mergedCell = document.createElement("th");
@@ -387,27 +404,37 @@ function buildAdverbTable(id, label, containerId) {
     mergedCell.textContent = label;
     mergedRow.appendChild(mergedCell);
     thead.appendChild(mergedRow);
-
-    const headerRow = document.createElement("tr");
-    headerRow.innerHTML = `<th>Form</th><th>Value</th>`;
-    thead.appendChild(headerRow);
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
     const forms = ["Base Form", "Elative Form"];
-    forms.forEach(form => {
+    forms.forEach((form, idx) => {
+        const formz = form;
+        // create a safe id fragment from the form text
+        const safe = formz.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+        const rowIdBase = `${id}-${safe}`;
+
         const row = document.createElement("tr");
-        row.innerHTML = `<th>${form}</th><td></td>`;
+
+        const th = document.createElement("th");
+        th.textContent = form;
+
+        const td = document.createElement("td");
+        td.id = `${rowIdBase}`; // e.g. "myTable-base-form-0-value"
+
+        row.appendChild(th);
+        row.appendChild(td);
         tbody.appendChild(row);
     });
     table.appendChild(tbody);
 
     wrapper.appendChild(table);
     const container = document.getElementById(containerId);
-    if (container) {
-        container.appendChild(wrapper);
-    }
+    if (container) container.appendChild(wrapper);
+
 }
+
+
 
 // Helper function to build auxiliary tables
 function buildAuxiliaryTable(id, label, containerId) {
