@@ -328,6 +328,27 @@ function createAuxiliarySummaryTables() {
     leftleftdivdictionary.appendChild(auxWrapper);
 
     buildAuxiliaryTable("auxiliaryFormsTable", "Auxiliary Forms", "auxiliaryFormsTablediv");
+    // populate the created td
+    const EpiNonSource = document.getElementById("cell0");
+    const tripleSource = document.getElementById("cell3");
+
+    const EpiNonTd = document.getElementById(`auxiliaryFormsTable-episodic-non-past`);
+    const EpiPastTd = document.getElementById(`auxiliaryFormsTable-episodic-past`);
+    const GnoNonTd = document.getElementById(`auxiliaryFormsTable-gnomic-non-past`);
+    const GnoPastTd = document.getElementById(`auxiliaryFormsTable-gnomic-past`);
+
+    // copy single-value sources
+    if (EpiNonTd && EpiNonSource) EpiNonTd.textContent = EpiNonSource.textContent;
+    if (EpiPastTd && tripleSource) {
+        EpiPastTd.textContent = tripleSource.textContent;
+    }
+    // split cell3 into three parts and populate the three target TDs
+    if (tripleSource) {
+        const parts = tripleSource.textContent.split(",").map(s => s.trim());
+        if (GnoNonTd) GnoNonTd.textContent = parts[1] ?? "";
+        if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
+        if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
+    }
 }
 // Define your  glyph classes
 const conlangVowels = ["i", "ī", "e", "ē", "æ", "y", "u", "ū", "o", "ō", "a", "ā", "ú", "û", "ó", "ô", "á", "â"];
@@ -410,7 +431,7 @@ function buildAdverbTable(id, label, containerId) {
 
     const tbody = document.createElement("tbody");
     const forms = ["Base Form", "Elative Form"];
-    forms.forEach((form, idx) => {
+    forms.forEach((form) => {
         const formz = form;
         // create a safe id fragment from the form text
         const safe = formz.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
@@ -433,7 +454,6 @@ function buildAdverbTable(id, label, containerId) {
     wrapper.appendChild(table);
     const container = document.getElementById(containerId);
     if (container) container.appendChild(wrapper);
-
 }
 
 
@@ -448,27 +468,46 @@ function buildAuxiliaryTable(id, label, containerId) {
     const mergedRow = document.createElement("tr");
     const mergedCell = document.createElement("th");
     mergedCell.id = id + "-header";
-    mergedCell.colSpan = 4;
+    mergedCell.colSpan = 5;
     mergedCell.textContent = label;
     mergedRow.appendChild(mergedCell);
     thead.appendChild(mergedRow);
 
+
     const headerRow = document.createElement("tr");
-    headerRow.innerHTML = `<th>Form</th><th>Episodic Past</th><th>Gnomic Non-Past</th><th>Gnomic Past</th>`;
+    // keep the visible header texts
+    const headers = ["Form", "Episodic Non-Past", "Episodic Past", "Gnomic Non-Past", "Gnomic Past"];
+    headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        headerRow.appendChild(th);
+    });
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
     const row = document.createElement("tr");
-    row.innerHTML = `<th>Forms</th><td></td><td></td><td></td>`;
+
+    // first cell is the row label
+    const thLabel = document.createElement("th");
+    thLabel.textContent = "Forms";
+    row.appendChild(thLabel);
+
+    // create a TD for each remaining header and assign an id derived from the header text
+    headers.slice(1).forEach(hdr => {
+        const td = document.createElement("td");
+        // sanitize header text to form a valid id fragment
+        const safe = hdr.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+        td.id = `${id}-${safe}`;
+        row.appendChild(td);
+    });
+
     tbody.appendChild(row);
     table.appendChild(tbody);
 
     wrapper.appendChild(table);
     const container = document.getElementById(containerId);
-    if (container) {
-        container.appendChild(wrapper);
-    }
+    if (container) container.appendChild(wrapper);
 }
 
 // === Map of identifiers to stems ===
