@@ -120,13 +120,14 @@ function safeIdPart(str) {
     return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash
 }
 
-
+let CurrentWordClassAsText = "";
+let dictionaryPageReference = "";
 // declension tables
 // === Create the summary tables ===
 function createSummaryTables() {
     switch (getCurrentWordClass()) {
-        case 'n': createNounSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false }); }, 50); break;
-        case 'v': createVerbSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false }); }, 50); break;
+        case 'n': createNounSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false }); }, 50); CurrentWordClassAsText = "noun"; dictionaryPageReference = () => openPage('page3', document.querySelector('.tab-bar .tab:nth-child(5)')); break;
+        case 'v': createVerbSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false }); }, 50); CurrentWordClassAsText = "verb"; dictionaryPageReference = () => openPage('page4', document.querySelector('.tab-bar .tab:nth-child(6)')); break;
         case 'adv': createAdverbSummaryTables(); break;
         case 'aux': createAuxiliarySummaryTables(); break;
     }
@@ -647,6 +648,8 @@ function processDictionaryTable() {
 function runTableLoader() {
     const currentWordClass = getCurrentWordClass();
 
+
+
     // Only run the existing noun declension logic for nouns
     if (currentWordClass !== 'n') {
         return;
@@ -948,12 +951,22 @@ function performSearch() {
         const table = createTable(keyword, pageContainer);
         fillTable(keyword, table);
 
-        // Update keyword displays
+        // Update keyword <p>s
         const keywordp = document.getElementById("keywordp");
         if (keywordp) {
             keywordp.innerHTML = keywordDisplay;
         }
         cloneKeywordText();
+
+        // Update wordclass <p>s
+        setTimeout(() => {
+            const wordclassp = document.getElementById("wordclassp");
+            if (wordclassp) {
+                wordclassp.innerHTML = CurrentWordClassAsText;
+            }
+            cloneWordclassText();
+        }, 0);
+
 
         // Load appropriate content based on word class
         const currentWordClass = getCurrentWordClass();
@@ -1022,7 +1035,20 @@ function cloneKeywordText() {
         }
     }
 }
+// clone <p> element with wordclass data
+function cloneWordclassText() {
+    const source = document.getElementById('wordclassp');
+    if (!source) return;
 
+    const sourceText = source.textContent;
+
+    for (let i = 1; i <= 100; i++) { // Adjust 100 to your max expected number
+        const target = document.getElementById('wordclassp' + i);
+        if (target) {
+            target.textContent = sourceText;
+        }
+    }
+}
 // put buttons on index.js?
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
