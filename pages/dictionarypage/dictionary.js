@@ -225,11 +225,11 @@ function processSuffixCellContent(cellText, keyword) {
     const keywordIsVowel = isConlangVowel(lastChar);
     const glyphIsVowel = isConlangVowel(glyph);
 
- //   if (keywordIsVowel === glyphIsVowel) {
- //       return cellText.replace(/\([^)]+\)/, "").replace(/-/g, "");
- //   } else {
- //       return cellText.replace(/\(([^)]+)\)/, "$1").replace(/-/g, "");
-  //  }// replaced by lirox' entries_to_text thingy.
+    //   if (keywordIsVowel === glyphIsVowel) {
+    //       return cellText.replace(/\([^)]+\)/, "").replace(/-/g, "");
+    //   } else {
+    //       return cellText.replace(/\(([^)]+)\)/, "$1").replace(/-/g, "");
+    //  }// replaced by lirox' entries_to_text thingy.
 }
 
 function populateSummaryTables(keyword, tables) {
