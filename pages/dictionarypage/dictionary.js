@@ -155,7 +155,6 @@ function createSummaryTables() {
                 break;
         }
     });
-    }
 }
 
 // Helper function to get current word class from the displayed table
