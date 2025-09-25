@@ -144,7 +144,7 @@ function createSummaryTables() {
             break;
 
         case 'aux': createAuxiliarySummaryTables();
-            CurrentWordClassAsText = "auxilar"; //no -y, since that allows me to make it plural without an extra function. (auxilaries in plural)
+            CurrentWordClassAsText = "auxilary"; //how will i make it plural? :sob: no -y?
             dictionaryPageReference = () => openPage('page6', document.querySelector('.tab-bar .tab:nth-child(8)'));
             break;
     }
