@@ -1,0 +1,12 @@
+#thickexamplediv {
+    display: block;
+}
+
+#thickexample {
+    width: 400px;
+    margin-left: 2%;
+}
+
+#thickexample td:hover {
+    background-color: #f1d3d3;
+}
