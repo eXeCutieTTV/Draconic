@@ -124,11 +124,37 @@ function safeIdPart(str) {
 // declension tables
 // === Create the two summary tables ===
 function createSummaryTables() {
-    switch (getCurrentWordClass()) {
-        case 'n': createNounSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false }); }, 1000); break;
-        case 'v': createVerbSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false }); }, 1000); break;
-        case 'adv': createAdverbSummaryTables(); break;
-        case 'aux': createAuxiliarySummaryTables(); break;
+    return new Promise((resolve, reject) => {
+        const wordClass = getCurrentWordClass();
+        
+        switch (wordClass) {
+            case 'n': 
+                createNounSummaryTables().then(() => {
+                    populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false });
+                    resolve();
+                }).catch(reject);
+                break;
+            case 'v': 
+                createVerbSummaryTables();
+                // Wait a bit for tables to be created
+                setTimeout(() => {
+                    populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false });
+                    resolve();
+                }, 100);
+                break;
+            case 'adv': 
+                createAdverbSummaryTables();
+                resolve();
+                break;
+            case 'aux': 
+                createAuxiliarySummaryTables();
+                resolve();
+                break;
+            default:
+                resolve();
+                break;
+        }
+    });
     }
 }
 
@@ -150,11 +176,11 @@ function createNounSummaryTables() {
         const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Abstract", "Magical", "Mundane"];
         const numbers = ["Singular", "Dual", "Plural"];
 
-        // Remove existing tables if they exist
-        ["dirSummaryTable", "recSummaryTable"].forEach(id => {
-            const oldTable = document.getElementById(id);
-            if (oldTable && oldTable.parentElement) {
-                oldTable.parentElement.remove();
+        // Remove existing table wrappers if they exist
+        ["dirSummaryTablediv", "recSummaryTablediv"].forEach(id => {
+            const oldWrapper = document.getElementById(id);
+            if (oldWrapper) {
+                oldWrapper.remove();
             }
         });
 
@@ -264,11 +290,11 @@ function createVerbSummaryTables() {
         return;
     }
 
-    // Remove existing tables if they exist
-    ["dictionaryVerbPrefixTable", "dictionaryVerbSuffixTable"].forEach(id => {
-        const oldTable = document.getElementById(id);
-        if (oldTable) {
-            oldTable.parentElement.remove();
+    // Remove existing table wrappers if they exist
+    ["verbPrefixTablediv", "verbSuffixTablediv"].forEach(id => {
+        const oldWrapper = document.getElementById(id);
+        if (oldWrapper) {
+            oldWrapper.remove();
         }
     });
 
@@ -301,11 +327,11 @@ function createAdverbSummaryTables() {
         return;
     }
 
-    // Remove existing tables if they exist
-    ["adverbFormsTable"].forEach(id => {
-        const oldTable = document.getElementById(id);
-        if (oldTable) {
-            oldTable.parentElement.remove();
+    // Remove existing table wrappers if they exist
+    ["adverbFormsTablediv"].forEach(id => {
+        const oldWrapper = document.getElementById(id);
+        if (oldWrapper) {
+            oldWrapper.remove();
         }
     });
 
@@ -324,11 +350,11 @@ function createAuxiliarySummaryTables() {
         return;
     }
 
-    // Remove existing tables if they exist
-    ["auxiliaryFormsTable"].forEach(id => {
-        const oldTable = document.getElementById(id);
-        if (oldTable) {
-            oldTable.parentElement.remove();
+    // Remove existing table wrappers if they exist
+    ["auxiliaryFormsTablediv"].forEach(id => {
+        const oldWrapper = document.getElementById(id);
+        if (oldWrapper) {
+            oldWrapper.remove();
         }
     });
 
@@ -915,20 +941,31 @@ function performSearch() {
         const currentWordClass = getCurrentWordClass();
         loadWordClassContent(currentWordClass, targetPageId);
 
-        // Clear and refocus whichever field was used
-        if (field1 && field1.value.trim() !== '') {
-            field1.value = '';
-            field1.focus();
-        } else if (field2) {
-            field2.value = '';
-            field2.focus();
-        }
-
-        // Add a small delay to ensure the table content is fully processed
-        setTimeout(() => {
-            runTableLoader(); // call your declension table logic here
-            createSummaryTables(); // declensiontable
-        }, 50);
+        // Create summary tables and populate them
+        createSummaryTables().then(() => {
+            // Run table loader for noun declensions
+            runTableLoader();
+            
+            // Clear and refocus whichever field was used
+            if (field1 && field1.value.trim() !== '') {
+                field1.value = '';
+                field1.focus();
+            } else if (field2) {
+                field2.value = '';
+                field2.focus();
+            }
+        }).catch(error => {
+            console.error("Error creating summary tables:", error);
+            
+            // Clear and refocus even if there's an error
+            if (field1 && field1.value.trim() !== '') {
+                field1.value = '';
+                field1.focus();
+            } else if (field2) {
+                field2.value = '';
+                field2.focus();
+            }
+        });
     }).catch(error => {
         console.error(`Failed to find page container for ${targetPageId}:`, error);
     });
