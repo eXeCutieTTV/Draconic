@@ -125,8 +125,8 @@ function safeIdPart(str) {
 // === Create the two summary tables ===
 function createSummaryTables() {
     switch (getCurrentWordClass()) {
-        case 'n': createNounSummaryTables(); setTimeout(() => { populateNounSummaryTables(keyword, { dirSummaryTable: true, recSummaryTable: true }); }, 500); break;
-        case 'v': createVerbSummaryTables(); setTimeout(() => { populateNounSummaryTables(keyword, { dictionaryVerbPrefixTable: false, dictionaryVerbSuffixTable: true }); }, 500); break;
+        case 'n': createNounSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false }); }, 1000); break;
+        case 'v': createVerbSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false }); }, 1000); break;
         case 'adv': createAdverbSummaryTables(); break;
         case 'aux': createAuxiliarySummaryTables(); break;
     }
@@ -188,6 +188,9 @@ function createNounSummaryTables() {
                 const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
                 row.innerHTML = `<th>${gender}</th>` + cellsHtml;
                 tbody.appendChild(row);
+                setTimeout(() => {
+                    processSuffixCellContent(cellsHtml, keyword);
+                }, 50);
             });
             table.appendChild(tbody);
 
@@ -213,29 +216,44 @@ function createNounSummaryTables() {
         requestAnimationFrame(() => resolve());
     });
 }
+// keep parenthesis data?
+//function processSuffixCellContent(cellText, keyword) {
+//  const lastChar = normalizeGlyph(keyword.slice(-1));
+//const match = cellText.match(/\(([^)]+)\)/);
 
-function populateNounSummaryTables(keyword, tables) {
+// if (!match) return cellText.replace(/-/g, "");
+
+//    const glyph = normalizeGlyph(match[1]);
+//  const keywordIsVowel = isConlangVowel(lastChar);
+//const glyphIsVowel = isConlangVowel(glyph);
+
+//    if (keywordIsVowel === glyphIsVowel) {
+//      return cellText.replace(/\([^)]+\)/, "").replace(/-/g, "");
+//} else {
+//     return cellText.replace(/\(([^)]+)\)/, "$1").replace(/-/g, "");
+// }// replaced by lirox' entries_to_text thingy.
+//}
+
+function populateSummaryTables(keyword, tables) {
     Object.keys(tables).forEach(tableId => { // tables = {tableID: isPrefix, ...} //???
         const table = document.getElementById(tableId);
         if (!table) return;
         const tds = table.querySelectorAll("tbody td");
         tds.forEach(td => {
             // prefer original stored raw suffix (data-raw) if present 
-            const raw = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
+            const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
+            // ^^^ turns out i mixed up raw and keyword
+            console.log(td.innerHTML)
 
             // process raw
             let entries;
-            if (tables[tableId]) entries = connect_split(keyword, raw, "");
-            else entries = connect_split("", raw, keyword);
-            // if (tables[tableId]) console.log(entries_to_text(connect(keyword, raw, "")));
-            // else entries = console.log(entries_to_text(connect("", raw, keyword))); 
-            // console.log(entries_to_text(connect(keyword, raw, ""))); //omfg wtf
-            td.innerHTML = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+            if (tables[tableId]) entries = connect_split(textInCell, keyword, "");
+            else entries = connect_split("", keyword, textInCell);
+            td.innerHTML = `${entries_to_text(entries[0])}<strong>${entries_to_text(entries[1])}</strong>${entries_to_text(entries[2])}`;
 
             // place keyword as prefix or suffix (you can change behavior per table)
 
-        });//now we need more logic. if last letter of word vowel && first letter of suffix is vowel, then remove keyword vowel. its already doing it?
-        // 
+        });//actually. the logic is bit more complicated than that. it should first be, if letter in parenthesis is not opposite of last/first letter class in keyword, then letter in parenthesis disappears. NOW if vowels touch, then keyword vowel gets cut, same for consonant
     });
 }
 // === Create verb summary tables ===
@@ -332,11 +350,11 @@ function normalizeGlyph(glyph) {
 }
 
 function isConlangVowel(char) {
-    return conlangVowels.includes(normalizeGlyph(char));
+    return text_to_entries(char)[0].properties.includes(window.REG.VOWEL);
 }
 
 function isConlangConsonant(char) {
-    return conlangConsonants.includes(normalizeGlyph(char));
+    return text_to_entries(char)[0].properties.includes(window.REG.CONSONANT);
 }
 
 // yeet -lirox if it breaks - istg... xd
@@ -416,7 +434,6 @@ function buildAuxiliaryTable(id, label, containerId) {
     const wrapper = document.createElement("div");
     const table = document.createElement("table");
     table.id = id;
-    table.border = "1";
 
     const thead = document.createElement("thead");
     const mergedRow = document.createElement("tr");
@@ -563,7 +580,7 @@ function processDictionaryTable() {
         const wordclass = paddedRow[1];
         let extractedNumber = "";
 
-        if ((wordclass === "adj" || wordclass === "n") && /\(\d\)/.test(word)) {
+        if ((wordclass === "n") && /\(\d\)/.test(word)) {
             const match = word.match(/\((\d)\)/);
             if (match) {
                 extractedNumber = match[1];
@@ -586,8 +603,8 @@ function processDictionaryTable() {
 function runTableLoader() {
     const currentWordClass = getCurrentWordClass();
 
-    // Only run the existing noun declension logic for nouns and adjectives
-    if (currentWordClass !== 'n' && currentWordClass !== 'adj') {
+    // Only run the existing noun declension logic for nouns
+    if (currentWordClass !== 'n') {
         return;
     }
 
@@ -816,6 +833,7 @@ function doSearchFromPage(pageId) {
     doSearch();
 }
 
+
 // === dosearch function ===
 function doSearch() {
     // Auto-load dictionary data if not already loaded
@@ -924,7 +942,6 @@ function loadWordClassContent(wordClass, pageId) {
     let contentFile = '';
     switch (wordClass) {
         case 'n':
-        case 'adj':
             contentFile = 'pages/dictionarypage/text/nountextbox.html'; // nouns text
             break;
         case 'v':
@@ -965,6 +982,7 @@ function cloneKeywordText() {
     }
 }
 
+// put buttons on index.js?
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
     doSearch();
