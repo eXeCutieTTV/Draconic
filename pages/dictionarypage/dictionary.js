@@ -234,21 +234,6 @@ function createNounSummaryTables() {
     });
 }
 
-// create wrapper divs and attach them
-const dirsummarytablefinalwrapper = document.createElement("div");
-const recsummarytablefinalwrapper = document.createElement("div");
-dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
-recsummarytablefinalwrapper.id = "recSummaryTablediv";
-leftleftdivdictionary.appendChild(dirsummarytablefinalwrapper);
-leftleftdivdictionary.appendChild(recsummarytablefinalwrapper);
-
-buildTable("dirSummaryTable", "Directive", "dirSummaryTablediv");
-buildTable("recSummaryTable", "Recessive", "recSummaryTablediv");
-
-// Allow a paint cycle so the DOM is actually available to queries/measurements
-requestAnimationFrame(() => resolve());
-
-
 function populateSummaryTables(keyword, tables) {
     Object.keys(tables).forEach(tableId => { // tables = {tableID: isPrefix, ...} //???
         const table = document.getElementById(tableId);
@@ -1008,7 +993,7 @@ function performSearch() {
         createSummaryTables().then(() => {
             // Run table loader for noun declensions
             runTableLoader();
-
+            
             // Clear and refocus whichever field was used
             if (field1 && field1.value.trim() !== '') {
                 field1.value = '';
@@ -1019,7 +1004,7 @@ function performSearch() {
             }
         }).catch(error => {
             console.error("Error creating summary tables:", error);
-
+            
             // Clear and refocus even if there's an error
             if (field1 && field1.value.trim() !== '') {
                 field1.value = '';
