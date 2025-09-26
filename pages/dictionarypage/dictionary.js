@@ -144,7 +144,7 @@ function createSummaryTables() {
             break;
 
         case 'aux': createAuxiliarySummaryTables();
-            CurrentWordClassAsText = "auxilar"; //no -y, since that allows me to make it plural without an extra function. (auxilaries in plural)
+            CurrentWordClassAsText = "auxilary"; //how will i make it plural? :sob: no -y?
             dictionaryPageReference = () => openPage('page6', document.querySelector('.tab-bar .tab:nth-child(8)'));
             break;
     }
@@ -243,7 +243,7 @@ function populateSummaryTables(keyword, tables) {
             // prefer original stored raw suffix (data-raw) if present 
             const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
             // ^^^ turns out i mixed up raw and keyword
-            console.log(td.innerHTML)
+            console.log(td.innerHTML);
 
             // process raw
             let entries;
@@ -264,11 +264,11 @@ function createVerbSummaryTables() {
         return;
     }
 
-    // Remove existing tables if they exist
-    ["dictionaryVerbPrefixTable", "dictionaryVerbSuffixTable"].forEach(id => {
-        const oldTable = document.getElementById(id);
-        if (oldTable) {
-            oldTable.parentElement.remove();
+    // Remove existing table wrappers if they exist
+    ["verbPrefixTablediv", "verbSuffixTablediv"].forEach(id => {
+        const oldWrapper = document.getElementById(id);
+        if (oldWrapper) {
+            oldWrapper.remove();
         }
     });
 
@@ -301,11 +301,11 @@ function createAdverbSummaryTables() {
         return;
     }
 
-    // Remove existing tables if they exist
-    ["adverbFormsTable"].forEach(id => {
-        const oldTable = document.getElementById(id);
-        if (oldTable) {
-            oldTable.parentElement.remove();
+    // Remove existing table wrappers if they exist
+    ["adverbFormsTablediv"].forEach(id => {
+        const oldWrapper = document.getElementById(id);
+        if (oldWrapper) {
+            oldWrapper.remove();
         }
     });
 
@@ -333,11 +333,11 @@ function createAuxiliarySummaryTables() {
         return;
     }
 
-    // Remove existing tables if they exist
-    ["auxiliaryFormsTable"].forEach(id => {
-        const oldTable = document.getElementById(id);
-        if (oldTable) {
-            oldTable.parentElement.remove();
+    // Remove existing table wrappers if they exist
+    ["auxiliaryFormsTablediv"].forEach(id => {
+        const oldWrapper = document.getElementById(id);
+        if (oldWrapper) {
+            oldWrapper.remove();
         }
     });
 
@@ -408,7 +408,7 @@ function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix
                     const cells = table.querySelectorAll("td");
                     cells.forEach(cell => {
                         let originalText = cell.textContent.trim(); // var for cell data
-                        let cleanedText = entries_to_text(text_to_entries(originalText)) // 
+                        let cleanedText = entries_to_text(text_to_entries(originalText)); // 
                         cell.innerHTML = isPrefix
                             ? `${cleanedText}<strong>${searchedWord}</strong>` // cleanedtext should be the clean text - without (x) & -. seachedword is just an identyfier for the function.
                             : `<strong>${searchedWord}</strong>${cleanedText}`; // either sets keyword+affix or affix+keyword. and bold. it will. my verbtable is broken. brother. the js was working before xd, i just needed to call the function correctly...
@@ -1000,6 +1000,19 @@ function performSearch() {
 
         runTableLoader(); // call your declension table logic here
         createSummaryTables(); // declensiontable
+
+    }).catch(error => {
+        console.error("Error creating summary tables:", error);
+
+        // Clear and refocus even if there's an error
+        if (field1 && field1.value.trim() !== '') {
+            field1.value = '';
+            field1.focus();
+        } else if (field2) {
+            field2.value = '';
+            field2.focus();
+        }
+
     }).catch(error => {
         console.error(`Failed to find page container for ${targetPageId}:`, error);
     });
