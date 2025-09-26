@@ -124,27 +124,48 @@ function safeIdPart(str) {
 // === Create the summary tables ===
 let CurrentWordClassAsText = "";
 let dictionaryPageReference = "";
+
+// Clear all existing tables before creating new ones
+function clearAllSummaryTables() {
+    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+    if (leftleftdivdictionary) {
+        // Clear all child elements
+        leftleftdivdictionary.innerHTML = "";
+    }
+}
+
 function createSummaryTables() {
+    // Always clear existing tables first
+    clearAllSummaryTables();
+
     switch (getCurrentWordClass()) {
-        case 'n': createNounSummaryTables();
-            setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false }); }, 25);
+        case 'n':
+            createNounSummaryTables();
+            setTimeout(() => {
+                populateSummaryTables(keyword, { [dirSummaryTable]: false, [recSummaryTable]: false });
+            }, 25);
             CurrentWordClassAsText = "noun";
             dictionaryPageReference = () => openPage('page3', document.querySelector('.tab-bar .tab:nth-child(5)'));
             break;
 
-        case 'v': createVerbSummaryTables();
-            setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false }); }, 25);
+        case 'v':
+            createVerbSummaryTables();
+            setTimeout(() => {
+                populateSummaryTables(keyword, { [dictionaryVerbPrefixTable]: true, [dictionaryVerbSuffixTable]: false });
+            }, 25);
             CurrentWordClassAsText = "verb";
             dictionaryPageReference = () => openPage('page4', document.querySelector('.tab-bar .tab:nth-child(6)'));
             break;
 
-        case 'adv': createAdverbSummaryTables();
+        case 'adv':
+            createAdverbSummaryTables();
             CurrentWordClassAsText = "adverb";
             dictionaryPageReference = () => openPage('page5', document.querySelector('.tab-bar .tab:nth-child(7)'));
             break;
 
-        case 'aux': createAuxiliarySummaryTables();
-            CurrentWordClassAsText = "auxiliary"; //how will i make it plural? :sob: no -y?
+        case 'aux':
+            createAuxiliarySummaryTables();
+            CurrentWordClassAsText = "auxiliary";
             dictionaryPageReference = () => openPage('page6', document.querySelector('.tab-bar .tab:nth-child(8)'));
             break;
     }
@@ -168,16 +189,6 @@ function createNounSummaryTables() {
         const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
         const numbers = ["Singular", "Dual", "Plural"];
 
-        // Remove existing tables if they exist
-        if (["dirSummaryTable", "recSummaryTable"]) {
-            ["dirSummaryTable", "recSummaryTable"].forEach(id => {
-                const oldTable = document.getElementById(id);
-                if (oldTable && oldTable.parentElement) {
-                    oldTable.parentElement.remove();
-                    oldTable.remove();
-                }
-            });
-        }
         // internal builder that sets data-raw on each TD
         function buildTable(id, label, containerId) {
             const wrapper = document.createElement("div");
@@ -256,6 +267,7 @@ function populateSummaryTables(keyword, tables) {
         });
     });
 }
+
 // === Create verb summary tables ===
 function createVerbSummaryTables() {
     const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
@@ -263,14 +275,6 @@ function createVerbSummaryTables() {
         console.error("leftleftdivdictionary element not found");
         return;
     }
-
-    // Remove existing table wrappers if they exist
-    ["verbPrefixTablediv", "verbSuffixTablediv"].forEach(id => {
-        const oldWrapper = document.getElementById(id);
-        if (oldWrapper) {
-            oldWrapper.remove();
-        }
-    });
 
     // Create verb conjugation table
     const verbConjWrapper = document.createElement("div");
@@ -301,14 +305,6 @@ function createAdverbSummaryTables() {
         return;
     }
 
-    // Remove existing table wrappers if they exist
-    ["adverbFormsTablediv"].forEach(id => {
-        const oldWrapper = document.getElementById(id);
-        if (oldWrapper) {
-            oldWrapper.remove();
-        }
-    });
-
     const adverbWrapper = document.createElement("div");
     adverbWrapper.id = "adverbFormsTablediv";
     leftleftdivdictionary.appendChild(adverbWrapper);
@@ -332,14 +328,6 @@ function createAuxiliarySummaryTables() {
         console.error("leftleftdivdictionary element not found");
         return;
     }
-
-    // Remove existing table wrappers if they exist
-    ["auxiliaryFormsTablediv"].forEach(id => {
-        const oldWrapper = document.getElementById(id);
-        if (oldWrapper) {
-            oldWrapper.remove();
-        }
-    });
 
     const auxWrapper = document.createElement("div");
     auxWrapper.id = "auxiliaryFormsTablediv";
@@ -368,9 +356,10 @@ function createAuxiliarySummaryTables() {
         if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
     }
 }
+
 // Define your  glyph classes
 const conlangVowels = ["i", "ī", "e", "ē", "æ", "y", "u", "ū", "o", "ō", "a", "ā", "ú", "û", "ó", "ô", "á", "â"];
-const conlangConsonants = ["t", "k", "q", "q̇", "‘", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"];
+const conlangConsonants = ["t", "k", "q", "q̇", "'", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"];
 console.log(`Vowels = ${conlangVowels}`);
 console.log(`Consonants = ${conlangConsonants}`);
 
@@ -665,8 +654,6 @@ function processDictionaryTable() {
 function runTableLoader() {
     const currentWordClass = getCurrentWordClass();
 
-
-
     // Only run the existing noun declension logic for nouns
     if (currentWordClass !== 'n') {
         return;
@@ -897,7 +884,6 @@ function doSearchFromPage(pageId) {
     doSearch();
 }
 
-
 // === dosearch function ===
 function doSearch() {
     // Auto-load dictionary data if not already loaded
@@ -984,7 +970,6 @@ function performSearch() {
             cloneWordclassText();
         }, 0);
 
-
         // Load appropriate content based on word class
         const currentWordClass = getCurrentWordClass();
         loadWordClassContent(currentWordClass, targetPageId);
@@ -1065,6 +1050,7 @@ function cloneKeywordText() {
         }
     }
 }
+
 // clone <p> element with wordclass data
 function cloneWordclassText() {
     const source = document.getElementById('wordclassp');
@@ -1079,6 +1065,7 @@ function cloneWordclassText() {
         }
     }
 }
+
 // put buttons on index.js?
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
