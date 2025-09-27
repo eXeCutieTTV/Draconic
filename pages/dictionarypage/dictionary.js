@@ -246,14 +246,13 @@ function createNounSummaryTables() {
 }
 
 function populateSummaryTables(keyword, tables) {
-    Object.keys(tables).forEach(tableId => { // tables = {tableID: isPrefix, ...} //???
+    Object.keys(tables).forEach(tableId => {
         const table = document.getElementById(tableId);
         if (!table) return;
         const tds = table.querySelectorAll("tbody td");
         tds.forEach(td => {
             // prefer original stored raw suffix (data-raw) if present 
             const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
-            // ^^^ turns out i mixed up raw and keyword
             console.log(td.innerHTML);
 
             // process raw
