@@ -127,10 +127,10 @@ let dictionaryPageReference = "";
 
 // Clear all existing tables before creating new ones
 function clearAllSummaryTables() {
-    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-    if (leftleftdivdictionary) {
+    const clearleftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+    if (clearleftleftdivdictionary) {
         // Clear all child elements
-        leftleftdivdictionary.innerHTML = "";
+        clearleftleftdivdictionary.innerHTML = "";
     }
 }
 
@@ -426,7 +426,7 @@ function isConlangConsonant(char) {
     return text_to_entries(char)[0].properties.includes(window.REG.CONSONANT);
 }
 
-function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) { // ----
+function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) { 
     fetch(sourcePath)
         .then(response => {
             if (!response.ok) throw new Error(`Failed to load ${sourcePath}: ${response.status}`);
