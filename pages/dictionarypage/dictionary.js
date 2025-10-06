@@ -135,8 +135,6 @@ function clearAllSummaryTables() {
 }
 
 function createSummaryTables() {
-    // Always clear existing tables first
-    clearAllSummaryTables();
 
     switch (getCurrentWordClass()) {
         case 'n':
@@ -245,6 +243,59 @@ function createNounSummaryTables() {
     });
 }
 
+function connect_split(prefix = "", text = "", suffix = "") {
+    let text_entries = text_to_entries(text);
+    let prefix_entries = text_to_entries(prefix);
+    let suffix_entries = text_to_entries(suffix);
+    if (!text_entries) return [];
+    const last_text = text_entries[text_entries.length - 1];
+    const first_text = text_entries[0];
+
+    if (prefix_entries) {
+        // No rules?
+    }
+
+    if (suffix_entries) {
+        let first_suffix = suffix_entries[0];
+
+        if (first_suffix) {
+            if (first_suffix.properties.includes(window.REG.VOWEL)) {
+                if (first_suffix.properties.includes(window.REG.OPTIONAL)) {
+                    if (last_text && last_text.properties.includes(window.REG.VOWEL)) {
+                        suffix_entries.shift();
+                    }
+                } else if (last_text && last_text.properties.includes(window.REG.VOWEL)) {
+                    if (last_text.properties.includes(window.REG.PYRIC)) {
+                        const pyric = get_pyric_equivalent(first_suffix);
+                        if (pyric) first_suffix = pyric;
+                        suffix_entries[0] = first_suffix;
+                    }
+                    text_entries.pop();
+                }
+            } else if (first_suffix.properties.includes(window.REG.CONSONANT) && first_suffix.properties.includes(window.REG.OPTIONAL)) {
+                if (!last_text || !last_text.properties.includes(window.REG.VOWEL)) {
+                    suffix_entries.shift();
+                }
+            }
+        }
+    }
+
+    return [prefix_entries, text_entries, suffix_entries];
+}
+
+function connect(prefix = "", text = "", suffix = "") {
+    const entries = connect_split(prefix, text, suffix);
+    return entries.flat();
+}
+
+function connect_suffix(text, suffix) { return connect("", text, suffix) }
+function connect_prefix(text, prefix) { return connect(prefix, text, "") }
+
+function entries_to_text(entries) {
+    return entries.map(e => e.letter || "").join("");
+}
+
+// populateSummaryTables
 function populateSummaryTables(keyword, tables) {
     Object.keys(tables).forEach(tableId => {
         const table = document.getElementById(tableId);
@@ -259,7 +310,7 @@ function populateSummaryTables(keyword, tables) {
             let entries;
             if (tables[tableId]) entries = connect_split(textInCell, keyword, "");
             else entries = connect_split("", keyword, textInCell);
-            td.innerHTML = `${entries_to_text(entries[0])}<strong>${entries_to_text(entries[1])}</strong>${entries_to_text(entries[2])}`;
+            td.innerHTML = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
 
             // place keyword as prefix or suffix (you can change behavior per table)
 
@@ -902,6 +953,9 @@ function doSearch() {
 }
 
 function performSearch() {
+    // Always clear existing tables first
+    clearAllSummaryTables();
+
     // Prefer value from #search_field if not empty, else #search_field1
     let field1 = document.getElementById('search_field');
     let field2 = document.getElementById('search_field1');
