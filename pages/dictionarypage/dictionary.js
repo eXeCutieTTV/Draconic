@@ -134,6 +134,29 @@ function clearAllSummaryTables() {
     }
 }
 
+// if page with number between 10000 and 20000 exists, then delete it.
+function removePageDivsExceptKeyword(keyword, start, end) {
+    const keepId = `page${keyword}`;
+    let removed = 0;
+
+    // normalize numeric bounds and cap to reasonable limits
+    start = Math.max(0, Number(start) || 0);
+    end = Math.min(10000000, Number(end) || 0);
+    if (end < start) return 0;
+
+    for (let i = start; i <= end; i++) {
+        const id = `page${i}`;
+        if (id === keepId) continue;
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.tagName && el.tagName.toUpperCase() !== 'DIV') continue;
+        el.remove();
+        removed++;
+    }
+
+    return removed;
+}
+
 function createSummaryTables() {
 
     switch (getCurrentWordClass()) {
@@ -145,7 +168,9 @@ function createSummaryTables() {
             CurrentWordClassAsText = "noun";
             dictionaryPageReference = () => openPage('page3', document.querySelector('.tab-bar .tab:nth-child(5)'));
             setTimeout(() => {
-                document.getElementById("leftleftdivdictionary").id = `leftleftdivdictionary${keyword}`;
+                document.getElementById("dirSummaryTablediv").id = `dirSummaryTablediv${keyword}`;
+                document.getElementById("recSummaryTablediv").id = `recSummaryTablediv${keyword}`;
+                console.log("changed noun table ids");
             }, 5000);
             break;
 
@@ -157,7 +182,9 @@ function createSummaryTables() {
             CurrentWordClassAsText = "verb";
             dictionaryPageReference = () => openPage('page4', document.querySelector('.tab-bar .tab:nth-child(6)'));
             setTimeout(() => {
-                document.getElementById("leftleftdivdictionary").id = `leftleftdivdictionary${keyword}`;
+                document.getElementById("verbPrefixTablediv").id = `verbPrefixTablediv${keyword}`;
+                document.getElementById("verbSuffixTablediv").id = `verbSuffixTablediv${keyword}`;
+                console.log("changed verb table ids");
             }, 5000);
             break;
 
@@ -165,18 +192,12 @@ function createSummaryTables() {
             createAdverbSummaryTables();
             CurrentWordClassAsText = "adverb";
             dictionaryPageReference = () => openPage('page5', document.querySelector('.tab-bar .tab:nth-child(7)'));
-            setTimeout(() => {
-                document.getElementById("leftleftdivdictionary").id = `leftleftdivdictionary${keyword}`;
-            }, 5000);
             break;
 
         case 'aux':
             createAuxiliarySummaryTables();
             CurrentWordClassAsText = "auxiliary";
             dictionaryPageReference = () => openPage('page6', document.querySelector('.tab-bar .tab:nth-child(8)'));
-            setTimeout(() => {
-                document.getElementById("leftleftdivdictionary").id = `leftleftdivdictionary${keyword}`;
-            }, 5000);
             break;
     }
 }
@@ -984,6 +1005,9 @@ function performSearch() {
         alert('No page found for that word.');
         return;
     }
+    // remove page10000..page20000 except page matching current keyword variable
+    const removedCount = removePageDivsExceptKeyword(keyword, 10000, 12000);
+    console.log('removed', removedCount);
 
     // Find or create the .pages wrapper
     let pagesWrap = document.querySelector('.pages');
