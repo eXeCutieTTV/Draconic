@@ -141,7 +141,7 @@ function createSummaryTables() {
             createNounSummaryTables();
             setTimeout(() => {
                 populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false });
-            }, 25);
+            }, 100);
             CurrentWordClassAsText = "noun";
             dictionaryPageReference = () => openPage('page3', document.querySelector('.tab-bar .tab:nth-child(5)'));
             break;
@@ -150,7 +150,7 @@ function createSummaryTables() {
             createVerbSummaryTables();
             setTimeout(() => {
                 populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false });
-            }, 25);
+            }, 100);
             CurrentWordClassAsText = "verb";
             dictionaryPageReference = () => openPage('page4', document.querySelector('.tab-bar .tab:nth-child(6)'));
             break;
