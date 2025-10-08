@@ -961,10 +961,10 @@ function doSearch() {
         return;
     }
 
-    performSearch();
+    performSearch(); // why am i doing this twice? line 958
 }
 
-function performSearch() {
+async function performSearch() {
     // Always clear existing tables first
     clearAllSummaryTables();
 
@@ -993,6 +993,20 @@ function performSearch() {
         document.body.appendChild(pagesWrap);
     }
 
+    // loadTemplate html
+    async function loadTemplate(url) {
+        const response = await fetch(url);
+        const htmlText = await response.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, "text/html");
+        const template = doc.querySelector("template");
+
+        if (!template) return null;
+        return template.content.cloneNode(true);
+    }
+
+
     // Create the page if it doesn't exist
     const existingPage = document.getElementById(targetPageId);
     if (!existingPage) {
@@ -1000,7 +1014,7 @@ function performSearch() {
         const pageDiv = document.createElement('div');
         pageDiv.id = targetPageId;
         pageDiv.className = 'page';
-        pageDiv.innerHTML = `<include-html src="pages/dictionarypage/dictionary.html"></include-html>`;
+        pageDiv.innerHTML = await loadTemplate("pages/dictionarypage/dictionary.html");
 
         pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
 
