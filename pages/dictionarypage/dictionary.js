@@ -124,27 +124,69 @@ function safeIdPart(str) {
 // === Create the summary tables ===
 let CurrentWordClassAsText = "";
 let dictionaryPageReference = "";
+
+// Clear all existing tables before creating new ones
+function clearAllSummaryTables() {
+    const clearleftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+    if (clearleftleftdivdictionary) {
+        // Clear all child elements
+        clearleftleftdivdictionary.innerHTML = "";
+    }
+}
+
+// if page with number between 10000 and 12000 exists, then delete it.
+function removePageDivsExceptKeyword(keyword, start, end) {
+    const keepId = `page${keyword}`;
+    let removed = 0;
+
+    // normalize numeric bounds and cap to reasonable limits
+    start = Math.max(0, Number(start) || 0);
+    end = Math.min(10000000, Number(end) || 0);
+    if (end < start) return 0;
+
+    for (let i = start; i <= end; i++) {
+        const id = `page${i}`;
+        if (id === keepId) continue;
+        const el = document.getElementById(id);
+        if (!el) continue;
+        if (el.tagName && el.tagName.toUpperCase() !== 'DIV') continue;
+        el.remove();
+        removed++;
+    }
+
+    return removed;
+}
+
 function createSummaryTables() {
+
     switch (getCurrentWordClass()) {
-        case 'n': createNounSummaryTables();
-            setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false }); }, 25);
+        case 'n':
+            createNounSummaryTables();
+            setTimeout(() => {
+                populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false });
+            }, 100);
             CurrentWordClassAsText = "noun";
             dictionaryPageReference = () => openPage('page3', document.querySelector('.tab-bar .tab:nth-child(5)'));
             break;
 
-        case 'v': createVerbSummaryTables();
-            setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false }); }, 25);
+        case 'v':
+            createVerbSummaryTables();
+            setTimeout(() => {
+                populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false });
+            }, 100);
             CurrentWordClassAsText = "verb";
             dictionaryPageReference = () => openPage('page4', document.querySelector('.tab-bar .tab:nth-child(6)'));
             break;
 
-        case 'adv': createAdverbSummaryTables();
+        case 'adv':
+            createAdverbSummaryTables();
             CurrentWordClassAsText = "adverb";
             dictionaryPageReference = () => openPage('page5', document.querySelector('.tab-bar .tab:nth-child(7)'));
             break;
 
-        case 'aux': createAuxiliarySummaryTables();
-            CurrentWordClassAsText = "auxiliary"; //how will i make it plural? :sob: no -y?
+        case 'aux':
+            createAuxiliarySummaryTables();
+            CurrentWordClassAsText = "auxiliary";
             dictionaryPageReference = () => openPage('page6', document.querySelector('.tab-bar .tab:nth-child(8)'));
             break;
     }
@@ -168,16 +210,6 @@ function createNounSummaryTables() {
         const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
         const numbers = ["Singular", "Dual", "Plural"];
 
-        // Remove existing tables if they exist
-        if (["dirSummaryTable", "recSummaryTable"]) {
-            ["dirSummaryTable", "recSummaryTable"].forEach(id => {
-                const oldTable = document.getElementById(id);
-                if (oldTable && oldTable.parentElement) {
-                    oldTable.parentElement.remove();
-                    oldTable.remove();
-                }
-            });
-        }
         // internal builder that sets data-raw on each TD
         function buildTable(id, label, containerId) {
             const wrapper = document.createElement("div");
@@ -234,28 +266,81 @@ function createNounSummaryTables() {
     });
 }
 
+function connect_split(prefix = "", text = "", suffix = "") {
+    let text_entries = text_to_entries(text);
+    let prefix_entries = text_to_entries(prefix);
+    let suffix_entries = text_to_entries(suffix);
+    if (!text_entries) return [];
+    const last_text = text_entries[text_entries.length - 1];
+    const first_text = text_entries[0];
+
+    if (prefix_entries) {
+        // No rules?
+    }
+
+    if (suffix_entries) {
+        let first_suffix = suffix_entries[0];
+
+        if (first_suffix) {
+            if (first_suffix.properties.includes(window.REG.VOWEL)) {
+                if (first_suffix.properties.includes(window.REG.OPTIONAL)) {
+                    if (last_text && last_text.properties.includes(window.REG.VOWEL)) {
+                        suffix_entries.shift();
+                    }
+                } else if (last_text && last_text.properties.includes(window.REG.VOWEL)) {
+                    if (last_text.properties.includes(window.REG.PYRIC)) {
+                        const pyric = get_pyric_equivalent(first_suffix);
+                        if (pyric) first_suffix = pyric;
+                        suffix_entries[0] = first_suffix;
+                    }
+                    text_entries.pop();
+                }
+            } else if (first_suffix.properties.includes(window.REG.CONSONANT) && first_suffix.properties.includes(window.REG.OPTIONAL)) {
+                if (!last_text || !last_text.properties.includes(window.REG.VOWEL)) {
+                    suffix_entries.shift();
+                }
+            }
+        }
+    }
+
+    return [prefix_entries, text_entries, suffix_entries];
+}
+
+function connect(prefix = "", text = "", suffix = "") {
+    const entries = connect_split(prefix, text, suffix);
+    return entries.flat();
+}
+
+function connect_suffix(text, suffix) { return connect("", text, suffix) }
+function connect_prefix(text, prefix) { return connect(prefix, text, "") }
+
+function entries_to_text(entries) {
+    return entries.map(e => e.letter || "").join("");
+}
+
+// populateSummaryTables
 function populateSummaryTables(keyword, tables) {
-    Object.keys(tables).forEach(tableId => { // tables = {tableID: isPrefix, ...} //???
+    Object.keys(tables).forEach(tableId => {
         const table = document.getElementById(tableId);
         if (!table) return;
         const tds = table.querySelectorAll("tbody td");
         tds.forEach(td => {
             // prefer original stored raw suffix (data-raw) if present 
             const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
-            // ^^^ turns out i mixed up raw and keyword
             console.log(td.innerHTML);
 
             // process raw
             let entries;
             if (tables[tableId]) entries = connect_split(textInCell, keyword, "");
             else entries = connect_split("", keyword, textInCell);
-            td.innerHTML = `${entries_to_text(entries[0])}<strong>${entries_to_text(entries[1])}</strong>${entries_to_text(entries[2])}`;
+            td.innerHTML = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
 
             // place keyword as prefix or suffix (you can change behavior per table)
 
         });
     });
 }
+
 // === Create verb summary tables ===
 function createVerbSummaryTables() {
     const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
@@ -263,14 +348,6 @@ function createVerbSummaryTables() {
         console.error("leftleftdivdictionary element not found");
         return;
     }
-
-    // Remove existing table wrappers if they exist
-    ["verbPrefixTablediv", "verbSuffixTablediv"].forEach(id => {
-        const oldWrapper = document.getElementById(id);
-        if (oldWrapper) {
-            oldWrapper.remove();
-        }
-    });
 
     // Create verb conjugation table
     const verbConjWrapper = document.createElement("div");
@@ -301,14 +378,6 @@ function createAdverbSummaryTables() {
         return;
     }
 
-    // Remove existing table wrappers if they exist
-    ["adverbFormsTablediv"].forEach(id => {
-        const oldWrapper = document.getElementById(id);
-        if (oldWrapper) {
-            oldWrapper.remove();
-        }
-    });
-
     const adverbWrapper = document.createElement("div");
     adverbWrapper.id = "adverbFormsTablediv";
     leftleftdivdictionary.appendChild(adverbWrapper);
@@ -332,14 +401,6 @@ function createAuxiliarySummaryTables() {
         console.error("leftleftdivdictionary element not found");
         return;
     }
-
-    // Remove existing table wrappers if they exist
-    ["auxiliaryFormsTablediv"].forEach(id => {
-        const oldWrapper = document.getElementById(id);
-        if (oldWrapper) {
-            oldWrapper.remove();
-        }
-    });
 
     const auxWrapper = document.createElement("div");
     auxWrapper.id = "auxiliaryFormsTablediv";
@@ -368,9 +429,10 @@ function createAuxiliarySummaryTables() {
         if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
     }
 }
+
 // Define your  glyph classes
 const conlangVowels = ["i", "ī", "e", "ē", "æ", "y", "u", "ū", "o", "ō", "a", "ā", "ú", "û", "ó", "ô", "á", "â"];
-const conlangConsonants = ["t", "k", "q", "q̇", "‘", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"];
+const conlangConsonants = ["t", "k", "q", "q̇", "'", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"];
 console.log(`Vowels = ${conlangVowels}`);
 console.log(`Consonants = ${conlangConsonants}`);
 
@@ -387,7 +449,7 @@ function isConlangConsonant(char) {
     return text_to_entries(char)[0].properties.includes(window.REG.CONSONANT);
 }
 
-function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) { // ----
+function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) {
     fetch(sourcePath)
         .then(response => {
             if (!response.ok) throw new Error(`Failed to load ${sourcePath}: ${response.status}`);
@@ -665,8 +727,6 @@ function processDictionaryTable() {
 function runTableLoader() {
     const currentWordClass = getCurrentWordClass();
 
-
-
     // Only run the existing noun declension logic for nouns
     if (currentWordClass !== 'n') {
         return;
@@ -897,7 +957,6 @@ function doSearchFromPage(pageId) {
     doSearch();
 }
 
-
 // === dosearch function ===
 function doSearch() {
     // Auto-load dictionary data if not already loaded
@@ -913,10 +972,13 @@ function doSearch() {
         return;
     }
 
-    performSearch();
+    performSearch(); // why am i doing this twice? line 958
 }
 
 function performSearch() {
+    // Always clear existing tables first
+    clearAllSummaryTables();
+
     // Prefer value from #search_field if not empty, else #search_field1
     let field1 = document.getElementById('search_field');
     let field2 = document.getElementById('search_field1');
@@ -933,6 +995,9 @@ function performSearch() {
         alert('No page found for that word.');
         return;
     }
+    // remove page10000..page12000 except page matching current keyword variable
+    const removedCount = removePageDivsExceptKeyword(keyword, 10000, 12000);
+    console.log('removed', removedCount);
 
     // Find or create the .pages wrapper
     let pagesWrap = document.querySelector('.pages');
@@ -984,36 +1049,34 @@ function performSearch() {
             cloneWordclassText();
         }, 0);
 
-
         // Load appropriate content based on word class
         const currentWordClass = getCurrentWordClass();
         loadWordClassContent(currentWordClass, targetPageId);
 
-        // Create summary tables and populate them
-        createSummaryTables().then(() => {
-            // Run table loader for noun declensions
-            runTableLoader();
-            
-            // Clear and refocus whichever field was used
-            if (field1 && field1.value.trim() !== '') {
-                field1.value = '';
-                field1.focus();
-            } else if (field2) {
-                field2.value = '';
-                field2.focus();
-            }
-        }).catch(error => {
-            console.error("Error creating summary tables:", error);
-            
-            // Clear and refocus even if there's an error
-            if (field1 && field1.value.trim() !== '') {
-                field1.value = '';
-                field1.focus();
-            } else if (field2) {
-                field2.value = '';
-                field2.focus();
-            }
-        });
+        // Clear and refocus whichever field was used
+        if (field1 && field1.value.trim() !== '') {
+            field1.value = '';
+            field1.focus();
+        } else if (field2) {
+            field2.value = '';
+            field2.focus();
+        }
+
+        runTableLoader(); // call your declension table logic here
+        createSummaryTables(); // declensiontable
+
+    }).catch(error => {
+        console.error("Error creating summary tables:", error);
+
+        // Clear and refocus even if there's an error
+        if (field1 && field1.value.trim() !== '') {
+            field1.value = '';
+            field1.focus();
+        } else if (field2) {
+            field2.value = '';
+            field2.focus();
+        }
+
     }).catch(error => {
         console.error(`Failed to find page container for ${targetPageId}:`, error);
     });
@@ -1066,6 +1129,7 @@ function cloneKeywordText() {
         }
     }
 }
+
 // clone <p> element with wordclass data
 function cloneWordclassText() {
     const source = document.getElementById('wordclassp');
@@ -1080,6 +1144,7 @@ function cloneWordclassText() {
         }
     }
 }
+
 // put buttons on index.js?
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
