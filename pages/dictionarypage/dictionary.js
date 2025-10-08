@@ -134,7 +134,7 @@ function clearAllSummaryTables() {
     }
 }
 
-// if page with number between 10000 and 20000 exists, then delete it.
+// if page with number between 10000 and 12000 exists, then delete it.
 function removePageDivsExceptKeyword(keyword, start, end) {
     const keepId = `page${keyword}`;
     let removed = 0;
