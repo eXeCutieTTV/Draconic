@@ -167,11 +167,6 @@ function createSummaryTables() {
             }, 100);
             CurrentWordClassAsText = "noun";
             dictionaryPageReference = () => openPage('page3', document.querySelector('.tab-bar .tab:nth-child(5)'));
-            setTimeout(() => {
-                document.getElementById("dirSummaryTablediv").id = `dirSummaryTablediv${keyword}`;
-                document.getElementById("recSummaryTablediv").id = `recSummaryTablediv${keyword}`;
-                console.log("changed noun table ids");
-            }, 5000);
             break;
 
         case 'v':
@@ -181,11 +176,6 @@ function createSummaryTables() {
             }, 100);
             CurrentWordClassAsText = "verb";
             dictionaryPageReference = () => openPage('page4', document.querySelector('.tab-bar .tab:nth-child(6)'));
-            setTimeout(() => {
-                document.getElementById("verbPrefixTablediv").id = `verbPrefixTablediv${keyword}`;
-                document.getElementById("verbSuffixTablediv").id = `verbSuffixTablediv${keyword}`;
-                console.log("changed verb table ids");
-            }, 5000);
             break;
 
         case 'adv':
