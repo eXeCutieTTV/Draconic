@@ -1005,7 +1005,7 @@ function performSearch() {
         alert('No page found for that word.');
         return;
     }
-    // remove page10000..page20000 except page matching current keyword variable
+    // remove page10000..page12000 except page matching current keyword variable
     const removedCount = removePageDivsExceptKeyword(keyword, 10000, 12000);
     console.log('removed', removedCount);
 
