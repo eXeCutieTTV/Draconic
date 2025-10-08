@@ -179,7 +179,7 @@ function getCurrentWordClass() {
 // === Create noun summary tables (existing functionality) ===
 function createNounSummaryTables() {
     return new Promise((resolve, reject) => {
-        const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+        const leftleftdivdictionary = document.getElementById(`leftleftdivdictionary${keyword}`);
         if (!leftleftdivdictionary) {
             return reject(new Error("leftleftdivdictionary element not found"));
         }
@@ -426,7 +426,7 @@ function isConlangConsonant(char) {
     return text_to_entries(char)[0].properties.includes(window.REG.CONSONANT);
 }
 
-function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) { 
+function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) {
     fetch(sourcePath)
         .then(response => {
             if (!response.ok) throw new Error(`Failed to load ${sourcePath}: ${response.status}`);
@@ -1054,6 +1054,16 @@ function performSearch() {
     }).catch(error => {
         console.error(`Failed to find page container for ${targetPageId}:`, error);
     });
+
+} //ctrlf
+
+// fix leftleftdiv id
+function fixLeftLeftDivId() {
+
+    const dictionaryElement = document.querySelector(".leftleftdivdictionary");
+    if (dictionaryElement) {
+        dictionaryElement.id = `leftleftdivdictionary${keyword}`;
+    }
 }
 
 // Load appropriate HTML content based on word class
@@ -1065,6 +1075,7 @@ function loadWordClassContent(wordClass, pageId) {
     switch (wordClass) {
         case 'n':
             contentFile = 'pages/dictionarypage/text/nountextbox.html'; // nouns text
+            fixLeftLeftDivId();
             break;
         case 'v':
             contentFile = 'pages/dictionarypage/text/verbtextbox.html'; // verbs text
