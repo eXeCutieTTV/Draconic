@@ -120,15 +120,52 @@ function safeIdPart(str) {
     return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash
 }
 
+// dictionary tables
+// === Create the summary tables ===
+let CurrentWordClassAsText = "";
+let dictionaryPageReference = "";
 
-// declension tables
-// === Create the two summary tables ===
+// Clear all existing tables before creating new ones
+function clearAllSummaryTables() {
+    const clearleftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+    if (clearleftleftdivdictionary) {
+        // Clear all child elements
+        clearleftleftdivdictionary.innerHTML = "";
+    }
+}
+
 function createSummaryTables() {
+
     switch (getCurrentWordClass()) {
-        case 'n': createNounSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false }); }, 1000); break;
-        case 'v': createVerbSummaryTables(); setTimeout(() => { populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false }); }, 1000); break;
-        case 'adv': createAdverbSummaryTables(); break;
-        case 'aux': createAuxiliarySummaryTables(); break;
+        case 'n':
+            createNounSummaryTables();
+            setTimeout(() => {
+                populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false });
+            }, 25);
+            CurrentWordClassAsText = "noun";
+            dictionaryPageReference = () => openPage('page3', document.querySelector('.tab-bar .tab:nth-child(5)'));
+            break;
+
+        case 'v':
+            createVerbSummaryTables();
+            setTimeout(() => {
+                populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false });
+            }, 25);
+            CurrentWordClassAsText = "verb";
+            dictionaryPageReference = () => openPage('page4', document.querySelector('.tab-bar .tab:nth-child(6)'));
+            break;
+
+        case 'adv':
+            createAdverbSummaryTables();
+            CurrentWordClassAsText = "adverb";
+            dictionaryPageReference = () => openPage('page5', document.querySelector('.tab-bar .tab:nth-child(7)'));
+            break;
+
+        case 'aux':
+            createAuxiliarySummaryTables();
+            CurrentWordClassAsText = "auxiliary";
+            dictionaryPageReference = () => openPage('page6', document.querySelector('.tab-bar .tab:nth-child(8)'));
+            break;
     }
 }
 
@@ -147,18 +184,9 @@ function createNounSummaryTables() {
             return reject(new Error("leftleftdivdictionary element not found"));
         }
 
-        const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Abstract", "Magical", "Mundane"];
+        const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
         const numbers = ["Singular", "Dual", "Plural"];
 
-        // Remove existing tables if they exist
-        if (["dirSummaryTable", "recSummaryTable"]) {
-            ["dirSummaryTable", "recSummaryTable"].forEach(id => {
-                const oldTable = document.getElementById(id);
-                if (oldTable && oldTable.parentElement) {
-                    oldTable.parentElement.remove();
-                }
-            });
-        }
         // internal builder that sets data-raw on each TD
         function buildTable(id, label, containerId) {
             const wrapper = document.createElement("div");
@@ -214,46 +242,82 @@ function createNounSummaryTables() {
         requestAnimationFrame(() => resolve());
     });
 }
-// keep parenthesis data?
-//function processSuffixCellContent(cellText, keyword) {
-//  const lastChar = normalizeGlyph(keyword.slice(-1));
-//const match = cellText.match(/\(([^)]+)\)/);
 
-// if (!match) return cellText.replace(/-/g, "");
+function connect_split(prefix = "", text = "", suffix = "") {
+    let text_entries = text_to_entries(text);
+    let prefix_entries = text_to_entries(prefix);
+    let suffix_entries = text_to_entries(suffix);
+    if (!text_entries) return [];
+    const last_text = text_entries[text_entries.length - 1];
+    const first_text = text_entries[0];
 
-//    const glyph = normalizeGlyph(match[1]);
-//  const keywordIsVowel = isConlangVowel(lastChar);
-//const glyphIsVowel = isConlangVowel(glyph);
+    if (prefix_entries) {
+        // No rules?
+    }
 
-//    if (keywordIsVowel === glyphIsVowel) {
-//      return cellText.replace(/\([^)]+\)/, "").replace(/-/g, "");
-//} else {
-//     return cellText.replace(/\(([^)]+)\)/, "$1").replace(/-/g, "");
-// }// replaced by lirox' entries_to_text thingy.
-//}
+    if (suffix_entries) {
+        let first_suffix = suffix_entries[0];
 
+        if (first_suffix) {
+            if (first_suffix.properties.includes(window.REG.VOWEL)) {
+                if (first_suffix.properties.includes(window.REG.OPTIONAL)) {
+                    if (last_text && last_text.properties.includes(window.REG.VOWEL)) {
+                        suffix_entries.shift();
+                    }
+                } else if (last_text && last_text.properties.includes(window.REG.VOWEL)) {
+                    if (last_text.properties.includes(window.REG.PYRIC)) {
+                        const pyric = get_pyric_equivalent(first_suffix);
+                        if (pyric) first_suffix = pyric;
+                        suffix_entries[0] = first_suffix;
+                    }
+                    text_entries.pop();
+                }
+            } else if (first_suffix.properties.includes(window.REG.CONSONANT) && first_suffix.properties.includes(window.REG.OPTIONAL)) {
+                if (!last_text || !last_text.properties.includes(window.REG.VOWEL)) {
+                    suffix_entries.shift();
+                }
+            }
+        }
+    }
+
+    return [prefix_entries, text_entries, suffix_entries];
+}
+
+function connect(prefix = "", text = "", suffix = "") {
+    const entries = connect_split(prefix, text, suffix);
+    return entries.flat();
+}
+
+function connect_suffix(text, suffix) { return connect("", text, suffix) }
+function connect_prefix(text, prefix) { return connect(prefix, text, "") }
+
+function entries_to_text(entries) {
+    return entries.map(e => e.letter || "").join("");
+}
+
+// populateSummaryTables
 function populateSummaryTables(keyword, tables) {
-    Object.keys(tables).forEach(tableId => { // tables = {tableID: isPrefix, ...} //???
+    Object.keys(tables).forEach(tableId => {
         const table = document.getElementById(tableId);
         if (!table) return;
         const tds = table.querySelectorAll("tbody td");
         tds.forEach(td => {
             // prefer original stored raw suffix (data-raw) if present 
             const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
-            // ^^^ turns out i mixed up raw and keyword
-            console.log(td.innerHTML)
+            console.log(td.innerHTML);
 
             // process raw
             let entries;
             if (tables[tableId]) entries = connect_split(textInCell, keyword, "");
             else entries = connect_split("", keyword, textInCell);
-            td.innerHTML = `${entries_to_text(entries[0])}<strong>${entries_to_text(entries[1])}</strong>${entries_to_text(entries[2])}`;
+            td.innerHTML = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
 
             // place keyword as prefix or suffix (you can change behavior per table)
 
-        });//actually. the logic is bit more complicated than that. it should first be, if letter in parenthesis is not opposite of last/first letter class in keyword, then letter in parenthesis disappears. NOW if vowels touch, then keyword vowel gets cut, same for consonant
+        });
     });
 }
+
 // === Create verb summary tables ===
 function createVerbSummaryTables() {
     const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
@@ -261,14 +325,6 @@ function createVerbSummaryTables() {
         console.error("leftleftdivdictionary element not found");
         return;
     }
-
-    // Remove existing tables if they exist
-    ["dictionaryVerbPrefixTable", "dictionaryVerbSuffixTable"].forEach(id => {
-        const oldTable = document.getElementById(id);
-        if (oldTable) {
-            oldTable.parentElement.remove();
-        }
-    });
 
     // Create verb conjugation table
     const verbConjWrapper = document.createElement("div");
@@ -299,19 +355,20 @@ function createAdverbSummaryTables() {
         return;
     }
 
-    // Remove existing tables if they exist
-    ["adverbFormsTable"].forEach(id => {
-        const oldTable = document.getElementById(id);
-        if (oldTable) {
-            oldTable.parentElement.remove();
-        }
-    });
-
     const adverbWrapper = document.createElement("div");
     adverbWrapper.id = "adverbFormsTablediv";
     leftleftdivdictionary.appendChild(adverbWrapper);
 
     buildAdverbTable("adverbFormsTable", "Adverb Forms", "adverbFormsTablediv");
+    // populate the created td
+    const baseSource = document.getElementById("cell0");
+    const elativeSource = document.getElementById("cell3");
+
+    const baseTd = document.getElementById(`adverbFormsTable-base-form`);
+    const elativeTd = document.getElementById(`adverbFormsTable-elative-form`);
+
+    if (baseTd && baseSource) baseTd.textContent = baseSource.textContent;
+    if (elativeTd && elativeSource) elativeTd.textContent = elativeSource.textContent;
 }
 
 // === Create auxiliary summary tables ===
@@ -322,25 +379,39 @@ function createAuxiliarySummaryTables() {
         return;
     }
 
-    // Remove existing tables if they exist
-    ["auxiliaryFormsTable"].forEach(id => {
-        const oldTable = document.getElementById(id);
-        if (oldTable) {
-            oldTable.parentElement.remove();
-        }
-    });
-
     const auxWrapper = document.createElement("div");
     auxWrapper.id = "auxiliaryFormsTablediv";
     leftleftdivdictionary.appendChild(auxWrapper);
 
     buildAuxiliaryTable("auxiliaryFormsTable", "Auxiliary Forms", "auxiliaryFormsTablediv");
+    // populate the created td
+    const EpiNonSource = document.getElementById("cell0");
+    const tripleSource = document.getElementById("cell3");
+
+    const EpiNonTd = document.getElementById(`auxiliaryFormsTable-episodic-non-past`);
+    const EpiPastTd = document.getElementById(`auxiliaryFormsTable-episodic-past`);
+    const GnoNonTd = document.getElementById(`auxiliaryFormsTable-gnomic-non-past`);
+    const GnoPastTd = document.getElementById(`auxiliaryFormsTable-gnomic-past`);
+
+    // copy single-value sources
+    if (EpiNonTd && EpiNonSource) EpiNonTd.textContent = EpiNonSource.textContent;
+    if (EpiPastTd && tripleSource) {
+        EpiPastTd.textContent = tripleSource.textContent;
+    }
+    // split cell3 into three parts and populate the three target TDs
+    if (tripleSource) {
+        const parts = tripleSource.textContent.split(",").map(s => s.trim());
+        if (GnoNonTd) GnoNonTd.textContent = parts[1] ?? "";
+        if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
+        if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
+    }
 }
+
 // Define your  glyph classes
 const conlangVowels = ["i", "ī", "e", "ē", "æ", "y", "u", "ū", "o", "ō", "a", "ā", "ú", "û", "ó", "ô", "á", "â"];
-const conlangConsonants = ["t", "k", "q", "q̇", "‘", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"];
-console.log(conlangVowels);
-console.log(conlangConsonants);
+const conlangConsonants = ["t", "k", "q", "q̇", "'", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"];
+console.log(`Vowels = ${conlangVowels}`);
+console.log(`Consonants = ${conlangConsonants}`);
 
 // will redo -lirox
 function normalizeGlyph(glyph) {
@@ -355,9 +426,7 @@ function isConlangConsonant(char) {
     return text_to_entries(char)[0].properties.includes(window.REG.CONSONANT);
 }
 
-// yeet -lirox if it breaks - istg... xd
-
-function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) { // ----
+function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) { 
     fetch(sourcePath)
         .then(response => {
             if (!response.ok) throw new Error(`Failed to load ${sourcePath}: ${response.status}`);
@@ -378,7 +447,7 @@ function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix
                     const cells = table.querySelectorAll("td");
                     cells.forEach(cell => {
                         let originalText = cell.textContent.trim(); // var for cell data
-                        let cleanedText = entries_to_text(text_to_entries(originalText)) // 
+                        let cleanedText = entries_to_text(text_to_entries(originalText)); // 
                         cell.innerHTML = isPrefix
                             ? `${cleanedText}<strong>${searchedWord}</strong>` // cleanedtext should be the clean text - without (x) & -. seachedword is just an identyfier for the function.
                             : `<strong>${searchedWord}</strong>${cleanedText}`; // either sets keyword+affix or affix+keyword. and bold. it will. my verbtable is broken. brother. the js was working before xd, i just needed to call the function correctly...
@@ -397,6 +466,14 @@ function buildAdverbTable(id, label, containerId) {
     const table = document.createElement("table");
     table.id = id;
 
+    // fixed column width via colgroup
+    const colgroup = document.createElement("colgroup");
+    const col1 = document.createElement("col");
+    col1.style.width = "120px";
+    const col2 = document.createElement("col");
+    colgroup.append(col1, col2);
+    table.appendChild(colgroup);
+
     const thead = document.createElement("thead");
     const mergedRow = document.createElement("tr");
     const mergedCell = document.createElement("th");
@@ -405,26 +482,33 @@ function buildAdverbTable(id, label, containerId) {
     mergedCell.textContent = label;
     mergedRow.appendChild(mergedCell);
     thead.appendChild(mergedRow);
-
-    const headerRow = document.createElement("tr");
-    headerRow.innerHTML = `<th>Form</th><th>Value</th>`;
-    thead.appendChild(headerRow);
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
     const forms = ["Base Form", "Elative Form"];
-    forms.forEach(form => {
+    forms.forEach((form) => {
+        const formz = form;
+        // create a safe id fragment from the form text
+        const safe = formz.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+        const rowIdBase = `${id}-${safe}`;
+
         const row = document.createElement("tr");
-        row.innerHTML = `<th>${form}</th><td></td>`;
+
+        const th = document.createElement("th");
+        th.textContent = form;
+
+        const td = document.createElement("td");
+        td.id = `${rowIdBase}`; // e.g. "myTable-base-form-0-value"
+
+        row.appendChild(th);
+        row.appendChild(td);
         tbody.appendChild(row);
     });
     table.appendChild(tbody);
 
     wrapper.appendChild(table);
     const container = document.getElementById(containerId);
-    if (container) {
-        container.appendChild(wrapper);
-    }
+    if (container) container.appendChild(wrapper);
 }
 
 // Helper function to build auxiliary tables
@@ -432,33 +516,51 @@ function buildAuxiliaryTable(id, label, containerId) {
     const wrapper = document.createElement("div");
     const table = document.createElement("table");
     table.id = id;
-    table.border = "1";
 
     const thead = document.createElement("thead");
     const mergedRow = document.createElement("tr");
     const mergedCell = document.createElement("th");
     mergedCell.id = id + "-header";
-    mergedCell.colSpan = 4;
+    mergedCell.colSpan = 5;
     mergedCell.textContent = label;
     mergedRow.appendChild(mergedCell);
     thead.appendChild(mergedRow);
 
+
     const headerRow = document.createElement("tr");
-    headerRow.innerHTML = `<th>Form</th><th>Episodic Past</th><th>Gnomic Non-Past</th><th>Gnomic Past</th>`;
+    // keep the visible header texts
+    const headers = ["Form", "Episodic Non-Past", "Episodic Past", "Gnomic Non-Past", "Gnomic Past"];
+    headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        headerRow.appendChild(th);
+    });
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
     const row = document.createElement("tr");
-    row.innerHTML = `<th>Forms</th><td></td><td></td><td></td>`;
+
+    // first cell is the row label
+    const thLabel = document.createElement("th");
+    thLabel.textContent = "Forms";
+    row.appendChild(thLabel);
+
+    // create a TD for each remaining header and assign an id derived from the header text
+    headers.slice(1).forEach(hdr => {
+        const td = document.createElement("td");
+        // sanitize header text to form a valid id fragment
+        const safe = hdr.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+        td.id = `${id}-${safe}`;
+        row.appendChild(td);
+    });
+
     tbody.appendChild(row);
     table.appendChild(tbody);
 
     wrapper.appendChild(table);
     const container = document.getElementById(containerId);
-    if (container) {
-        container.appendChild(wrapper);
-    }
+    if (container) container.appendChild(wrapper);
 }
 
 // === Map of identifiers to stems ===
@@ -832,7 +934,6 @@ function doSearchFromPage(pageId) {
     doSearch();
 }
 
-
 // === dosearch function ===
 function doSearch() {
     // Auto-load dictionary data if not already loaded
@@ -852,6 +953,9 @@ function doSearch() {
 }
 
 function performSearch() {
+    // Always clear existing tables first
+    clearAllSummaryTables();
+
     // Prefer value from #search_field if not empty, else #search_field1
     let field1 = document.getElementById('search_field');
     let field2 = document.getElementById('search_field1');
@@ -903,12 +1007,21 @@ function performSearch() {
         const table = createTable(keyword, pageContainer);
         fillTable(keyword, table);
 
-        // Update keyword displays
+        // Update keyword <p>s
         const keywordp = document.getElementById("keywordp");
         if (keywordp) {
             keywordp.innerHTML = keywordDisplay;
         }
         cloneKeywordText();
+
+        // Update wordclass <p>s
+        setTimeout(() => {
+            const wordclassp = document.getElementById("wordclassp");
+            if (wordclassp) {
+                wordclassp.innerHTML = CurrentWordClassAsText;
+            }
+            cloneWordclassText();
+        }, 0);
 
         // Load appropriate content based on word class
         const currentWordClass = getCurrentWordClass();
@@ -925,6 +1038,19 @@ function performSearch() {
 
         runTableLoader(); // call your declension table logic here
         createSummaryTables(); // declensiontable
+
+    }).catch(error => {
+        console.error("Error creating summary tables:", error);
+
+        // Clear and refocus even if there's an error
+        if (field1 && field1.value.trim() !== '') {
+            field1.value = '';
+            field1.focus();
+        } else if (field2) {
+            field2.value = '';
+            field2.focus();
+        }
+
     }).catch(error => {
         console.error(`Failed to find page container for ${targetPageId}:`, error);
     });
@@ -972,6 +1098,21 @@ function cloneKeywordText() {
 
     for (let i = 1; i <= 100; i++) { // Adjust 100 to your max expected number
         const target = document.getElementById('keywordp' + i);
+        if (target) {
+            target.textContent = sourceText;
+        }
+    }
+}
+
+// clone <p> element with wordclass data
+function cloneWordclassText() {
+    const source = document.getElementById('wordclassp');
+    if (!source) return;
+
+    const sourceText = source.textContent;
+
+    for (let i = 1; i <= 100; i++) { // Adjust 100 to your max expected number
+        const target = document.getElementById('wordclassp' + i);
         if (target) {
             target.textContent = sourceText;
         }
