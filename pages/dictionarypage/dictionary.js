@@ -144,6 +144,9 @@ function createSummaryTables() {
             }, 100);
             CurrentWordClassAsText = "noun";
             dictionaryPageReference = () => openPage('page3', document.querySelector('.tab-bar .tab:nth-child(5)'));
+            setTimeout(() => {
+                document.getElementById("leftleftdivdictionary").id = `leftleftdivdictionary${keyword}`;
+            }, 5000);
             break;
 
         case 'v':
@@ -153,18 +156,27 @@ function createSummaryTables() {
             }, 100);
             CurrentWordClassAsText = "verb";
             dictionaryPageReference = () => openPage('page4', document.querySelector('.tab-bar .tab:nth-child(6)'));
+            setTimeout(() => {
+                document.getElementById("leftleftdivdictionary").id = `leftleftdivdictionary${keyword}`;
+            }, 5000);
             break;
 
         case 'adv':
             createAdverbSummaryTables();
             CurrentWordClassAsText = "adverb";
             dictionaryPageReference = () => openPage('page5', document.querySelector('.tab-bar .tab:nth-child(7)'));
+            setTimeout(() => {
+                document.getElementById("leftleftdivdictionary").id = `leftleftdivdictionary${keyword}`;
+            }, 5000);
             break;
 
         case 'aux':
             createAuxiliarySummaryTables();
             CurrentWordClassAsText = "auxiliary";
             dictionaryPageReference = () => openPage('page6', document.querySelector('.tab-bar .tab:nth-child(8)'));
+            setTimeout(() => {
+                document.getElementById("leftleftdivdictionary").id = `leftleftdivdictionary${keyword}`;
+            }, 5000);
             break;
     }
 }
@@ -179,7 +191,7 @@ function getCurrentWordClass() {
 // === Create noun summary tables (existing functionality) ===
 function createNounSummaryTables() {
     return new Promise((resolve, reject) => {
-        const leftleftdivdictionary = document.getElementById(`leftleftdivdictionary${keyword}`);
+        const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
         if (!leftleftdivdictionary) {
             return reject(new Error("leftleftdivdictionary element not found"));
         }
@@ -1054,16 +1066,6 @@ function performSearch() {
     }).catch(error => {
         console.error(`Failed to find page container for ${targetPageId}:`, error);
     });
-
-} //ctrlf
-
-// fix leftleftdiv id
-function fixLeftLeftDivId() {
-
-    const dictionaryElement = document.querySelector(".leftleftdivdictionary");
-    if (dictionaryElement) {
-        dictionaryElement.id = `leftleftdivdictionary${keyword}`;
-    }
 }
 
 // Load appropriate HTML content based on word class
@@ -1075,7 +1077,6 @@ function loadWordClassContent(wordClass, pageId) {
     switch (wordClass) {
         case 'n':
             contentFile = 'pages/dictionarypage/text/nountextbox.html'; // nouns text
-            fixLeftLeftDivId();
             break;
         case 'v':
             contentFile = 'pages/dictionarypage/text/verbtextbox.html'; // verbs text
