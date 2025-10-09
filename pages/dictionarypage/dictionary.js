@@ -69,7 +69,7 @@ openPage('page98');
 }
 setTimeout(() => {
 console.log("'showDictionaryPrintout();' to go to dictionary print page")    
-}, 250);
+}, 250); // mention the command in the console, so you know how to find the dictionary list. also, on delay, so its at the bottom of the console.
 
 function renderTable(data) {
     const container = document.getElementById("sheet-data");
