@@ -63,6 +63,14 @@ function loadFromExcelFile(filename) {
         });
 }
 
+// show dictionary printout
+function showDictionaryPrintout() {
+openPage('page98');
+}
+setTimeout(() => {
+console.log("'showDictionaryPrintout();' to go to dictionary print page")    
+}, 250);
+
 function renderTable(data) {
     const container = document.getElementById("sheet-data");
     const table = document.createElement("table");
