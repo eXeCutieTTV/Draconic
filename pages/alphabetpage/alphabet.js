@@ -1,6 +1,6 @@
 function generate_alphabet() {
   console.log("Generating alphabet table")
-  const table = document.getElementById('alphabet') || (document.body.appendChild(Object.assign(document.createElement('table'), {id:'alphabet'})), document.getElementById('alphabet'));
+  const table = document.getElementById('alphabet') || (document.body.appendChild(Object.assign(document.createElement('table'), { id: 'alphabet' })), document.getElementById('alphabet'));
 
   let sound;
   // generate table
@@ -68,14 +68,14 @@ function generate_alphabet() {
   }
 
   function closeModal() { //when closed
-    modal.style.display="none"; // hide modal
+    modal.style.display = "none"; // hide modal
   }
 
   const modal = document.getElementById('modal') || (() => {
-      const m = document.createElement('div');
-      m.id = 'modal';
-      m.className = 'modalWrap';
-      m.innerHTML = `
+    const m = document.createElement('div');
+    m.id = 'modal';
+    m.className = 'modalWrap';
+    m.innerHTML = `
         <div class="modalContent">
           <button class="modalClose">&times;</button>
           <div class="horisontalAlign">
@@ -88,8 +88,8 @@ function generate_alphabet() {
           </div>
           <table id="allophoneTable"></table>
         </div>`;
-      document.body.appendChild(m);
-      return m;
+    document.body.appendChild(m);
+    return m;
   })();
 
   const closeBtn = modal.querySelector('.modalClose');
@@ -153,7 +153,7 @@ function generate_alphabet() {
     if (e.target === modal) closeModal();
   });
   console.log("Generated alphabet table");
-  
+
   console.log(modal);
   console.log(table);
 
@@ -161,3 +161,4 @@ function generate_alphabet() {
 }
 
 functions.generate_alphabet = generate_alphabet;
+

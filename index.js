@@ -112,3 +112,11 @@ customElements.define('include-html', IncludeHTML);
 function deletealphabet() {
   document.getElementById("alphabet").textContent = ("");
 };
+
+// call on timeout to ensure html loaded
+function alphabetOnTimeout() {
+  setTimeout(() => {
+    deletealphabet();
+    generate_alphabet();
+  }, 100);
+}
