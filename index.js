@@ -79,7 +79,7 @@ function openPage(url, pageId, opts, element) {
   }
   function clearAllPages() {
     document.querySelectorAll('.page').forEach(el => {
-      if (el.id === 'page98') return; // never clear page98
+      if (el.id === 'page98' || el.id === 'page99') return; // never clear page98 or page99
       el.textContent = '';
     });
   }
@@ -125,4 +125,35 @@ function alphabetOnTimeout() {
     deletealphabet();
     generate_alphabet();
   }, 100);
+}
+
+function openPageOld(pageId, element) {
+
+  const pageEl = document.getElementById(pageId);
+  if (!pageEl) {
+    console.error(`openPage: No element found with id "${pageId}"`);
+    return;
+  }
+  pageEl.classList.add('active');
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+  // Show selected page
+  document.getElementById(pageId).classList.add('active');
+
+  // Reset all tabs
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+  // Highlight current tab
+  if (element) {
+    element.classList.add('active');
+  }
+  // If pageId number is above 1000, highlight a constant tab
+  const match = pageId.match(/\d+/); // extract number from pageId
+  if (match && parseInt(match[0], 10) > 1000) {
+    const constantTab = document.getElementById('permatab'); // <-- your fixed tab's ID
+    if (constantTab) {
+      constantTab.classList.add('active');
+    }
+  }
 }

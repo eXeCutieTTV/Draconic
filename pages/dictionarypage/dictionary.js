@@ -65,7 +65,7 @@ function loadFromExcelFile(filename) {
 
 // show dictionary printout
 function showDictionaryPrintout() {
-openPage('page98');
+openPageOld('page98');
 }
 setTimeout(() => {
 console.log("'showDictionaryPrintout();' to go to dictionary print page")    
@@ -174,7 +174,7 @@ function createSummaryTables() {
                 populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false });
             }, 100);
             CurrentWordClassAsText = "noun";
-            dictionaryPageReference = () => openPage('page3', document.querySelector('.tab-bar .tab:nth-child(5)'));
+            dictionaryPageReference = () => openPageOld('page3', document.querySelector('.tab-bar .tab:nth-child(5)'));
             break;
 
         case 'v':
@@ -183,19 +183,19 @@ function createSummaryTables() {
                 populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false });
             }, 100);
             CurrentWordClassAsText = "verb";
-            dictionaryPageReference = () => openPage('page4', document.querySelector('.tab-bar .tab:nth-child(6)'));
+            dictionaryPageReference = () => openPageOld('page4', document.querySelector('.tab-bar .tab:nth-child(6)'));
             break;
 
         case 'adv':
             createAdverbSummaryTables();
             CurrentWordClassAsText = "adverb";
-            dictionaryPageReference = () => openPage('page5', document.querySelector('.tab-bar .tab:nth-child(7)'));
+            dictionaryPageReference = () => openPageOld('page5', document.querySelector('.tab-bar .tab:nth-child(7)'));
             break;
 
         case 'aux':
             createAuxiliarySummaryTables();
             CurrentWordClassAsText = "auxiliary";
-            dictionaryPageReference = () => openPage('page6', document.querySelector('.tab-bar .tab:nth-child(8)'));
+            dictionaryPageReference = () => openPageOld('page6', document.querySelector('.tab-bar .tab:nth-child(8)'));
             break;
     }
 }
@@ -1033,7 +1033,7 @@ function performSearch() {
     }
 
     // Go to the correct page
-    openPage(targetPageId);
+    openPageOld(targetPageId);
 
     // Wait for the page content to load, then setup the table
     waitForElement(`#${targetPageId} .tablesContainer`).then(pageContainer => {
