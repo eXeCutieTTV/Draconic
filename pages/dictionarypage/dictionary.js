@@ -436,17 +436,14 @@ function createAuxiliarySummaryTables() {
         if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
         if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
     }
-    const isDefective = document.getElementById("auxiliaryFormsTable-episodic-past").textContent.trim();
+    const isDefective = EpiPastTd.textContent.trim();
     if (isDefective === "defective") {
-        const EpiNonPast = document.getElementById("auxiliaryFormsTable-episodic-non-past").textContent.trim();
-        console.log(`${EpiNonPast} is defective`);
-        document.getElementById("auxiliaryFormsTable-episodic-past").textContent = `${EpiNonPast}`;
-        document.getElementById("auxiliaryFormsTable-gnomic-non-past").textContent = `${EpiNonPast}`;
-        document.getElementById("auxiliaryFormsTable-gnomic-past").textContent = `${EpiNonPast}`;
-
+        const EpiNonText = EpiNonTd.textContent.trim();
+        console.log(`${EpiNonText} is defective`);
+        EpiPastTd.textContent = `${EpiNonText}`;
+        GnoNonTd.textContent = `${EpiNonText}`;
+        GnoPastTd.textContent = `${EpiNonText}`;
     }
-
-    
 }
 
 // Define your  glyph classes

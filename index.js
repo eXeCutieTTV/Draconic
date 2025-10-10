@@ -19,9 +19,9 @@ function openPage(url, pageId, opts, element) {
   if (element) {
     element.classList.add('active');
   }
-  // If pageId number is above 1000, highlight a constant tab
+  // If pageId number is above 9999, highlight a constant tab
   const match = pageId.match(/\d+/); // extract number from pageId
-  if (match && parseInt(match[0], 10) > 1000) {
+  if (match && parseInt(match[0], 10) > 9999) {
     const constantTab = document.getElementById('permatab'); // <-- your fixed tab's ID
     if (constantTab) {
       constantTab.classList.add('active');
