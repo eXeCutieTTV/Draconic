@@ -78,13 +78,13 @@ function openPage(url, pageId, opts, element) {
       });
   }
   function clearAllPages() {
-    document.querySelectorAll('.page').forEach(el =>{
+    if (el.id === 'page98') return; // never clear page98
+    document.querySelectorAll('.page').forEach(el => {
       el.textContent = '';
     });
   }
   clearAllPages(); // clear all pages
   dynamicFetchHTML(url, pageId, opts, element); // load page
-
 }
 
 function openPageAndScroll(url, pageId, opts, tabSelector, targetId) {
