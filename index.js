@@ -78,8 +78,8 @@ function openPage(url, pageId, opts, element) {
       });
   }
   function clearAllPages() {
-    if (el.id === 'page98') return; // never clear page98
     document.querySelectorAll('.page').forEach(el => {
+      if (el.id === 'page98') return; // never clear page98
       el.textContent = '';
     });
   }
