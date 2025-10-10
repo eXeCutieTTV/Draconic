@@ -65,10 +65,10 @@ function loadFromExcelFile(filename) {
 
 // show dictionary printout
 function showDictionaryPrintout() {
-openPageOld('page98');
+    openPageOld('page98');
 }
 setTimeout(() => {
-console.log("'showDictionaryPrintout();' to go to dictionary print page")    
+    console.log("'showDictionaryPrintout();' to go to dictionary print page")
 }, 250); // mention the command in the console, so you know how to find the dictionary list. also, on delay, so its at the bottom of the console.
 
 function renderTable(data) {
@@ -207,73 +207,6 @@ function getCurrentWordClass() {
     return cell5.textContent.trim();
 }
 
-// === Create noun summary tables (existing functionality) ===
-function createNounSummaryTables() {
-    return new Promise((resolve, reject) => {
-        const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-        if (!leftleftdivdictionary) {
-            return reject(new Error("leftleftdivdictionary element not found"));
-        }
-
-        const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
-        const numbers = ["Singular", "Dual", "Plural"];
-
-        // internal builder that sets data-raw on each TD
-        function buildTable(id, label, containerId) {
-            const wrapper = document.createElement("div");
-            const table = document.createElement("table");
-            table.id = id;
-
-            const thead = document.createElement("thead");
-
-            // Merged header row
-            const mergedRow = document.createElement("tr");
-            const mergedCell = document.createElement("th");
-            mergedCell.id = id + "-header";
-            mergedCell.colSpan = 4;
-            mergedCell.textContent = label;
-            mergedRow.appendChild(mergedCell);
-            thead.appendChild(mergedRow);
-
-            // Column header row
-            const headerRow = document.createElement("tr");
-            headerRow.innerHTML = `<th>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
-            thead.appendChild(headerRow);
-
-            table.appendChild(thead);
-
-            const tbody = document.createElement("tbody");
-            genders.forEach(gender => {
-                const row = document.createElement("tr");
-                const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
-                row.innerHTML = `<th>${gender}</th>` + cellsHtml;
-                tbody.appendChild(row);
-            });
-            table.appendChild(tbody);
-
-            wrapper.appendChild(table);
-
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            container.appendChild(wrapper);
-        }
-
-        // create wrapper divs and attach them
-        const dirsummarytablefinalwrapper = document.createElement("div");
-        const recsummarytablefinalwrapper = document.createElement("div");
-        dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
-        recsummarytablefinalwrapper.id = "recSummaryTablediv";
-        leftleftdivdictionary.appendChild(dirsummarytablefinalwrapper);
-        leftleftdivdictionary.appendChild(recsummarytablefinalwrapper);
-
-        buildTable("dirSummaryTable", "Directive", "dirSummaryTablediv");
-        buildTable("recSummaryTable", "Recessive", "recSummaryTablediv");
-
-        // Allow a paint cycle so the DOM is actually available to queries/measurements
-        requestAnimationFrame(() => resolve());
-    });
-}
-
 function connect_split(prefix = "", text = "", suffix = "") {
     let text_entries = text_to_entries(text);
     let prefix_entries = text_to_entries(prefix);
@@ -346,6 +279,73 @@ function populateSummaryTables(keyword, tables) {
             // place keyword as prefix or suffix (you can change behavior per table)
 
         });
+    });
+}
+
+// === Create noun summary tables (existing functionality) ===
+function createNounSummaryTables() {
+    return new Promise((resolve, reject) => {
+        const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+        if (!leftleftdivdictionary) {
+            return reject(new Error("leftleftdivdictionary element not found"));
+        }
+
+        const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
+        const numbers = ["Singular", "Dual", "Plural"];
+
+        // internal builder that sets data-raw on each TD
+        function buildTable(id, label, containerId) {
+            const wrapper = document.createElement("div");
+            const table = document.createElement("table");
+            table.id = id;
+
+            const thead = document.createElement("thead");
+
+            // Merged header row
+            const mergedRow = document.createElement("tr");
+            const mergedCell = document.createElement("th");
+            mergedCell.id = id + "-header";
+            mergedCell.colSpan = 4;
+            mergedCell.textContent = label;
+            mergedRow.appendChild(mergedCell);
+            thead.appendChild(mergedRow);
+
+            // Column header row
+            const headerRow = document.createElement("tr");
+            headerRow.innerHTML = `<th>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
+            thead.appendChild(headerRow);
+
+            table.appendChild(thead);
+
+            const tbody = document.createElement("tbody");
+            genders.forEach(gender => {
+                const row = document.createElement("tr");
+                const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
+                row.innerHTML = `<th>${gender}</th>` + cellsHtml;
+                tbody.appendChild(row);
+            });
+            table.appendChild(tbody);
+
+            wrapper.appendChild(table);
+
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.appendChild(wrapper);
+        }
+
+        // create wrapper divs and attach them
+        const dirsummarytablefinalwrapper = document.createElement("div");
+        const recsummarytablefinalwrapper = document.createElement("div");
+        dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
+        recsummarytablefinalwrapper.id = "recSummaryTablediv";
+        leftleftdivdictionary.appendChild(dirsummarytablefinalwrapper);
+        leftleftdivdictionary.appendChild(recsummarytablefinalwrapper);
+
+        buildTable("dirSummaryTable", "Directive", "dirSummaryTablediv");
+        buildTable("recSummaryTable", "Recessive", "recSummaryTablediv");
+
+        // Allow a paint cycle so the DOM is actually available to queries/measurements
+        requestAnimationFrame(() => resolve());
     });
 }
 
@@ -436,6 +436,17 @@ function createAuxiliarySummaryTables() {
         if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
         if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
     }
+    const isDefective = document.getElementById("auxiliaryFormsTable-episodic-past").textContent.trim();
+    if (isDefective === "defective") {
+        const EpiNonPast = document.getElementById("auxiliaryFormsTable-episodic-non-past").textContent.trim();
+        console.log(`${EpiNonPast} is defective`);
+        document.getElementById("auxiliaryFormsTable-episodic-past").textContent = `${EpiNonPast}`;
+        document.getElementById("auxiliaryFormsTable-gnomic-non-past").textContent = `${EpiNonPast}`;
+        document.getElementById("auxiliaryFormsTable-gnomic-past").textContent = `${EpiNonPast}`;
+
+    }
+
+    
 }
 
 // Define your  glyph classes
