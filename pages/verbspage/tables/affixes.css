@@ -3,6 +3,7 @@
     margin-bottom: 0px;
     margin-left: 2%;
     padding: 10px;
+    height: 500px;
 }
 
 /* normalAffix Hover */
@@ -15,4 +16,9 @@
 }
 .rareAffix:hover{
     background-color: #f2c8c8;
+}
+
+#verbSuffixTable, #verbPrefixTable {
+    height: 450px;
+    padding: 0px;
 }

@@ -1,4 +1,4 @@
-.exalted4exampletable {
+#exalted4exampletable {
     width: 33%;
     height: 106px;
     margin-bottom: 0px;
@@ -6,6 +6,6 @@
 }
 
 /* exalted4exampletable Hover */
-.exalted4exampletable td:hover {
+#exalted4exampletable td:hover {
     background-color: #f1d3d3;
 }
