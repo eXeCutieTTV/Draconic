@@ -275,9 +275,7 @@ function populateSummaryTables(keyword, tables) {
             if (tables[tableId]) entries = connect_split(textInCell, keyword, "");
             else entries = connect_split("", keyword, textInCell);
             td.innerHTML = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
-
             // place keyword as prefix or suffix (you can change behavior per table)
-
         });
     });
 }
@@ -366,16 +364,8 @@ function createVerbSummaryTables() {
     verbFormsWrapper.id = "verbSuffixTablediv";
     leftleftdivdictionary.appendChild(verbFormsWrapper);
 
-    buildVerbTable("pages/dictionarypage/tables/subjectprefix.html",
-        "verbPrefixTablediv",
-        "verbPrefixTable",
-        keyword,
-        true);
-    buildVerbTable("pages/dictionarypage/tables/objectsuffix.html",
-        "verbSuffixTablediv",
-        "verbSuffixTable",
-        keyword,
-        false);
+    buildVerbTable("pages/dictionarypage/tables/subjectprefix.html", "verbPrefixTablediv");
+    buildVerbTable("pages/dictionarypage/tables/objectsuffix.html", "verbSuffixTablediv");
 }
 
 // === Create adverb summary tables ===
@@ -465,7 +455,7 @@ function isConlangConsonant(char) {
     return text_to_entries(char)[0].properties.includes(window.REG.CONSONANT);
 }
 
-function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix) {
+function buildVerbTable(sourcePath, containerId) {
     fetch(sourcePath)
         .then(response => {
             if (!response.ok) throw new Error(`Failed to load ${sourcePath}: ${response.status}`);
@@ -475,29 +465,12 @@ function buildVerbTable(sourcePath, containerId, tableId, searchedWord, isPrefix
             const container = document.getElementById(containerId);
             if (container) {
                 container.innerHTML = html;
-
-                setTimeout(() => {
-                    const table = document.getElementById(tableId);
-                    if (!table) {
-                        console.warn(`Table with ID "${tableId}" not found.`);
-                        return;
-                    }
-
-                    const cells = table.querySelectorAll("td");
-                    cells.forEach(cell => {
-                        let originalText = cell.textContent.trim(); // var for cell data
-                        let cleanedText = entries_to_text(text_to_entries(originalText)); // 
-                        cell.innerHTML = isPrefix
-                            ? `${cleanedText}<strong>${searchedWord}</strong>` // cleanedtext should be the clean text - without (x) & -. seachedword is just an identyfier for the function.
-                            : `<strong>${searchedWord}</strong>${cleanedText}`; // either sets keyword+affix or affix+keyword. and bold. it will. my verbtable is broken. brother. the js was working before xd, i just needed to call the function correctly...
-                    });
-                }, 0);
             }
         })
         .catch(error => {
             console.error("Error loading table:", error);
         });
-}
+}// this is really just a fetch and paste. should it be kept, just for consistency with the other builders, or directly implemented in createVerbSummaryTables?
 
 // Helper function to build adverb tables
 function buildAdverbTable(id, label, containerId) {
@@ -1013,7 +986,7 @@ function performSearch() {
     }
     // remove page10000..page12000 except page matching current keyword variable
     const removedCount = removePageDivsExceptKeyword(keyword, 10000, 12000);
-    console.log('removed', removedCount);
+    console.log('removed', removedCount, 'dictionary pages');
 
     // Find or create the .pages wrapper
     let pagesWrap = document.querySelector('.pages');
@@ -1100,7 +1073,7 @@ function performSearch() {
 
 // Load appropriate HTML content based on word class
 function loadWordClassContent(wordClass, pageId) {
-    const rightDiv = document.querySelector(`#${pageId} #rightleftdivdictionary`);
+    const rightDiv = document.querySelector(`#${pageId} #textBoxContainer`);
     if (!rightDiv) return;
 
     let contentFile = '';

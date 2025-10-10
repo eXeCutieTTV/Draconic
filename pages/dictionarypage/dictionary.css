@@ -50,7 +50,7 @@
 }
 
 #leftleftdivdictionary{
-    width: 65%;
+    width: 100%;
     text-align: left;
     margin-left: 0px;
     margin-right: 20px;
@@ -58,7 +58,7 @@
 }
 
 #rightleftdivdictionary{
-    width: 35%;
+    width: 0px;
     text-align: left;
     margin-left: 0px;
     margin-right: 0px;
