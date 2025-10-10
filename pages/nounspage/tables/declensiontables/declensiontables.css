@@ -1,20 +1,3 @@
-.Leftdivp2 table, .rightdivp2, .mid1p2, .mid2p2, table {
-    width: 100%;
-    margin-bottom: 20px;
-}
-.Leftdivp2 td:hover {
-    background-color: #f1d3d3;
-}
-.rightdivp2 td:hover {
-    background-color: #f1d3d3;
-}
-.mid1p2 td:hover {
-    background-color: #f1d3d3;
-}
-.mid2p2 td:hover {
-    background-color: #f1d3d3;
-}
-
-.declensiontables td:hover{
+.declensiontables td:hover {
     background-color: #f1d3d3;
 }
