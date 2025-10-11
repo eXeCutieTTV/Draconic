@@ -38,7 +38,9 @@ async function loadExamplesFromXlsx(url) {
     }
 
     // Optional: dedupe and trim to reasonable size
-    examples = Array.from(new Set(values));
+    examples = Array.from(new Set(values))
+        .map(w => String(w).replace(/\s*\([1-4]\)\s*$/g, '').trim()) // remove " (n)"
+        .filter(Boolean); // drop empty strings if any
     populateDatalist(examples);
     return examples;
 }
@@ -48,15 +50,9 @@ loadExamplesFromXlsx(EXCEL_URL)
     .then(list => console.log('Loaded examples:', list.length))
     .catch(err => console.error(err));
 
-
-// in-place, case-insensitive, locale-aware sort
-examples.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: false }));
-const sortedExamples = [...examples].sort((a, b) =>
-    a.localeCompare(b, undefined, { sensitivity: 'base', numeric: false })
-);
-
 const input = document.getElementById('search_field');
 const suggestions = document.getElementById('suggestions');
+
 
 let highlighted = -1;
 
@@ -357,58 +353,6 @@ function getCurrentWordClass() {
     const cell5 = document.getElementById('cell5'); // wordclass is in cell5 (6th column)
     if (!cell5) return null;
     return cell5.textContent.trim();
-}
-
-function connect_split(prefix = "", text = "", suffix = "") {
-    let text_entries = text_to_entries(text);
-    let prefix_entries = text_to_entries(prefix);
-    let suffix_entries = text_to_entries(suffix);
-    if (!text_entries) return [];
-    const last_text = text_entries[text_entries.length - 1];
-    const first_text = text_entries[0];
-
-    if (prefix_entries) {
-        // No rules?
-    }
-
-    if (suffix_entries) {
-        let first_suffix = suffix_entries[0];
-
-        if (first_suffix) {
-            if (first_suffix.properties.includes(window.REG.VOWEL)) {
-                if (first_suffix.properties.includes(window.REG.OPTIONAL)) {
-                    if (last_text && last_text.properties.includes(window.REG.VOWEL)) {
-                        suffix_entries.shift();
-                    }
-                } else if (last_text && last_text.properties.includes(window.REG.VOWEL)) {
-                    if (last_text.properties.includes(window.REG.PYRIC)) {
-                        const pyric = get_pyric_equivalent(first_suffix);
-                        if (pyric) first_suffix = pyric;
-                        suffix_entries[0] = first_suffix;
-                    }
-                    text_entries.pop();
-                }
-            } else if (first_suffix.properties.includes(window.REG.CONSONANT) && first_suffix.properties.includes(window.REG.OPTIONAL)) {
-                if (!last_text || !last_text.properties.includes(window.REG.VOWEL)) {
-                    suffix_entries.shift();
-                }
-            }
-        }
-    }
-
-    return [prefix_entries, text_entries, suffix_entries];
-}
-
-function connect(prefix = "", text = "", suffix = "") {
-    const entries = connect_split(prefix, text, suffix);
-    return entries.flat();
-}
-
-function connect_suffix(text, suffix) { return connect("", text, suffix) }
-function connect_prefix(text, prefix) { return connect(prefix, text, "") }
-
-function entries_to_text(entries) {
-    return entries.map(e => e.letter || "").join("");
 }
 
 // populateSummaryTables
