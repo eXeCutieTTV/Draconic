@@ -16,17 +16,17 @@ function populateDatalist(items) {
 }
 
 // Fetch the XLSX, parse and extract column A from row 2 onward
-async function loadExamplesFromXlsx(url) {
+async function loadExamplesFromXlsx(url) { // so this is just for grabbing all the words from first column?
     const res = await fetch(url, { credentials: 'same-origin' });
     if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
-    const arrayBuffer = await res.arrayBuffer();
-    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+    const arrayBuffer = await res.arrayBuffer(); // not used anywhere else
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' }); // move buffer here?
 
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
+    const sheetName = workbook.SheetNames[0]; // not used anywhere else
+    const worksheet = workbook.Sheets[sheetName]; // not used anywhere else
 
     // Convert to rows (array of arrays)
-    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });  // move here?
 
     // rows[0] is header (A1); collect column A starting at rows[1] (A2)
     const values = [];
@@ -52,7 +52,6 @@ loadExamplesFromXlsx(EXCEL_URL)
 
 const input = document.getElementById('search_field');
 const suggestions = document.getElementById('suggestions');
-
 
 let highlighted = -1;
 
@@ -112,7 +111,7 @@ input.addEventListener('keydown', (e) => {
         if (highlighted >= 0 && items[highlighted]) {
             e.preventDefault();
             selectSuggestion(items[highlighted].textContent);
-        }
+        } // /\(/o.o\)/\ - Spooky the spider
     } else if (e.key === 'Escape') {
         suggestions.hidden = true;
     }
@@ -137,6 +136,8 @@ document.addEventListener('click', (e) => {
         suggestions.hidden = true;
     }
 });
+
+
 
 // loadDictionaryData
 let dictionaryData = [];
@@ -214,6 +215,7 @@ setTimeout(() => {
 function renderTable(data) {
     const container = document.getElementById("sheet-data");
     const table = document.createElement("table");
+    table.id = "sheet-data-table";
 
     data.forEach(row => {
         const tr = document.createElement("tr");
@@ -227,7 +229,7 @@ function renderTable(data) {
         const wordclass = paddedRow[1];
         let extractedNumber = "";
 
-        if (wordclass === "n" && /\(\d\)/.test(word)) {
+        if ((wordclass === "adj" || wordclass === "n") && /\(\d\)/.test(word)) { // /\(/o.o\)/\ - Spooky the spider
             const match = word.match(/\((\d)\)/);
             if (match) {
                 extractedNumber = match[1];
@@ -267,6 +269,60 @@ function safeIdPart(str) {
     return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash '_'
 }
 
+
+
+function declensionsInDictionary() {
+    // give dictionary table cells unique ids. // i need ${word} to be the textcontent of the first cell in the row. this is to make unique ids. // remember that the ax symbol (') isnt allowed as an id, and needs a fix. its somewhere else too.
+    function newids() {
+        const table = document.getElementById('sheet-data-table');
+        if (!table) return;
+        table.querySelectorAll('tr').forEach((tr, rowIdx) => {
+            const first = tr.querySelector('td');
+            const word = first ? entries_to_rom(text_to_entries(first.textContent.trim().replace(/`/g, "_ax_").replace(/'/g, "_ax_"))).replace(/[^\w-]+/g, '-') || 'cell' : 'row' + rowIdx;
+            tr.querySelectorAll('td').forEach((td, cellIdx) => {
+                td.id = `${word}-dicCell-${cellIdx}`;
+            });
+        });
+    } // remember that entries_to_rom is used.
+    newids();
+
+    // expanded tables for affix searchability
+    const table = document.getElementById('sheet-data-table');
+    table.querySelectorAll('tr').forEach((tr, rowIdx) => {
+        const first = tr.querySelector('td');
+        const word = first ? entries_to_rom(text_to_entries(first.textContent.trim().replace(/`/g, "_ax_").replace(/'/g, "_ax_"))).replace(/[^\w-]+/g, '-') || 'cell' : 'row' + rowIdx;
+        tr.querySelectorAll('td').forEach(td => {
+            if (td.id === `${word}-dicCell-5`) {
+                const wordclass = document.getElementById(`${word}-dicCell-5`).textContent;
+                switch (wordclass) {
+                    case 'n':
+                        console.log("noun");
+                        break;
+                    case 'v':
+                        console.log("verb");
+                        break;
+                    case 'adj':
+                        console.log("adjective");
+                        break;
+                    case 'adv':
+                        console.log("adverb");
+                        break;
+                    case 'aux':
+                        console.log("auxiliary");
+                        break;
+                    case 'pp':
+                        console.log("preposition");
+                        break;
+                    case 'part':
+                        console.log("particle");
+                        break;
+                }
+            }
+        });
+    })
+}
+
+
 // dictionary tables
 // === Create the summary tables ===
 let CurrentWordClassAsText = "";
@@ -299,7 +355,7 @@ function createSummaryTables() {
 
     switch (getCurrentWordClass()) {
         case 'n':
-            createNounSummaryTables();
+            createNounSummaryTables("leftleftdivdictionary");
             setTimeout(() => {
                 populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false });
             }, 100);
@@ -346,7 +402,7 @@ function createSummaryTables() {
             dictionaryPageReference = () => openPageOld('page7', document.querySelector('.tab-bar .tab:nth-child(9)'));
             break;
     }
-}
+} // /\(/o.o\)/\ - Spooky the spider
 
 // Helper function to get current word class from the displayed table
 function getCurrentWordClass() {
@@ -377,11 +433,11 @@ function populateSummaryTables(keyword, tables) {
 }
 
 // === Create noun summary tables (existing functionality) ===
-function createNounSummaryTables() {
+function createNounSummaryTables(inDivById) {
     return new Promise((resolve, reject) => {
-        const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-        if (!leftleftdivdictionary) {
-            return reject(new Error("leftleftdivdictionary element not found"));
+        const leftleftdivdictionary = document.getElementById(inDivById);
+        if (!inDivById) {
+            return reject(new Error(`div by id ${inDivById} not found`));
         }
 
         const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
@@ -494,7 +550,7 @@ function createAuxiliarySummaryTables() {
     if (!leftleftdivdictionary) {
         console.error("leftleftdivdictionary element not found");
         return;
-    }
+    } // /\(/o.o\)/\ - Spooky the spider
 
     const auxWrapper = document.createElement("div");
     auxWrapper.id = "auxiliaryFormsTablediv";
@@ -580,7 +636,7 @@ function createParticleSummaryTables() {
     ppWrapper.id = "particleFormsTablediv";
     leftleftdivdictionary.appendChild(ppWrapper);
 
-    buildPrepositionTable("particleFormsTable", "Particle Forms", "particleFormsTablediv");
+    buildParticleTable("particleFormsTable", "Particle Forms", "particleFormsTablediv");
     // populate the created td
     const EpiNonSource = document.getElementById("cell0");
     const tripleSource = document.getElementById("cell3");
@@ -616,7 +672,7 @@ function createAdjectiveSummaryTables() {
     ppWrapper.id = "adjectiveFormsTablediv";
     leftleftdivdictionary.appendChild(ppWrapper);
 
-    buildPrepositionTable("adjectiveFormsTable", "Adjective Forms", "adjectiveFormsTablediv");
+    buildAdjectiveTable("adjectiveFormsTable", "Adjective Forms", "adjectiveFormsTablediv");
     // populate the created td
     const EpiNonSource = document.getElementById("cell0");
     const tripleSource = document.getElementById("cell3");
@@ -637,7 +693,7 @@ function createAdjectiveSummaryTables() {
         if (GnoNonTd) GnoNonTd.textContent = parts[1] ?? "";
         if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
         if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
-    }
+    } // /\(/o.o\)/\ - Spooky the spider
 }
 
 // Define your  glyph classes
@@ -647,17 +703,13 @@ console.log(`Vowels = ${conlangVowels}`);
 console.log(`Consonants = ${conlangConsonants}`);
 
 // will redo -lirox
-function normalizeGlyph(glyph) {
-    return glyph.normalize("NFC").toLowerCase();
-}
+// function isConlangVowel(char) {
+//     return text_to_entries(char)[0].properties.includes(window.REG.VOWEL);
+// }
 
-function isConlangVowel(char) {
-    return text_to_entries(char)[0].properties.includes(window.REG.VOWEL);
-}
-
-function isConlangConsonant(char) {
-    return text_to_entries(char)[0].properties.includes(window.REG.CONSONANT);
-}
+// function isConlangConsonant(char) {
+//     return text_to_entries(char)[0].properties.includes(window.REG.CONSONANT);
+// } // unused
 
 function buildVerbTable(sourcePath, containerId) {
     fetch(sourcePath)
@@ -881,7 +933,7 @@ function buildParticleTable(id, label, containerId) {
     wrapper.appendChild(table);
     const container = document.getElementById(containerId);
     if (container) container.appendChild(wrapper);
-}
+} // /\(/o.o\)/\ - Spooky the spider
 
 // Helper function to build adjective tables
 function buildAdjectiveTable(id, label, containerId) {
@@ -916,7 +968,7 @@ function buildAdjectiveTable(id, label, containerId) {
     // first cell is the row label
     const thLabel = document.createElement("th");
     thLabel.textContent = "Forms";
-    row.appendChild(thLabel);
+    row.appendChild(thLabel); // /\(/o.o\)/\ - Spooky the spider
 
     // create a TD for each remaining header and assign an id derived from the header text
     headers.slice(1).forEach(hdr => {
@@ -1074,7 +1126,7 @@ function processDictionaryTable() {
 
 // === runTableLoader ===
 function runTableLoader() {
-    const currentWordClass = getCurrentWordClass();
+    const currentWordClass = getCurrentWordClass(); // /\(/o.o\)/\ - Spooky the spider
 
     // Only run the existing noun declension logic for nouns
     if (currentWordClass !== 'n') {
@@ -1255,11 +1307,11 @@ function waitForElement(selector, timeout = 5000) {
 
 // Helper function to setup search functionality for a page
 function setupPageSearchHandlers(pageId) {
-    const searchFieldSelector = `#${pageId} #search_field1`;
+    const searchFieldSelector = `#${pageId} #search_field1`; // those are not used anywhere else
     const searchButtonSelector = `#${pageId} #search_button1`;
 
     Promise.all([
-        waitForElement(searchFieldSelector),
+        waitForElement(searchFieldSelector), // move them here?
         waitForElement(searchButtonSelector)
     ]).then(([searchField, searchButton]) => {
         // Remove any existing listeners to prevent duplicates
@@ -1293,7 +1345,7 @@ function setupPageSearchHandlers(pageId) {
 function doSearchFromPage(pageId) {
     const searchField = document.querySelector(`#${pageId} #search_field1`);
     if (!searchField) return;
-
+    // /\(/o.o\)/\ - Spooky the spider
     const searchTerm = searchField.value.trim();
     if (!searchTerm) return;
 
@@ -1496,7 +1548,7 @@ function cloneWordclassText() {
 // put buttons on index.js?
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
-    doSearch();
+    doSearch(); // /\(/o.o\)/\ - Spooky the spider
 });
 
 document.addEventListener('click', (e) => {
