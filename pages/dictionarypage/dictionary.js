@@ -48,6 +48,13 @@ loadExamplesFromXlsx(EXCEL_URL)
     .then(list => console.log('Loaded examples:', list.length))
     .catch(err => console.error(err));
 
+
+// in-place, case-insensitive, locale-aware sort
+examples.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base', numeric: false }));
+const sortedExamples = [...examples].sort((a, b) =>
+    a.localeCompare(b, undefined, { sensitivity: 'base', numeric: false })
+);
+
 const input = document.getElementById('search_field');
 const suggestions = document.getElementById('suggestions');
 
@@ -224,6 +231,13 @@ function renderTable(data) {
         const wordclass = paddedRow[1];
         let extractedNumber = "";
 
+        if (wordclass === "n" && /\(\d\)/.test(word)) {
+            const match = word.match(/\((\d)\)/);
+            if (match) {
+                extractedNumber = match[1];
+                word = word.replace(/\(\d\)/, "").trim();
+            }
+        }
         const cells = [
             word,
             extractedNumber,
@@ -254,7 +268,7 @@ function renderTable(data) {
 
 // Helper: make a safe string for IDs/selectors (words containing the ax symbol can now still be converted into ids)
 function safeIdPart(str) {
-    return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash
+    return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash '_'
 }
 
 // dictionary tables
