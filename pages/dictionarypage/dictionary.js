@@ -1,8 +1,52 @@
 // search field dropdown
-const examples = [
-    'apple', 'apricot', 'banana', 'blueberry', 'cherry',
-    'date', 'dragonfruit', 'elderberry', 'fig', 'grape'
-];
+let examples = [];
+
+// Adjust this to where your file is served in the repository
+const EXCEL_URL = '22-09-2025.xlsx';
+
+// Helper to populate a datalist (optional)
+function populateDatalist(items) {
+    const dl = document.getElementById('examplesList');
+    dl.innerHTML = '';
+    items.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        dl.appendChild(opt);
+    });
+}
+
+// Fetch the XLSX, parse and extract column A from row 2 onward
+async function loadExamplesFromXlsx(url) {
+    const res = await fetch(url, { credentials: 'same-origin' });
+    if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`);
+    const arrayBuffer = await res.arrayBuffer();
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+
+    // Convert to rows (array of arrays)
+    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+
+    // rows[0] is header (A1); collect column A starting at rows[1] (A2)
+    const values = [];
+    for (let r = 1; r < rows.length; r++) {
+        const row = rows[r];
+        if (!row) continue;
+        const val = (row[0] ?? '').toString().trim();
+        if (val) values.push(val);
+    }
+
+    // Optional: dedupe and trim to reasonable size
+    examples = Array.from(new Set(values));
+    populateDatalist(examples);
+    return examples;
+}
+
+// Kick off load (call this once on page load)
+loadExamplesFromXlsx(EXCEL_URL)
+    .then(list => console.log('Loaded examples:', list.length))
+    .catch(err => console.error(err));
 
 const input = document.getElementById('search_field');
 const suggestions = document.getElementById('suggestions');
@@ -40,9 +84,9 @@ function selectSuggestion(text) {
 }
 
 function filterExamples(q) {
-    if (!q) return examples.slice(0, 8); // show some examples when empty
+    if (!q) return examples.slice(0, 5000); // show some examples when empty
     const low = q.toLowerCase();
-    return examples.filter(w => w.toLowerCase().includes(low)).slice(0, 8);
+    return examples.filter(w => w.toLowerCase().includes(low)).slice(0, 5000); // how many examples are shown?
 }
 
 input.addEventListener('input', () => {
@@ -179,14 +223,6 @@ function renderTable(data) {
         let word = paddedRow[0];
         const wordclass = paddedRow[1];
         let extractedNumber = "";
-
-        if ((wordclass === "adj" || wordclass === "n") && /\(\d\)/.test(word)) {
-            const match = word.match(/\((\d)\)/);
-            if (match) {
-                extractedNumber = match[1];
-                word = word.replace(/\(\d\)/, "").trim();
-            }
-        }
 
         const cells = [
             word,
