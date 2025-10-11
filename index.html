@@ -59,13 +59,18 @@
 
         <div class="rightdivp99">
           <div class="page99Search">
-            <button id="search_button">Search</button>
-            <input id="search_field" type="text" placeholder="Search..."><br>
-            <input id="api_field" type="text" placeholder="API key" style="margin-top: 5px;">
-            <br>
-            <p class="inline" style="margin: 0px; margin-top: 10px; font-size: 12px;">If you don't use an Api key, you
-            </p>
-            <p class="inline" style="margin: 0px; font-size: 12px;"><br>may get outdated information.</p>
+            <div class="search-wrap" style="position:relative;">
+              <button id="search_button">Search</button>
+              <input id="search_field" autocomplete="off" type="text" placeholder="Search...">
+              <ul id="suggestions" class="suggestions" role="listbox" hidden>
+              </ul>
+              <br>
+              <input id="api_field" type="text" placeholder="API key" style="margin-top: 5px;">
+              <br>
+              <p class="inline" style="margin: 0px; margin-top: 10px; font-size: 12px;">If you don't use an Api key, you
+              </p>
+              <p class="inline" style="margin: 0px; font-size: 12px;"><br>may get outdated information.</p>
+            </div>
           </div>
         </div>
       </div>
