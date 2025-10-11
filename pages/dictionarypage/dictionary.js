@@ -280,7 +280,7 @@ function declensionsInDictionary() {
             const first = tr.querySelector('td');
             const word = first ? entries_to_rom(text_to_entries(first.textContent.trim().replace(/`/g, "_ax_").replace(/'/g, "_ax_"))).replace(/[^\w-]+/g, '-') || 'cell' : 'row' + rowIdx;
             tr.querySelectorAll('td').forEach((td, cellIdx) => {
-                td.id = `${word}-dicCell-${cellIdx}`;
+                td.id = `${rowIdx}-${word}-dicCell-${cellIdx}`;
             });
         });
     } // remember that entries_to_rom is used.
@@ -293,8 +293,8 @@ function declensionsInDictionary() {
         const first = tr.querySelector('td');
         const word = first ? entries_to_rom(text_to_entries(first.textContent.trim().replace(/`/g, "_ax_").replace(/'/g, "_ax_"))).replace(/[^\w-]+/g, '-') || 'cell' : 'row' + rowIdx;
         tr.querySelectorAll('td').forEach(td => {
-            if (td.id === `${word}-dicCell-5`) {
-                const wordclass = document.getElementById(`${word}-dicCell-5`).textContent;
+            if (td.id === `${rowIdx}-${word}-dicCell-5`) {
+                const wordclass = document.getElementById(`${rowIdx}-${word}-dicCell-5`).textContent;
                 switch (wordclass) {
                     case 'n':
 
@@ -339,8 +339,8 @@ function declensionsInDictionary() {
                             } fixTableIds();
 
                             // Now load the declension data using existing logic
-                            const cell3 = document.getElementById(`${word}-dicCell-3`);
-                            const cell1 = document.getElementById(`${word}-dicCell-1`);
+                            const cell3 = document.getElementById(`${rowIdx}-${word}-dicCell-3`);
+                            const cell1 = document.getElementById(`${rowIdx}-${word}-dicCell-1`);
 
                             if (cell3 && cell1) {
                                 const cellText = cell3.textContent.toLowerCase();
