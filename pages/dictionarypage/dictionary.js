@@ -286,6 +286,7 @@ function declensionsInDictionary() {
     } // remember that entries_to_rom is used.
     newids();
 
+
     // expanded tables for affix searchability
     const table = document.getElementById('sheet-data-table');
     table.querySelectorAll('tr').forEach((tr, rowIdx) => {
@@ -296,7 +297,116 @@ function declensionsInDictionary() {
                 const wordclass = document.getElementById(`${word}-dicCell-5`).textContent;
                 switch (wordclass) {
                     case 'n':
-                        console.log("noun");
+
+                        createNounSummaryTables("test").then(() => {
+                            // Fix table ids
+                            function fixTableIds() {
+                                const dirTableDiv = document.getElementById('dirSummaryTablediv');
+                                if (dirTableDiv) {
+                                    dirTableDiv.id = `${word}-dirTableDiv`;
+                                    dirTableDiv.className = "dirTableDivs";
+                                }
+
+                                const recTableDiv = document.getElementById('recSummaryTablediv');
+                                if (recTableDiv) {
+                                    recTableDiv.id = `${word}-recTableDiv`;
+                                    recTableDiv.className = "recTableDivs";
+                                }
+
+                                const dirTable = document.getElementById('dirSummaryTable');
+                                if (dirTable) {
+                                    dirTable.id = `${word}-dirSummaryTable`;
+                                    dirTable.className = "dictionaryDirTables";
+                                }
+
+                                const recTable = document.getElementById('recSummaryTable');
+                                if (recTable) {
+                                    recTable.id = `${word}-recSummaryTable`;
+                                    recTable.className = "dictionaryRecTables";
+                                }
+
+                                const dirHeader = document.getElementById('dirSummaryTable-header');
+                                if (dirHeader) {
+                                    dirHeader.id = `${word}-dirSummaryTable-header`;
+                                    dirHeader.className = "dictionaryDirHeaders";
+                                }
+
+                                const recHeader = document.getElementById('recSummaryTable-header');
+                                if (recHeader) {
+                                    recHeader.id = `${word}-recSummaryTable-header`;
+                                    recHeader.className = "dictionaryRecHeaders";
+                                }
+                            } fixTableIds();
+
+                            // Now load the declension data using existing logic
+                            const cell3 = document.getElementById(`${word}-dicCell-3`);
+                            const cell1 = document.getElementById(`${word}-dicCell-1`);
+
+                            if (cell3 && cell1) {
+                                const cellText = cell3.textContent.toLowerCase();
+                                const Declension = parseInt(cell1.textContent.trim(), 10);
+
+                                if (!isNaN(Declension) && Declension > 0) {
+                                    const loadPromises = [];
+                                    const loadedStems = new Set();
+
+                                    // Load from groupMap
+                                    for (const [groupId, stems] of Object.entries(groupMap)) {
+                                        const pattern = new RegExp(`\\b${groupId}\\b`, "i");
+                                        if (pattern.test(cellText)) {
+                                            stems.forEach(stem => {
+                                                if (!loadedStems.has(stem)) {
+                                                    loadPromises.push(loadTableFilesForWord(stem, Declension, stem, word));
+                                                    loadedStems.add(stem);
+                                                }
+                                            });
+                                        }
+                                    }
+
+                                    // Load from tableMap
+                                    for (const [id, stem] of Object.entries(tableMap)) {
+                                        if (cellText.includes(id.toLowerCase()) && !loadedStems.has(stem)) {
+                                            loadPromises.push(loadTableFilesForWord(stem, Declension, stem, word));
+                                            loadedStems.add(stem);
+                                        }
+                                    }
+
+                                    // Wait for all loads to complete, then populate
+                                    Promise.all(loadPromises).then(() => {
+                                        populateSummaryTables(word, {
+                                            [`${word}-dirSummaryTable`]: false,
+                                            [`${word}-recSummaryTable`]: false
+                                        });
+
+                                    });
+
+                                    // hide
+                                    function hideEmptySummaryRowsDic(summaryTableId) {
+                                        const table = document.getElementById(summaryTableId);
+                                        if (!table) return;
+
+                                        const rows = table.querySelectorAll("tbody tr");
+                                        rows.forEach(row => {
+                                            const cells = Array.from(row.querySelectorAll("td"));
+                                            const hasData = cells.some(td => {
+                                                const text = td.textContent.replace(/\u00a0/g, " ").trim().replace();
+                                                if (text === `${word}`) text = '';
+                                                return text !== "";
+                                            });
+
+                                            // Force visibility for filled rows, hide empty ones
+                                            row.style.display = hasData ? "table-row" : "none";
+                                        });
+                                    }
+
+                                    hideEmptySummaryRowsDic(`${word}-dirSummaryTable`);
+                                    hideEmptySummaryRowsDic(`${word}-recSummaryTable`);
+                                }
+                            }
+                        }).catch(error => {
+                            console.error(`Error creating noun tables for ${word}:`, error);
+                        });
+
                         break;
                     case 'v':
                         console.log("verb");
@@ -435,9 +545,9 @@ function populateSummaryTables(keyword, tables) {
 // === Create noun summary tables (existing functionality) ===
 function createNounSummaryTables(inDivById) {
     return new Promise((resolve, reject) => {
-        const leftleftdivdictionary = document.getElementById(inDivById);
-        if (!inDivById) {
-            return reject(new Error(`div by id ${inDivById} not found`));
+        const DivId = document.getElementById(`${inDivById}`);
+        if (!DivId) {
+            return reject(new Error(`div by id ${DivId} not found`));
         }
 
         const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
@@ -488,8 +598,8 @@ function createNounSummaryTables(inDivById) {
         const recsummarytablefinalwrapper = document.createElement("div");
         dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
         recsummarytablefinalwrapper.id = "recSummaryTablediv";
-        leftleftdivdictionary.appendChild(dirsummarytablefinalwrapper);
-        leftleftdivdictionary.appendChild(recsummarytablefinalwrapper);
+        DivId.appendChild(dirsummarytablefinalwrapper);
+        DivId.appendChild(recsummarytablefinalwrapper);
 
         buildTable("dirSummaryTable", "Directive", "dirSummaryTablediv");
         buildTable("recSummaryTable", "Recessive", "recSummaryTablediv");
@@ -1019,6 +1129,19 @@ function loadTableFiles(stem, rowNumber, gender) {
     return Promise.all([dirPromise, recPromise]);
 }
 
+// === Fetch a stem's dir/rec tables for a specific word and paste into word-specific summary tables ===
+function loadTableFilesForWord(stem, rowNumber, gender, wordId) {
+    const dirPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}dir.html`)
+        .then(res => res.text())
+        .then(html => pasteFromHTMLForWord(html, rowNumber, gender, "dir", wordId));
+
+    const recPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}rec.html`)
+        .then(res => res.text())
+        .then(html => pasteFromHTMLForWord(html, rowNumber, gender, "rec", wordId));
+
+    return Promise.all([dirPromise, recPromise]);
+}
+
 // === Normalize text and hide empty rows ===
 function normalizeText(s) {
     return (s || "").replace(/\u00a0/g, " ").trim();
@@ -1081,6 +1204,53 @@ function pasteFromHTML(html, rowNumber, gender, type) {
     cells.forEach((val, idx) => {
         if (summaryCells[idx]) {
             summaryCells[idx].textContent = val;
+        }
+    });
+
+    // Hide all empty rows in this summary table
+    hideEmptySummaryRowsIn(summaryTableId);
+}
+
+// === Extract row from fetched HTML and paste into word-specific summary table ===
+function pasteFromHTMLForWord(html, rowNumber, gender, type, wordId) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const table = doc.querySelector("table");
+    if (!table) return;
+
+    const allRows = Array.from((table.querySelector("tbody") || table).querySelectorAll("tr"));
+    const dataRows = allRows.slice(2); // skip first two header rows
+    const targetRow = dataRows[rowNumber - 1];
+    if (!targetRow) return;
+
+    // Expand colspans so we always get 3 values
+    let cells = [];
+    Array.from(targetRow.cells)
+        .slice(1) // skip label
+        .forEach(cell => {
+            const span = parseInt(cell.getAttribute("colspan") || "1", 10);
+            const text = normalizeText(cell.textContent);
+            for (let i = 0; i < span; i++) {
+                cells.push(text);
+            }
+        });
+
+    const summaryTableId = type === "dir" ? `${wordId}-dirSummaryTable` : `${wordId}-recSummaryTable`;
+    const summaryTable = document.getElementById(summaryTableId);
+    if (!summaryTable) return;
+
+    const summaryRows = Array.from(summaryTable.querySelectorAll("tbody tr"));
+    const summaryRow = summaryRows.find(r =>
+        normalizeText(r.querySelector("th").textContent).toLowerCase() === gender.toLowerCase()
+    );
+    if (!summaryRow) return;
+
+    const summaryCells = summaryRow.querySelectorAll("td");
+    cells.forEach((val, idx) => {
+        if (summaryCells[idx]) {
+            summaryCells[idx].textContent = val;
+            summaryCells[idx].dataset.raw = val; // Store raw value for later population
         }
     });
 
