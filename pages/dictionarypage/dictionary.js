@@ -1,3 +1,178 @@
+// === DATA ===
+function setNounArrays() {
+    const GENDERS = {
+        E: { NAME: "Exhalted", SHORT: "e", INCLUDED: ["animates", "all"] },
+        R: { NAME: "Rational", SHORT: "r", INCLUDED: ["animates", "all"] },
+        MON: { NAME: "Monstrous", SHORT: "mon", INCLUDED: ["animates", "all"] },
+        I: { NAME: "Irrational", SHORT: "i", INCLUDED: ["animates", "all"] },
+        MAG: { NAME: "Magical", SHORT: "mag", INCLUDED: ["inanimates", "all"] },
+        MUN: { NAME: "Mundane", SHORT: "mun", INCLUDED: ["inanimates", "all"] },
+        A: { NAME: "Abstract", SHORT: "a", INCLUDED: ["inanimates", "all"] }// /\(/o.o\)/\ - Spooky the spider
+    }
+
+    const NUMBERS = {
+        S: "Singular",
+        D: "Dual",
+        P: "Plural"
+    }
+
+    const MOODS = {
+        D: "Directive",
+        R: "Recessive",
+    }
+
+
+    const CONJUGATIONS = { // /\(/o.o\)/\ - Spooky the spider
+        [MOODS.D]: {
+            [GENDERS.E.NAME]: {
+                [NUMBERS.S]: { 1: "ēn", 2: "æn", 3: "ēn", 4: "ħán" },
+                [NUMBERS.D]: { 1: "(ē)χen", 2: "(y)χen", 3: "(o)χen", 4: "ħóχħon" },
+                [NUMBERS.P]: { 1: "illyn", 2: "ān", 3: "ē'yn", 4: "q̇yn" }
+            },
+            [GENDERS.R.NAME]: {
+                [NUMBERS.S]: { 1: "ēf", 2: "(a)xef", 3: "lef", 4: "lef" },
+                [NUMBERS.D]: { 1: "eχef", 2: "hyf", 3: "(o)χef", 4: "(o)χef" },
+                [NUMBERS.P]: { 1: "yf", 2: "hyf", 3: "'yf", 4: "'yf" }
+            },
+            [GENDERS.MON.NAME]: {
+                [NUMBERS.S]: { 1: "ô", 2: "ô", 3: "ô", 4: "ô" },
+                [NUMBERS.D]: { 1: "yħq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
+                [NUMBERS.P]: { 1: "oħô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
+            },
+            [GENDERS.I.NAME]: {
+                [NUMBERS.S]: { 1: "llūl", 2: "cūl", 3: "cūl", 4: "cūl" },
+                [NUMBERS.D]: { 1: "(æ)llūl", 2: "(')illūl", 3: "(')illūl", 4: "(')illūl" },
+                [NUMBERS.P]: { 1: "(æ)llūl", 2: "(')illūl", 3: "(')illūl", 4: "(')illūl" } // /\(/o.o\)/\ - Spooky the spider
+            },
+            [GENDERS.MAG.NAME]: {
+                [NUMBERS.S]: { 1: "(ō)χ", 2: "huχ", 3: "huχ", 4: "q̇ħúχ" },
+                [NUMBERS.D]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "(')ūχ" },
+                [NUMBERS.P]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "(')ūχ" }
+            },
+            [GENDERS.MUN.NAME]: {
+                [NUMBERS.S]: { 1: "(e)rk", 2: "tyk", 3: "tyk", 4: "(á)rk" },
+                [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk" },
+                [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk" }
+            },
+            [GENDERS.A.NAME]: {
+                [NUMBERS.S]: { 1: "(y)q̇", 2: "(o)q̇", 3: "(o)q̇", 4: "(ú)ħáq̇" },
+                [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
+                [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
+            }
+        },
+        [MOODS.R]: {
+            [GENDERS.E.NAME]: {
+                [NUMBERS.S]: { 1: "oħân", 2: "ħân", 3: "ēqân", 4: "qân" },
+                [NUMBERS.D]: { 1: "ħân", 2: "(ō)n", 3: "on", 4: "ħûn" },
+                [NUMBERS.P]: { 1: "illyrn", 2: "(ō)rn", 3: "ē'yrn", 4: "q̇yrn" }
+            },
+            [GENDERS.R.NAME]: {
+                [NUMBERS.S]: { 1: "oħâf", 2: "ħâf", 3: "(o)qâf", 4: "(o)qâf" },
+                [NUMBERS.D]: { 1: "īllyf", 2: "(')ūllef", 3: "yf", 4: "yf" },
+                [NUMBERS.P]: { 1: "īllyf", 2: "(')ūllef", 3: "ūlef", 4: "'ūlef" }
+            },
+            [GENDERS.MON.NAME]: {
+                [NUMBERS.S]: { 1: "oħô", 2: "qâħó", 3: "qâħó", 4: "ô" },
+                [NUMBERS.D]: { 1: "ūħó", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
+                [NUMBERS.P]: { 1: "ōq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
+            },
+            [GENDERS.I.NAME]: {
+                [NUMBERS.S]: { 1: "llūl", 2: "qâllūl", 3: "qâllūl", 4: "qâllūl" },
+                [NUMBERS.D]: { 1: "(y)ll'ūl", 2: "(')llūl", 3: "(')llūl", 4: "(')llūl" },
+                [NUMBERS.P]: { 1: "(y)ll'ūl", 2: "(')ūcūl", 3: "(')ūcūl", 4: "(')ūcūl" }
+            },
+            [GENDERS.MAG.NAME]: {
+                [NUMBERS.S]: { 1: "(ō)ħúχħ", 2: "(y)q̇ħôχ", 3: "(y)q̇ħôχ", 4: "q̇ħôχ" },
+                [NUMBERS.D]: { 1: "(a)lluχ", 2: "(y)lūrχ", 3: "(y)lūrχ", 4: "(')ūrχ" },
+                [NUMBERS.P]: { 1: "(a)lluχ", 2: "(y)lūrχ", 3: "(y)lūrχ", 4: "(')ūrχ" }
+            },
+            [GENDERS.MUN.NAME]: {
+                [NUMBERS.S]: { 1: "(o)ħárk	", 2: "ħárk	", 3: "ħárk	", 4: "q̇ħárk" },
+                [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk	" },
+                [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk	" }
+            },  // /\(/o.o\)/\ - Spooky the spider
+            [GENDERS.A.NAME]: {
+                [NUMBERS.S]: { 1: "aħôq̇", 2: "(y)q̇ħôq̇", 3: "(y)q̇ħôq̇", 4: "áq̇ħôq̇" },
+                [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
+                [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
+            }
+        }
+    }
+}
+
+
+/*
+<div class="declensiontables">
+    <table>
+        <tr>
+            <th colspan="4" style="font-size: 24px; background-color: rgb(202, 79, 79)">
+                <enbolden>Irrational Directive</enbolden>
+            </th>
+        </tr>
+        <tr>
+            <th style="width: 10px;">
+                <lilbold>Dec.</lilbold>
+            </th>
+            <th>Singular</th>
+            <th>Dual</th>
+            <th>Plural</th>
+        </tr>
+        <th>1.</th>
+        <td>llūl</td>
+        <td>(æ)llūl</td>
+        <td>(æ)llūl</td>
+        </tr>
+        <th>2.</th>
+        <td>cūl</td>
+        <td>cūl</td>
+        <td>(')illūl</td>
+        </tr>
+        <th>3.</th>
+        <td>cūl</td>
+        <td>cūl</td>
+        <td>(')illūl</td>
+        </tr>
+        <th>4.</th> 
+        </tr>
+    </table>
+</div>
+*/ // /\(/o.o\)/\ - Spooky the spider
+function generateDeclensionTables(mood, gender) {// generateDeclensionTables(MOODS.R, GENDERS.E.NAME)
+    const data = CONJUGATIONS[mood][gender];
+    return `
+    <div class="declensiontables">
+        <tr>
+            <th colspan="4" style="font-size: 24px; background-color: rgb(202, 79, 79)">
+                <enbolden>${gender} ${mood}</enbolden>
+            </th>
+        </tr>
+        <tr>
+            <th style="width: 10px;">
+                <lilbold>Dec.</lilbold>
+            </th>
+            <th>${NUMBERS.S}</th>
+            <th>${NUMBERS.D}</th>
+            <th>${NUMBERS.P}</th>
+        </tr>
+        ${[1, 2, 3, 4].map(i => `
+        </tr>
+            <th>${i}</th>
+            <th>${data[NUMBERS.S][i]}</th>
+            <th>${data[NUMBERS.D][i]}</th>
+            <th>${data[NUMBERS.P][i]}</th>
+        </tr>
+        `)} 
+    </div>
+    `// /\(/o.o\)/\ - Spooky the spider
+}
+
+
+// -------------------------------------- about searching with conjugation, you mean the search field or ctrl + F?
+// ie, when you search for a word, in the searchfield, if it includes affixes then it should direct you to a page explaining that exact word. its declension, conjugation, gender etc.
+
+
+setNounArrays(); // /\(/o.o\)/\ - Spooky the spider
+
 // search field dropdown
 let examples = [];
 
@@ -37,7 +212,6 @@ async function loadExamplesFromXlsx(url) { // so this is just for grabbing all t
         if (val) values.push(val);
     }
 
-    // Optional: dedupe and trim to reasonable size
     examples = Array.from(new Set(values))
         .map(w => String(w).replace(/\s*\([1-4]\)\s*$/g, '').trim()) // remove " (n)"
         .filter(Boolean); // drop empty strings if any
@@ -296,7 +470,7 @@ function declensionsInDictionary() {
                 switch (wordclass) {
                     case 'n':
                         const uniquePrefix = `${rowIdx}-${word}`;
-                        createNounSummaryTables("test", uniquePrefix).then(() => {
+                        createNounSummaryTables("test", uniquePrefix).then(() => { // reused function eg.if you want to make it arrays, then youll need to remake another function for this. etc.
 
                             // Add classes to the created tables
                             const dirTable = document.getElementById(`${uniquePrefix}-dirSummaryTable`);
@@ -319,16 +493,17 @@ function declensionsInDictionary() {
 
                                 if (!isNaN(Declension) && Declension > 0) {
                                     const loadPromises = [];
-                                    const loadedStems = new Set();
+                                    const loadedStems = new Set(); //tf are stems
 
                                     // Load from groupMap 
                                     for (const [groupId, stems] of Object.entries(groupMap)) {
                                         const pattern = new RegExp(`\\b${groupId}\\b`, "i");
                                         if (pattern.test(cellText)) {
                                             stems.forEach(stem => {
-                                                if (!loadedStems.has(stem)) {
+                                                if (!loadedStems.has(stem)) {                              // vvv\?? where is gender in the function
                                                     loadPromises.push(loadTableFilesForWord(stem, Declension, stem, uniquePrefix)); // the issue is that the fetches break???
-                                                    loadedStems.add(stem);
+                                                    loadedStems.add(stem); // it works perfectly for a while though. it only breaks after like 75% completion.
+                                                    console.log(stem, Declension, stem, uniquePrefix); //the function is broken, so i cant even check with console.log... and i havent commited enough earlier xd.
 
                                                 }
                                             });
@@ -340,13 +515,13 @@ function declensionsInDictionary() {
                                         if (cellText.includes(id.toLowerCase()) && !loadedStems.has(stem)) {
                                             loadPromises.push(loadTableFilesForWord(stem, Declension, stem, uniquePrefix));
                                             loadedStems.add(stem);
+                                            console.log(stem, Declension, stem, uniquePrefix);
 
                                         }
 
                                     }
 
-                                    // Wait for all loads to complete, then populate 
-                                    Promise.all(loadPromises).then(() => {
+                                    Promise.all(loadPromises).then(() => { // what line // Load from groupMap && // Load from tableMap its loadTableFilesForWord(); sure thingthey are the issues i mean. the entire case is making tables though, if you want to remake it to arrys, then youll have to redo alot xd.
                                         const actualWord = first.textContent.trim().replace(/\(\d\)/, "").trim();
                                         populateSummaryTables(actualWord, {
                                             [`${uniquePrefix}-dirSummaryTable`]: false,
@@ -550,7 +725,7 @@ function createNounSummaryTables(inDivById, uniquePrefix = "") {
             table.appendChild(thead);
 
             const tbody = document.createElement("tbody");
-            genders.forEach(gender => {
+            [GENDERS.E.NAME].forEach(gender => {
                 const row = document.createElement("tr");
                 const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
                 row.innerHTML = `<th>${gender}</th>` + cellsHtml;
@@ -1114,17 +1289,26 @@ function loadTableFiles(stem, rowNumber, gender) {
 }
 
 // === Fetch a stem's dir/rec tables for a specific word and paste into word-specific summary tables ===
-function loadTableFilesForWord(stem, rowNumber, gender, wordId) {
-    const dirPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}dir.html`)
-        .then(res => res.text())
-        .then(html => pasteFromHTMLForWord(html, rowNumber, gender, "dir", wordId));
+// function loadTableFilesForWord(stem, rowNumber, gender, wordId) {
+//     const dirPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}dir.html`)
+//         .then(res => res.text())
+//         .then(html => pasteFromHTMLForWord(html, rowNumber, gender, "dir", wordId));
 
-    const recPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}rec.html`)
-        .then(res => res.text())
-        .then(html => pasteFromHTMLForWord(html, rowNumber, gender, "rec", wordId));
+//     const recPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}rec.html`)
+//         .then(res => res.text())
+//         .then(html => pasteFromHTMLForWord(html, rowNumber, gender, "rec", wordId));
+
+//     return Promise.all([dirPromise, recPromise]);
+// } // old
+
+function loadTableFilesForWord(stem, rowNumber, gender, wordId) {
+    const dirPromise = pasteFromHTMLForWord(generateDeclensionTables(MOODS.D, gender), rowNumber, gender, "dir", wordId);
+
+    const recPromise = pasteFromHTMLForWord(generateDeclensionTables(MOODS.R, gender), rowNumber, gender, "rec", wordId);
 
     return Promise.all([dirPromise, recPromise]);
 }
+
 
 // === Normalize text and hide empty rows ===
 function normalizeText(s) {
