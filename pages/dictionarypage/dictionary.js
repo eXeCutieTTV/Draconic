@@ -1,101 +1,99 @@
 // === DATA ===
-function setNounArrays() {
-    const GENDERS = {
-        E: { NAME: "Exhalted", SHORT: "e", INCLUDED: ["animates", "all"] },
-        R: { NAME: "Rational", SHORT: "r", INCLUDED: ["animates", "all"] },
-        MON: { NAME: "Monstrous", SHORT: "mon", INCLUDED: ["animates", "all"] },
-        I: { NAME: "Irrational", SHORT: "i", INCLUDED: ["animates", "all"] },
-        MAG: { NAME: "Magical", SHORT: "mag", INCLUDED: ["inanimates", "all"] },
-        MUN: { NAME: "Mundane", SHORT: "mun", INCLUDED: ["inanimates", "all"] },
-        A: { NAME: "Abstract", SHORT: "a", INCLUDED: ["inanimates", "all"] }// /\(/o.o\)/\ - Spooky the spider
-    }
+const GENDERS = {
+    E: { NAME: "exhalted", SHORT: "e", INCLUDED: ["animates", "all"] },
+    R: { NAME: "rational", SHORT: "r", INCLUDED: ["animates", "all"] },
+    MON: { NAME: "monstrous", SHORT: "mon", INCLUDED: ["animates", "all"] },
+    I: { NAME: "irrational", SHORT: "i", INCLUDED: ["animates", "all"] },
+    MAG: { NAME: "magical", SHORT: "mag", INCLUDED: ["inanimates", "all"] },
+    MUN: { NAME: "mundane", SHORT: "mun", INCLUDED: ["inanimates", "all"] },
+    A: { NAME: "abstract", SHORT: "a", INCLUDED: ["inanimates", "all"] }// /\(/o.o\)/\ - Spooky the spider
+}
 
-    const NUMBERS = {
-        S: "Singular",
-        D: "Dual",
-        P: "Plural"
-    }
+const NUMBERS = {
+    S: "singular",
+    D: "dual",
+    P: "plural"
+}
 
-    const MOODS = {
-        D: "Directive",
-        R: "Recessive",
-    }
+const MOODS = {
+    D: "directive",
+    R: "recessive",
+}
 
 
-    const CONJUGATIONS = { // /\(/o.o\)/\ - Spooky the spider
-        [MOODS.D]: {
-            [GENDERS.E.NAME]: {
-                [NUMBERS.S]: { 1: "ēn", 2: "æn", 3: "ēn", 4: "ħán" },
-                [NUMBERS.D]: { 1: "(ē)χen", 2: "(y)χen", 3: "(o)χen", 4: "ħóχħon" },
-                [NUMBERS.P]: { 1: "illyn", 2: "ān", 3: "ē'yn", 4: "q̇yn" }
-            },
-            [GENDERS.R.NAME]: {
-                [NUMBERS.S]: { 1: "ēf", 2: "(a)xef", 3: "lef", 4: "lef" },
-                [NUMBERS.D]: { 1: "eχef", 2: "hyf", 3: "(o)χef", 4: "(o)χef" },
-                [NUMBERS.P]: { 1: "yf", 2: "hyf", 3: "'yf", 4: "'yf" }
-            },
-            [GENDERS.MON.NAME]: {
-                [NUMBERS.S]: { 1: "ô", 2: "ô", 3: "ô", 4: "ô" },
-                [NUMBERS.D]: { 1: "yħq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
-                [NUMBERS.P]: { 1: "oħô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
-            },
-            [GENDERS.I.NAME]: {
-                [NUMBERS.S]: { 1: "llūl", 2: "cūl", 3: "cūl", 4: "cūl" },
-                [NUMBERS.D]: { 1: "(æ)llūl", 2: "(')illūl", 3: "(')illūl", 4: "(')illūl" },
-                [NUMBERS.P]: { 1: "(æ)llūl", 2: "(')illūl", 3: "(')illūl", 4: "(')illūl" } // /\(/o.o\)/\ - Spooky the spider
-            },
-            [GENDERS.MAG.NAME]: {
-                [NUMBERS.S]: { 1: "(ō)χ", 2: "huχ", 3: "huχ", 4: "q̇ħúχ" },
-                [NUMBERS.D]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "(')ūχ" },
-                [NUMBERS.P]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "(')ūχ" }
-            },
-            [GENDERS.MUN.NAME]: {
-                [NUMBERS.S]: { 1: "(e)rk", 2: "tyk", 3: "tyk", 4: "(á)rk" },
-                [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk" },
-                [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk" }
-            },
-            [GENDERS.A.NAME]: {
-                [NUMBERS.S]: { 1: "(y)q̇", 2: "(o)q̇", 3: "(o)q̇", 4: "(ú)ħáq̇" },
-                [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
-                [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
-            }
+const CONJUGATIONS = { // /\(/o.o\)/\ - Spooky the spider
+    [MOODS.D]: {
+        [GENDERS.E.NAME]: {
+            [NUMBERS.S]: { 1: "ēn", 2: "æn", 3: "ēn", 4: "ħán" },
+            [NUMBERS.D]: { 1: "(ē)χen", 2: "(y)χen", 3: "(o)χen", 4: "ħóχħon" },
+            [NUMBERS.P]: { 1: "illyn", 2: "ān", 3: "ē'yn", 4: "q̇yn" }
         },
-        [MOODS.R]: {
-            [GENDERS.E.NAME]: {
-                [NUMBERS.S]: { 1: "oħân", 2: "ħân", 3: "ēqân", 4: "qân" },
-                [NUMBERS.D]: { 1: "ħân", 2: "(ō)n", 3: "on", 4: "ħûn" },
-                [NUMBERS.P]: { 1: "illyrn", 2: "(ō)rn", 3: "ē'yrn", 4: "q̇yrn" }
-            },
-            [GENDERS.R.NAME]: {
-                [NUMBERS.S]: { 1: "oħâf", 2: "ħâf", 3: "(o)qâf", 4: "(o)qâf" },
-                [NUMBERS.D]: { 1: "īllyf", 2: "(')ūllef", 3: "yf", 4: "yf" },
-                [NUMBERS.P]: { 1: "īllyf", 2: "(')ūllef", 3: "ūlef", 4: "'ūlef" }
-            },
-            [GENDERS.MON.NAME]: {
-                [NUMBERS.S]: { 1: "oħô", 2: "qâħó", 3: "qâħó", 4: "ô" },
-                [NUMBERS.D]: { 1: "ūħó", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
-                [NUMBERS.P]: { 1: "ōq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
-            },
-            [GENDERS.I.NAME]: {
-                [NUMBERS.S]: { 1: "llūl", 2: "qâllūl", 3: "qâllūl", 4: "qâllūl" },
-                [NUMBERS.D]: { 1: "(y)ll'ūl", 2: "(')llūl", 3: "(')llūl", 4: "(')llūl" },
-                [NUMBERS.P]: { 1: "(y)ll'ūl", 2: "(')ūcūl", 3: "(')ūcūl", 4: "(')ūcūl" }
-            },
-            [GENDERS.MAG.NAME]: {
-                [NUMBERS.S]: { 1: "(ō)ħúχħ", 2: "(y)q̇ħôχ", 3: "(y)q̇ħôχ", 4: "q̇ħôχ" },
-                [NUMBERS.D]: { 1: "(a)lluχ", 2: "(y)lūrχ", 3: "(y)lūrχ", 4: "(')ūrχ" },
-                [NUMBERS.P]: { 1: "(a)lluχ", 2: "(y)lūrχ", 3: "(y)lūrχ", 4: "(')ūrχ" }
-            },
-            [GENDERS.MUN.NAME]: {
-                [NUMBERS.S]: { 1: "(o)ħárk	", 2: "ħárk	", 3: "ħárk	", 4: "q̇ħárk" },
-                [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk	" },
-                [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk	" }
-            },  // /\(/o.o\)/\ - Spooky the spider
-            [GENDERS.A.NAME]: {
-                [NUMBERS.S]: { 1: "aħôq̇", 2: "(y)q̇ħôq̇", 3: "(y)q̇ħôq̇", 4: "áq̇ħôq̇" },
-                [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
-                [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
-            }
+        [GENDERS.R.NAME]: {
+            [NUMBERS.S]: { 1: "ēf", 2: "(a)xef", 3: "lef", 4: "lef" },
+            [NUMBERS.D]: { 1: "eχef", 2: "hyf", 3: "(o)χef", 4: "(o)χef" },
+            [NUMBERS.P]: { 1: "yf", 2: "hyf", 3: "'yf", 4: "'yf" }
+        },
+        [GENDERS.MON.NAME]: {
+            [NUMBERS.S]: { 1: "ô", 2: "ô", 3: "ô", 4: "ô" },
+            [NUMBERS.D]: { 1: "yħq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
+            [NUMBERS.P]: { 1: "oħô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
+        },
+        [GENDERS.I.NAME]: {
+            [NUMBERS.S]: { 1: "llūl", 2: "cūl", 3: "cūl", 4: "cūl" },
+            [NUMBERS.D]: { 1: "(æ)llūl", 2: "(')illūl", 3: "(')illūl", 4: "(')illūl" },
+            [NUMBERS.P]: { 1: "(æ)llūl", 2: "(')illūl", 3: "(')illūl", 4: "(')illūl" } // /\(/o.o\)/\ - Spooky the spider
+        },
+        [GENDERS.MAG.NAME]: {
+            [NUMBERS.S]: { 1: "(ō)χ", 2: "huχ", 3: "huχ", 4: "q̇ħúχ" },
+            [NUMBERS.D]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "(')ūχ" },
+            [NUMBERS.P]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "(')ūχ" }
+        },
+        [GENDERS.MUN.NAME]: {
+            [NUMBERS.S]: { 1: "(e)rk", 2: "tyk", 3: "tyk", 4: "(á)rk" },
+            [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk" },
+            [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk" }
+        },
+        [GENDERS.A.NAME]: {
+            [NUMBERS.S]: { 1: "(y)q̇", 2: "(o)q̇", 3: "(o)q̇", 4: "(ú)ħáq̇" },
+            [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
+            [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
+        }
+    },
+    [MOODS.R]: {
+        [GENDERS.E.NAME]: {
+            [NUMBERS.S]: { 1: "oħân", 2: "ħân", 3: "ēqân", 4: "qân" },
+            [NUMBERS.D]: { 1: "ħân", 2: "(ō)n", 3: "on", 4: "ħûn" },
+            [NUMBERS.P]: { 1: "illyrn", 2: "(ō)rn", 3: "ē'yrn", 4: "q̇yrn" }
+        },
+        [GENDERS.R.NAME]: {
+            [NUMBERS.S]: { 1: "oħâf", 2: "ħâf", 3: "(o)qâf", 4: "(o)qâf" },
+            [NUMBERS.D]: { 1: "īllyf", 2: "(')ūllef", 3: "yf", 4: "yf" },
+            [NUMBERS.P]: { 1: "īllyf", 2: "(')ūllef", 3: "ūlef", 4: "'ūlef" }
+        },
+        [GENDERS.MON.NAME]: {
+            [NUMBERS.S]: { 1: "oħô", 2: "qâħó", 3: "qâħó", 4: "ô" },
+            [NUMBERS.D]: { 1: "ūħó", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
+            [NUMBERS.P]: { 1: "ōq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
+        },
+        [GENDERS.I.NAME]: {
+            [NUMBERS.S]: { 1: "llūl", 2: "qâllūl", 3: "qâllūl", 4: "qâllūl" },
+            [NUMBERS.D]: { 1: "(y)ll'ūl", 2: "(')llūl", 3: "(')llūl", 4: "(')llūl" },
+            [NUMBERS.P]: { 1: "(y)ll'ūl", 2: "(')ūcūl", 3: "(')ūcūl", 4: "(')ūcūl" }
+        },
+        [GENDERS.MAG.NAME]: {
+            [NUMBERS.S]: { 1: "(ō)ħúχħ", 2: "(y)q̇ħôχ", 3: "(y)q̇ħôχ", 4: "q̇ħôχ" },
+            [NUMBERS.D]: { 1: "(a)lluχ", 2: "(y)lūrχ", 3: "(y)lūrχ", 4: "(')ūrχ" },
+            [NUMBERS.P]: { 1: "(a)lluχ", 2: "(y)lūrχ", 3: "(y)lūrχ", 4: "(')ūrχ" }
+        },
+        [GENDERS.MUN.NAME]: {
+            [NUMBERS.S]: { 1: "(o)ħárk	", 2: "ħárk	", 3: "ħárk	", 4: "q̇ħárk" },
+            [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk	" },
+            [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk	" }
+        },  // /\(/o.o\)/\ - Spooky the spider
+        [GENDERS.A.NAME]: {
+            [NUMBERS.S]: { 1: "aħôq̇", 2: "(y)q̇ħôq̇", 3: "(y)q̇ħôq̇", 4: "áq̇ħôq̇" },
+            [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
+            [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
         }
     }
 }
@@ -139,39 +137,51 @@ function setNounArrays() {
 */ // /\(/o.o\)/\ - Spooky the spider
 function generateDeclensionTables(mood, gender) {// generateDeclensionTables(MOODS.R, GENDERS.E.NAME)
     const data = CONJUGATIONS[mood][gender];
-    return `
+    const text = `
     <div class="declensiontables">
-        <tr>
-            <th colspan="4" style="font-size: 24px; background-color: rgb(202, 79, 79)">
-                <enbolden>${gender} ${mood}</enbolden>
-            </th>
-        </tr>
-        <tr>
-            <th style="width: 10px;">
-                <lilbold>Dec.</lilbold>
-            </th>
-            <th>${NUMBERS.S}</th>
-            <th>${NUMBERS.D}</th>
-            <th>${NUMBERS.P}</th>
-        </tr>
-        ${[1, 2, 3, 4].map(i => `
-        </tr>
-            <th>${i}</th>
-            <th>${data[NUMBERS.S][i]}</th>
-            <th>${data[NUMBERS.D][i]}</th>
-            <th>${data[NUMBERS.P][i]}</th>
-        </tr>
-        `)} 
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="4" style="font-size: 24px; background-color: rgb(202, 79, 79)">
+                        <enbolden>${gender} ${mood}</enbolden>
+                    </th>
+                </tr>
+                <tr>
+                    <th style="width: 10px;">
+                        <lilbold>Dec.</lilbold>
+                    </th>
+                    <th>${NUMBERS.S}</th>
+                    <th>${NUMBERS.D}</th>
+                    <th>${NUMBERS.P}</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${[1, 2, 3, 4].map(i => `
+                <tr>
+                    <th>${i}</th>
+                    <td>${data[NUMBERS.S][i]}</td>
+                    <td>${data[NUMBERS.D][i]}</td> 
+                    <td>${data[NUMBERS.P][i]}</td>
+                </tr>
+                `).join('')} 
+            </tbody>
+        </table>
     </div>
     `// /\(/o.o\)/\ - Spooky the spider
-}
-
+    /*
+    const dirTable = document.getElementById("dirSummaryTableDiv");
+    dirTable.innerHTML = targetRow;
+    */
+    console.log(text);
+    return text;
+}// it gave the div in the console earlier though? cant we just do innerhtml in a wrapper div?
+// you can try to 
 
 // -------------------------------------- about searching with conjugation, you mean the search field or ctrl + F?
 // ie, when you search for a word, in the searchfield, if it includes affixes then it should direct you to a page explaining that exact word. its declension, conjugation, gender etc.
 
 
-setNounArrays(); // /\(/o.o\)/\ - Spooky the spider
+// setNounArrays(); // /\(/o.o\)/\ - Spooky the spider
 
 // search field dropdown
 let examples = [];
@@ -262,7 +272,7 @@ function selectSuggestion(text) {
 function filterExamples(q) {
     if (!q) return examples.slice(0, 5000); // show some examples when empty
     const low = q.toLowerCase();
-    return examples.filter(w => w.toLowerCase().includes(low)).slice(0, 5000); // how many examples are shown?
+    return examples.filter(w => w.toLowerCase().includes(low)).slice(0, 5000); // how many examples are shown? 
 }
 
 input.addEventListener('input', () => {
@@ -725,10 +735,10 @@ function createNounSummaryTables(inDivById, uniquePrefix = "") {
             table.appendChild(thead);
 
             const tbody = document.createElement("tbody");
-            [GENDERS.E.NAME].forEach(gender => {
+            Object.values(GENDERS).forEach(gender => {
                 const row = document.createElement("tr");
                 const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
-                row.innerHTML = `<th>${gender}</th>` + cellsHtml;
+                row.innerHTML = `<th>${gender.NAME}</th>` + cellsHtml;
                 tbody.appendChild(row);
             });
             table.appendChild(tbody);
@@ -1258,34 +1268,29 @@ function buildAdjectiveTable(id, label, containerId) {
 
 // === Map of identifiers to stems ===
 const tableMap = {
-    "a.": "abstract",
-    "e.": "exhalted",
-    "i.": "irrational",
-    "mag.": "magical",
-    "mon.": "monstrous",
-    "mun.": "mundane",
-    "r.": "rational"
-};
+    "e.": GENDERS.E.NAME,
+    "r.": GENDERS.R.NAME,
+    "mon.": GENDERS.MON.NAME,
+    "i.": GENDERS.I.NAME,
+    "mag.": GENDERS.MAG.NAME,
+    "mun.": GENDERS.MUN.NAME,
+    "a.": GENDERS.A.NAME,
+}; // TODO: uhhhh remove cause we got GENDERS at home. xd
+// need to implement it where its called though. eh. whatever, try it
 
-const groupMap = {
-    all: ["magical", "mundane", "abstract", "exhalted", "monstrous", "irrational", "rational"],
-    animates: ["exhalted", "monstrous", "irrational", "rational"],
-    inanimates: ["magical", "mundane", "abstract"]
+const groupMap = { // ah
+    all: [GENDERS.MAG.NAME, GENDERS.MUN.NAME, GENDERS.A.NAME, GENDERS.E.NAME, GENDERS.MON.NAME, GENDERS.I.NAME, GENDERS.R.NAME],
+    animates: [GENDERS.E.NAME, GENDERS.MON.NAME, GENDERS.I.NAME, GENDERS.R.NAME],
+    inanimates: [GENDERS.MAG.NAME, GENDERS.MUN.NAME, GENDERS.A.NAME]
 };
 
 const loaded = new Set();
 
 // === Fetch a stem's dir/rec tables and paste into summary ===
-function loadTableFiles(stem, rowNumber, gender) {
-    const dirPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}dir.html`)
-        .then(res => res.text())
-        .then(html => pasteFromHTML(html, rowNumber, gender, "dir"));
-
-    const recPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}rec.html`)
-        .then(res => res.text())
-        .then(html => pasteFromHTML(html, rowNumber, gender, "rec"));
-
-    return Promise.all([dirPromise, recPromise]);
+function loadTableFiles(rowNumber, gender) { 
+    const dirPromise = pasteFromHTML(generateDeclensionTables(MOODS.D, gender), rowNumber, gender, "dir");
+    const recPromise = pasteFromHTML(generateDeclensionTables(MOODS.R, gender), rowNumber, gender, "rec");
+    return Promise.all([dirPromise, recPromise]);//how does it know where to paste it? well, its returning the thing, so another function place it
 }
 
 // === Fetch a stem's dir/rec tables for a specific word and paste into word-specific summary tables ===
@@ -1301,7 +1306,7 @@ function loadTableFiles(stem, rowNumber, gender) {
 //     return Promise.all([dirPromise, recPromise]);
 // } // old
 
-function loadTableFilesForWord(stem, rowNumber, gender, wordId) {
+function loadTableFilesForWord(stem, rowNumber, gender, wordId) {  // nope
     const dirPromise = pasteFromHTMLForWord(generateDeclensionTables(MOODS.D, gender), rowNumber, gender, "dir", wordId);
 
     const recPromise = pasteFromHTMLForWord(generateDeclensionTables(MOODS.R, gender), rowNumber, gender, "rec", wordId);
@@ -1360,20 +1365,29 @@ function pasteFromHTML(html, rowNumber, gender, type) {
 
     const summaryTableId = type === "dir" ? "dirSummaryTable" : "recSummaryTable";
     const summaryTable = document.getElementById(summaryTableId);
-    if (!summaryTable) return;
+
+    console.log(summaryTable); // does not find any - null / underfined
+
+    // how do you do populate the thing? //initially using the fetched data. for setting the initial data, ie the declension. then using the keyword is inserted - using the logic we developped together the first time.
+
+    if (!summaryTable) return; // so it return // it did before though?
 
     const summaryRows = Array.from(summaryTable.querySelectorAll("tbody tr"));
     const summaryRow = summaryRows.find(r =>
         normalizeText(r.querySelector("th").textContent).toLowerCase() === gender.toLowerCase()
     );
+    console.log(summaryRows);
+    console.log(summaryRow);
     if (!summaryRow) return;
 
     const summaryCells = summaryRow.querySelectorAll("td");
+    console.log(summaryCells);
     cells.forEach((val, idx) => {
         if (summaryCells[idx]) {
             summaryCells[idx].textContent = val;
         }
     });
+    console.log(summaryCells);
 
     // Hide all empty rows in this summary table
     hideEmptySummaryRowsIn(summaryTableId);
@@ -1422,6 +1436,8 @@ function pasteFromHTMLForWord(html, rowNumber, gender, type, wordId) {
         }
     });
 
+
+    
     // Hide all empty rows in this summary table
     hideEmptySummaryRowsIn(summaryTableId);
 }
@@ -1457,8 +1473,8 @@ function processDictionaryTable() {
         const rowNumber = parseInt(extractedNumber, 10);
 
         if (stem && gender && rowNumber) {
-            loadTableFiles(stem, rowNumber, gender);
-        }
+            loadTableFiles(rowNumber, gender); // there be stem, in fucntion there aint
+        }// ???
     });
 }
 
@@ -1468,6 +1484,7 @@ function runTableLoader() {
 
     // Only run the existing noun declension logic for nouns
     if (currentWordClass !== 'n') {
+        gender
         return;
     }
 
@@ -1488,8 +1505,11 @@ function runTableLoader() {
         if (pattern.test(cellText)) {
             stems.forEach(stem => {
                 if (!loaded.has(stem)) {
-                    loadPromises.push(loadTableFiles(stem, rowNumber, stem));
+                    loadPromises.push(loadTableFiles(rowNumber, stem));
                     loaded.add(stem);
+                    setTimeout(() => {
+                        console.log(stem, rowNumber, stem);
+                    }, 1200);
                 }
             });
         }
@@ -1497,7 +1517,7 @@ function runTableLoader() {
 
     for (const [id, stem] of Object.entries(tableMap)) {
         if (cellText.includes(id.toLowerCase()) && !loaded.has(stem)) {
-            loadPromises.push(loadTableFiles(stem, rowNumber, stem));
+            loadPromises.push(loadTableFiles(rowNumber, stem));
             loaded.add(stem);
         }
     }
@@ -1800,11 +1820,11 @@ function performSearch() {
             field2.focus();
         }
 
-        runTableLoader(); // call your declension table logic here
         createSummaryTables(); // declensiontable
+        runTableLoader(); // call your declension table logic here
 
     }).catch(error => {
-        console.error("Error creating summary tables:", error);
+        console.error(`Error creating summary tables`, error);
 
         // Clear and refocus even if there's an error
         if (field1 && field1.value.trim() !== '') {
