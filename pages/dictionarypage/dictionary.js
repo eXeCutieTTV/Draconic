@@ -269,9 +269,7 @@ function safeIdPart(str) {
     return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash '_'
 }
 
-
-
-function declensionsInDictionary() {
+async function declensionsInDictionary() {
     // give dictionary table cells unique ids. // i need ${word} to be the textcontent of the first cell in the row. this is to make unique ids. // remember that the ax symbol (') isnt allowed as an id, and needs a fix. its somewhere else too.
     function newids() {
         const table = document.getElementById('sheet-data-table');
@@ -297,46 +295,19 @@ function declensionsInDictionary() {
                 const wordclass = document.getElementById(`${rowIdx}-${word}-dicCell-5`).textContent;
                 switch (wordclass) {
                     case 'n':
+                        const uniquePrefix = `${rowIdx}-${word}`;
+                        createNounSummaryTables("test", uniquePrefix).then(() => {
 
-                        createNounSummaryTables("test").then(() => {
-                            // Fix table ids
-                            function fixTableIds() {
-                                const dirTableDiv = document.getElementById('dirSummaryTablediv');
-                                if (dirTableDiv) {
-                                    dirTableDiv.id = `${word}-dirTableDiv`;
-                                    dirTableDiv.className = "dirTableDivs";
-                                }
+                            // Add classes to the created tables
+                            const dirTable = document.getElementById(`${uniquePrefix}-dirSummaryTable`);
+                            const recTable = document.getElementById(`${uniquePrefix}-recSummaryTable`);
+                            const dirHeader = document.getElementById(`${uniquePrefix}-dirSummaryTable-header`);
+                            const recHeader = document.getElementById(`${uniquePrefix}-recSummaryTable-header`);
 
-                                const recTableDiv = document.getElementById('recSummaryTablediv');
-                                if (recTableDiv) {
-                                    recTableDiv.id = `${word}-recTableDiv`;
-                                    recTableDiv.className = "recTableDivs";
-                                }
-
-                                const dirTable = document.getElementById('dirSummaryTable');
-                                if (dirTable) {
-                                    dirTable.id = `${word}-dirSummaryTable`;
-                                    dirTable.className = "dictionaryDirTables";
-                                }
-
-                                const recTable = document.getElementById('recSummaryTable');
-                                if (recTable) {
-                                    recTable.id = `${word}-recSummaryTable`;
-                                    recTable.className = "dictionaryRecTables";
-                                }
-
-                                const dirHeader = document.getElementById('dirSummaryTable-header');
-                                if (dirHeader) {
-                                    dirHeader.id = `${word}-dirSummaryTable-header`;
-                                    dirHeader.className = "dictionaryDirHeaders";
-                                }
-
-                                const recHeader = document.getElementById('recSummaryTable-header');
-                                if (recHeader) {
-                                    recHeader.id = `${word}-recSummaryTable-header`;
-                                    recHeader.className = "dictionaryRecHeaders";
-                                }
-                            } fixTableIds();
+                            if (dirTable) dirTable.className = "dictionaryDirTables";
+                            if (recTable) recTable.className = "dictionaryRecTables";
+                            if (dirHeader) dirHeader.className = "dictionaryDirHeaders";
+                            if (recHeader) recHeader.className = "dictionaryRecHeaders";
 
                             // Now load the declension data using existing logic
                             const cell3 = document.getElementById(`${rowIdx}-${word}-dicCell-3`);
@@ -346,38 +317,31 @@ function declensionsInDictionary() {
                                 const cellText = cell3.textContent.toLowerCase();
                                 const Declension = parseInt(cell1.textContent.trim(), 10);
 
+                                // surrounding function must be async
                                 if (!isNaN(Declension) && Declension > 0) {
-                                    const loadPromises = [];
-                                    const loadedStems = new Set();
-
-                                    // Load from groupMap
+                                    const loadPromises = []; const loadedStems = new Set(); // Load from groupMap 
                                     for (const [groupId, stems] of Object.entries(groupMap)) {
                                         const pattern = new RegExp(`\\b${groupId}\\b`, "i");
                                         if (pattern.test(cellText)) {
                                             stems.forEach(stem => {
                                                 if (!loadedStems.has(stem)) {
-                                                    loadPromises.push(loadTableFilesForWord(stem, Declension, stem, word));
-                                                    loadedStems.add(stem);
+                                                    loadPromises.push(loadTableFilesForWord(stem, Declension, stem, uniquePrefix)); loadedStems.add(stem);
+
                                                 }
                                             });
                                         }
-                                    }
-
-                                    // Load from tableMap
+                                    } // Load from tableMap 
                                     for (const [id, stem] of Object.entries(tableMap)) {
                                         if (cellText.includes(id.toLowerCase()) && !loadedStems.has(stem)) {
-                                            loadPromises.push(loadTableFilesForWord(stem, Declension, stem, word));
-                                            loadedStems.add(stem);
+                                            loadPromises.push(loadTableFilesForWord(stem, Declension, stem, uniquePrefix)); loadedStems.add(stem);
+
                                         }
-                                    }
-
-                                    // Wait for all loads to complete, then populate
+                                    } // Wait for all loads to complete, then populate 
                                     Promise.all(loadPromises).then(() => {
-                                        populateSummaryTables(word, {
-                                            [`${word}-dirSummaryTable`]: false,
-                                            [`${word}-recSummaryTable`]: false
+                                        const actualWord = first.textContent.trim().replace(/\(\d\)/, "").trim();
+                                        populateSummaryTables(actualWord, {
+                                            [`${uniquePrefix}-dirSummaryTable`]: false, [`${uniquePrefix}-recSummaryTable`]: false
                                         });
-
                                     });
 
                                     // hide
@@ -398,8 +362,8 @@ function declensionsInDictionary() {
                                         });
                                     }
 
-                                    hideEmptySummaryRowsDic(`${word}-dirSummaryTable`);
-                                    hideEmptySummaryRowsDic(`${word}-recSummaryTable`);
+                                    hideEmptySummaryRowsDic(`${uniquePrefix}-dirSummaryTable`);
+                                    hideEmptySummaryRowsDic(`${uniquePrefix}-recSummaryTable`);
                                 }
                             }
                         }).catch(error => {
@@ -430,7 +394,6 @@ function declensionsInDictionary() {
         });
     })
 }
-
 
 // dictionary tables
 // === Create the summary tables ===
@@ -529,7 +492,7 @@ function populateSummaryTables(keyword, tables) {
         tds.forEach(td => {
             // prefer original stored raw suffix (data-raw) if present 
             const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
-            console.log(td.innerHTML);
+            // console.log(td.innerHTML);
 
             // process raw
             let entries;
@@ -542,7 +505,7 @@ function populateSummaryTables(keyword, tables) {
 }
 
 // === Create noun summary tables (existing functionality) ===
-function createNounSummaryTables(inDivById) {
+function createNounSummaryTables(inDivById, uniquePrefix = "") {
     return new Promise((resolve, reject) => {
         const DivId = document.getElementById(`${inDivById}`);
         if (!DivId) {
@@ -571,7 +534,7 @@ function createNounSummaryTables(inDivById) {
 
             // Column header row
             const headerRow = document.createElement("tr");
-            headerRow.innerHTML = `<th>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
+            headerRow.innerHTML = `<th class="GenderTh";>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
             thead.appendChild(headerRow);
 
             table.appendChild(thead);
@@ -592,16 +555,28 @@ function createNounSummaryTables(inDivById) {
             container.appendChild(wrapper);
         }
 
-        // create wrapper divs and attach them
+        // create wrapper divs with unique IDs if prefix provided
         const dirsummarytablefinalwrapper = document.createElement("div");
         const recsummarytablefinalwrapper = document.createElement("div");
-        dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
-        recsummarytablefinalwrapper.id = "recSummaryTablediv";
+
+        if (uniquePrefix) {
+            dirsummarytablefinalwrapper.id = `${uniquePrefix}-dirTableDiv`;
+            recsummarytablefinalwrapper.id = `${uniquePrefix}-recTableDiv`;
+            dirsummarytablefinalwrapper.className = "dirTableDivs";
+            recsummarytablefinalwrapper.className = "recTableDivs";
+        } else {
+            dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
+            recsummarytablefinalwrapper.id = "recSummaryTablediv";
+        }
+
         DivId.appendChild(dirsummarytablefinalwrapper);
         DivId.appendChild(recsummarytablefinalwrapper);
 
-        buildTable("dirSummaryTable", "Directive", "dirSummaryTablediv");
-        buildTable("recSummaryTable", "Recessive", "recSummaryTablediv");
+        const dirTableId = uniquePrefix ? `${uniquePrefix}-dirSummaryTable` : "dirSummaryTable";
+        const recTableId = uniquePrefix ? `${uniquePrefix}-recSummaryTable` : "recSummaryTable";
+
+        buildTable(dirTableId, "Directive", dirsummarytablefinalwrapper.id);
+        buildTable(recTableId, "Recessive", recsummarytablefinalwrapper.id);
 
         // Allow a paint cycle so the DOM is actually available to queries/measurements
         requestAnimationFrame(() => resolve());
