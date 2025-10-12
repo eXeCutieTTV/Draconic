@@ -49,3 +49,15 @@
     width: 177px;
     margin-left: auto;
 }
+
+.GenderTh {
+    width: 150px;
+}
+
+.dictionaryDirTables td:hover, .dictionaryRecTables td:hover {
+    background-color: #f1d3d3;
+}
+
+.dictionaryDirTables, .dictionaryRecTables {
+    margin-top: 1px;
+}

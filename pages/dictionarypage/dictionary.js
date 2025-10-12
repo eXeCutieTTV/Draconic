@@ -269,7 +269,7 @@ function safeIdPart(str) {
     return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash '_'
 }
 
-async function declensionsInDictionary() {
+function declensionsInDictionary() {
     // give dictionary table cells unique ids. // i need ${word} to be the textcontent of the first cell in the row. this is to make unique ids. // remember that the ax symbol (') isnt allowed as an id, and needs a fix. its somewhere else too.
     function newids() {
         const table = document.getElementById('sheet-data-table');
@@ -317,30 +317,40 @@ async function declensionsInDictionary() {
                                 const cellText = cell3.textContent.toLowerCase();
                                 const Declension = parseInt(cell1.textContent.trim(), 10);
 
-                                // surrounding function must be async
                                 if (!isNaN(Declension) && Declension > 0) {
-                                    const loadPromises = []; const loadedStems = new Set(); // Load from groupMap 
+                                    const loadPromises = [];
+                                    const loadedStems = new Set();
+
+                                    // Load from groupMap 
                                     for (const [groupId, stems] of Object.entries(groupMap)) {
                                         const pattern = new RegExp(`\\b${groupId}\\b`, "i");
                                         if (pattern.test(cellText)) {
                                             stems.forEach(stem => {
                                                 if (!loadedStems.has(stem)) {
-                                                    loadPromises.push(loadTableFilesForWord(stem, Declension, stem, uniquePrefix)); loadedStems.add(stem);
+                                                    loadPromises.push(loadTableFilesForWord(stem, Declension, stem, uniquePrefix));
+                                                    loadedStems.add(stem);
 
                                                 }
                                             });
                                         }
-                                    } // Load from tableMap 
+                                    }
+
+                                    // Load from tableMap 
                                     for (const [id, stem] of Object.entries(tableMap)) {
                                         if (cellText.includes(id.toLowerCase()) && !loadedStems.has(stem)) {
-                                            loadPromises.push(loadTableFilesForWord(stem, Declension, stem, uniquePrefix)); loadedStems.add(stem);
+                                            loadPromises.push(loadTableFilesForWord(stem, Declension, stem, uniquePrefix));
+                                            loadedStems.add(stem);
 
                                         }
-                                    } // Wait for all loads to complete, then populate 
+
+                                    }
+
+                                    // Wait for all loads to complete, then populate 
                                     Promise.all(loadPromises).then(() => {
                                         const actualWord = first.textContent.trim().replace(/\(\d\)/, "").trim();
                                         populateSummaryTables(actualWord, {
-                                            [`${uniquePrefix}-dirSummaryTable`]: false, [`${uniquePrefix}-recSummaryTable`]: false
+                                            [`${uniquePrefix}-dirSummaryTable`]: false,
+                                            [`${uniquePrefix}-recSummaryTable`]: false
                                         });
                                     });
 
