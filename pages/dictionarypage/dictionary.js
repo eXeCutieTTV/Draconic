@@ -327,7 +327,7 @@ function declensionsInDictionary() {
                                         if (pattern.test(cellText)) {
                                             stems.forEach(stem => {
                                                 if (!loadedStems.has(stem)) {
-                                                    loadPromises.push(loadTableFilesForWord(stem, Declension, stem, uniquePrefix));
+                                                    loadPromises.push(loadTableFilesForWord(stem, Declension, stem, uniquePrefix)); // the issue is that the fetches break???
                                                     loadedStems.add(stem);
 
                                                 }
