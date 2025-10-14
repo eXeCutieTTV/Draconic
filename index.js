@@ -131,6 +131,7 @@ function openPageOld(pageId, element) {
 
   const pageEl = document.getElementById(pageId);
   if (!pageEl) {
+    if (pageId === 'page11999') return;
     console.error(`openPage: No element found with id "${pageId}"`);
     return;
   }

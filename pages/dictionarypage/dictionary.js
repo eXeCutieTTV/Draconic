@@ -1906,7 +1906,6 @@ function doSearch() {
     performSearch(); // why am i doing this twice? line 958
 }
 
-let dictionaryMap;
 function performSearch() {
     // Always clear existing tables first
 
@@ -1920,39 +1919,64 @@ function performSearch() {
 
     if (keyword) {
         NounResults = generateNounWithSuffixes(keyword, { useAttachAsSuffix: true });
-        //let affixedKeyword = getNounResult('a', 'D', 'P', 1, 'fullText', NounResults);//
-        //let stem = getNounResult('a', 'D', 'P', 1, 'stem', NounResults);
-        //let test = generateNounWithSuffixes(stem, { useAttachAsSuffix: true });
-        //let affixedStem = getNounResult('a', 'D', 'P', 1, 'fullText', test);
-        //console.log('affixedKeyword: ' + affixedKeyword);
-        //console.log('affixedStem: ' + affixedStem);
 
-        // create page
-        // Build/load dictionary onceconst result = NounDictionary.get(); // builds or returns cached dictionary
-        const result = NounDictionary.get(); // builds or returns cached dictionary
-        dictionaryMap = result.dictionaryMap;
-        console.log("Dictionary ready!", dictionaryMap);
+        // Build/load dictionary once
+        const result = NounDictionary.get();
+        const dictionaryMap = result.dictionaryMap;
+        console.log("All words in dictionary:", Object.keys(dictionaryMap));
 
-        // Check if a keyword exists
-        if (NounDictionary.isKeyword(keyword)) {
-            const affixeKeywordpage = document.createElement('div');
-            affixeKeywordpage.id = 'page11999';
-            affixeKeywordpage.className = 'page';
-            affixeKeywordpage.innerHTML = getNounResult('a', 'D', 'P', 1, 'html', NounResults);
+        // Find all occurrences of the keyword anywhere in the tree
+        const occurrences = [];
 
-            const container = document.getElementsByClassName('pages')[0];
-            openPageOld('page11999');
-            if (container) container.appendChild(affixeKeywordpage);
+        for (const baseWord in dictionaryMap) {
+            const tree = dictionaryMap[baseWord];
+
+            for (const mood in tree) {
+                const genders = tree[mood];
+                for (const gender in genders) {
+                    const numbers = genders[gender];
+                    for (const number in numbers) {
+                        const declensions = numbers[number];
+                        declensions.forEach((wordAffix, declIndex) => {
+                            if (wordAffix === keyword) {
+                                occurrences.push({
+                                    baseWord,
+                                    mood,
+                                    gender,
+                                    number,
+                                    declensionIndex: declIndex,
+                                    affixedWord: wordAffix
+                                });
+                            }
+                        });
+                    }
+                }
+            }
         }
 
+        // Log all occurrences
+        console.log("Occurrences of keyword:", occurrences);
 
+        if (occurrences.length > 0) {
+            // Set innerHTML to the searched word itself
+            const affixeKeywordpage = document.createElement('div');
+            affixeKeywordpage.id = 'page11998';
+            affixeKeywordpage.className = 'page';
+            affixeKeywordpage.innerHTML = keyword;
 
+            const container = document.getElementsByClassName('pages')[0];
+            if (container) container.appendChild(affixeKeywordpage);
 
-    } if (!keyword) {
-        console.error('No keyword for generateNounWithSuffixes()');
+            openPageOld('page11998');
+        } else {
+            console.warn(`Keyword "${keyword}" not found in any affixed forms.`);
+        }
     }
 
 
+    if (!keyword) {
+        console.error('No keyword for generateNounWithSuffixes()');
+    }
 
     if (!keyword || dictionaryData.length === 0) {
         alert('Please enter a search term and ensure the file is loaded.');
