@@ -2126,13 +2126,13 @@ function NounAffixChecker() {
 
     return nounMapMaker();
 }
+// usage
+// const { dictionaryMap } = NounAffixChecker();
 
+// numberMap[0];                   // → "æklū"
+// dictionaryMap["æklū"]          // → { type: "n", word: "æklū", number: 0 }
 
-
-//    const { dictionaryMap, numberMap } = NounAffixChecker();
-
-// numberMap[0];          // → "æklū"
-// dictionaryMap["æklū"] // → { type: "n", word: "æklū", number: 0 }
+// dictionaryMap.æklū.D.a.P[0]; // → 'æklāq̇' // diretictive, abstract, plural, declension 0
 
 
 
