@@ -99,6 +99,176 @@ const CONJUGATIONS = { // /\(/o.o\)/\ - Spooky the spider
 }
 
 
+// Produces NounWithSuffix array for a single base word
+function generateNounWithSuffixes(keyword, options = {}) {
+    const moodsToInclude = options.moodsToInclude || Object.keys(CONJUGATIONS);
+    const useAttachAsSuffix = options.useAttachAsSuffix !== undefined ? options.useAttachAsSuffix : true;
+    const result = [];
+
+    moodsToInclude.forEach(moodKey => {
+        const moodTbl = CONJUGATIONS[moodKey];
+        if (!moodTbl) return;
+
+        Object.keys(moodTbl).forEach(genderName => {
+            const genderTbl = moodTbl[genderName];
+            if (!genderTbl) return;
+
+            Object.keys(genderTbl).forEach(numberKey => {
+                const numberTbl = genderTbl[numberKey];
+                if (!numberTbl) return;
+
+                Object.keys(numberTbl).forEach(personKey => {
+                    const rawSuffix = (numberTbl[personKey] || "").toString().trim();
+                    if (!rawSuffix) return;
+
+                    const entries = useAttachAsSuffix
+                        ? connect_split("", keyword, rawSuffix)
+                        : connect_split(rawSuffix, keyword, "");
+
+                    const html = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+                    const fullText = `${entries_to_text(entries[0])}${entries_to_text(entries[1])}${entries_to_text(entries[2])}`;
+                    const keywordStem = `${entries_to_text(entries[1])}`;
+
+                    result.push({
+                        mood: moodKey,
+                        gender: genderName,
+                        number: numberKey,
+                        person: personKey,
+                        rawSuffix,
+                        entries,
+                        html,
+                        fullText,
+                        keyword,
+                        keywordStem
+                    });
+                });
+            });
+        });
+    });
+
+    return result;
+}
+let NounResults;
+//NounResults = generateNounWithSuffixes("æklu", { useAttachAsSuffix: true });// find one matching entry and print its html
+
+// Allowed output keys (must match properties pushed into each item)
+const ALLOWED_NOUN_FIELDS = new Set(['mood', 'gender', 'number', 'person', 'rawSuffix', 'entries', 'html', 'fullText', 'all', 'keywordStem', 'keyword']);
+
+// main function: choose which property to return/log from the matched entry
+function getNounResult(genderIn, moodIn, numberIn, personIn, field = 'all', nounArray = window.NounResults) {
+    if (!Array.isArray(nounArray)) {
+        console.error('NounWithSuffix not found or not an array');
+        return null;
+    }
+
+    // Normalise inputs (same helper as before)
+    function normaliseInputs(genderIn, moodIn, numberIn, personIn) {
+        // gender -> short (e, r, mon, ...)
+        let genderShort = null;
+        if (!genderIn) return null;
+        const g = String(genderIn);
+        if (Object.keys(GENDERS).includes(g)) genderShort = GENDERS[g].SHORT;
+        else {
+            const foundG = Object.values(GENDERS).find(v => v.NAME === g || v.SHORT === g || Object.keys(GENDERS).find(k => k === g));
+            genderShort = foundG ? foundG.SHORT : g;
+        }
+
+        // mood -> key 'D' or 'R'
+        let moodKey = null;
+        const m = String(moodIn);
+        if (MOODS[m]) moodKey = m;
+        else {
+            const foundMood = Object.entries(MOODS).find(([k, name]) => name === m || k === m);
+            moodKey = foundMood ? foundMood[0] : m;
+        }
+
+        // number -> key 'S'/'D'/'P'
+        let numberKey = null;
+        const n = String(numberIn);
+        if (NUMBERS[n]) numberKey = n;
+        else {
+            const foundNum = Object.entries(NUMBERS).find(([k, name]) => name === n || k === n);
+            numberKey = foundNum ? foundNum[0] : n;
+        }
+
+        const person = Number(personIn);
+        if (!Number.isFinite(person) || person < 1 || person > 4) return null;
+
+        return { genderShort, moodKey, numberKey, person };
+    }
+
+    const norm = normaliseInputs(genderIn, moodIn, numberIn, personIn);
+    if (!norm) {
+        console.error('Invalid inputs');
+        return null;
+    }
+    const { genderShort, moodKey, numberKey, person } = norm;
+
+    // Build the map programmatically (keeps sync with GENDERS/NUMBERS/MOODS)
+    function buildNounResultMap() {
+        const gendersOrder = Object.keys(GENDERS);
+        const genderShorts = gendersOrder.map(k => GENDERS[k].SHORT);
+        const blockSize = Object.keys(NUMBERS).length * 4; // 12
+        const map = {};
+
+        // Directive
+        let base = 0;
+        genderShorts.forEach(short => {
+            map[`${short}_D`] = [base, base + blockSize - 1];
+            base += blockSize;
+        });
+
+        // Recessive
+        base = genderShorts.length * blockSize; // 84
+        genderShorts.forEach(short => {
+            map[`${short}_R`] = [base, base + blockSize - 1];
+            base += blockSize;
+        });
+
+        return map;
+    }
+
+    const NounResultMap = buildNounResultMap();
+    const mapKey = `${genderShort}_${moodKey}`;
+    const range = NounResultMap[mapKey];
+    if (!range) {
+        console.error('No range for', mapKey);
+        return null;
+    }
+
+    const numbersOrder = Object.keys(NUMBERS); // ['S','D','P']
+    const numberIndex = numbersOrder.indexOf(numberKey);
+    if (numberIndex === -1) {
+        console.error('Invalid number', numberKey);
+        return null;
+    }
+
+    const perNumberCount = 4;
+    const offsetWithinGender = numberIndex * perNumberCount + (person - 1);
+    const index = range[0] + offsetWithinGender;
+    const item = nounArray[index];
+
+    if (!item) {
+        console.error('No noun entry at index', index);
+        return null;
+    }
+
+    // validate requested field
+    const f = String(field || 'html');
+    if (!ALLOWED_NOUN_FIELDS.has(f)) {
+        console.error('Invalid field requested:', f, 'Allowed:', Array.from(ALLOWED_NOUN_FIELDS).join(','));
+        return null;
+    }
+
+    const output = (f === 'all') ? item : item[f];
+    console.log(output);
+    return output;
+}
+
+// example usage
+// getNounResult('e','D','S',1,'fullText', NounResults);
+
+
 /*
 <div class="declensiontables">
     <table>
@@ -172,7 +342,7 @@ function generateDeclensionTables(mood, gender) {// generateDeclensionTables(MOO
     const dirTable = document.getElementById("dirSummaryTableDiv");
     dirTable.innerHTML = targetRow;
     */
-    console.log(text);
+    // console.log(text);
     return text;
 }// it gave the div in the console earlier though? cant we just do innerhtml in a wrapper div?
 // you can try to 
@@ -441,7 +611,7 @@ function renderTable(data) {
     container.innerHTML = "";
     container.appendChild(table);
 
-    // Build pagess and workbookData from table
+    // Build pages1 and workbookData from table
     buildFromDictionaryTable();
 
     // Continue with declension logic
@@ -1287,7 +1457,7 @@ const groupMap = { // ah
 const loaded = new Set();
 
 // === Fetch a stem's dir/rec tables and paste into summary ===
-function loadTableFiles(rowNumber, gender) { 
+function loadTableFiles(rowNumber, gender) {
     const dirPromise = pasteFromHTML(generateDeclensionTables(MOODS.D, gender), rowNumber, gender, "dir");
     const recPromise = pasteFromHTML(generateDeclensionTables(MOODS.R, gender), rowNumber, gender, "rec");
     return Promise.all([dirPromise, recPromise]);//how does it know where to paste it? well, its returning the thing, so another function place it
@@ -1366,7 +1536,7 @@ function pasteFromHTML(html, rowNumber, gender, type) {
     const summaryTableId = type === "dir" ? "dirSummaryTable" : "recSummaryTable";
     const summaryTable = document.getElementById(summaryTableId);
 
-    console.log(summaryTable); // does not find any - null / underfined
+    //console.log(summaryTable); // does not find any - null / underfined
 
     // how do you do populate the thing? //initially using the fetched data. for setting the initial data, ie the declension. then using the keyword is inserted - using the logic we developped together the first time.
 
@@ -1376,18 +1546,20 @@ function pasteFromHTML(html, rowNumber, gender, type) {
     const summaryRow = summaryRows.find(r =>
         normalizeText(r.querySelector("th").textContent).toLowerCase() === gender.toLowerCase()
     );
+    /*
     console.log(summaryRows);
     console.log(summaryRow);
+    */
     if (!summaryRow) return;
 
     const summaryCells = summaryRow.querySelectorAll("td");
-    console.log(summaryCells);
+    //console.log(summaryCells);
     cells.forEach((val, idx) => {
         if (summaryCells[idx]) {
             summaryCells[idx].textContent = val;
         }
     });
-    console.log(summaryCells);
+    //console.log(summaryCells);
 
     // Hide all empty rows in this summary table
     hideEmptySummaryRowsIn(summaryTableId);
@@ -1437,7 +1609,7 @@ function pasteFromHTMLForWord(html, rowNumber, gender, type, wordId) {
     });
 
 
-    
+
     // Hide all empty rows in this summary table
     hideEmptySummaryRowsIn(summaryTableId);
 }
@@ -1529,14 +1701,14 @@ function runTableLoader() {
     });
 }
 
-// === Build pagess and workbookData from dictionaryData ===
+// === Build pages1 and workbookData from dictionaryData ===
 function buildFromDictionaryTable() {
     if (!dictionaryData || dictionaryData.length === 0) {
         console.warn("No dictionary data available.");
         return;
     }
 
-    pagess = {};
+    pages1 = {};
     workbookData = [];
 
     let pageNumber = 10000; // Start counting up from 10000
@@ -1551,14 +1723,14 @@ function buildFromDictionaryTable() {
         const word = wordRaw.replace(/\(\d\)/, "").trim().toLowerCase();
 
         if (word) {
-            pagess[word] = `page${pageNumber}`;
+            pages1[word] = `page${pageNumber}`;
             pageNumber++; // Count upward
         }
 
         workbookData.push(paddedRow);
     });
 
-    console.log("pagess mapping:", pagess);
+    console.log("pages1 mapping:", pages1);
     console.log("workbookData:", workbookData);
 }
 
@@ -1743,12 +1915,44 @@ function performSearch() {
     keywordDisplay = (field1?.value.trim() || field2?.value.trim());
     keyword = keywordDisplay.toLowerCase();
 
+
+
+    if (keyword) {
+        NounResults = generateNounWithSuffixes(keyword, { useAttachAsSuffix: true });
+        let affixedKeyword = getNounResult('a', 'D', 'P', 1, 'fullText', NounResults);
+        let stem = getNounResult('a', 'D', 'P', 1, 'stem', NounResults);
+        let test = generateNounWithSuffixes(stem, { useAttachAsSuffix: true });
+        let affixedStem = getNounResult('a', 'D', 'P', 1, 'fullText', test);
+        console.log('affixedKeyword: ' + affixedKeyword);
+        console.log('affixedStem: ' + affixedStem);
+
+        // create page
+        if (keyword == affixedStem) {
+            const affixeKeywordpage = document.createElement('div');
+            affixeKeywordpage.id = 'page11999';
+            affixeKeywordpage.className = 'page';
+            affixeKeywordpage.innerHTML = getNounResult('a', 'D', 'P', 1, 'html', NounResults);
+
+            const container = document.getElementsByClassName('pages')[0]; // element you want to insert into
+            openPageOld('page11999');
+            if (container) container.appendChild(affixeKeywordpage);
+            else console.error('No container .pages found');
+
+        }
+
+
+    } if (!keyword) {
+        console.error('No keyword for generateNounWithSuffixes()');
+    }
+
+
+
     if (!keyword || dictionaryData.length === 0) {
         alert('Please enter a search term and ensure the file is loaded.');
         return;
     }
 
-    const targetPageId = pagess[keyword];
+    const targetPageId = pages1[keyword];
     if (!targetPageId) {
         alert('No page found for that word.');
         return;
@@ -1839,6 +2043,7 @@ function performSearch() {
         console.error(`Failed to find page container for ${targetPageId}:`, error);
     });
 }
+
 
 // Load appropriate HTML content based on word class
 function loadWordClassContent(wordClass, pageId) {
