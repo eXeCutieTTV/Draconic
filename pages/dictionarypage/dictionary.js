@@ -1906,6 +1906,7 @@ function doSearch() {
     performSearch(); // why am i doing this twice? line 958
 }
 
+let dictionaryMap;
 function performSearch() {
     // Always clear existing tables first
 
@@ -1919,26 +1920,32 @@ function performSearch() {
 
     if (keyword) {
         NounResults = generateNounWithSuffixes(keyword, { useAttachAsSuffix: true });
-        let affixedKeyword = getNounResult('a', 'D', 'P', 1, 'fullText', NounResults);
-        let stem = getNounResult('a', 'D', 'P', 1, 'stem', NounResults);
-        let test = generateNounWithSuffixes(stem, { useAttachAsSuffix: true });
-        let affixedStem = getNounResult('a', 'D', 'P', 1, 'fullText', test);
-        console.log('affixedKeyword: ' + affixedKeyword);
-        console.log('affixedStem: ' + affixedStem);
+        //let affixedKeyword = getNounResult('a', 'D', 'P', 1, 'fullText', NounResults);//
+        //let stem = getNounResult('a', 'D', 'P', 1, 'stem', NounResults);
+        //let test = generateNounWithSuffixes(stem, { useAttachAsSuffix: true });
+        //let affixedStem = getNounResult('a', 'D', 'P', 1, 'fullText', test);
+        //console.log('affixedKeyword: ' + affixedKeyword);
+        //console.log('affixedStem: ' + affixedStem);
 
         // create page
-        if (keyword == affixedStem) {
+        // Build/load dictionary onceconst result = NounDictionary.get(); // builds or returns cached dictionary
+        const result = NounDictionary.get(); // builds or returns cached dictionary
+        dictionaryMap = result.dictionaryMap;
+        console.log("Dictionary ready!", dictionaryMap);
+
+        // Check if a keyword exists
+        if (NounDictionary.isKeyword(keyword)) {
             const affixeKeywordpage = document.createElement('div');
             affixeKeywordpage.id = 'page11999';
             affixeKeywordpage.className = 'page';
             affixeKeywordpage.innerHTML = getNounResult('a', 'D', 'P', 1, 'html', NounResults);
 
-            const container = document.getElementsByClassName('pages')[0]; // element you want to insert into
+            const container = document.getElementsByClassName('pages')[0];
             openPageOld('page11999');
             if (container) container.appendChild(affixeKeywordpage);
-            else console.error('No container .pages found');
-
         }
+
+
 
 
     } if (!keyword) {
@@ -2049,12 +2056,15 @@ function performSearch() {
 
 
 
-function NounAffixChecker() {
-    function nounMapMaker() {
+// Global cached dictionary
+const NounDictionary = (() => {
+    let cached = null;
+
+    function buildDictionary() {
         const dictionaryMap = {};
         const numberMap = {};
         const dictionary = document.getElementById('sheet-data-table');
-        if (!dictionary) return { dictionaryMap, numberMap }; // safety
+        if (!dictionary) return { dictionaryMap, numberMap };
 
         const rows = dictionary.querySelectorAll("tr");
         let counter = 0;
@@ -2066,53 +2076,36 @@ function NounAffixChecker() {
                 const sixthCol = cells[5].textContent.trim();
 
                 if (sixthCol === "n") {
-                    // initialize word entry
-                    dictionaryMap[firstCol] = {}; // outermost = moods
+                    dictionaryMap[firstCol] = {};
                     numberMap[counter] = firstCol;
                     counter++;
 
-                    // generate base noun results
                     const NounResults = generateNounWithSuffixes(firstCol, { useAttachAsSuffix: true });
 
-                    // iterate moods
                     Object.keys(MOODS).forEach(moodKey => {
-                        const mood = MOODS[moodKey];
                         const moodName = moodKey;
+                        if (!dictionaryMap[firstCol][moodName]) dictionaryMap[firstCol][moodName] = {};
 
-                        if (!dictionaryMap[firstCol][moodName]) {
-                            dictionaryMap[firstCol][moodName] = {};
-                        }
-
-                        // iterate genders
                         Object.keys(GENDERS).forEach(genderKey => {
-                            const gender = GENDERS[genderKey];
-                            const genderShort = gender.SHORT;
+                            const genderShort = GENDERS[genderKey].SHORT;
+                            if (!dictionaryMap[firstCol][moodName][genderShort]) dictionaryMap[firstCol][moodName][genderShort] = {};
 
-                            if (!dictionaryMap[firstCol][moodName][genderShort]) {
-                                dictionaryMap[firstCol][moodName][genderShort] = {};
-                            }
-
-                            // iterate numbers
                             Object.keys(NUMBERS).forEach(numberKey => {
-                                const number = numberKey; // 'S', 'D', 'P'
-
-                                if (!dictionaryMap[firstCol][moodName][genderShort][number]) {
-                                    dictionaryMap[firstCol][moodName][genderShort][number] = [];
+                                if (!dictionaryMap[firstCol][moodName][genderShort][numberKey]) {
+                                    dictionaryMap[firstCol][moodName][genderShort][numberKey] = [];
                                 }
 
-                                // iterate declension indices (1..4)
                                 for (let decl = 1; decl <= 4; decl++) {
                                     const affixedWord = getNounResult(
                                         genderShort,
                                         moodName,
-                                        number,
+                                        numberKey,
                                         decl,
                                         'fullText',
                                         NounResults
                                     );
 
-                                    dictionaryMap[firstCol][moodName][genderShort][number].push(affixedWord);
-                                    //eg. dictionaryMap.æklū.D.a.P[0]; = 'æklāq̇' // diretictive, abstract, plural, declension 0
+                                    dictionaryMap[firstCol][moodName][genderShort][numberKey].push(affixedWord);
                                 }
                             });
                         });
@@ -2124,8 +2117,33 @@ function NounAffixChecker() {
         return { dictionaryMap, numberMap };
     }
 
-    return nounMapMaker();
-}
+    return {
+        get: function () {
+            if (!cached) cached = buildDictionary();
+            return cached;
+        },
+        isKeyword: function (keyword) {
+            if (!cached) cached = buildDictionary();
+            const dictionaryMap = cached.dictionaryMap;
+
+            for (const word in dictionaryMap) {
+                const moods = dictionaryMap[word];
+                for (const mood in moods) {
+                    const genders = moods[mood];
+                    for (const gender in genders) {
+                        const numbers = genders[gender];
+                        for (const number in numbers) {
+                            const declArray = numbers[number];
+                            if (declArray.includes(keyword)) return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+    };
+})();
+
 // usage
 // const { dictionaryMap } = NounAffixChecker();
 
