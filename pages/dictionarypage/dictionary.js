@@ -2045,6 +2045,97 @@ function performSearch() {
 }
 
 
+// check if noun matches ANY other possible noun
+
+
+
+function NounAffixChecker() {
+    function nounMapMaker() {
+        const dictionaryMap = {};
+        const numberMap = {};
+        const dictionary = document.getElementById('sheet-data-table');
+        if (!dictionary) return { dictionaryMap, numberMap }; // safety
+
+        const rows = dictionary.querySelectorAll("tr");
+        let counter = 0;
+
+        rows.forEach(row => {
+            const cells = row.querySelectorAll("td");
+            if (cells.length >= 6) {
+                const firstCol = cells[0].textContent.trim();
+                const sixthCol = cells[5].textContent.trim();
+
+                if (sixthCol === "n") {
+                    // initialize word entry
+                    dictionaryMap[firstCol] = {}; // outermost = moods
+                    numberMap[counter] = firstCol;
+                    counter++;
+
+                    // generate base noun results
+                    const NounResults = generateNounWithSuffixes(firstCol, { useAttachAsSuffix: true });
+
+                    // iterate moods
+                    Object.keys(MOODS).forEach(moodKey => {
+                        const mood = MOODS[moodKey];
+                        const moodName = moodKey;
+
+                        if (!dictionaryMap[firstCol][moodName]) {
+                            dictionaryMap[firstCol][moodName] = {};
+                        }
+
+                        // iterate genders
+                        Object.keys(GENDERS).forEach(genderKey => {
+                            const gender = GENDERS[genderKey];
+                            const genderShort = gender.SHORT;
+
+                            if (!dictionaryMap[firstCol][moodName][genderShort]) {
+                                dictionaryMap[firstCol][moodName][genderShort] = {};
+                            }
+
+                            // iterate numbers
+                            Object.keys(NUMBERS).forEach(numberKey => {
+                                const number = numberKey; // 'S', 'D', 'P'
+
+                                if (!dictionaryMap[firstCol][moodName][genderShort][number]) {
+                                    dictionaryMap[firstCol][moodName][genderShort][number] = [];
+                                }
+
+                                // iterate declension indices (1..4)
+                                for (let decl = 1; decl <= 4; decl++) {
+                                    const affixedWord = getNounResult(
+                                        genderShort,
+                                        moodName,
+                                        number,
+                                        decl,
+                                        'fullText',
+                                        NounResults
+                                    );
+
+                                    dictionaryMap[firstCol][moodName][genderShort][number].push(affixedWord);
+                                    //eg. dictionaryMap.æklū.D.a.P[0]; = 'æklāq̇' // diretictive, abstract, plural, declension 0
+                                }
+                            });
+                        });
+                    });
+                }
+            }
+        });
+
+        return { dictionaryMap, numberMap };
+    }
+
+    return nounMapMaker();
+}
+
+
+
+//    const { dictionaryMap, numberMap } = NounAffixChecker();
+
+// numberMap[0];          // → "æklū"
+// dictionaryMap["æklū"] // → { type: "n", word: "æklū", number: 0 }
+
+
+
 // Load appropriate HTML content based on word class
 function loadWordClassContent(wordClass, pageId) {
     const rightDiv = document.querySelector(`#${pageId} #textBoxContainer`);
