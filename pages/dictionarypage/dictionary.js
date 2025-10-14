@@ -1887,6 +1887,33 @@ function doSearchFromPage(pageId) {
 
     doSearch();
 }
+function appendAndOpenPage(pageId, container, htmlContent) {
+    return new Promise((resolve, reject) => {
+        if (!container) return reject("No container to append the page to");
+
+        // Check if the page already exists
+        let pageEl = document.getElementById(pageId);
+        if (!pageEl) {
+            pageEl = document.createElement('div');
+            pageEl.id = pageId;
+            pageEl.className = 'page';
+            pageEl.innerHTML = htmlContent;
+
+            container.appendChild(pageEl);
+
+            // Wait for the next animation frame to ensure it's in the DOM
+            requestAnimationFrame(() => {
+                if (document.getElementById(pageId)) {
+                    resolve(pageEl); // exists, resolve promise
+                } else {
+                    reject(`Page ${pageId} did not append correctly`);
+                }
+            });
+        } else {
+            resolve(pageEl); // already exists
+        }
+    });
+}
 
 // === dosearch function ===
 function doSearch() {
@@ -1923,7 +1950,8 @@ function performSearch() {
         // Build/load dictionary once
         const result = NounDictionary.get();
         const dictionaryMap = result.dictionaryMap;
-        console.log("All words in dictionary:", Object.keys(dictionaryMap));
+        console.log("All words in dictionary:");
+        console.log(dictionaryMap);
 
         // Find all occurrences of the keyword anywhere in the tree
         const occurrences = [];
@@ -1965,9 +1993,11 @@ function performSearch() {
             affixeKeywordpage.innerHTML = keyword;
 
             const container = document.getElementsByClassName('pages')[0];
-            if (container) container.appendChild(affixeKeywordpage);
-
-            openPageOld('page11998');
+            appendAndOpenPage('page11998', container, keyword)
+                .then(pageEl => {
+                    openPageOld('page11998');
+                })
+                .catch(err => console.error(err));
         } else {
             console.warn(`Keyword "${keyword}" not found in any affixed forms.`);
         }
@@ -1985,6 +2015,7 @@ function performSearch() {
 
     const targetPageId = pages1[keyword];
     if (!targetPageId) {
+        if (document.getElementById("page11998")) return; // dont show if page11998 exists
         alert('No page found for that word.');
         return;
     }
