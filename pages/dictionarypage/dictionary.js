@@ -720,6 +720,8 @@ function getVerbResult
 
 
     // Search for matching entry
+    // Search for matching entry
+    // Search for matching entry
     const entry = verbArray.find(v => {
         let prefixMatch = true;
         let suffixMatch = true;
@@ -754,73 +756,42 @@ function getVerbResult
         return prefixMatch && suffixMatch;
     });
 
-
-    const norm = normaliseInputs(genderIn, stateIn, numberIn, personIn);
-    if (!norm) {
-        console.error('Invalid inputs');
-        return null;
-    }
-    const { genderShort, state, numberKey, person } = norm;
-
-    // Build the map programmatically (keeps sync with GENDERS/NUMBERS/MOODS)
-    function buildVerbResultMap() {
-        const gendersOrder = Object.keys(GENDERS);
-        const genderShorts = gendersOrder.map(k => GENDERS[k].SHORT);
-        const blockSize = Object.keys(NUMBERS).length * 4; // 12
-        const map = {};
-
-        // Suffix
-        let base = 0;
-        genderShorts.forEach(short => {
-            map[`${short}_S`] = [base, base + blockSize - 1];
-            base += blockSize;
-        });
-
-        // Prefix
-        base = genderShorts.length * blockSize; // 84
-        genderShorts.forEach(short => {
-            map[`${short}_P`] = [base, base + blockSize - 1];
-            base += blockSize;
-        });
-
-        return map;
-    }
-
-    const VerbResultMap = buildVerbResultMap();
-    const mapKey = `${genderShort}_${state}`;
-    const range = VerbResultMap[mapKey];
-    if (!range) {
-        console.error('No range for', mapKey);
+    if (!entry) {
+        console.error('No verb entry matches the specified affix');
         return null;
     }
 
-    const numbersOrder = Object.keys(NUMBERS); // ['S','D','P']
-    const numberIndex = numbersOrder.indexOf(numberKey);
-    if (numberIndex === -1) {
-        console.error('Invalid number', numberKey);
-        return null;
-    }
+    // Extract raw affixes from the matching entry
+    const appliedPrefix = entry.prefix ? entry.prefix.rawAffix : '';
+    const appliedSuffix = entry.suffix ? entry.suffix.rawAffix : '';
 
-    const perNumberCount = 4;
-    const offsetWithinGender = numberIndex * perNumberCount + (person - 1);
-    const index = range[0] + offsetWithinGender;
-    const item = verbArray[index];
+    // Apply to the keyword
+    const finalWord = `${appliedPrefix}${entry.keyword}${appliedSuffix}`;
 
-    if (!item) {
-        console.error('No noun entry at index', index);
-        return null;
-    }
+    // Log applied affixes and final word
+    /*
+    console.log('Applied Prefix:', appliedPrefix);
+    console.log('Applied Suffix:', appliedSuffix);
+    console.log('Keyword:', entry.keyword);
+    console.log('Final word:', finalWord);
+    console.log('FullText:', entry.fullText);
+    */
 
-    // validate requested field
-    const f = String(field || 'html');
-    if (!ALLOWED_VERB_FIELDS.has(f)) {
+    // Validate requested field
+    const f = String(field || 'all');
+    if (!ALLOWED_VERB_FIELDS.has(f) && f !== 'fullWord') {
         console.error('Invalid field requested:', f, 'Allowed:', Array.from(ALLOWED_VERB_FIELDS).join(','));
         return null;
     }
 
-    const output = (f === 'all') ? item : item[f];
+    // Return either the requested field, the full entry with finalWord, or the finalWord itself
+    const output = (f === 'all') ? { ...entry, finalWord } :
+        (f === 'fullWord') ? finalWord :
+            entry[f];
+
     console.log(output);
     return output;
+
 }// usage: getVerbResult('a', 'P', 'D', '1', 'all', VerbResults);
 
 
