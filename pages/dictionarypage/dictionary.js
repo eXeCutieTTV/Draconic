@@ -104,81 +104,88 @@ const person = {
     3: "3. Person"
 }
 
-const isPrefix = {
-    [GENDERS.E.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "xen-", [person[2]]: "syn-", [person[3]]: "ten-" },
-        [NUMBERS.D]: { [person[1]]: "xyn-", [person[2]]: "són-", [person[3]]: "q̇yn-" },
-        [NUMBERS.P]: { [person[1]]: "hen-", [person[2]]: "tháħ-", [person[3]]: "tyn-" }
+const affixState = {
+    P: "isPrefix",
+    S: "isSuffix"
+}
+
+const AFFIXSTATE = {
+    [affixState.P]: {
+        [GENDERS.E.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "xen-", [person[2]]: "syn-", [person[3]]: "ten-" },
+            [NUMBERS.D]: { [person[1]]: "xyn-", [person[2]]: "són-", [person[3]]: "q̇yn-" },
+            [NUMBERS.P]: { [person[1]]: "hen-", [person[2]]: "tháħ-", [person[3]]: "tyn-" }
+        },
+        [GENDERS.R.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "xef-", [person[2]]: "sy-", [person[3]]: "tolli-" },
+            [NUMBERS.D]: { [person[1]]: "xyf-", [person[2]]: "sónlli-", [person[3]]: "q̇yll-" },
+            [NUMBERS.P]: { [person[1]]: "hef-", [person[2]]: "tháll-", [person[3]]: "tyf-" }
+        },
+        [GENDERS.MON.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "χħô-", [person[2]]: "sô-", [person[3]]: "tô-" },
+            [NUMBERS.D]: { [person[1]]: "xóħ-", [person[2]]: "sónq̇ħó-", [person[3]]: "q̇ħó-" },
+            [NUMBERS.P]: { [person[1]]: "hô-", [person[2]]: "tháq̇ħó-", [person[3]]: "tuħ-" }
+        },
+        [GENDERS.I.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "xellu-", [person[2]]: "sucu-", [person[3]]: "tócu-" },
+            [NUMBERS.D]: { [person[1]]: "llu-", [person[2]]: "sóncu-", [person[3]]: "q̇ácu-" },
+            [NUMBERS.P]: { [person[1]]: "llu-", [person[2]]: "thácu-", [person[3]]: "tīll-" }
+        },
+        [GENDERS.MAG.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "xo-", [person[2]]: "su-", [person[3]]: "toħ-" },
+            [NUMBERS.D]: { [person[1]]: "ho-", [person[2]]: "thâ-", [person[3]]: "tū-" },
+            [NUMBERS.P]: { [person[1]]: "ho-", [person[2]]: "thâ-", [person[3]]: "tū-" }
+        },
+        [GENDERS.MUN.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "xyr-", [person[2]]: "syr-", [person[3]]: "try-" },
+            [NUMBERS.D]: { [person[1]]: "ry-", [person[2]]: "thár-", [person[3]]: "tur-" },
+            [NUMBERS.P]: { [person[1]]: "ry-", [person[2]]: "thár-", [person[3]]: "tur-" }
+        },
+        [GENDERS.A.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "xy-", [person[2]]: "su-", [person[3]]: "to-" },
+            [NUMBERS.D]: { [person[1]]: "hy-", [person[2]]: "thá-", [person[3]]: "tu-" },
+            [NUMBERS.P]: { [person[1]]: "hy-", [person[2]]: "thá-", [person[3]]: "tu-" }
+        }
     },
-    [GENDERS.R.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "xef-", [person[2]]: "sy-", [person[3]]: "tolli-" },
-        [NUMBERS.D]: { [person[1]]: "xyf-", [person[2]]: "sónlli-", [person[3]]: "q̇yll-" },
-        [NUMBERS.P]: { [person[1]]: "hef-", [person[2]]: "tháll-", [person[3]]: "tyf-" }
-    },
-    [GENDERS.MON.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "χħô-", [person[2]]: "sô-", [person[3]]: "tô-" },
-        [NUMBERS.D]: { [person[1]]: "xóħ-", [person[2]]: "sónq̇ħó-", [person[3]]: "q̇ħó-" },
-        [NUMBERS.P]: { [person[1]]: "hô-", [person[2]]: "tháq̇ħó-", [person[3]]: "tuħ-" }
-    },
-    [GENDERS.I.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "xellu-", [person[2]]: "sucu-", [person[3]]: "tócu-" },
-        [NUMBERS.D]: { [person[1]]: "llu-", [person[2]]: "sóncu-", [person[3]]: "q̇ácu-" },
-        [NUMBERS.P]: { [person[1]]: "llu-", [person[2]]: "thácu-", [person[3]]: "tīll-" }
-    },
-    [GENDERS.MAG.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "xo-", [person[2]]: "su-", [person[3]]: "toħ-" },
-        [NUMBERS.D]: { [person[1]]: "ho-", [person[2]]: "thâ-", [person[3]]: "tū-" },
-        [NUMBERS.P]: { [person[1]]: "ho-", [person[2]]: "thâ-", [person[3]]: "tū-" }
-    },
-    [GENDERS.MUN.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "xyr-", [person[2]]: "syr-", [person[3]]: "try-" },
-        [NUMBERS.D]: { [person[1]]: "ry-", [person[2]]: "thár-", [person[3]]: "tur-" },
-        [NUMBERS.P]: { [person[1]]: "ry-", [person[2]]: "thár-", [person[3]]: "tur-" }
-    },
-    [GENDERS.A.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "xy-", [person[2]]: "su-", [person[3]]: "to-" },
-        [NUMBERS.D]: { [person[1]]: "hy-", [person[2]]: "thá-", [person[3]]: "tu-" },
-        [NUMBERS.P]: { [person[1]]: "hy-", [person[2]]: "thá-", [person[3]]: "tu-" }
+    [affixState.S]: {
+        [GENDERS.E.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "-(o)n", [person[2]]: "-(u)n", [person[3]]: "-tón" },
+            [NUMBERS.D]: { [person[1]]: "-(')æn", [person[2]]: "-(o)nēn", [person[3]]: "-(q̇)ân" },
+            [NUMBERS.P]: { [person[1]]: "-(')æn", [person[2]]: "-ħen", [person[3]]: "-tun" }
+        },
+        [GENDERS.R.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "-(y)f", [person[2]]: "-(u)f", [person[3]]: "-ħyf" },
+            [NUMBERS.D]: { [person[1]]: "-(')æf", [person[2]]: "-nef", [person[3]]: "-(y)q̇ħáf" },
+            [NUMBERS.P]: { [person[1]]: "-(')æf", [person[2]]: "-ħáf", [person[3]]: "-if" }
+        },
+        [GENDERS.MON.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "-(u)ħó", [person[2]]: "-(u)ħó", [person[3]]: "-(o)ħó" },
+            [NUMBERS.D]: { [person[1]]: "-(')ô", [person[2]]: "-(á)ħó", [person[3]]: "-ħó" },
+            [NUMBERS.P]: { [person[1]]: "-(')ô", [person[2]]: "-(á)ħó", [person[3]]: "-ħó" }
+        },
+        [GENDERS.I.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "-llul", [person[2]]: "-llul", [person[3]]: "-llul" },
+            [NUMBERS.D]: { [person[1]]: "-(')allūl", [person[2]]: "-(á)llul", [person[3]]: "-(ú)cul" },
+            [NUMBERS.P]: { [person[1]]: "-(')allūl", [person[2]]: "-(á)llul", [person[3]]: "-(ú)cul" }
+        },
+        [GENDERS.MAG.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "-(u)χ", [person[2]]: "-(u)χ", [person[3]]: "-ħuχ" },
+            [NUMBERS.D]: { [person[1]]: "-(')ōχ", [person[2]]: "-(ó)nōχ", [person[3]]: "-ħúχ" },
+            [NUMBERS.P]: { [person[1]]: "-(')ōχ", [person[2]]: "-(ó)nōχ", [person[3]]: "-ħúχ" }
+        },
+        [GENDERS.MUN.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "-(u)r", [person[2]]: "-(u)r", [person[3]]: "-(u)r" },
+            [NUMBERS.D]: { [person[1]]: "-(')ar", [person[2]]: "-(á)r", [person[3]]: "-(ú)r" },
+            [NUMBERS.P]: { [person[1]]: "-(')ar", [person[2]]: "-(á)r", [person[3]]: "-(ú)r" }
+        },
+        [GENDERS.A.NAME]: {
+            [NUMBERS.S]: { [person[1]]: "-(y)q̇", [person[2]]: "-(u)q̇", [person[3]]: "-(ú)q̇" },
+            [NUMBERS.D]: { [person[1]]: "-(y)q̇", [person[2]]: "-ħóq̇", [person[3]]: "-(u)q̇" },
+            [NUMBERS.P]: { [person[1]]: "-(y)q̇", [person[2]]: "-ħóq̇", [person[3]]: "-(u)q̇" }
+        }
     }
 }
 
-const isSuffix = {
-    [GENDERS.E.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "-(o)n", [person[2]]: "-(u)n", [person[3]]: "-tón" },
-        [NUMBERS.D]: { [person[1]]: "-(')æn", [person[2]]: "-(o)nēn", [person[3]]: "-(q̇)ân" },
-        [NUMBERS.P]: { [person[1]]: "-(')æn", [person[2]]: "-ħen", [person[3]]: "-tun" }
-    },
-    [GENDERS.R.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "-(y)f", [person[2]]: "-(u)f", [person[3]]: "-ħyf" },
-        [NUMBERS.D]: { [person[1]]: "-(')æf", [person[2]]: "-nef", [person[3]]: "-(y)q̇ħáf" },
-        [NUMBERS.P]: { [person[1]]: "-(')æf", [person[2]]: "-ħáf", [person[3]]: "-if" }
-    },
-    [GENDERS.MON.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "-(u)ħó", [person[2]]: "-(u)ħó", [person[3]]: "-(o)ħó" },
-        [NUMBERS.D]: { [person[1]]: "-(')ô", [person[2]]: "-(á)ħó", [person[3]]: "-ħó" },
-        [NUMBERS.P]: { [person[1]]: "-(')ô", [person[2]]: "-(á)ħó", [person[3]]: "-ħó" }
-    },
-    [GENDERS.I.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "-llul", [person[2]]: "-llul", [person[3]]: "-llul" },
-        [NUMBERS.D]: { [person[1]]: "-(')allūl", [person[2]]: "-(á)llul", [person[3]]: "-(ú)cul" },
-        [NUMBERS.P]: { [person[1]]: "-(')allūl", [person[2]]: "-(á)llul", [person[3]]: "-(ú)cul" }
-    },
-    [GENDERS.MAG.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "-(u)χ", [person[2]]: "-(u)χ", [person[3]]: "-ħuχ" },
-        [NUMBERS.D]: { [person[1]]: "-(')ōχ", [person[2]]: "-(ó)nōχ", [person[3]]: "-ħúχ" },
-        [NUMBERS.P]: { [person[1]]: "-(')ōχ", [person[2]]: "-(ó)nōχ", [person[3]]: "-ħúχ" }
-    },
-    [GENDERS.MUN.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "-(u)r", [person[2]]: "-(u)r", [person[3]]: "-(u)r" },
-        [NUMBERS.D]: { [person[1]]: "-(')ar", [person[2]]: "-(á)r", [person[3]]: "-(ú)r" },
-        [NUMBERS.P]: { [person[1]]: "-(')ar", [person[2]]: "-(á)r", [person[3]]: "-(ú)r" }
-    },
-    [GENDERS.A.NAME]: {
-        [NUMBERS.S]: { [person[1]]: "-(y)q̇", [person[2]]: "-(u)q̇", [person[3]]: "-(ú)q̇" },
-        [NUMBERS.D]: { [person[1]]: "-(y)q̇", [person[2]]: "-ħóq̇", [person[3]]: "-(u)q̇" },
-        [NUMBERS.P]: { [person[1]]: "-(y)q̇", [person[2]]: "-ħóq̇", [person[3]]: "-(u)q̇" }
-    }
-}
 //isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
 
 
@@ -235,7 +242,21 @@ let NounResults;
 //NounResults = generateNounWithSuffixes("æklu", { useAttachAsSuffix: true });// find one matching entry and print its html
 
 // Allowed output keys (must match properties pushed into each item)
-const ALLOWED_NOUN_FIELDS = new Set(['mood', 'gender', 'number', 'person', 'rawSuffix', 'entries', 'html', 'fullText', 'all', 'keywordStem', 'keyword']);
+const ALLOWED_NOUN_FIELDS = new Set(
+    [
+        'mood',
+        'gender',
+        'number',
+        'person',
+        'rawSuffix',
+        'entries',
+        'html',
+        'fullText',
+        'all',
+        'keywordStem',
+        'keyword'
+    ]
+);
 
 // main function: choose which property to return/log from the matched entry
 function getNounResult(genderIn, moodIn, numberIn, personIn, field = 'all', nounArray = window.NounResults) {
@@ -427,14 +448,243 @@ function generateDeclensionTables(mood, gender) {// generateDeclensionTables(MOO
     */
     // console.log(text);
     return text;
-}// it gave the div in the console earlier though? cant we just do innerhtml in a wrapper div?
-// you can try to 
-
-// -------------------------------------- about searching with conjugation, you mean the search field or ctrl + F?
-// ie, when you search for a word, in the searchfield, if it includes affixes then it should direct you to a page explaining that exact word. its declension, conjugation, gender etc.
+}// setNounArrays(); // /\(/o.o\)/\ - Spooky the spider
 
 
-// setNounArrays(); // /\(/o.o\)/\ - Spooky the spider
+//isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
+
+
+// Produces VerbWithAffix array for a single base word
+function generateVerbAffixes(keyword) {
+    const result = [];
+
+    const prefixes = [];
+    const suffixes = [];
+
+    // Separate prefix and suffix forms
+    Object.keys(AFFIXSTATE).forEach(state => {
+        const stateTbl = AFFIXSTATE[state];
+        if (!stateTbl) return;
+
+        const useAttachAsSuffix = state === "isSuffix";
+
+        Object.keys(stateTbl).forEach(genderName => {
+            const genderTbl = stateTbl[genderName];
+            if (!genderTbl) return;
+
+            Object.keys(genderTbl).forEach(numberKey => {
+                const numberTbl = genderTbl[numberKey];
+                if (!numberTbl) return;
+
+                Object.keys(numberTbl).forEach(personKey => {
+                    const rawAffix = (numberTbl[personKey] || "").toString().trim();
+                    if (!rawAffix) return;
+
+                    const affixObj = {
+                        state,
+                        type: useAttachAsSuffix ? "suffix" : "prefix",
+                        gender: genderName,
+                        number: numberKey,
+                        person: personKey,
+                        rawAffix
+                    };
+
+                    if (useAttachAsSuffix) suffixes.push(affixObj);
+                    else prefixes.push(affixObj);
+                });
+            });
+        });
+    });
+
+    // Generate all prefix+suffix combinations
+    prefixes.forEach(pref => {
+        suffixes.forEach(suff => {
+            const fullText = `${pref.rawAffix}${keyword}${suff.rawAffix}`;
+            const html = `<strong>${pref.rawAffix}</strong>${keyword}<strong>${suff.rawAffix}</strong>`;
+            result.push({
+                combinationType: "prefix+suffix",
+                fullText,
+                html,
+                keywordStem: keyword,
+                keyword,
+                prefix: pref, // include full metadata
+                suffix: suff  // include full metadata
+            });
+        });
+    });
+
+    // Single prefix-only forms
+    prefixes.forEach(pref => {
+        const fullText = `${pref.rawAffix}${keyword}`;
+        const html = `<strong>${pref.rawAffix}</strong>${keyword}`;
+        result.push({
+            combinationType: "prefix-only",
+            fullText,
+            html,
+            keywordStem: keyword,
+            keyword,
+            prefix: pref,
+            suffix: null
+        });
+    });
+
+    // Single suffix-only forms
+    suffixes.forEach(suff => {
+        const fullText = `${keyword}${suff.rawAffix}`;
+        const html = `${keyword}<strong>${suff.rawAffix}</strong>`;
+        result.push({
+            combinationType: "suffix-only",
+            fullText,
+            html,
+            keywordStem: keyword,
+            keyword,
+            prefix: null,
+            suffix: suff
+        });
+    });
+
+    return result;
+}
+// Example usage: VerbResults = generateVerbAffixes("æf");// find one matching entry and print its html
+let VerbResults;
+
+// Allowed output keys (must match properties pushed into each item)
+const ALLOWED_VERB_FIELDS = new Set(
+    [
+        'mood',
+        'gender',
+        'number',
+        'person',
+        'rawSuffix',
+        'entries',
+        'html',
+        'fullText',
+        'all',
+        'keywordStem',
+        'keyword'
+    ]
+);
+/*
+// main function: choose which property to return/log from the matched entry
+function getVerbResult(genderIn, moodIn, numberIn, personIn, field = 'all', nounArray = window.NounResults) {
+    if (!Array.isArray(nounArray)) {
+        console.error('NounWithSuffix not found or not an array');
+        return null;
+    }
+
+    // Normalise inputs (same helper as before)
+    function normaliseInputs(genderIn, moodIn, numberIn, personIn) {
+        // gender -> short (e, r, mon, ...)
+        let genderShort = null;
+        if (!genderIn) return null;
+        const g = String(genderIn);
+        if (Object.keys(GENDERS).includes(g)) genderShort = GENDERS[g].SHORT;
+        else {
+            const foundG = Object.values(GENDERS).find(v => v.NAME === g || v.SHORT === g || Object.keys(GENDERS).find(k => k === g));
+            genderShort = foundG ? foundG.SHORT : g;
+        }
+
+        // mood -> key 'D' or 'R'
+        let moodKey = null;
+        const m = String(moodIn);
+        if (MOODS[m]) moodKey = m;
+        else {
+            const foundMood = Object.entries(MOODS).find(([k, name]) => name === m || k === m);
+            moodKey = foundMood ? foundMood[0] : m;
+        }
+
+        // number -> key 'S'/'D'/'P'
+        let numberKey = null;
+        const n = String(numberIn);
+        if (NUMBERS[n]) numberKey = n;
+        else {
+            const foundNum = Object.entries(NUMBERS).find(([k, name]) => name === n || k === n);
+            numberKey = foundNum ? foundNum[0] : n;
+        }
+
+        const person = Number(personIn);
+        if (!Number.isFinite(person) || person < 1 || person > 4) return null;
+
+        return { genderShort, moodKey, numberKey, person };
+    }
+
+    const norm = normaliseInputs(genderIn, moodIn, numberIn, personIn);
+    if (!norm) {
+        console.error('Invalid inputs');
+        return null;
+    }
+    const { genderShort, moodKey, numberKey, person } = norm;
+
+    // Build the map programmatically (keeps sync with GENDERS/NUMBERS/MOODS)
+    function buildNounResultMap() {
+        const gendersOrder = Object.keys(GENDERS);
+        const genderShorts = gendersOrder.map(k => GENDERS[k].SHORT);
+        const blockSize = Object.keys(NUMBERS).length * 4; // 12
+        const map = {};
+
+        // Directive
+        let base = 0;
+        genderShorts.forEach(short => {
+            map[`${short}_D`] = [base, base + blockSize - 1];
+            base += blockSize;
+        });
+
+        // Recessive
+        base = genderShorts.length * blockSize; // 84
+        genderShorts.forEach(short => {
+            map[`${short}_R`] = [base, base + blockSize - 1];
+            base += blockSize;
+        });
+
+        return map;
+    }
+
+    const NounResultMap = buildNounResultMap();
+    const mapKey = `${genderShort}_${moodKey}`;
+    const range = NounResultMap[mapKey];
+    if (!range) {
+        console.error('No range for', mapKey);
+        return null;
+    }
+
+    const numbersOrder = Object.keys(NUMBERS); // ['S','D','P']
+    const numberIndex = numbersOrder.indexOf(numberKey);
+    if (numberIndex === -1) {
+        console.error('Invalid number', numberKey);
+        return null;
+    }
+
+    const perNumberCount = 4;
+    const offsetWithinGender = numberIndex * perNumberCount + (person - 1);
+    const index = range[0] + offsetWithinGender;
+    const item = nounArray[index];
+
+    if (!item) {
+        console.error('No noun entry at index', index);
+        return null;
+    }
+
+    // validate requested field
+    const f = String(field || 'html');
+    if (!ALLOWED_NOUN_FIELDS.has(f)) {
+        console.error('Invalid field requested:', f, 'Allowed:', Array.from(ALLOWED_NOUN_FIELDS).join(','));
+        return null;
+    }
+
+    const output = (f === 'all') ? item : item[f];
+    console.log(output);
+    return output;
+}
+*/
+
+
+
+
+
+
+
+
+
 
 // search field dropdown
 let examples = [];
