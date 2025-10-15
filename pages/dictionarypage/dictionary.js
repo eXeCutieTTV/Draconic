@@ -15,11 +15,11 @@ const NUMBERS = {
     P: "plural"
 }
 
+// === NOUN DATA ===
 const MOODS = {
     D: "directive",
     R: "recessive",
 }
-
 
 const CONJUGATIONS = { // /\(/o.o\)/\ - Spooky the spider
     [MOODS.D]: {
@@ -97,6 +97,89 @@ const CONJUGATIONS = { // /\(/o.o\)/\ - Spooky the spider
         }
     }
 }
+// === VERB DATA ===
+const person = {
+    1: "1. Person",
+    2: "2. Person",
+    3: "3. Person"
+}
+
+const isPrefix = {
+    [GENDERS.E.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "xen-", [person[2]]: "syn-", [person[3]]: "ten-" },
+        [NUMBERS.D]: { [person[1]]: "xyn-", [person[2]]: "són-", [person[3]]: "q̇yn-" },
+        [NUMBERS.P]: { [person[1]]: "hen-", [person[2]]: "tháħ-", [person[3]]: "tyn-" }
+    },
+    [GENDERS.R.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "xef-", [person[2]]: "sy-", [person[3]]: "tolli-" },
+        [NUMBERS.D]: { [person[1]]: "xyf-", [person[2]]: "sónlli-", [person[3]]: "q̇yll-" },
+        [NUMBERS.P]: { [person[1]]: "hef-", [person[2]]: "tháll-", [person[3]]: "tyf-" }
+    },
+    [GENDERS.MON.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "χħô-", [person[2]]: "sô-", [person[3]]: "tô-" },
+        [NUMBERS.D]: { [person[1]]: "xóħ-", [person[2]]: "sónq̇ħó-", [person[3]]: "q̇ħó-" },
+        [NUMBERS.P]: { [person[1]]: "hô-", [person[2]]: "tháq̇ħó-", [person[3]]: "tuħ-" }
+    },
+    [GENDERS.I.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "xellu-", [person[2]]: "sucu-", [person[3]]: "tócu-" },
+        [NUMBERS.D]: { [person[1]]: "llu-", [person[2]]: "sóncu-", [person[3]]: "q̇ácu-" },
+        [NUMBERS.P]: { [person[1]]: "llu-", [person[2]]: "thácu-", [person[3]]: "tīll-" }
+    },
+    [GENDERS.MAG.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "xo-", [person[2]]: "su-", [person[3]]: "toħ-" },
+        [NUMBERS.D]: { [person[1]]: "ho-", [person[2]]: "thâ-", [person[3]]: "tū-" },
+        [NUMBERS.P]: { [person[1]]: "ho-", [person[2]]: "thâ-", [person[3]]: "tū-" }
+    },
+    [GENDERS.MUN.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "xyr-", [person[2]]: "syr-", [person[3]]: "try-" },
+        [NUMBERS.D]: { [person[1]]: "ry-", [person[2]]: "thár-", [person[3]]: "tur-" },
+        [NUMBERS.P]: { [person[1]]: "ry-", [person[2]]: "thár-", [person[3]]: "tur-" }
+    },
+    [GENDERS.A.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "xy-", [person[2]]: "su-", [person[3]]: "to-" },
+        [NUMBERS.D]: { [person[1]]: "hy-", [person[2]]: "thá-", [person[3]]: "tu-" },
+        [NUMBERS.P]: { [person[1]]: "hy-", [person[2]]: "thá-", [person[3]]: "tu-" }
+    }
+}
+
+const isSuffix = {
+    [GENDERS.E.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "-(o)n", [person[2]]: "-(u)n", [person[3]]: "-tón" },
+        [NUMBERS.D]: { [person[1]]: "-(')æn", [person[2]]: "-(o)nēn", [person[3]]: "-(q̇)ân" },
+        [NUMBERS.P]: { [person[1]]: "-(')æn", [person[2]]: "-ħen", [person[3]]: "-tun" }
+    },
+    [GENDERS.R.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "-(y)f", [person[2]]: "-(u)f", [person[3]]: "-ħyf" },
+        [NUMBERS.D]: { [person[1]]: "-(')æf", [person[2]]: "-nef", [person[3]]: "-(y)q̇ħáf" },
+        [NUMBERS.P]: { [person[1]]: "-(')æf", [person[2]]: "-ħáf", [person[3]]: "-if" }
+    },
+    [GENDERS.MON.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "-(u)ħó", [person[2]]: "-(u)ħó", [person[3]]: "-(o)ħó" },
+        [NUMBERS.D]: { [person[1]]: "-(')ô", [person[2]]: "-(á)ħó", [person[3]]: "-ħó" },
+        [NUMBERS.P]: { [person[1]]: "-(')ô", [person[2]]: "-(á)ħó", [person[3]]: "-ħó" }
+    },
+    [GENDERS.I.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "-llul", [person[2]]: "-llul", [person[3]]: "-llul" },
+        [NUMBERS.D]: { [person[1]]: "-(')allūl", [person[2]]: "-(á)llul", [person[3]]: "-(ú)cul" },
+        [NUMBERS.P]: { [person[1]]: "-(')allūl", [person[2]]: "-(á)llul", [person[3]]: "-(ú)cul" }
+    },
+    [GENDERS.MAG.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "-(u)χ", [person[2]]: "-(u)χ", [person[3]]: "-ħuχ" },
+        [NUMBERS.D]: { [person[1]]: "-(')ōχ", [person[2]]: "-(ó)nōχ", [person[3]]: "-ħúχ" },
+        [NUMBERS.P]: { [person[1]]: "-(')ōχ", [person[2]]: "-(ó)nōχ", [person[3]]: "-ħúχ" }
+    },
+    [GENDERS.MUN.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "-(u)r", [person[2]]: "-(u)r", [person[3]]: "-(u)r" },
+        [NUMBERS.D]: { [person[1]]: "-(')ar", [person[2]]: "-(á)r", [person[3]]: "-(ú)r" },
+        [NUMBERS.P]: { [person[1]]: "-(')ar", [person[2]]: "-(á)r", [person[3]]: "-(ú)r" }
+    },
+    [GENDERS.A.NAME]: {
+        [NUMBERS.S]: { [person[1]]: "-(y)q̇", [person[2]]: "-(u)q̇", [person[3]]: "-(ú)q̇" },
+        [NUMBERS.D]: { [person[1]]: "-(y)q̇", [person[2]]: "-ħóq̇", [person[3]]: "-(u)q̇" },
+        [NUMBERS.P]: { [person[1]]: "-(y)q̇", [person[2]]: "-ħóq̇", [person[3]]: "-(u)q̇" }
+    }
+}
+//isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
 
 
 // Produces NounWithSuffix array for a single base word
