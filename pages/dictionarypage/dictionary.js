@@ -2183,11 +2183,20 @@ function buildFromDictionaryTable() {
             pages1[word] = `page${pageNumber}`;
             pageNumber++; // Count upward
         }
+        // Convert array row into an object with labels
+        const rowObject = {
+            word: paddedRow[0],
+            wordclass: paddedRow[1],
+            definition: paddedRow[2],
+            forms: paddedRow[3],
+            notes: paddedRow[4],
+            "pageId(for html)": pages1[word]
+        };
 
-        workbookData.push(paddedRow);
+        workbookData.push(rowObject);
     });
 
-    console.log("pages1 mapping:", pages1);
+    //console.log("pages1 mapping:", pages1);
     console.log("workbookData:", workbookData);
 }
 
@@ -2409,7 +2418,7 @@ function performSearch() {
         const result = WordDictionary.get();
         const occurrences = WordDictionary.findOccurrences(keyword);
 
-        if (occurrences[0].type) {
+        if (occurrences.length > 0) {
             // verb innerHTML
             if (occurrences[0].type === "verb") {
                 const parentArray = generateVerbAffixes(occurrences[0].baseWord);
@@ -2438,11 +2447,11 @@ function performSearch() {
 
                 console.log("parentArray of keyword:", parentArray);
             }
+            console.log("All occurrences of keyword:", occurrences);
         }
 
 
 
-        console.log("All occurrences of keyword:", occurrences);
 
         if (occurrences.length > 0) {
             // create the page for keyword
