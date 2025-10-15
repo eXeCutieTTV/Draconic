@@ -1,3 +1,5 @@
+// when you press the first search button, then the id of the first field and button gets replaces, and those ids are placed into the onpage search button and field?
+
 // === DATA ===
 const GENDERS = {
     E: { NAME: "exhalted", SHORT: "e", INCLUDED: ["animates", "all"] },
@@ -553,10 +555,9 @@ function generateVerbAffixes(keyword) {
     });
 
     return result;
-}
-
+} let VerbResults;
 // Example usage: VerbResults = generateVerbAffixes("æf");// find one matching entry and print its html
-let VerbResults;
+
 
 // Allowed output keys (must match properties pushed into each item)
 const ALLOWED_VERB_FIELDS = new Set(
@@ -575,84 +576,219 @@ const ALLOWED_VERB_FIELDS = new Set(
         'combinationType'
     ]
 );
-/*
-// main function: choose which property to return/log from the matched entry
-function getVerbResult(genderIn, moodIn, numberIn, personIn, field = 'all', nounArray = window.NounResults) {
-    if (!Array.isArray(nounArray)) {
-        console.error('NounWithSuffix not found or not an array');
+
+function getVerbResult(prefixSpec, suffixSpec, field = 'all', verbArray = window.VerbResults) {
+    if (!Array.isArray(verbArray)) {
+        console.error('VerbAffix not found or not an array');
         return null;
     }
 
-    // Normalise inputs (same helper as before)
-    function normaliseInputs(genderIn, moodIn, numberIn, personIn) {
-        // gender -> short (e, r, mon, ...)
+    // Helper: normalizes each spec's gender, state, number, person
+    function normalizeSpec(spec) {
+        if (!spec) return null;
+        const { gender, state, number, person } = spec;
+
         let genderShort = null;
-        if (!genderIn) return null;
-        const g = String(genderIn);
-        if (Object.keys(GENDERS).includes(g)) genderShort = GENDERS[g].SHORT;
-        else {
-            const foundG = Object.values(GENDERS).find(v => v.NAME === g || v.SHORT === g || Object.keys(GENDERS).find(k => k === g));
-            genderShort = foundG ? foundG.SHORT : g;
+        if (gender) {
+            const g = String(gender);
+            if (Object.keys(GENDERS).includes(g)) genderShort = GENDERS[g].SHORT;
+            else {
+                const foundG = Object.values(GENDERS).find(v => v.NAME === g || v.SHORT === g || Object.keys(GENDERS).find(k => k === g));
+                genderShort = foundG ? foundG.SHORT : g;
+            }
         }
 
-        // mood -> key 'D' or 'R'
-        let moodKey = null;
-        const m = String(moodIn);
-        if (MOODS[m]) moodKey = m;
-        else {
-            const foundMood = Object.entries(MOODS).find(([k, name]) => name === m || k === m);
-            moodKey = foundMood ? foundMood[0] : m;
+        let stateKey = null;
+        if (state) {
+            const s = String(state);
+            stateKey = affixState[s] ? s : (Object.entries(affixState).find(([k, name]) => name === s || k === s) || [s])[0];
         }
 
-        // number -> key 'S'/'D'/'P'
         let numberKey = null;
-        const n = String(numberIn);
-        if (NUMBERS[n]) numberKey = n;
-        else {
-            const foundNum = Object.entries(NUMBERS).find(([k, name]) => name === n || k === n);
-            numberKey = foundNum ? foundNum[0] : n;
+        if (number) {
+            const n = String(number);
+            numberKey = NUMBERS[n] ? n : (Object.entries(NUMBERS).find(([k, name]) => name === n || k === n) || [n])[0];
         }
 
-        const person = Number(personIn);
-        if (!Number.isFinite(person) || person < 1 || person > 4) return null;
+        const personNum = person ? Number(person) : null;
 
-        return { genderShort, moodKey, numberKey, person };
+        return { genderShort, state: stateKey, numberKey, person: personNum };
     }
 
-    const norm = normaliseInputs(genderIn, moodIn, numberIn, personIn);
+    const prefixNorm = normalizeSpec(prefixSpec);
+    const suffixNorm = normalizeSpec(suffixSpec);
+
+    // Search for matching entry
+    const entry = verbArray.find(v => {
+        let prefixMatch = true;
+        let suffixMatch = true;
+
+        if (prefixNorm) {
+            prefixMatch = v.prefix &&
+                (prefixNorm.genderShort ? v.prefix.gender === prefixNorm.genderShort : true) &&
+                (prefixNorm.state ? v.prefix.state === prefixNorm.state : true) &&
+                (prefixNorm.numberKey ? v.prefix.number === prefixNorm.numberKey : true) &&
+                (prefixNorm.person ? Number(v.prefix.person) === prefixNorm.person : true);
+        } else {
+            prefixMatch = v.prefix === null;
+        }
+
+        if (suffixNorm) {
+            suffixMatch = v.suffix &&
+                (suffixNorm.genderShort ? v.suffix.gender === suffixNorm.genderShort : true) &&
+                (suffixNorm.state ? v.suffix.state === suffixNorm.state : true) &&
+                (suffixNorm.numberKey ? v.suffix.number === suffixNorm.numberKey : true) &&
+                (suffixNorm.person ? Number(v.suffix.person) === suffixNorm.person : true);
+        } else {
+            suffixMatch = v.suffix === null;
+        }
+
+        return prefixMatch && suffixMatch;
+    });
+
+    if (!entry) {
+        console.error('No verb entry matches the specified prefix/suffix');
+        return null;
+    }
+
+    if (!ALLOWED_VERB_FIELDS.has(field)) {
+        console.error('Invalid field requested:', field);
+        return null;
+    }
+
+    const output = (field === 'all') ? entry : entry[field];
+    console.log(output);
+    return output;
+}
+
+
+// main function: choose which property to return/log from the matched entry
+/*
+    genderIn,
+    stateIn,
+    numberIn,
+    personIn,
+ */
+function getVerbResult
+    (
+        prefixSpec,
+        suffixSpec,
+        field = 'all',
+        verbArray = window.VerbResults
+    ) {
+    if (!Array.isArray(verbArray)) {
+        console.error('VerbAffix not found or not an array'); //"verb with the affix"+affix?
+        return null;
+    }
+    function normalizeSpec(spec, type) { // type = 'prefix' or 'suffix'
+        if (!spec) return null;
+        const { gender, state, number, person } = spec;
+
+        // Map gender input to the full gender string like in verbArray
+        let genderName = null;
+        if (gender) {
+            const g = String(gender);
+            const foundG = Object.values(GENDERS).find(v => v.SHORT === g || v.NAME === g);
+            genderName = foundG ? foundG.NAME : g;
+        }
+
+        // Map number input to full number string like 'singular', 'plural', etc.
+        let numberName = null;
+        if (number) {
+            const n = String(number);
+            const foundNum = Object.entries(NUMBERS).find(([k, name]) => k === n || name === n);
+            numberName = foundNum ? foundNum[1] : n;
+        }
+
+        // Map person input to full string like '1. Person', '2. Person', etc.
+        let personName = null;
+        if (person) {
+            personName = `${person}. Person`;
+        }
+
+        return {
+            type: type,
+            gender: genderName,
+            number: numberName,
+            person: personName
+        };
+    }
+    const prefixNorm = normalizeSpec(prefixSpec, 'prefix');
+    const suffixNorm = normalizeSpec(suffixSpec, 'suffix');
+    console.log(prefixNorm, suffixNorm);
+    console.log(prefixNorm.genderShort, suffixNorm.genderShort);
+
+
+    // Search for matching entry
+    const entry = verbArray.find(v => {
+        let prefixMatch = true;
+        let suffixMatch = true;
+
+        if (prefixNorm) {
+            prefixMatch = v.prefix &&
+                (prefixNorm.gender ? v.prefix.gender === prefixNorm.gender : true) &&
+                (prefixNorm.state ? v.prefix.state === prefixNorm.state : true) &&
+                (prefixNorm.number ? v.prefix.number === prefixNorm.number : true) &&
+                (prefixNorm.person ? v.prefix.person === prefixNorm.person : true);
+        } else {
+            prefixMatch = v.prefix === null;
+        }
+
+        if (suffixNorm) {
+            suffixMatch = v.suffix &&
+                (suffixNorm.gender ? v.suffix.gender === suffixNorm.gender : true) &&
+                (suffixNorm.state ? v.suffix.state === suffixNorm.state : true) &&
+                (suffixNorm.number ? v.suffix.number === suffixNorm.number : true) &&
+                (suffixNorm.person ? v.suffix.person === suffixNorm.person : true);
+        } else {
+            suffixMatch = v.suffix === null;
+        }
+
+        // Only log if both prefix and suffix match
+        if (prefixMatch && suffixMatch) {
+            console.log(`MATCH FOUND: ${v.fullText}`);
+            if (v.prefix && prefixNorm) console.log('  Prefix expected:', prefixNorm, '| actual:', v.prefix);
+            if (v.suffix && suffixNorm) console.log('  Suffix expected:', suffixNorm, '| actual:', v.suffix);
+        }
+
+        return prefixMatch && suffixMatch;
+    });
+
+
+    const norm = normaliseInputs(genderIn, stateIn, numberIn, personIn);
     if (!norm) {
         console.error('Invalid inputs');
         return null;
     }
-    const { genderShort, moodKey, numberKey, person } = norm;
+    const { genderShort, state, numberKey, person } = norm;
 
     // Build the map programmatically (keeps sync with GENDERS/NUMBERS/MOODS)
-    function buildNounResultMap() {
+    function buildVerbResultMap() {
         const gendersOrder = Object.keys(GENDERS);
         const genderShorts = gendersOrder.map(k => GENDERS[k].SHORT);
         const blockSize = Object.keys(NUMBERS).length * 4; // 12
         const map = {};
 
-        // Directive
+        // Suffix
         let base = 0;
         genderShorts.forEach(short => {
-            map[`${short}_D`] = [base, base + blockSize - 1];
+            map[`${short}_S`] = [base, base + blockSize - 1];
             base += blockSize;
         });
 
-        // Recessive
+        // Prefix
         base = genderShorts.length * blockSize; // 84
         genderShorts.forEach(short => {
-            map[`${short}_R`] = [base, base + blockSize - 1];
+            map[`${short}_P`] = [base, base + blockSize - 1];
             base += blockSize;
         });
 
         return map;
     }
 
-    const NounResultMap = buildNounResultMap();
-    const mapKey = `${genderShort}_${moodKey}`;
-    const range = NounResultMap[mapKey];
+    const VerbResultMap = buildVerbResultMap();
+    const mapKey = `${genderShort}_${state}`;
+    const range = VerbResultMap[mapKey];
     if (!range) {
         console.error('No range for', mapKey);
         return null;
@@ -668,7 +804,7 @@ function getVerbResult(genderIn, moodIn, numberIn, personIn, field = 'all', noun
     const perNumberCount = 4;
     const offsetWithinGender = numberIndex * perNumberCount + (person - 1);
     const index = range[0] + offsetWithinGender;
-    const item = nounArray[index];
+    const item = verbArray[index];
 
     if (!item) {
         console.error('No noun entry at index', index);
@@ -677,16 +813,15 @@ function getVerbResult(genderIn, moodIn, numberIn, personIn, field = 'all', noun
 
     // validate requested field
     const f = String(field || 'html');
-    if (!ALLOWED_NOUN_FIELDS.has(f)) {
-        console.error('Invalid field requested:', f, 'Allowed:', Array.from(ALLOWED_NOUN_FIELDS).join(','));
+    if (!ALLOWED_VERB_FIELDS.has(f)) {
+        console.error('Invalid field requested:', f, 'Allowed:', Array.from(ALLOWED_VERB_FIELDS).join(','));
         return null;
     }
 
     const output = (f === 'all') ? item : item[f];
     console.log(output);
     return output;
-}
-*/
+}// usage: getVerbResult('a', 'P', 'D', '1', 'all', VerbResults);
 
 
 
