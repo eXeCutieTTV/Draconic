@@ -2184,6 +2184,15 @@ function buildFromDictionaryTable() {
             pages1[word] = `page${pageNumber}`;
             pageNumber++; // Count upward
         }
+
+        // Determine declensions array based on wordclass
+        let declensionsArray = [];
+        const wordClass = paddedRow[1]; // 'n' or 'v'
+        if (wordClass === 'n') {
+            declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
+        } else if (wordClass === 'v') {
+            declensionsArray = generateVerbAffixes(word);
+        }
         // Convert array row into an object with labels
         const rowObject = {
             word: paddedRow[0],
@@ -2191,7 +2200,8 @@ function buildFromDictionaryTable() {
             definition: paddedRow[2],
             forms: paddedRow[3],
             notes: paddedRow[4],
-            "pageId(for html)": pages1[word]
+            "pageId(for html)": pages1[word],
+            "all declensions": declensionsArray
         };
 
         workbookData.push(rowObject);
