@@ -716,7 +716,7 @@ function getVerbResult
     const prefixNorm = normalizeSpec(prefixSpec, 'prefix');
     const suffixNorm = normalizeSpec(suffixSpec, 'suffix');
     console.log(prefixNorm, suffixNorm);
-    console.log(prefixNorm.genderShort, suffixNorm.genderShort);
+    console.log(prefixNorm.gender, ':', suffixNorm.gender);
 
 
     // Search for matching entry
@@ -789,7 +789,7 @@ function getVerbResult
         (f === 'fullWord') ? finalWord :
             entry[f];
 
-    console.log(output);
+    console.log("parrent array:");
     return output;
 
 }// usage: getVerbResult('a', 'P', 'D', '1', 'all', VerbResults);
