@@ -2435,7 +2435,6 @@ function performSearch() {
                 }
 
                 console.log("parentArray of keyword:", parentArray);
-                console.log("Added verb array:", { word: keyword, entries: VerbResults });
             }
             // noun innerHTML
             if (occurrences[0].type === "noun") {
@@ -2450,7 +2449,6 @@ function performSearch() {
                 }
 
                 console.log("parentArray of keyword:", parentArray);
-                console.log("Added noun array:", { word: keyword, entries: NounResults });
             }
             console.log("All occurrences of keyword:", occurrences);
         }
