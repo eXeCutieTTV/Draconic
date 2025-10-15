@@ -2168,6 +2168,7 @@ function buildFromDictionaryTable() {
     pages1 = {};
     workbookData = [];
 
+
     let pageNumber = 10000; // Start counting up from 10000
 
     dictionaryData.forEach((row, index) => {
@@ -2194,6 +2195,7 @@ function buildFromDictionaryTable() {
         };
 
         workbookData.push(rowObject);
+
     });
 
     //console.log("pages1 mapping:", pages1);
@@ -2576,6 +2578,9 @@ function performSearch() {
 const WordDictionary = (() => {
     let cached = null;
 
+    const allNounArrays = [];
+    const allVerbArrays = [];
+
     function buildDictionary() {
         if (cached) return cached;
         const dictionaryMap = {};
@@ -2592,6 +2597,7 @@ const WordDictionary = (() => {
             if (type === "n") {
                 dictionaryMap[keyword] = { type: "noun", forms: [] };
                 const NounResults = generateNounWithSuffixes(keyword, { useAttachAsSuffix: true });
+                //allNounArrays.push({ word: keyword, entries: NounResults });
 
                 Object.keys(MOODS).forEach(mood => {
                     Object.keys(GENDERS).forEach(genderKey => {
@@ -2601,7 +2607,6 @@ const WordDictionary = (() => {
                                 const affixedWord = getNounResult(gender, mood, numberKey, decl, "fullText", NounResults);
                                 const innerHTML = getNounResult(gender, mood, numberKey, decl, "html", NounResults);
                                 dictionaryMap[keyword].forms.push({ word: affixedWord, mood, gender, number: numberKey, declension: decl });
-                                //console.log(innerHTMLNoun);
                             }
                         });
                     });
@@ -2610,6 +2615,7 @@ const WordDictionary = (() => {
             } else if (type === "v") {
                 dictionaryMap[keyword] = { type: "verb", forms: [] };
                 const VerbResults = generateVerbAffixes(keyword);
+                //allVerbArrays.push({ word: keyword, entries: VerbResults });
 
                 VerbResults.forEach(entry => {
                     const prefixKey = entry.prefix ? `${entry.prefix.gender}_${entry.prefix.number}_${entry.prefix.person}` : "none";
@@ -2625,17 +2631,26 @@ const WordDictionary = (() => {
         cached = { dictionaryMap };
         return cached;
     }
-
+/*
     return {
         get: function () {
             if (!cached) cached = buildDictionary();
             return cached;
         },
+*/
+    return {
+        get: function () {
+            if (!cached) cached = buildDictionary();
+            return { 
+                ...cached, 
+                allNounArrays, 
+                allVerbArrays 
+            }; // <- expose them here
+        },
         findOccurrences: function (keyword) {
             if (!cached) cached = buildDictionary();
             const { dictionaryMap } = cached;
             const occurrences = [];
-
             for (const baseWord in dictionaryMap) {
                 const entry = dictionaryMap[baseWord];
                 entry.forms.forEach(form => {
@@ -2644,7 +2659,6 @@ const WordDictionary = (() => {
                     }
                 });
             }
-
             return occurrences;
         }
     };
@@ -2658,13 +2672,25 @@ const WordDictionary = (() => {
 
 // dictionaryMap.æklū.D.a.P[0]; // → 'æklāq̇' // diretictive, abstract, plural, declension 0
 
-// usage
-// const { dictionaryMap } = NounAffixChecker();
+function attachOriginalArraysToWorkbook() {
+    const { allNounArrays, allVerbArrays } = WordDictionary.get();
 
-// numberMap[0];                   // → "æklū"
-// dictionaryMap["æklū"]          // → { type: "n", word: "æklū", number: 0 }
+    workbookData.forEach(entry => {
+        // Match nouns
+        const nounMatch = allNounArrays.find(n => n.word === entry.word);
+        // Match verbs
+        const verbMatch = allVerbArrays.find(v => v.word === entry.word);
 
-// dictionaryMap.æklū.D.a.P[0]; // → 'æklāq̇' // diretictive, abstract, plural, declension 0
+        // Only attach if either exists
+        if (nounMatch || verbMatch) {
+            entry.originalData = {};
+            if (nounMatch) entry.originalData.nouns = nounMatch.entries;
+            if (verbMatch) entry.originalData.verbs = verbMatch.entries;
+
+            console.log(`Attached original arrays to workbookData for word: ${entry.word}`, entry.originalData);
+        }
+    });
+}
 
 
 
