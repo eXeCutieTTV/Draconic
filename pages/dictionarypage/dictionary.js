@@ -482,13 +482,24 @@ function generateVerbAffixes(keyword) {
                     const rawAffix = (numberTbl[personKey] || "").toString().trim();
                     if (!rawAffix) return;
 
+                    const entries = useAttachAsSuffix
+                        ? connect_split("", keyword, rawAffix)
+                        : connect_split(rawAffix, keyword, "");
+
+                    const html = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+                    const fullText = `${entries_to_text(entries[0])}${entries_to_text(entries[1])}${entries_to_text(entries[2])}`;
+                    const keywordStem = `${entries_to_text(entries[1])}`;
+
                     const affixObj = {
                         state,
                         type: useAttachAsSuffix ? "suffix" : "prefix",
                         gender: genderName,
                         number: numberKey,
                         person: personKey,
-                        rawAffix
+                        rawAffix,
+                        html,
+                        fullText,
+                        keywordStem
                     };
 
                     if (useAttachAsSuffix) suffixes.push(affixObj);
@@ -2379,6 +2390,7 @@ function doSearch() {
     performSearch(); // why am i doing this twice? line 958
 }
 
+let innerHTML = '';
 function performSearch() {
     // Always clear existing tables first
 
@@ -2397,6 +2409,39 @@ function performSearch() {
         const result = WordDictionary.get();
         const occurrences = WordDictionary.findOccurrences(keyword);
 
+        if (occurrences[0].type) {
+            // verb innerHTML
+            if (occurrences[0].type === "verb") {
+                const parentArray = generateVerbAffixes(occurrences[0].baseWord);
+
+                // Only keep items where fullText === keyword
+                const matchingItems = parentArray.filter(item => item.fullText === keyword);
+
+                if (matchingItems.length > 0) {
+                    innerHTML = matchingItems[0].html;
+                    console.log(innerHTML);
+                }
+
+                console.log("parentArray of keyword:", parentArray);
+            }
+            // noun innerHTML
+            if (occurrences[0].type === "noun") {
+                const parentArray = generateNounWithSuffixes(occurrences[0].baseWord);
+
+                // Only keep items where fullText === keyword
+                const matchingItems = parentArray.filter(item => item.fullText === keyword);
+
+                if (matchingItems.length > 0) {
+                    innerHTML = matchingItems[0].html;
+                    console.log(innerHTML);
+                }
+
+                console.log("parentArray of keyword:", parentArray);
+            }
+        }
+
+
+
         console.log("All occurrences of keyword:", occurrences);
 
         if (occurrences.length > 0) {
@@ -2404,10 +2449,11 @@ function performSearch() {
             const page = document.createElement('div');
             page.id = 'page11998';
             page.className = 'page';
-            page.innerHTML = keyword;
+
+            //inner htmlget NounResult('e', 'D', 'S', 1, 'html', NounResults);
 
             const container = document.getElementsByClassName('pages')[0];
-            appendAndOpenPage('page11998', container, keyword)
+            appendAndOpenPage('page11998', container, innerHTML)
                 .then(() => openPageOld('page11998'))
                 .catch(err => console.error(err));
         } else {
@@ -2544,7 +2590,9 @@ const WordDictionary = (() => {
                         Object.keys(NUMBERS).forEach(numberKey => {
                             for (let decl = 1; decl <= 4; decl++) {
                                 const affixedWord = getNounResult(gender, mood, numberKey, decl, "fullText", NounResults);
+                                const innerHTML = getNounResult(gender, mood, numberKey, decl, "html", NounResults);
                                 dictionaryMap[keyword].forms.push({ word: affixedWord, mood, gender, number: numberKey, declension: decl });
+                                //console.log(innerHTMLNoun);
                             }
                         });
                     });
@@ -2560,6 +2608,8 @@ const WordDictionary = (() => {
 
                     dictionaryMap[keyword].forms.push({ word: entry.fullText, prefixKey, suffixKey });
                 });
+
+
             }
         });
 
