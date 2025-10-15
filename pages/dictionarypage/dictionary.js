@@ -2420,6 +2420,7 @@ function performSearch() {
         const result = WordDictionary.get();
         const occurrences = WordDictionary.findOccurrences(keyword);
 
+
         if (occurrences.length > 0) {
             // verb innerHTML
             if (occurrences[0].type === "verb") {
@@ -2434,10 +2435,11 @@ function performSearch() {
                 }
 
                 console.log("parentArray of keyword:", parentArray);
+                console.log("Added verb array:", { word: keyword, entries: VerbResults });
             }
             // noun innerHTML
             if (occurrences[0].type === "noun") {
-                const parentArray = generateNounWithSuffixes(occurrences[0].baseWord);
+                const parentArray = generateNounWithSuffixes(occurrences[0].baseWord, { useAttachAsSuffix: true });
 
                 // Only keep items where fullText === keyword
                 const matchingItems = parentArray.filter(item => item.fullText === keyword);
@@ -2448,6 +2450,7 @@ function performSearch() {
                 }
 
                 console.log("parentArray of keyword:", parentArray);
+                console.log("Added noun array:", { word: keyword, entries: NounResults });
             }
             console.log("All occurrences of keyword:", occurrences);
         }
@@ -2598,6 +2601,7 @@ const WordDictionary = (() => {
                 dictionaryMap[keyword] = { type: "noun", forms: [] };
                 const NounResults = generateNounWithSuffixes(keyword, { useAttachAsSuffix: true });
                 //allNounArrays.push({ word: keyword, entries: NounResults });
+                //console.log("Added noun array:", { word: keyword, entries: NounResults });
 
                 Object.keys(MOODS).forEach(mood => {
                     Object.keys(GENDERS).forEach(genderKey => {
@@ -2616,6 +2620,7 @@ const WordDictionary = (() => {
                 dictionaryMap[keyword] = { type: "verb", forms: [] };
                 const VerbResults = generateVerbAffixes(keyword);
                 //allVerbArrays.push({ word: keyword, entries: VerbResults });
+                //console.log("Added verb array:", { word: keyword, entries: VerbResults });
 
                 VerbResults.forEach(entry => {
                     const prefixKey = entry.prefix ? `${entry.prefix.gender}_${entry.prefix.number}_${entry.prefix.person}` : "none";
@@ -2631,21 +2636,21 @@ const WordDictionary = (() => {
         cached = { dictionaryMap };
         return cached;
     }
-/*
+    /*
+        return {
+        get: function () {
+            if (!cached) cached = buildDictionary();
+            return {
+                ...cached,
+                allNounArrays,
+                allVerbArrays
+            }; // <- expose them here
+        },
+    */
     return {
         get: function () {
             if (!cached) cached = buildDictionary();
             return cached;
-        },
-*/
-    return {
-        get: function () {
-            if (!cached) cached = buildDictionary();
-            return { 
-                ...cached, 
-                allNounArrays, 
-                allVerbArrays 
-            }; // <- expose them here
         },
         findOccurrences: function (keyword) {
             if (!cached) cached = buildDictionary();
