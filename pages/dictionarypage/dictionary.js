@@ -366,9 +366,9 @@ function getNounResult(genderIn, moodIn, numberIn, personIn, field = 'all', noun
         return null;
     }
 
-    //const output = (f === 'all') ? item : item[f];
+    const output = (f === 'all') ? item : item[f];
     //console.log(output);
-    //return output;
+    return output;
 }
 
 // example usage
@@ -577,6 +577,7 @@ const ALLOWED_VERB_FIELDS = new Set(
     ]
 );
 
+/*
 function getVerbResult(prefixSpec, suffixSpec, field = 'all', verbArray = window.VerbResults) {
     if (!Array.isArray(verbArray)) {
         console.error('VerbAffix not found or not an array');
@@ -660,15 +661,9 @@ function getVerbResult(prefixSpec, suffixSpec, field = 'all', verbArray = window
     console.log(output);
     return output;
 }
-
+*/
 
 // main function: choose which property to return/log from the matched entry
-/*
-    genderIn,
-    stateIn,
-    numberIn,
-    personIn,
- */
 function getVerbResult
     (
         prefixSpec,
@@ -720,8 +715,6 @@ function getVerbResult
 
 
     // Search for matching entry
-    // Search for matching entry
-    // Search for matching entry
     const entry = verbArray.find(v => {
         let prefixMatch = true;
         let suffixMatch = true;
@@ -769,13 +762,11 @@ function getVerbResult
     const finalWord = `${appliedPrefix}${entry.keyword}${appliedSuffix}`;
 
     // Log applied affixes and final word
-    /*
     console.log('Applied Prefix:', appliedPrefix);
     console.log('Applied Suffix:', appliedSuffix);
     console.log('Keyword:', entry.keyword);
     console.log('Final word:', finalWord);
     console.log('FullText:', entry.fullText);
-    */
 
     // Validate requested field
     const f = String(field || 'all');
@@ -792,8 +783,13 @@ function getVerbResult
     console.log("parrent array:");
     return output;
 
-}// usage: getVerbResult('a', 'P', 'D', '1', 'all', VerbResults);
-
+}/* 
+    usage: getVerbResult(
+    { gender: 'e', number: 'S', person: '1' },
+    { gender: 'e', number: 'S', person: '1' },
+    'all',
+    VerbResults);
+*/
 
 
 
@@ -2398,61 +2394,30 @@ function performSearch() {
     console.log('removed', removedCount, 'dictionary pages');
 
     if (keyword) {
-        // Build/load dictionary once
         const result = WordDictionary.get();
-        const dictionaryMap = result.dictionaryMap;
-        console.log("All words in dictionary:");
-        console.log(dictionaryMap);
-
-        // Find all occurrences of the keyword anywhere in the tree
         const occurrences = WordDictionary.findOccurrences(keyword);
 
-        // Log all occurrences
-        console.log("Occurrences of keyword:", occurrences);
+        console.log("All occurrences of keyword:", occurrences);
 
         if (occurrences.length > 0) {
-            // For verbs, reconstruct full word with prefix/suffix if available
-            occurrences.forEach((occ, idx) => {
-                let displayWord = occ.fullText;
-
-                if (occ.prefix && occ.suffix) {
-                    const [prefixGender, prefixNumber, prefixPerson] = occ.prefix.split("_");
-                    const [suffixGender, suffixNumber, suffixPerson] = occ.suffix.split("_");
-
-                    // Look up the verb entry to get rawAffixes
-                    const verbEntries = dictionaryMap[occ.baseWord][occ.prefix];
-                    const verbEntryFullText = verbEntries ? verbEntries[occ.suffix] : null;
-
-                    displayWord = verbEntryFullText || occ.fullText;
-                }
-
-                console.log(`Occurrence ${idx + 1}:`, displayWord);
-            });
-
-            // Set innerHTML to the searched word itself (or first occurrence)
-            const affixeKeywordpage = document.createElement('div');
-            affixeKeywordpage.id = 'page11998';
-            affixeKeywordpage.className = 'page';
-            affixeKeywordpage.innerHTML = keyword;
+            // create the page for keyword
+            const page = document.createElement('div');
+            page.id = 'page11998';
+            page.className = 'page';
+            page.innerHTML = keyword;
 
             const container = document.getElementsByClassName('pages')[0];
             appendAndOpenPage('page11998', container, keyword)
-                .then(pageEl => {
-                    openPageOld('page11998');
-                })
+                .then(() => openPageOld('page11998'))
                 .catch(err => console.error(err));
         } else {
-            console.warn(`Keyword "${keyword}" not found in any affixed forms.`);
+            console.warn(`Keyword "${keyword}" not found in any forms.`);
         }
-    }
-
-
-    if (!keyword) {
-        console.error('No keyword for generateNounWithSuffixes()');
     }
 
     if (!keyword || dictionaryData.length === 0) {
         alert('Please enter a search term and ensure the file is loaded.');
+        console.error('No keyword for generateNounWithSuffixes()');
         return;
     }
 
@@ -2551,144 +2516,88 @@ function performSearch() {
 
 
 
+
 // Global cached dictionary
 const WordDictionary = (() => {
     let cached = null;
 
     function buildDictionary() {
+        if (cached) return cached;
         const dictionaryMap = {};
-        const numberMap = {};
-
         const table = document.getElementById('sheet-data-table');
-        if (!table) return { dictionaryMap, numberMap };
+        if (!table) return { dictionaryMap };
 
-        const rows = table.querySelectorAll("tr");
-        let counter = 0;
-
-        rows.forEach(row => {
+        table.querySelectorAll("tr").forEach(row => {
             const cells = row.querySelectorAll("td");
             if (cells.length < 6) return;
 
             const keyword = cells[0].textContent.trim();
-            const type = cells[5].textContent.trim(); // 'n' or 'v'
+            const type = cells[5].textContent.trim(); // "n" or "v"
 
-            switch (type) {
-                case "n": // Noun
-                    dictionaryMap[keyword] = {};
-                    numberMap[counter] = keyword;
-                    counter++;
+            if (type === "n") {
+                dictionaryMap[keyword] = { type: "noun", forms: [] };
+                const NounResults = generateNounWithSuffixes(keyword, { useAttachAsSuffix: true });
 
-                    const NounResults = generateNounWithSuffixes(keyword, { useAttachAsSuffix: true });
-
-                    Object.keys(MOODS).forEach(moodKey => {
-                        const moodName = moodKey;
-                        if (!dictionaryMap[keyword][moodName]) dictionaryMap[keyword][moodName] = {};
-
-                        Object.keys(GENDERS).forEach(genderKey => {
-                            const genderShort = GENDERS[genderKey].SHORT;
-                            if (!dictionaryMap[keyword][moodName][genderShort]) dictionaryMap[keyword][moodName][genderShort] = {};
-
-                            Object.keys(NUMBERS).forEach(numberKey => {
-                                if (!dictionaryMap[keyword][moodName][genderShort][numberKey]) {
-                                    dictionaryMap[keyword][moodName][genderShort][numberKey] = [];
-                                }
-
-                                for (let decl = 1; decl <= 4; decl++) {
-                                    const affixedWord = getNounResult(
-                                        genderShort,
-                                        moodName,
-                                        numberKey,
-                                        decl,
-                                        'fullText',
-                                        NounResults
-                                    );
-
-                                    dictionaryMap[keyword][moodName][genderShort][numberKey].push(affixedWord);
-                                }
-                            });
+                Object.keys(MOODS).forEach(mood => {
+                    Object.keys(GENDERS).forEach(genderKey => {
+                        const gender = GENDERS[genderKey].SHORT;
+                        Object.keys(NUMBERS).forEach(numberKey => {
+                            for (let decl = 1; decl <= 4; decl++) {
+                                const affixedWord = getNounResult(gender, mood, numberKey, decl, "fullText", NounResults);
+                                dictionaryMap[keyword].forms.push({ word: affixedWord, mood, gender, number: numberKey, declension: decl });
+                            }
                         });
                     });
-                    break;
+                });
 
-                case "v": // Verb
-                    dictionaryMap[keyword] = {};
-                    numberMap[counter] = keyword;
-                    counter++;
+            } else if (type === "v") {
+                dictionaryMap[keyword] = { type: "verb", forms: [] };
+                const VerbResults = generateVerbAffixes(keyword);
 
-                    const VerbResults = generateVerbAffixes(keyword);
+                VerbResults.forEach(entry => {
+                    const prefixKey = entry.prefix ? `${entry.prefix.gender}_${entry.prefix.number}_${entry.prefix.person}` : "none";
+                    const suffixKey = entry.suffix ? `${entry.suffix.gender}_${entry.suffix.number}_${entry.suffix.person}` : "none";
 
-                    VerbResults.forEach(entry => {
-                        const prefixKey = entry.prefix ? entry.prefix.gender + "_" + entry.prefix.number + "_" + entry.prefix.person : "none";
-                        const suffixKey = entry.suffix ? entry.suffix.gender + "_" + entry.suffix.number + "_" + entry.suffix.person : "none";
-
-                        if (!dictionaryMap[keyword][prefixKey]) dictionaryMap[keyword][prefixKey] = {};
-                        dictionaryMap[keyword][prefixKey][suffixKey] = entry.fullText; // store fullText
-                    });
-                    break;
-
-                default:
-                    // skip unknown types
-                    break;
+                    dictionaryMap[keyword].forms.push({ word: entry.fullText, prefixKey, suffixKey });
+                });
             }
         });
 
-        //return { dictionaryMap, numberMap };
-    }
-
-    function getDictionary() {
-        if (!cached) cached = buildDictionary();
-        //return cached;
-    }
-
-    function isKeyword(keyword) {
-        if (!cached) cached = buildDictionary();
-        const dictionaryMap = cached.dictionaryMap;
-
-        for (const word in dictionaryMap) {
-            const entries = dictionaryMap[word];
-            const checkNested = (obj) => {
-                if (typeof obj === "string") return obj === keyword;
-                return Object.values(obj).some(checkNested);
-            };
-            if (checkNested(entries)) return true;
-        }
-
-        return false;
-    }
-
-    function findOccurrences(keyword) {
-        if (!cached) cached = buildDictionary();
-        const dictionaryMap = cached.dictionaryMap;
-        const occurrences = [];
-
-        for (const word in dictionaryMap) {
-            const entries = dictionaryMap[word];
-
-            const traverse = (obj, path = {}) => {
-                if (typeof obj === "string" && obj === keyword) {
-                    occurrences.push({ ...path, baseWord: word, fullText: obj });
-                    return;
-                }
-
-                for (const k in obj) {
-                    traverse(obj[k], { ...path, [objType(k)]: k });
-                }
-            };
-
-            const objType = (key) => key.includes("_") ? (key.includes("none") ? "none" : "affix") : "key"; // simple labeling
-            traverse(entries);
-        }
-
-        return occurrences;
+        cached = { dictionaryMap };
+        return cached;
     }
 
     return {
-        get: getDictionary,
-        isKeyword,
-        findOccurrences
+        get: function () {
+            if (!cached) cached = buildDictionary();
+            return cached;
+        },
+        findOccurrences: function (keyword) {
+            if (!cached) cached = buildDictionary();
+            const { dictionaryMap } = cached;
+            const occurrences = [];
+
+            for (const baseWord in dictionaryMap) {
+                const entry = dictionaryMap[baseWord];
+                entry.forms.forEach(form => {
+                    if (form.word === keyword) {
+                        occurrences.push({ baseWord, type: entry.type, ...form });
+                    }
+                });
+            }
+
+            return occurrences;
+        }
     };
 })();
 
+// usage
+// const { dictionaryMap } = NounAffixChecker();
+
+// numberMap[0];                   // → "æklū"
+// dictionaryMap["æklū"]          // → { type: "n", word: "æklū", number: 0 }
+
+// dictionaryMap.æklū.D.a.P[0]; // → 'æklāq̇' // diretictive, abstract, plural, declension 0
 
 // usage
 // const { dictionaryMap } = NounAffixChecker();
