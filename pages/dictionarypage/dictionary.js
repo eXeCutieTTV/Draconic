@@ -366,9 +366,9 @@ function getNounResult(genderIn, moodIn, numberIn, personIn, field = 'all', noun
         return null;
     }
 
-    const output = (f === 'all') ? item : item[f];
-    console.log(output);
-    return output;
+    //const output = (f === 'all') ? item : item[f];
+    //console.log(output);
+    //return output;
 }
 
 // example usage
@@ -2398,48 +2398,38 @@ function performSearch() {
     console.log('removed', removedCount, 'dictionary pages');
 
     if (keyword) {
-        NounResults = generateNounWithSuffixes(keyword, { useAttachAsSuffix: true });
-
         // Build/load dictionary once
-        const result = NounDictionary.get();
+        const result = WordDictionary.get();
         const dictionaryMap = result.dictionaryMap;
         console.log("All words in dictionary:");
         console.log(dictionaryMap);
 
         // Find all occurrences of the keyword anywhere in the tree
-        const occurrences = [];
-
-        for (const baseWord in dictionaryMap) {
-            const tree = dictionaryMap[baseWord];
-
-            for (const mood in tree) {
-                const genders = tree[mood];
-                for (const gender in genders) {
-                    const numbers = genders[gender];
-                    for (const number in numbers) {
-                        const declensions = numbers[number];
-                        declensions.forEach((wordAffix, declIndex) => {
-                            if (wordAffix === keyword) {
-                                occurrences.push({
-                                    baseWord,
-                                    mood,
-                                    gender,
-                                    number,
-                                    declensionIndex: declIndex,
-                                    affixedWord: wordAffix
-                                });
-                            }
-                        });
-                    }
-                }
-            }
-        }
+        const occurrences = WordDictionary.findOccurrences(keyword);
 
         // Log all occurrences
         console.log("Occurrences of keyword:", occurrences);
 
         if (occurrences.length > 0) {
-            // Set innerHTML to the searched word itself
+            // For verbs, reconstruct full word with prefix/suffix if available
+            occurrences.forEach((occ, idx) => {
+                let displayWord = occ.fullText;
+
+                if (occ.prefix && occ.suffix) {
+                    const [prefixGender, prefixNumber, prefixPerson] = occ.prefix.split("_");
+                    const [suffixGender, suffixNumber, suffixPerson] = occ.suffix.split("_");
+
+                    // Look up the verb entry to get rawAffixes
+                    const verbEntries = dictionaryMap[occ.baseWord][occ.prefix];
+                    const verbEntryFullText = verbEntries ? verbEntries[occ.suffix] : null;
+
+                    displayWord = verbEntryFullText || occ.fullText;
+                }
+
+                console.log(`Occurrence ${idx + 1}:`, displayWord);
+            });
+
+            // Set innerHTML to the searched word itself (or first occurrence)
             const affixeKeywordpage = document.createElement('div');
             affixeKeywordpage.id = 'page11998';
             affixeKeywordpage.className = 'page';
@@ -2562,42 +2552,45 @@ function performSearch() {
 
 
 // Global cached dictionary
-const NounDictionary = (() => {
+const WordDictionary = (() => {
     let cached = null;
 
     function buildDictionary() {
         const dictionaryMap = {};
         const numberMap = {};
-        const dictionary = document.getElementById('sheet-data-table');
-        if (!dictionary) return { dictionaryMap, numberMap };
 
-        const rows = dictionary.querySelectorAll("tr");
+        const table = document.getElementById('sheet-data-table');
+        if (!table) return { dictionaryMap, numberMap };
+
+        const rows = table.querySelectorAll("tr");
         let counter = 0;
 
         rows.forEach(row => {
             const cells = row.querySelectorAll("td");
-            if (cells.length >= 6) {
-                const firstCol = cells[0].textContent.trim();
-                const sixthCol = cells[5].textContent.trim();
+            if (cells.length < 6) return;
 
-                if (sixthCol === "n") {
-                    dictionaryMap[firstCol] = {};
-                    numberMap[counter] = firstCol;
+            const keyword = cells[0].textContent.trim();
+            const type = cells[5].textContent.trim(); // 'n' or 'v'
+
+            switch (type) {
+                case "n": // Noun
+                    dictionaryMap[keyword] = {};
+                    numberMap[counter] = keyword;
                     counter++;
 
-                    const NounResults = generateNounWithSuffixes(firstCol, { useAttachAsSuffix: true });
+                    const NounResults = generateNounWithSuffixes(keyword, { useAttachAsSuffix: true });
 
                     Object.keys(MOODS).forEach(moodKey => {
                         const moodName = moodKey;
-                        if (!dictionaryMap[firstCol][moodName]) dictionaryMap[firstCol][moodName] = {};
+                        if (!dictionaryMap[keyword][moodName]) dictionaryMap[keyword][moodName] = {};
 
                         Object.keys(GENDERS).forEach(genderKey => {
                             const genderShort = GENDERS[genderKey].SHORT;
-                            if (!dictionaryMap[firstCol][moodName][genderShort]) dictionaryMap[firstCol][moodName][genderShort] = {};
+                            if (!dictionaryMap[keyword][moodName][genderShort]) dictionaryMap[keyword][moodName][genderShort] = {};
 
                             Object.keys(NUMBERS).forEach(numberKey => {
-                                if (!dictionaryMap[firstCol][moodName][genderShort][numberKey]) {
-                                    dictionaryMap[firstCol][moodName][genderShort][numberKey] = [];
+                                if (!dictionaryMap[keyword][moodName][genderShort][numberKey]) {
+                                    dictionaryMap[keyword][moodName][genderShort][numberKey] = [];
                                 }
 
                                 for (let decl = 1; decl <= 4; decl++) {
@@ -2610,44 +2603,92 @@ const NounDictionary = (() => {
                                         NounResults
                                     );
 
-                                    dictionaryMap[firstCol][moodName][genderShort][numberKey].push(affixedWord);
+                                    dictionaryMap[keyword][moodName][genderShort][numberKey].push(affixedWord);
                                 }
                             });
                         });
                     });
-                }
+                    break;
+
+                case "v": // Verb
+                    dictionaryMap[keyword] = {};
+                    numberMap[counter] = keyword;
+                    counter++;
+
+                    const VerbResults = generateVerbAffixes(keyword);
+
+                    VerbResults.forEach(entry => {
+                        const prefixKey = entry.prefix ? entry.prefix.gender + "_" + entry.prefix.number + "_" + entry.prefix.person : "none";
+                        const suffixKey = entry.suffix ? entry.suffix.gender + "_" + entry.suffix.number + "_" + entry.suffix.person : "none";
+
+                        if (!dictionaryMap[keyword][prefixKey]) dictionaryMap[keyword][prefixKey] = {};
+                        dictionaryMap[keyword][prefixKey][suffixKey] = entry.fullText; // store fullText
+                    });
+                    break;
+
+                default:
+                    // skip unknown types
+                    break;
             }
         });
 
-        return { dictionaryMap, numberMap };
+        //return { dictionaryMap, numberMap };
+    }
+
+    function getDictionary() {
+        if (!cached) cached = buildDictionary();
+        //return cached;
+    }
+
+    function isKeyword(keyword) {
+        if (!cached) cached = buildDictionary();
+        const dictionaryMap = cached.dictionaryMap;
+
+        for (const word in dictionaryMap) {
+            const entries = dictionaryMap[word];
+            const checkNested = (obj) => {
+                if (typeof obj === "string") return obj === keyword;
+                return Object.values(obj).some(checkNested);
+            };
+            if (checkNested(entries)) return true;
+        }
+
+        return false;
+    }
+
+    function findOccurrences(keyword) {
+        if (!cached) cached = buildDictionary();
+        const dictionaryMap = cached.dictionaryMap;
+        const occurrences = [];
+
+        for (const word in dictionaryMap) {
+            const entries = dictionaryMap[word];
+
+            const traverse = (obj, path = {}) => {
+                if (typeof obj === "string" && obj === keyword) {
+                    occurrences.push({ ...path, baseWord: word, fullText: obj });
+                    return;
+                }
+
+                for (const k in obj) {
+                    traverse(obj[k], { ...path, [objType(k)]: k });
+                }
+            };
+
+            const objType = (key) => key.includes("_") ? (key.includes("none") ? "none" : "affix") : "key"; // simple labeling
+            traverse(entries);
+        }
+
+        return occurrences;
     }
 
     return {
-        get: function () {
-            if (!cached) cached = buildDictionary();
-            return cached;
-        },
-        isKeyword: function (keyword) {
-            if (!cached) cached = buildDictionary();
-            const dictionaryMap = cached.dictionaryMap;
-
-            for (const word in dictionaryMap) {
-                const moods = dictionaryMap[word];
-                for (const mood in moods) {
-                    const genders = moods[mood];
-                    for (const gender in genders) {
-                        const numbers = genders[gender];
-                        for (const number in numbers) {
-                            const declArray = numbers[number];
-                            if (declArray.includes(keyword)) return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
+        get: getDictionary,
+        isKeyword,
+        findOccurrences
     };
 })();
+
 
 // usage
 // const { dictionaryMap } = NounAffixChecker();
