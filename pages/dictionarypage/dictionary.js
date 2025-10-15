@@ -496,32 +496,41 @@ function generateVerbAffixes(keyword) {
         });
     });
 
+    // Helper to create entries/fullText/html for a given combination
+    function makeEntries(prefixRaw, stem, suffixRaw) {
+        const entries = connect_split(prefixRaw || "", stem, suffixRaw || "");
+        const html = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+        const fullText = `${entries_to_text(entries[0])}${entries_to_text(entries[1])}${entries_to_text(entries[2])}`;
+        const keywordStem = entries_to_text(entries[1]);
+        return { entries, html, fullText, keywordStem };
+    }
+
     // Generate all prefix+suffix combinations
     prefixes.forEach(pref => {
         suffixes.forEach(suff => {
-            const fullText = `${pref.rawAffix}${keyword}${suff.rawAffix}`;
-            const html = `<strong>${pref.rawAffix}</strong>${keyword}<strong>${suff.rawAffix}</strong>`;
+            const { entries, html, fullText, keywordStem } = makeEntries(pref.rawAffix, keyword, suff.rawAffix);
             result.push({
                 combinationType: "prefix+suffix",
-                fullText,
+                entries,
                 html,
-                keywordStem: keyword,
+                fullText,
+                keywordStem,
                 keyword,
-                prefix: pref, // include full metadata
-                suffix: suff  // include full metadata
+                prefix: pref,
+                suffix: suff
             });
         });
     });
 
     // Single prefix-only forms
     prefixes.forEach(pref => {
-        const fullText = `${pref.rawAffix}${keyword}`;
-        const html = `<strong>${pref.rawAffix}</strong>${keyword}`;
+        const { entries, html, fullText, keywordStem } = makeEntries(pref.rawAffix, keyword, "");
         result.push({
             combinationType: "prefix-only",
-            fullText,
+            entries,
             html,
-            keywordStem: keyword,
+            fullText,
+            keywordStem,
             keyword,
             prefix: pref,
             suffix: null
@@ -530,13 +539,13 @@ function generateVerbAffixes(keyword) {
 
     // Single suffix-only forms
     suffixes.forEach(suff => {
-        const fullText = `${keyword}${suff.rawAffix}`;
-        const html = `${keyword}<strong>${suff.rawAffix}</strong>`;
+        const { entries, html, fullText, keywordStem } = makeEntries("", keyword, suff.rawAffix);
         result.push({
             combinationType: "suffix-only",
-            fullText,
+            entries,
             html,
-            keywordStem: keyword,
+            fullText,
+            keywordStem,
             keyword,
             prefix: null,
             suffix: suff
@@ -545,23 +554,25 @@ function generateVerbAffixes(keyword) {
 
     return result;
 }
+
 // Example usage: VerbResults = generateVerbAffixes("æf");// find one matching entry and print its html
 let VerbResults;
 
 // Allowed output keys (must match properties pushed into each item)
 const ALLOWED_VERB_FIELDS = new Set(
     [
-        'mood',
+        'state',
         'gender',
         'number',
         'person',
-        'rawSuffix',
+        'rawAffix',
         'entries',
         'html',
         'fullText',
         'all',
         'keywordStem',
-        'keyword'
+        'keyword',
+        'combinationType'
     ]
 );
 /*
