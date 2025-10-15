@@ -2589,8 +2589,8 @@ function performSearch() {
 const WordDictionary = (() => {
     let cached = null;
 
-    const allNounArrays = [];
-    const allVerbArrays = [];
+    //const allNounArrays = [];
+    //const allVerbArrays = [];
 
     function buildDictionary() {
         if (cached) return cached;
