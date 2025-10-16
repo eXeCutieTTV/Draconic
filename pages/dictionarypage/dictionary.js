@@ -1,5 +1,5 @@
 // when you press the first search button, then the id of the first field and button gets replaces, and those ids are placed into the onpage search button and field?
-
+// hi 16-10-2025
 // === DATA ===
 const GENDERS = {
     E: { NAME: "exhalted", SHORT: "e", INCLUDED: ["animates", "all"] },
@@ -2179,29 +2179,31 @@ function buildFromDictionaryTable() {
 
         const wordRaw = paddedRow[0];
         const word = wordRaw.replace(/\(\d\)/, "").trim().toLowerCase();
+        const wordClass = paddedRow[1];
 
         if (word) {
             pages1[word] = `page${pageNumber}`;
             pageNumber++; // Count upward
         }
-
-        // Determine declensions array based on wordclass
-        let declensionsArray = [];
-        const wordClass = paddedRow[1]; // 'n' or 'v'
-        if (wordClass === 'n') {
-            declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
-        } else if (wordClass === 'v') {
-            declensionsArray = generateVerbAffixes(word);
-        }
+        /*
+                // Determine declensions array based on wordclass
+                let declensionsArray = [];
+                const wordClass = paddedRow[1]; // 'n' or 'v'
+                if (wordClass === 'n') {
+                    declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
+                } else if (wordClass === 'v') {
+                    declensionsArray = generateVerbAffixes(word);
+                }
+                    */ //this causes the memory issues.
         // Convert array row into an object with labels
         const rowObject = {
             word: paddedRow[0],
-            wordclass: paddedRow[1],
+            wordclass: wordClass,
             definition: paddedRow[2],
             forms: paddedRow[3],
             notes: paddedRow[4],
             "pageId(for html)": pages1[word],
-            "all declensions": declensionsArray
+            //"all declensions": declensionsArray
         };
 
         workbookData.push(rowObject);
