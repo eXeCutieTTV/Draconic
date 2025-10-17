@@ -188,6 +188,21 @@ const AFFIXSTATE = {
     }
 }
 
+let dictionaryData = {
+    raw: [],
+    sorted: {
+        adjectives: [],
+        adverbs: [],
+        auxiliaries: [],
+        conjunctions: [],
+        determiners: [],
+        nouns: [],
+        particles: [],
+        prepositions: [],
+        verbs: [],
+    },
+};
+
 //isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
 
 
@@ -227,7 +242,6 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         number: numberKey,
                         person: personKey,
                         rawSuffix,
-                        entries,
                         html,
                         fullText,
                         keyword,
@@ -251,7 +265,6 @@ const ALLOWED_NOUN_FIELDS = new Set(
         'number',
         'person',
         'rawSuffix',
-        'entries',
         'html',
         'fullText',
         'all',
@@ -524,7 +537,6 @@ function generateVerbAffixes(keyword) {
             const { entries, html, fullText, keywordStem } = makeEntries(pref.rawAffix, keyword, suff.rawAffix);
             result.push({
                 combinationType: "prefix+suffix",
-                entries,
                 html,
                 fullText,
                 keywordStem,
@@ -540,7 +552,6 @@ function generateVerbAffixes(keyword) {
         const { entries, html, fullText, keywordStem } = makeEntries(pref.rawAffix, keyword, "");
         result.push({
             combinationType: "prefix-only",
-            entries,
             html,
             fullText,
             keywordStem,
@@ -555,7 +566,6 @@ function generateVerbAffixes(keyword) {
         const { entries, html, fullText, keywordStem } = makeEntries("", keyword, suff.rawAffix);
         result.push({
             combinationType: "suffix-only",
-            entries,
             html,
             fullText,
             keywordStem,
@@ -578,13 +588,12 @@ const ALLOWED_VERB_FIELDS = new Set(
         'number',
         'person',
         'rawAffix',
-        'entries',
         'html',
         'fullText',
         'all',
         'keywordStem',
         'keyword',
-        'combinationType'
+        'combinationType',
     ]
 );
 
@@ -794,7 +803,8 @@ function getVerbResult
     console.log("parrent array:");
     return output;
 
-}/* 
+}
+/* 
     usage: getVerbResult(
     { gender: 'e', number: 'S', person: '1' },
     { gender: 'e', number: 'S', person: '1' },
@@ -951,7 +961,6 @@ document.addEventListener('click', (e) => {
 
 
 // loadDictionaryData
-let dictionaryData = [];
 
 function loadDictionaryData() {
     const APIfield = document.getElementById("api_field");
@@ -986,8 +995,8 @@ function loadFromGoogleSheets(apiKey) {
             return response.json();
         })
         .then(data => {
-            dictionaryData = data.values;
-            renderTable(dictionaryData);
+            dictionaryData.raw = data.values;
+            renderTable(dictionaryData.raw);
         })
         .catch(error => {
             console.error("Failed to load sheet:", error);
@@ -1003,11 +1012,18 @@ function loadFromExcelFile(filename) {
     fetch(filename)
         .then(response => response.arrayBuffer())
         .then(data => {
+            // Read workbook
             const workbook = XLSX.read(data, { type: "array" });
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+            // Convert to 2D array (rows & columns)
             const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-            dictionaryData = json.slice(1); // skip header row
-            renderTable(dictionaryData);
+
+            // Skip header row, store the rest in dictionaryData.raw
+            dictionaryData.raw = json.slice(1);
+
+            console.log("Loaded raw data:", dictionaryData.raw.length, "rows");
+            renderTable(dictionaryData.raw); // optional — displays the unprocessed version
         })
         .catch(error => {
             console.error("Failed to load Excel file:", error);
@@ -1068,7 +1084,7 @@ function renderTable(data) {
     container.innerHTML = "";
     container.appendChild(table);
 
-    // Build pages1 and workbookData from table
+    // Build pages1 and dictionaryData from table
     buildFromDictionaryTable();
 
     // Continue with declension logic
@@ -2078,7 +2094,7 @@ function processDictionaryTable() {
         return;
     }
 
-    dictionaryData.forEach((row, index) => {
+    dictionaryData.raw.forEach((row, index) => {
         const paddedRow = [];
         for (let i = 0; i < 5; i++) {
             paddedRow[i] = row[i] || "";
@@ -2158,20 +2174,18 @@ function runTableLoader() {
     });
 }
 
-// === Build pages1 and workbookData from dictionaryData ===
+// === Build pages1 and update dictionaryData ===
 function buildFromDictionaryTable() {
-    if (!dictionaryData || dictionaryData.length === 0) {
+    if (!dictionaryData.raw || dictionaryData.raw.length === 0) {
         console.warn("No dictionary data available.");
         return;
     }
 
     pages1 = {};
-    workbookData = [];
-
 
     let pageNumber = 10000; // Start counting up from 10000
 
-    dictionaryData.forEach((row, index) => {
+    dictionaryData.raw.forEach((row, index) => {
         const paddedRow = [];
         for (let i = 0; i < 5; i++) {
             paddedRow[i] = row[i] || "";
@@ -2180,21 +2194,21 @@ function buildFromDictionaryTable() {
         const wordRaw = paddedRow[0];
         const word = wordRaw.replace(/\(\d\)/, "").trim().toLowerCase();
         const wordClass = paddedRow[1];
+        let declensionsArray = [];
 
         if (word) {
             pages1[word] = `page${pageNumber}`;
             pageNumber++; // Count upward
         }
-        /*
-                // Determine declensions array based on wordclass
-                let declensionsArray = [];
-                const wordClass = paddedRow[1]; // 'n' or 'v'
-                if (wordClass === 'n') {
-                    declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
-                } else if (wordClass === 'v') {
-                    declensionsArray = generateVerbAffixes(word);
-                }
-                    */ //this causes the memory issues.
+        // Determine declensions array based on wordclass
+        switch (wordClass) {
+            case 'n':
+                declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
+                break;
+            case 'v':
+                declensionsArray = generateVerbAffixes(word);
+                break;
+        }
         // Convert array row into an object with labels
         const rowObject = {
             word: paddedRow[0],
@@ -2203,16 +2217,77 @@ function buildFromDictionaryTable() {
             forms: paddedRow[3],
             notes: paddedRow[4],
             "pageId(for html)": pages1[word],
-            //"all declensions": declensionsArray
+            "all declensions": declensionsArray
         };
+        switch (wordClass) {
+            case "n":
+                dictionaryData.sorted.nouns.push(rowObject);
+                //declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
+                break;
+            case "v":
+                dictionaryData.sorted.verbs.push(rowObject);
+                //declensionsArray = generateVerbAffixes(word);
+                break;
+            case "adj":
+                dictionaryData.sorted.adjectives.push(rowObject);
+                break;
+            case "adv":
+                dictionaryData.sorted.adverbs.push(rowObject);
+                break;
+            case "aux":
+                dictionaryData.sorted.auxiliaries.push(rowObject);
+                break;
+            case "pp":
+                dictionaryData.sorted.prepositions.push(rowObject);
+                break;
+            case "part":
+                dictionaryData.sorted.particles.push(rowObject);
+                break;
+            case "con":
+                dictionaryData.sorted.conjunctions.push(rowObject);
+                break;
+            case "det":
+                dictionaryData.sorted.determiners.push(rowObject);
+                break;
 
-        workbookData.push(rowObject);
 
+            default:
+                console.warn(`Unknown word class: '${wordClass}' for word '${word}'`);
+                break;
+        }
     });
 
+    finalizeDictionaryData();
     //console.log("pages1 mapping:", pages1);
-    console.log("workbookData:", workbookData);
+    //console.log("dictionaryData:", dictionaryData);
+        const keywordData = 
+        {
+            keyword: word,
+        };
+        dictionaryData.keyword = keywordData;
 }
+
+function finalizeDictionaryData() {
+    if (!dictionaryData) return;
+
+    // First, remove raw[]
+    delete dictionaryData.raw;
+
+    // Bring all word class arrays from sorted{} to top-level
+    if (dictionaryData.sorted) {
+        for (const key in dictionaryData.sorted) {
+            if (dictionaryData.sorted.hasOwnProperty(key)) {
+                dictionaryData[key] = dictionaryData.sorted[key];
+            }
+        }
+    }
+
+    // Remove the sorted{} object
+    delete dictionaryData.sorted;
+
+    console.log("Final dictionaryData structure:", dictionaryData);
+}
+
 
 // === Create table inside a given container ===
 function createTable(keyword, container) {
@@ -2398,11 +2473,11 @@ function appendAndOpenPage(pageId, container, htmlContent) {
 // === dosearch function ===
 function doSearch() {
     // Auto-load dictionary data if not already loaded
-    if (!dictionaryData || dictionaryData.length === 0) {
+    if (!dictionaryData.raw || dictionaryData.raw.length === 0) {
         loadDictionaryData();
         // Wait for data to load before continuing
         const checkDataLoaded = setInterval(() => {
-            if (dictionaryData && dictionaryData.length > 0) {
+            if (dictionaryData.raw && dictionaryData.raw.length > 0) {
                 clearInterval(checkDataLoaded);
                 performSearch();
             }
@@ -2415,8 +2490,6 @@ function doSearch() {
 
 let innerHTML = '';
 function performSearch() {
-    // Always clear existing tables first
-
     // Prefer value from #search_field if not empty, else #search_field1
     let field1 = document.getElementById('search_field');
     let field2 = document.getElementById('search_field1');
@@ -2465,9 +2538,6 @@ function performSearch() {
             console.log("All occurrences of keyword:", occurrences);
         }
 
-
-
-
         if (occurrences.length > 0) {
             // create the page for keyword
             const page = document.createElement('div');
@@ -2483,9 +2553,10 @@ function performSearch() {
         } else {
             console.warn(`Keyword "${keyword}" not found in any forms.`);
         }
+
     }
 
-    if (!keyword || dictionaryData.length === 0) {
+    if (!keyword || dictionaryData.raw.length === 0) {
         alert('Please enter a search term and ensure the file is loaded.');
         console.error('No keyword for generateNounWithSuffixes()');
         return;
@@ -2690,7 +2761,7 @@ const WordDictionary = (() => {
 function attachOriginalArraysToWorkbook() {
     const { allNounArrays, allVerbArrays } = WordDictionary.get();
 
-    workbookData.forEach(entry => {
+    dictionaryData.forEach(entry => {
         // Match nouns
         const nounMatch = allNounArrays.find(n => n.word === entry.word);
         // Match verbs
@@ -2702,7 +2773,7 @@ function attachOriginalArraysToWorkbook() {
             if (nounMatch) entry.originalData.nouns = nounMatch.entries;
             if (verbMatch) entry.originalData.verbs = verbMatch.entries;
 
-            console.log(`Attached original arrays to workbookData for word: ${entry.word}`, entry.originalData);
+            console.log(`Attached original arrays to dictionaryData for word: ${entry.word}`, entry.originalData);
         }
     });
 }
