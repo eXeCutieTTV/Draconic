@@ -2282,15 +2282,6 @@ function finalizeDictionaryData() {
     // Remove the sorted{} object
     delete dictionaryData.sorted;
 
-    // get keyword data
-
-    let field1 = document.getElementById('search_field');
-    keyword = field1?.value.trim().toLowerCase();
-    const keywordData =
-    {
-        keyword,
-    };
-    dictionaryData.keyword = keywordData;
 
     console.log("Final dictionaryData structure:", dictionaryData);
 }
@@ -2508,9 +2499,21 @@ function doSearch() {
 let innerHTML = '';
 function performSearch() {
     // Prefer value from #search_field if not empty, else #search_field1
-    //let field1 = document.getElementById('search_field');
-    //let field2 = document.getElementById('search_field1');
+    let field2 = document.getElementById('search_field1');
     //keywordDisplay = (field1?.value.trim() || field2?.value.trim());
+
+
+    // get keyword data
+    let field1 = document.getElementById('search_field');
+    let keywordDisplay = field1?.value.trim()
+    let keyword = keywordDisplay.toLowerCase();
+    const keywordData =
+    {
+        keyword,
+        occurrences: WordDictionary.findOccurrences(keyword),
+    };
+    dictionaryData.keyword = keywordData;
+
     let liveKeyword = (dictionaryData && dictionaryData.keyword && dictionaryData.keyword.keyword) || "";
     if (!liveKeyword) {
         const field1 = document.getElementById('search_field');
@@ -2581,9 +2584,16 @@ function performSearch() {
 
     }
 
-    if (!keyword || dictionaryData.raw.length === 0) {
+    const dataReady = (
+        dictionaryData && (
+            (Array.isArray(dictionaryData.nouns) && dictionaryData.nouns.length > 0) ||
+            (Array.isArray(dictionaryData.verbs) && dictionaryData.verbs.length > 0) ||
+            (Array.isArray(dictionaryData.raw) && dictionaryData.raw.length > 0)
+        )
+    );
+    if (!keyword || !dataReady) {
         alert('Please enter a search term and ensure the file is loaded.');
-        console.error('No keyword for generateNounWithSuffixes()');
+        console.error('No keyword or data not ready in performSearch()');
         return;
     }
 
