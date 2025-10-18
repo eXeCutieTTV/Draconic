@@ -2260,11 +2260,6 @@ function buildFromDictionaryTable() {
     finalizeDictionaryData();
     //console.log("pages1 mapping:", pages1);
     //console.log("dictionaryData:", dictionaryData);
-        const keywordData = 
-        {
-            keyword: word,
-        };
-        dictionaryData.keyword = keywordData;
 }
 
 function finalizeDictionaryData() {
@@ -2284,6 +2279,16 @@ function finalizeDictionaryData() {
 
     // Remove the sorted{} object
     delete dictionaryData.sorted;
+
+    // get keyword data
+
+    let field1 = document.getElementById('search_field');
+    keyword = field1?.value.trim().toLowerCase();
+    const keywordData =
+    {
+        keyword,
+    };
+    dictionaryData.keyword = keywordData;
 
     console.log("Final dictionaryData structure:", dictionaryData);
 }
