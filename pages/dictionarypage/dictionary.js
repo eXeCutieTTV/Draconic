@@ -1088,7 +1088,7 @@ function renderTable(data) {
     buildFromDictionaryTable();
 
     // Continue with declension logic
-    processDictionaryTable();
+    processDictionaryTable(data);
 }
 
 // Helper: make a safe string for IDs/selectors (words containing the ax symbol can now still be converted into ids)
@@ -2088,13 +2088,14 @@ function pasteFromHTMLForWord(html, rowNumber, gender, type, wordId) {
 }
 
 // processDictionaryTable
-function processDictionaryTable() {
-    if (!dictionaryData || dictionaryData.length === 0) {
+function processDictionaryTable(data) {
+    const rows = data || dictionaryData?.raw;
+    if (!rows || rows.length === 0) {
         console.warn("No dictionary data available.");
         return;
     }
 
-    dictionaryData.raw.forEach((row, index) => {
+    rows.forEach((row, index) => {
         const paddedRow = [];
         for (let i = 0; i < 5; i++) {
             paddedRow[i] = row[i] || "";
