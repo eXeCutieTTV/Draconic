@@ -2814,15 +2814,47 @@ const WordDictionary = (() => {
         findOccurrences: function (keyword) {
             if (!cached) cached = buildDictionary();
             const { dictionaryMap } = cached;
+            const q = (keyword || '').trim().toLowerCase();
+
             const occurrences = [];
+            // 1) Primary: match against generated forms
             for (const baseWord in dictionaryMap) {
                 const entry = dictionaryMap[baseWord];
                 entry.forms.forEach(form => {
-                    if (form.word === keyword) {
-                        occurrences.push({ baseWord, type: entry.type, ...form });
+                    if (String(form.word).toLowerCase() === q) {
+                        occurrences.push({ baseWord, type: entry.type, matchType: 'form', ...form });
                     }
                 });
             }
+
+            // 2) Fallback: match against base stems (no affixes)
+            if (occurrences.length === 0) {
+                for (const baseWord in dictionaryMap) {
+                    if (String(baseWord).toLowerCase() === q) {
+                        const entry = dictionaryMap[baseWord];
+                        occurrences.push({ baseWord, type: entry.type, matchType: 'base', word: baseWord });
+                    }
+                }
+            }
+
+            // 3) Extended fallback: scan dictionaryData wordclass arrays
+            if (occurrences.length === 0 && typeof dictionaryData === 'object' && dictionaryData) {
+                const buckets = [
+                    'nouns','verbs','adjectives','adverbs','auxiliaries','prepositions','particles','conjunctions','determiners'
+                ];
+                buckets.forEach(bucket => {
+                    const arr = dictionaryData[bucket];
+                    if (!Array.isArray(arr)) return;
+                    arr.forEach(row => {
+                        const w = (row && row.word ? String(row.word) : '').replace(/\(\d\)/, '').trim().toLowerCase();
+                        if (w && w === q) {
+                            const type = row.wordclass || bucket.replace(/s$/, '');
+                            occurrences.push({ baseWord: w, type, matchType: 'base', word: w });
+                        }
+                    });
+                });
+            }
+
             return occurrences;
         }
     };
