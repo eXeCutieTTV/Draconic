@@ -2498,14 +2498,69 @@ function doSearch() {
 
 }
 
-function correctPageIfOnlyStem() {
-
+function setupAffixedPage() {
     const keyword = dictionaryData.keyword.keyword;
-    const targetPageId = pages1[keyword];
+    const targetPageId = dictionaryData.keyword.pageID;
 
-    if (targetPageId && (document.getElementById('page11998') || document.getElementById('page11999'))) {
-        openPageOld(targetPageId);
+    const result = WordDictionary.get();
+    const occurrences = WordDictionary.findOccurrences(keyword);
+
+
+    if (occurrences.length > 0) {
+        // verb innerHTML
+        if (occurrences[0].type === "verb") {
+            const parentArray = generateVerbAffixes(occurrences[0].baseWord);
+
+            // Only keep items where fullText === keyword
+            const matchingItems = parentArray.filter(item => item.fullText === keyword);
+
+            if (matchingItems.length > 0) {
+                innerHTML = matchingItems[0].html;
+                console.log(innerHTML);
+            }
+
+            console.log("parentArray of keyword:", parentArray);
+        }
+        // noun innerHTML
+        if (occurrences[0].type === "noun") {
+            const parentArray = generateNounWithSuffixes(occurrences[0].baseWord, { useAttachAsSuffix: true });
+
+            // Only keep items where fullText === keyword
+            const matchingItems = parentArray.filter(item => item.fullText === keyword);
+
+            if (matchingItems.length > 0) {
+                innerHTML = matchingItems[0].html;
+                console.log(innerHTML);
+            }
+
+            console.log("parentArray of keyword:", parentArray);
+        }
+        console.log("All occurrences of keyword:", occurrences);
     }
+
+    if (occurrences.length > 0) {
+        // create the page for keyword
+        const page = document.createElement('div');
+        page.id = 'page11998';
+        page.className = 'page';
+
+        //inner htmlget NounResult('e', 'D', 'S', 1, 'html', NounResults);
+
+        const container = document.getElementsByClassName('pages')[0];
+        appendAndOpenPage('page11998', container, innerHTML)
+            .then(() => {
+                openPageOld('page11998');
+
+                //correctPageIfOnlyStem;
+                if (targetPageId && (document.getElementById('page11998') || document.getElementById('page11999'))) {
+                    openPageOld(targetPageId);
+                }
+            })
+            .catch(err => console.error(err));
+    } else {
+        console.warn(`Keyword "${keyword}" not found in any forms.`);
+    }
+
 }
 
 let innerHTML = '';
@@ -2522,6 +2577,7 @@ function performSearch() {
     const keywordData =
     {
         keyword,
+        pageID: pages1[keyword],
         occurrences: WordDictionary.findOccurrences(keyword),
     };
     dictionaryData.keyword = keywordData;
@@ -2531,58 +2587,7 @@ function performSearch() {
     console.log('removed', removedCount, 'dictionary pages');
 
     if (keyword) {
-        const result = WordDictionary.get();
-        const occurrences = WordDictionary.findOccurrences(keyword);
-
-
-        if (occurrences.length > 0) {
-            // verb innerHTML
-            if (occurrences[0].type === "verb") {
-                const parentArray = generateVerbAffixes(occurrences[0].baseWord);
-
-                // Only keep items where fullText === keyword
-                const matchingItems = parentArray.filter(item => item.fullText === keyword);
-
-                if (matchingItems.length > 0) {
-                    innerHTML = matchingItems[0].html;
-                    console.log(innerHTML);
-                }
-
-                console.log("parentArray of keyword:", parentArray);
-            }
-            // noun innerHTML
-            if (occurrences[0].type === "noun") {
-                const parentArray = generateNounWithSuffixes(occurrences[0].baseWord, { useAttachAsSuffix: true });
-
-                // Only keep items where fullText === keyword
-                const matchingItems = parentArray.filter(item => item.fullText === keyword);
-
-                if (matchingItems.length > 0) {
-                    innerHTML = matchingItems[0].html;
-                    console.log(innerHTML);
-                }
-
-                console.log("parentArray of keyword:", parentArray);
-            }
-            console.log("All occurrences of keyword:", occurrences);
-        }
-
-        if (occurrences.length > 0) {
-            // create the page for keyword
-            const page = document.createElement('div');
-            page.id = 'page11998';
-            page.className = 'page';
-
-            //inner htmlget NounResult('e', 'D', 'S', 1, 'html', NounResults);
-
-            const container = document.getElementsByClassName('pages')[0];
-            appendAndOpenPage('page11998', container, innerHTML)
-                .then(() => openPageOld('page11998'))
-                .catch(err => console.error(err));
-        } else {
-            console.warn(`Keyword "${keyword}" not found in any forms.`);
-        }
-
+        setupAffixedPage();
     }
 
     const dataReady = (
