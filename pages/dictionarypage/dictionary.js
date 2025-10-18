@@ -2497,10 +2497,10 @@ function doSearch() {
 let innerHTML = '';
 function performSearch() {
     // Prefer value from #search_field if not empty, else #search_field1
-    let field1 = document.getElementById('search_field');
-    let field2 = document.getElementById('search_field1');
-    keywordDisplay = (field1?.value.trim() || field2?.value.trim());
-    keyword = keywordDisplay.toLowerCase();
+    //let field1 = document.getElementById('search_field');
+    //let field2 = document.getElementById('search_field1');
+    //keywordDisplay = (field1?.value.trim() || field2?.value.trim());
+    keyword = dictionaryData.keyword.keyword;
 
 
     // remove page10000..page12000 except page matching current keyword variable
