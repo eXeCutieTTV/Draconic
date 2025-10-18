@@ -1264,6 +1264,8 @@ function removePageDivsExceptKeyword(keyword, start, end) {
 
 function createSummaryTables() {
 
+    const keyword = dictionaryData.keyword.keyword;
+
     switch (getCurrentWordClass()) {
         case 'n':
             createNounSummaryTables("leftleftdivdictionary");
@@ -2499,31 +2501,20 @@ function doSearch() {
 let innerHTML = '';
 function performSearch() {
     // Prefer value from #search_field if not empty, else #search_field1
-    let field2 = document.getElementById('search_field1');
     //keywordDisplay = (field1?.value.trim() || field2?.value.trim());
 
 
     // get keyword data
-    let field1 = document.getElementById('search_field');
-    let keywordDisplay = field1?.value.trim()
-    let keyword = keywordDisplay.toLowerCase();
+    const field1 = document.getElementById('search_field');
+    const field2 = document.getElementById('search_field1');
+    const keywordDisplay = field1?.value.trim()
+    const keyword = keywordDisplay.toLowerCase();
     const keywordData =
     {
         keyword,
         occurrences: WordDictionary.findOccurrences(keyword),
     };
     dictionaryData.keyword = keywordData;
-
-    let liveKeyword = (dictionaryData && dictionaryData.keyword && dictionaryData.keyword.keyword) || "";
-    if (!liveKeyword) {
-        const field1 = document.getElementById('search_field');
-        const field2 = document.getElementById('search_field1');
-        liveKeyword = (field1?.value.trim() || field2?.value.trim() || '').toLowerCase();
-        if (!dictionaryData.keyword) dictionaryData.keyword = {};
-        dictionaryData.keyword.keyword = liveKeyword;
-    }
-    keyword = liveKeyword;
-
 
     // remove page10000..page12000 except page matching current keyword variable
     const removedCount = removePageDivsExceptKeyword(keyword, 10000, 12000);
