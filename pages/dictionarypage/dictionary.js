@@ -829,6 +829,7 @@ const EXCEL_URL = '22-09-2025.xlsx';
 // Helper to populate a datalist (optional)
 function populateDatalist(items) {
     const dl = document.getElementById('examplesList');
+    if (!dl) return; // datalist is optional; skip if not present
     dl.innerHTML = '';
     items.forEach(v => {
         const opt = document.createElement('option');
