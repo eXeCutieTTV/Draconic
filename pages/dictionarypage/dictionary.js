@@ -2669,14 +2669,75 @@ function performSearch() {
 const WordDictionary = (() => {
     let cached = null;
 
-    //const allNounArrays = [];
-    //const allVerbArrays = [];
-
+    // Build the dictionary map by reusing arrays stored in dictionaryData
     function buildDictionary() {
         if (cached) return cached;
         const dictionaryMap = {};
+
+        // Prefer using the processed dictionaryData structure
+        if (typeof dictionaryData === 'object' && dictionaryData) {
+            // Nouns
+            if (Array.isArray(dictionaryData.nouns)) {
+                dictionaryData.nouns.forEach(row => {
+                    const declensions = row["all declensions"];
+                    if (!Array.isArray(declensions) || declensions.length === 0) return;
+
+                    const baseWord = declensions[0]?.keyword
+                        || (row.word ? String(row.word).replace(/\(\d\)/, '').trim().toLowerCase() : null);
+                    if (!baseWord) return;
+
+                    if (!dictionaryMap[baseWord]) {
+                        dictionaryMap[baseWord] = { type: "noun", forms: [] };
+                    }
+
+                    // Each declension entry already has mood, gender, number, person, fullText
+                    declensions.forEach(entry => {
+                        if (!entry || !entry.fullText) return;
+                        const declension = Number(entry.person);
+                        dictionaryMap[baseWord].forms.push({
+                            word: entry.fullText,
+                            mood: entry.mood,
+                            gender: entry.gender, // already full gender name
+                            number: entry.number,
+                            declension
+                        });
+                    });
+                });
+            }
+
+            // Verbs
+            if (Array.isArray(dictionaryData.verbs)) {
+                dictionaryData.verbs.forEach(row => {
+                    const affixes = row["all declensions"];
+                    if (!Array.isArray(affixes) || affixes.length === 0) return;
+
+                    const baseWord = affixes[0]?.keyword
+                        || (row.word ? String(row.word).replace(/\(\d\)/, '').trim().toLowerCase() : null);
+                    if (!baseWord) return;
+
+                    if (!dictionaryMap[baseWord]) {
+                        dictionaryMap[baseWord] = { type: "verb", forms: [] };
+                    }
+
+                    affixes.forEach(entry => {
+                        if (!entry || !entry.fullText) return;
+                        const prefixKey = entry.prefix ? `${entry.prefix.gender}_${entry.prefix.number}_${entry.prefix.person}` : "none";
+                        const suffixKey = entry.suffix ? `${entry.suffix.gender}_${entry.suffix.number}_${entry.suffix.person}` : "none";
+                        dictionaryMap[baseWord].forms.push({ word: entry.fullText, prefixKey, suffixKey });
+                    });
+                });
+            }
+
+            cached = { dictionaryMap };
+            return cached;
+        }
+
+        // Fallback: if dictionaryData is not available, derive from DOM (legacy path)
         const table = document.getElementById('sheet-data-table');
-        if (!table) return { dictionaryMap };
+        if (!table) {
+            cached = { dictionaryMap };
+            return cached;
+        }
 
         table.querySelectorAll("tr").forEach(row => {
             const cells = row.querySelectorAll("td");
@@ -2688,8 +2749,6 @@ const WordDictionary = (() => {
             if (type === "n") {
                 dictionaryMap[keyword] = { type: "noun", forms: [] };
                 const NounResults = generateNounWithSuffixes(keyword, { useAttachAsSuffix: true });
-                //allNounArrays.push({ word: keyword, entries: NounResults });
-                //console.log("Added noun array:", { word: keyword, entries: NounResults });
 
                 Object.keys(MOODS).forEach(mood => {
                     Object.keys(GENDERS).forEach(genderKey => {
@@ -2697,7 +2756,6 @@ const WordDictionary = (() => {
                         Object.keys(NUMBERS).forEach(numberKey => {
                             for (let decl = 1; decl <= 4; decl++) {
                                 const affixedWord = getNounResult(gender, mood, numberKey, decl, "fullText", NounResults);
-                                const innerHTML = getNounResult(gender, mood, numberKey, decl, "html", NounResults);
                                 dictionaryMap[keyword].forms.push({ word: affixedWord, mood, gender, number: numberKey, declension: decl });
                             }
                         });
@@ -2707,17 +2765,12 @@ const WordDictionary = (() => {
             } else if (type === "v") {
                 dictionaryMap[keyword] = { type: "verb", forms: [] };
                 const VerbResults = generateVerbAffixes(keyword);
-                //allVerbArrays.push({ word: keyword, entries: VerbResults });
-                //console.log("Added verb array:", { word: keyword, entries: VerbResults });
 
                 VerbResults.forEach(entry => {
                     const prefixKey = entry.prefix ? `${entry.prefix.gender}_${entry.prefix.number}_${entry.prefix.person}` : "none";
                     const suffixKey = entry.suffix ? `${entry.suffix.gender}_${entry.suffix.number}_${entry.suffix.person}` : "none";
-
                     dictionaryMap[keyword].forms.push({ word: entry.fullText, prefixKey, suffixKey });
                 });
-
-
             }
         });
 
