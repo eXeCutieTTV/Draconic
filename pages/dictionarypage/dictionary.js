@@ -2479,12 +2479,22 @@ function appendAndOpenPage(pageId, container, htmlContent) {
 
 // === dosearch function ===
 function doSearch() {
-    // Auto-load dictionary data if not already loaded
-    if (!dictionaryData.raw || dictionaryData.raw.length === 0) {
+    // Helper: consider data ready if processed arrays are available
+    const isProcessedReady = () => {
+        return (
+            dictionaryData && (
+                (Array.isArray(dictionaryData.nouns) && dictionaryData.nouns.length > 0) ||
+                (Array.isArray(dictionaryData.verbs) && dictionaryData.verbs.length > 0)
+            )
+        );
+    };
+
+    // Auto-load dictionary data if not already loaded/processed
+    if (!isProcessedReady() && (!dictionaryData.raw || dictionaryData.raw.length === 0)) {
         loadDictionaryData();
-        // Wait for data to load before continuing
+        // Wait for data to load or be processed before continuing
         const checkDataLoaded = setInterval(() => {
-            if (dictionaryData.raw && dictionaryData.raw.length > 0) {
+            if (isProcessedReady() || (dictionaryData.raw && dictionaryData.raw.length > 0)) {
                 clearInterval(checkDataLoaded);
                 performSearch();
             }
@@ -2492,7 +2502,7 @@ function doSearch() {
         return;
     }
 
-    performSearch(); // why am i doing this twice? line 958
+    performSearch();
 }
 
 let innerHTML = '';
@@ -2501,7 +2511,15 @@ function performSearch() {
     //let field1 = document.getElementById('search_field');
     //let field2 = document.getElementById('search_field1');
     //keywordDisplay = (field1?.value.trim() || field2?.value.trim());
-    keyword = dictionaryData.keyword.keyword;
+    let liveKeyword = (dictionaryData && dictionaryData.keyword && dictionaryData.keyword.keyword) || "";
+    if (!liveKeyword) {
+        const field1 = document.getElementById('search_field');
+        const field2 = document.getElementById('search_field1');
+        liveKeyword = (field1?.value.trim() || field2?.value.trim() || '').toLowerCase();
+        if (!dictionaryData.keyword) dictionaryData.keyword = {};
+        dictionaryData.keyword.keyword = liveKeyword;
+    }
+    keyword = liveKeyword;
 
 
     // remove page10000..page12000 except page matching current keyword variable
