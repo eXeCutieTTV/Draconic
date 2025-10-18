@@ -2133,7 +2133,6 @@ function runTableLoader() {
 
     // Only run the existing noun declension logic for nouns
     if (currentWordClass !== 'n') {
-        gender
         return;
     }
 
