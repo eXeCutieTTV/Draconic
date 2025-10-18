@@ -2495,6 +2495,17 @@ function doSearch() {
     }
 
     performSearch();
+
+}
+
+function correctPageIfOnlyStem() {
+
+    const keyword = dictionaryData.keyword.keyword;
+    const targetPageId = pages1[keyword];
+
+    if (targetPageId && (document.getElementById('page11998') || document.getElementById('page11999'))) {
+        openPageOld(targetPageId);
+    }
 }
 
 let innerHTML = '';
@@ -2840,7 +2851,7 @@ const WordDictionary = (() => {
             // 3) Extended fallback: scan dictionaryData wordclass arrays
             if (occurrences.length === 0 && typeof dictionaryData === 'object' && dictionaryData) {
                 const buckets = [
-                    'nouns','verbs','adjectives','adverbs','auxiliaries','prepositions','particles','conjunctions','determiners'
+                    'nouns', 'verbs', 'adjectives', 'adverbs', 'auxiliaries', 'prepositions', 'particles', 'conjunctions', 'determiners'
                 ];
                 buckets.forEach(bucket => {
                     const arr = dictionaryData[bucket];
