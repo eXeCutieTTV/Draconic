@@ -188,9 +188,8 @@ const AFFIXSTATE = {
     }
 }
 
-let dictionaryData = {
-    raw: [],
-    sorted: {
+function createEmptySortedCategories() {
+    return {
         adjectives: [],
         adverbs: [],
         auxiliaries: [],
@@ -200,7 +199,12 @@ let dictionaryData = {
         particles: [],
         prepositions: [],
         verbs: [],
-    },
+    };
+}
+
+let dictionaryData = {
+    raw: [],
+    sorted: createEmptySortedCategories(),
 };
 
 //isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
@@ -2177,6 +2181,13 @@ function runTableLoader() {
 
 // === Build pages1 and update dictionaryData ===
 function buildFromDictionaryTable() {
+    // Ensure we start with a clean sorted structure each time the dictionary is rebuilt
+    if (!dictionaryData) {
+        dictionaryData = { raw: [], sorted: createEmptySortedCategories() };
+    } else {
+        dictionaryData.sorted = createEmptySortedCategories();
+    }
+
     if (!dictionaryData.raw || dictionaryData.raw.length === 0) {
         console.warn("No dictionary data available.");
         return;
