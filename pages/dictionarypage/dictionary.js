@@ -284,10 +284,6 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         ōn
                     }
                     const withPrepositionsAttached = [];
-                    const normalized = normalizeText(dictionaryData.prepositions[i].word); 
-                    const fullTextPP = `${normalized}${fullText}`; 
-                    const htmlPP = `<strong>${normalized}</strong>${html}`; 
-                    withPrepositionsAttached.push({ fullTextPP, htmlPP });
 
                     result.push({
                         mood: moodKey,
