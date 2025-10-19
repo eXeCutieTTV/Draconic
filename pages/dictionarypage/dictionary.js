@@ -236,6 +236,54 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     const fullText = `${entries_to_text(entries[0])}${entries_to_text(entries[1])}${entries_to_text(entries[2])}`;
                     const keywordStem = `${entries_to_text(entries[1])}`;
 
+                    const fullTextIPart = `i${fullText}`;
+                    const htmlIPart = `<strong>i</strong><strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+                    const i = {
+                        fullText: fullTextIPart,
+                        html: htmlIPart,
+                        particleIsSuffix: "False"
+                    }
+
+                    const fullTextûlPart = `${fullText}ûl`;
+                    const htmlûlPart = `${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ûl</strong><strong>`;
+                    const ûl = {
+                        fullText: fullTextûlPart,
+                        html: htmlûlPart,
+                        particleIsSuffix: "True"
+                    }
+
+                    const fullTextūnPart = `${fullText}ūn`;
+                    const htmlūnPart = `${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ūn</strong><strong>`;
+                    const ūn = {
+                        fullText: fullTextūnPart,
+                        html: htmlūnPart,
+                        particleIsSuffix: "True"
+                    }
+
+                    const fullTextānPart = `${fullText}ān`;
+                    const htmlānPart = `${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ān</strong><strong>`;
+                    const ān = {
+                        fullText: fullTextānPart,
+                        html: htmlānPart,
+                        particleIsSuffix: "True"
+                    }
+
+                    const fullTextōnPart = `${fullText}ōn`;
+                    const htmlōnPart = `${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ōn</strong><strong>`;
+                    const ōn = {
+                        fullText: fullTextōnPart,
+                        html: htmlōnPart,
+                        particleIsSuffix: "True"
+                    }
+
+                    const withParticlesAttached = {
+                        i,
+                        ûl,
+                        ūn,
+                        ān,
+                        ōn
+                    };
+
                     result.push({
                         mood: moodKey,
                         gender: genderName,
@@ -245,7 +293,8 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         html,
                         fullText,
                         keyword,
-                        keywordStem
+                        keywordStem,
+                        withParticlesAttached
                     });
                 });
             });
