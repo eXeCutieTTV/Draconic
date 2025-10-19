@@ -1097,6 +1097,7 @@ function safeIdPart(str) {
     return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash '_'
 }
 
+/*
 function declensionsInDictionary() {
     // give dictionary table cells unique ids. // i need ${word} to be the textcontent of the first cell in the row. this is to make unique ids. // remember that the ax symbol (') isnt allowed as an id, and needs a fix. its somewhere else too.
     function newids() {
@@ -1233,6 +1234,7 @@ function declensionsInDictionary() {
         });
     })
 }
+*/
 
 // dictionary tables
 // === Create the summary tables ===
@@ -1268,6 +1270,84 @@ function createSummaryTables() {
 
     switch (getCurrentWordClass()) {
         case 'n':
+            // === Create noun summary tables ===
+            function createNounSummaryTables(inDivById, uniquePrefix = "") {
+                return new Promise((resolve, reject) => {
+                    const DivId = document.getElementById(`${inDivById}`);
+                    if (!DivId) {
+                        return reject(new Error(`div by id ${DivId} not found`));
+                    }
+
+                    const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
+                    const numbers = ["Singular", "Dual", "Plural"];
+
+                    // internal builder that sets data-raw on each TD
+                    function buildTable(id, label, containerId) {
+                        const wrapper = document.createElement("div");
+                        const table = document.createElement("table");
+                        table.id = id;
+
+                        const thead = document.createElement("thead");
+
+                        // Merged header row
+                        const mergedRow = document.createElement("tr");
+                        const mergedCell = document.createElement("th");
+                        mergedCell.id = id + "-header";
+                        mergedCell.colSpan = 4;
+                        mergedCell.textContent = label;
+                        mergedRow.appendChild(mergedCell);
+                        thead.appendChild(mergedRow);
+
+                        // Column header row
+                        const headerRow = document.createElement("tr");
+                        headerRow.innerHTML = `<th class="GenderTh";>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
+                        thead.appendChild(headerRow);
+
+                        table.appendChild(thead);
+
+                        const tbody = document.createElement("tbody");
+                        Object.values(GENDERS).forEach(gender => {
+                            const row = document.createElement("tr");
+                            const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
+                            row.innerHTML = `<th>${gender.NAME}</th>` + cellsHtml;
+                            tbody.appendChild(row);
+                        });
+                        table.appendChild(tbody);
+
+                        wrapper.appendChild(table);
+
+                        const container = document.getElementById(containerId);
+                        if (!container) return;
+                        container.appendChild(wrapper);
+                    }
+
+                    // create wrapper divs with unique IDs if prefix provided
+                    const dirsummarytablefinalwrapper = document.createElement("div");
+                    const recsummarytablefinalwrapper = document.createElement("div");
+
+                    if (uniquePrefix) {
+                        dirsummarytablefinalwrapper.id = `${uniquePrefix}-dirTableDiv`;
+                        recsummarytablefinalwrapper.id = `${uniquePrefix}-recTableDiv`;
+                        dirsummarytablefinalwrapper.className = "dirTableDivs";
+                        recsummarytablefinalwrapper.className = "recTableDivs";
+                    } else {
+                        dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
+                        recsummarytablefinalwrapper.id = "recSummaryTablediv";
+                    }
+
+                    DivId.appendChild(dirsummarytablefinalwrapper);
+                    DivId.appendChild(recsummarytablefinalwrapper);
+
+                    const dirTableId = uniquePrefix ? `${uniquePrefix}-dirSummaryTable` : "dirSummaryTable";
+                    const recTableId = uniquePrefix ? `${uniquePrefix}-recSummaryTable` : "recSummaryTable";
+
+                    buildTable(dirTableId, "Directive", dirsummarytablefinalwrapper.id);
+                    buildTable(recTableId, "Recessive", recsummarytablefinalwrapper.id);
+
+                    // Allow a paint cycle so the DOM is actually available to queries/measurements
+                    requestAnimationFrame(() => resolve());
+                });
+            }
             createNounSummaryTables("leftleftdivdictionary");
             setTimeout(() => {
                 populateSummaryTables(keyword, { dirSummaryTable: false, recSummaryTable: false });
@@ -1277,6 +1357,41 @@ function createSummaryTables() {
             break;
 
         case 'v':
+            // === Create verb summary tables ===
+            function createVerbSummaryTables() {
+                const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+                if (!leftleftdivdictionary) {
+                    console.error("leftleftdivdictionary element not found");
+                    return;
+                }
+
+                // Create verb conjugation table
+                const verbConjWrapper = document.createElement("div");
+                verbConjWrapper.id = "verbPrefixTablediv";
+                leftleftdivdictionary.appendChild(verbConjWrapper);
+
+                const verbFormsWrapper = document.createElement("div");
+                verbFormsWrapper.id = "verbSuffixTablediv";
+                leftleftdivdictionary.appendChild(verbFormsWrapper);
+                function buildVerbTable(sourcePath, containerId) {
+                    fetch(sourcePath)
+                        .then(response => {
+                            if (!response.ok) throw new Error(`Failed to load ${sourcePath}: ${response.status}`);
+                            return response.text();
+                        })
+                        .then(html => {
+                            const container = document.getElementById(containerId);
+                            if (container) {
+                                container.innerHTML = html;
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error loading table:", error);
+                        });
+                }// this is really just a fetch and paste. should it be kept, just for consistency with the other builders, or directly implemented in createVerbSummaryTables?
+                buildVerbTable("pages/dictionarypage/tables/subjectprefix.html", "verbPrefixTablediv");
+                buildVerbTable("pages/dictionarypage/tables/objectsuffix.html", "verbSuffixTablediv");
+            }
             createVerbSummaryTables();
             setTimeout(() => {
                 populateSummaryTables(keyword, { dictionaryVerbPrefixTable: true, dictionaryVerbSuffixTable: false });
@@ -1286,30 +1401,450 @@ function createSummaryTables() {
             break;
 
         case 'adv':
+            // === Create adverb summary tables ===
+            function createAdverbSummaryTables() {
+                const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+                if (!leftleftdivdictionary) {
+                    console.error("leftleftdivdictionary element not found");
+                    return;
+                }
+
+                const adverbWrapper = document.createElement("div");
+                adverbWrapper.id = "adverbFormsTablediv";
+                leftleftdivdictionary.appendChild(adverbWrapper);
+                // Helper function to build adverb tables
+                function buildAdverbTable(id, label, containerId) {
+                    const wrapper = document.createElement("div");
+                    const table = document.createElement("table");
+                    table.id = id;
+
+                    // fixed column width via colgroup
+                    const colgroup = document.createElement("colgroup");
+                    const col1 = document.createElement("col");
+                    col1.style.width = "120px";
+                    const col2 = document.createElement("col");
+                    colgroup.append(col1, col2);
+                    table.appendChild(colgroup);
+
+                    const thead = document.createElement("thead");
+                    const mergedRow = document.createElement("tr");
+                    const mergedCell = document.createElement("th");
+                    mergedCell.id = id + "-header";
+                    mergedCell.colSpan = 2;
+                    mergedCell.textContent = label;
+                    mergedRow.appendChild(mergedCell);
+                    thead.appendChild(mergedRow);
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement("tbody");
+                    const forms = ["Base Form", "Elative Form"];
+                    forms.forEach((form) => {
+                        const formz = form;
+                        // create a safe id fragment from the form text
+                        const safe = formz.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+                        const rowIdBase = `${id}-${safe}`;
+
+                        const row = document.createElement("tr");
+
+                        const th = document.createElement("th");
+                        th.textContent = form;
+
+                        const td = document.createElement("td");
+                        td.id = `${rowIdBase}`; // e.g. "myTable-base-form-0-value"
+
+                        row.appendChild(th);
+                        row.appendChild(td);
+                        tbody.appendChild(row);
+                    });
+                    table.appendChild(tbody);
+
+                    wrapper.appendChild(table);
+                    const container = document.getElementById(containerId);
+                    if (container) container.appendChild(wrapper);
+                }
+                buildAdverbTable("adverbFormsTable", "Adverb Forms", "adverbFormsTablediv");
+                // populate the created td
+                const baseSource = document.getElementById("cell0");
+                const elativeSource = document.getElementById("cell3");
+
+                const baseTd = document.getElementById(`adverbFormsTable-base-form`);
+                const elativeTd = document.getElementById(`adverbFormsTable-elative-form`);
+
+                if (baseTd && baseSource) baseTd.textContent = baseSource.textContent;
+                if (elativeTd && elativeSource) elativeTd.textContent = elativeSource.textContent;
+            }
             createAdverbSummaryTables();
             CurrentWordClassAsText = "adverb";
             dictionaryPageReference = () => openPageOld('page5', document.querySelector('.tab-bar .tab:nth-child(7)'));
             break;
 
         case 'aux':
+            // === Create auxiliary summary tables ===
+            function createAuxiliarySummaryTables() {
+                const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+                if (!leftleftdivdictionary) {
+                    console.error("leftleftdivdictionary element not found");
+                    return;
+                } // /\(/o.o\)/\ - Spooky the spider
+
+                const auxWrapper = document.createElement("div");
+                auxWrapper.id = "auxiliaryFormsTablediv";
+                leftleftdivdictionary.appendChild(auxWrapper);
+                // Helper function to build auxiliary tables
+                function buildAuxiliaryTable(id, label, containerId) {
+                    const wrapper = document.createElement("div");
+                    const table = document.createElement("table");
+                    table.id = id;
+
+                    const thead = document.createElement("thead");
+                    const mergedRow = document.createElement("tr");
+                    const mergedCell = document.createElement("th");
+                    mergedCell.id = id + "-header";
+                    mergedCell.colSpan = 5;
+                    mergedCell.textContent = label;
+                    mergedRow.appendChild(mergedCell);
+                    thead.appendChild(mergedRow);
+
+
+                    const headerRow = document.createElement("tr");
+                    // keep the visible header texts
+                    const headers = ["Form", "Episodic Non-Past", "Episodic Past", "Gnomic Non-Past", "Gnomic Past"];
+                    headers.forEach(h => {
+                        const th = document.createElement("th");
+                        th.textContent = h;
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement("tbody");
+                    const row = document.createElement("tr");
+
+                    // first cell is the row label
+                    const thLabel = document.createElement("th");
+                    thLabel.textContent = "Forms";
+                    row.appendChild(thLabel);
+
+                    // create a TD for each remaining header and assign an id derived from the header text
+                    headers.slice(1).forEach(hdr => {
+                        const td = document.createElement("td");
+                        // sanitize header text to form a valid id fragment
+                        const safe = hdr.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+                        td.id = `${id}-${safe}`;
+                        row.appendChild(td);
+                    });
+
+                    tbody.appendChild(row);
+                    table.appendChild(tbody);
+
+                    wrapper.appendChild(table);
+                    const container = document.getElementById(containerId);
+                    if (container) container.appendChild(wrapper);
+                }
+                buildAuxiliaryTable("auxiliaryFormsTable", "Auxiliary Forms", "auxiliaryFormsTablediv");
+                // populate the created td
+                const EpiNonSource = document.getElementById("cell0");
+                const tripleSource = document.getElementById("cell3");
+
+                const EpiNonTd = document.getElementById(`auxiliaryFormsTable-episodic-non-past`);
+                const EpiPastTd = document.getElementById(`auxiliaryFormsTable-episodic-past`);
+                const GnoNonTd = document.getElementById(`auxiliaryFormsTable-gnomic-non-past`);
+                const GnoPastTd = document.getElementById(`auxiliaryFormsTable-gnomic-past`);
+
+                // copy single-value sources
+                if (EpiNonTd && EpiNonSource) EpiNonTd.textContent = EpiNonSource.textContent;
+                if (EpiPastTd && tripleSource) {
+                    EpiPastTd.textContent = tripleSource.textContent;
+                }
+                // split cell3 into three parts and populate the three target TDs
+                if (tripleSource) {
+                    const parts = tripleSource.textContent.split(",").map(s => s.trim());
+                    if (GnoNonTd) GnoNonTd.textContent = parts[1] ?? "";
+                    if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
+                    if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
+                }
+                const isDefective = EpiPastTd.textContent.trim();
+                if (isDefective === "defective") {
+                    const EpiNonText = EpiNonTd.textContent.trim();
+                    console.log(`${EpiNonText} is defective`);
+                    EpiPastTd.textContent = `${EpiNonText}`;
+                    GnoNonTd.textContent = `${EpiNonText}`;
+                    GnoPastTd.textContent = `${EpiNonText}`;
+                }
+            }
             createAuxiliarySummaryTables();
             CurrentWordClassAsText = "auxiliary";
             dictionaryPageReference = () => openPageOld('page6', document.querySelector('.tab-bar .tab:nth-child(8)'));
             break;
 
         case 'pp':
+            // === Create preposition summary tables ===
+            function createPrepositionSummaryTables() {
+                const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+                if (!leftleftdivdictionary) {
+                    console.error("leftleftdivdictionary element not found");
+                    return;
+                }
+
+                const ppWrapper = document.createElement("div");
+                ppWrapper.id = "prepositionFormsTablediv";
+                leftleftdivdictionary.appendChild(ppWrapper);
+                // Helper function to build auxiliary tables
+                function buildPrepositionTable(id, label, containerId) {
+                    const wrapper = document.createElement("div");
+                    const table = document.createElement("table");
+                    table.id = id;
+
+                    const thead = document.createElement("thead");
+                    const mergedRow = document.createElement("tr");
+                    const mergedCell = document.createElement("th");
+                    mergedCell.id = id + "-header";
+                    mergedCell.colSpan = 5;
+                    mergedCell.textContent = label;
+                    mergedRow.appendChild(mergedCell);
+                    thead.appendChild(mergedRow);
+
+
+                    const headerRow = document.createElement("tr");
+                    // keep the visible header texts
+                    const headers = ["Form", "Episodic Non-Past", "Episodic Past", "Gnomic Non-Past", "Gnomic Past"];
+                    headers.forEach(h => {
+                        const th = document.createElement("th");
+                        th.textContent = h;
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement("tbody");
+                    const row = document.createElement("tr");
+
+                    // first cell is the row label
+                    const thLabel = document.createElement("th");
+                    thLabel.textContent = "Forms";
+                    row.appendChild(thLabel);
+
+                    // create a TD for each remaining header and assign an id derived from the header text
+                    headers.slice(1).forEach(hdr => {
+                        const td = document.createElement("td");
+                        // sanitize header text to form a valid id fragment
+                        const safe = hdr.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+                        td.id = `${id}-${safe}`;
+                        row.appendChild(td);
+                    });
+
+                    tbody.appendChild(row);
+                    table.appendChild(tbody);
+
+                    wrapper.appendChild(table);
+                    const container = document.getElementById(containerId);
+                    if (container) container.appendChild(wrapper);
+                }
+                buildPrepositionTable("prepositionFormsTable", "Preposition Forms", "prepositionFormsTablediv");
+                // populate the created td
+                const EpiNonSource = document.getElementById("cell0");
+                const tripleSource = document.getElementById("cell3");
+
+                const EpiNonTd = document.getElementById(`auxiliaryFormsTable-episodic-non-past`);
+                const EpiPastTd = document.getElementById(`auxiliaryFormsTable-episodic-past`);
+                const GnoNonTd = document.getElementById(`auxiliaryFormsTable-gnomic-non-past`);
+                const GnoPastTd = document.getElementById(`auxiliaryFormsTable-gnomic-past`);
+
+                // copy single-value sources
+                if (EpiNonTd && EpiNonSource) EpiNonTd.textContent = EpiNonSource.textContent;
+                if (EpiPastTd && tripleSource) {
+                    EpiPastTd.textContent = tripleSource.textContent;
+                }
+                // split cell3 into three parts and populate the three target TDs
+                if (tripleSource) {
+                    const parts = tripleSource.textContent.split(",").map(s => s.trim());
+                    if (GnoNonTd) GnoNonTd.textContent = parts[1] ?? "";
+                    if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
+                    if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
+                }
+            }
             createPrepositionSummaryTables();
             CurrentWordClassAsText = "preposition";
             dictionaryPageReference = () => openPageOld('page0', document.querySelector('.tab-bar .tab:nth-child(0)'));
             break;
 
         case 'part':
+            // === Create particle summary tables ===
+            function createParticleSummaryTables() {
+                const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+                if (!leftleftdivdictionary) {
+                    console.error("leftleftdivdictionary element not found");
+                    return;
+                }
+
+                const ppWrapper = document.createElement("div");
+                ppWrapper.id = "particleFormsTablediv";
+                leftleftdivdictionary.appendChild(ppWrapper);
+                // Helper function to build auxiliary tables
+                function buildParticleTable(id, label, containerId) {
+                    const wrapper = document.createElement("div");
+                    const table = document.createElement("table");
+                    table.id = id;
+
+                    const thead = document.createElement("thead");
+                    const mergedRow = document.createElement("tr");
+                    const mergedCell = document.createElement("th");
+                    mergedCell.id = id + "-header";
+                    mergedCell.colSpan = 5;
+                    mergedCell.textContent = label;
+                    mergedRow.appendChild(mergedCell);
+                    thead.appendChild(mergedRow);
+
+
+                    const headerRow = document.createElement("tr");
+                    // keep the visible header texts
+                    const headers = ["Form", "Episodic Non-Past", "Episodic Past", "Gnomic Non-Past", "Gnomic Past"];
+                    headers.forEach(h => {
+                        const th = document.createElement("th");
+                        th.textContent = h;
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement("tbody");
+                    const row = document.createElement("tr");
+
+                    // first cell is the row label
+                    const thLabel = document.createElement("th");
+                    thLabel.textContent = "Forms";
+                    row.appendChild(thLabel);
+
+                    // create a TD for each remaining header and assign an id derived from the header text
+                    headers.slice(1).forEach(hdr => {
+                        const td = document.createElement("td");
+                        // sanitize header text to form a valid id fragment
+                        const safe = hdr.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+                        td.id = `${id}-${safe}`;
+                        row.appendChild(td);
+                    });
+
+                    tbody.appendChild(row);
+                    table.appendChild(tbody);
+
+                    wrapper.appendChild(table);
+                    const container = document.getElementById(containerId);
+                    if (container) container.appendChild(wrapper);
+                } // /\(/o.o\)/\ - Spooky the spider
+                buildParticleTable("particleFormsTable", "Particle Forms", "particleFormsTablediv");
+                // populate the created td
+                const EpiNonSource = document.getElementById("cell0");
+                const tripleSource = document.getElementById("cell3");
+
+                const EpiNonTd = document.getElementById(`auxiliaryFormsTable-episodic-non-past`);
+                const EpiPastTd = document.getElementById(`auxiliaryFormsTable-episodic-past`);
+                const GnoNonTd = document.getElementById(`auxiliaryFormsTable-gnomic-non-past`);
+                const GnoPastTd = document.getElementById(`auxiliaryFormsTable-gnomic-past`);
+
+                // copy single-value sources
+                if (EpiNonTd && EpiNonSource) EpiNonTd.textContent = EpiNonSource.textContent;
+                if (EpiPastTd && tripleSource) {
+                    EpiPastTd.textContent = tripleSource.textContent;
+                }
+                // split cell3 into three parts and populate the three target TDs
+                if (tripleSource) {
+                    const parts = tripleSource.textContent.split(",").map(s => s.trim());
+                    if (GnoNonTd) GnoNonTd.textContent = parts[1] ?? "";
+                    if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
+                    if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
+                }
+            }
             createParticleSummaryTables();
             CurrentWordClassAsText = "particle";
             dictionaryPageReference = () => openPageOld('page0', document.querySelector('.tab-bar .tab:nth-child(0)'));
             break;
 
         case 'adj':
+            // === Create adjective summary tables ===
+            function createAdjectiveSummaryTables() {
+                const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
+                if (!leftleftdivdictionary) {
+                    console.error("leftleftdivdictionary element not found");
+                    return;
+                }
+
+                const ppWrapper = document.createElement("div");
+                ppWrapper.id = "adjectiveFormsTablediv";
+                leftleftdivdictionary.appendChild(ppWrapper);
+                // Helper function to build adjective tables
+                function buildAdjectiveTable(id, label, containerId) {
+                    const wrapper = document.createElement("div");
+                    const table = document.createElement("table");
+                    table.id = id;
+
+                    const thead = document.createElement("thead");
+                    const mergedRow = document.createElement("tr");
+                    const mergedCell = document.createElement("th");
+                    mergedCell.id = id + "-header";
+                    mergedCell.colSpan = 5;
+                    mergedCell.textContent = label;
+                    mergedRow.appendChild(mergedCell);
+                    thead.appendChild(mergedRow);
+
+
+                    const headerRow = document.createElement("tr");
+                    // keep the visible header texts
+                    const headers = ["Form", "Episodic Non-Past", "Episodic Past", "Gnomic Non-Past", "Gnomic Past"];
+                    headers.forEach(h => {
+                        const th = document.createElement("th");
+                        th.textContent = h;
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement("tbody");
+                    const row = document.createElement("tr");
+
+                    // first cell is the row label
+                    const thLabel = document.createElement("th");
+                    thLabel.textContent = "Forms";
+                    row.appendChild(thLabel); // /\(/o.o\)/\ - Spooky the spider
+
+                    // create a TD for each remaining header and assign an id derived from the header text
+                    headers.slice(1).forEach(hdr => {
+                        const td = document.createElement("td");
+                        // sanitize header text to form a valid id fragment
+                        const safe = hdr.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+                        td.id = `${id}-${safe}`;
+                        row.appendChild(td);
+                    });
+
+                    tbody.appendChild(row);
+                    table.appendChild(tbody);
+
+                    wrapper.appendChild(table);
+                    const container = document.getElementById(containerId);
+                    if (container) container.appendChild(wrapper);
+                }
+                buildAdjectiveTable("adjectiveFormsTable", "Adjective Forms", "adjectiveFormsTablediv");
+                // populate the created td
+                const EpiNonSource = document.getElementById("cell0");
+                const tripleSource = document.getElementById("cell3");
+
+                const EpiNonTd = document.getElementById(`auxiliaryFormsTable-episodic-non-past`);
+                const EpiPastTd = document.getElementById(`auxiliaryFormsTable-episodic-past`);
+                const GnoNonTd = document.getElementById(`auxiliaryFormsTable-gnomic-non-past`);
+                const GnoPastTd = document.getElementById(`auxiliaryFormsTable-gnomic-past`);
+
+                // copy single-value sources
+                if (EpiNonTd && EpiNonSource) EpiNonTd.textContent = EpiNonSource.textContent;
+                if (EpiPastTd && tripleSource) {
+                    EpiPastTd.textContent = tripleSource.textContent;
+                }
+                // split cell3 into three parts and populate the three target TDs
+                if (tripleSource) {
+                    const parts = tripleSource.textContent.split(",").map(s => s.trim());
+                    if (GnoNonTd) GnoNonTd.textContent = parts[1] ?? "";
+                    if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
+                    if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
+                } // /\(/o.o\)/\ - Spooky the spider
+            }
             createAdjectiveSummaryTables();
             CurrentWordClassAsText = "adjective";
             dictionaryPageReference = () => openPageOld('page7', document.querySelector('.tab-bar .tab:nth-child(9)'));
@@ -1345,282 +1880,6 @@ function populateSummaryTables(keyword, tables) {
     });
 }
 
-// === Create noun summary tables (existing functionality) ===
-function createNounSummaryTables(inDivById, uniquePrefix = "") {
-    return new Promise((resolve, reject) => {
-        const DivId = document.getElementById(`${inDivById}`);
-        if (!DivId) {
-            return reject(new Error(`div by id ${DivId} not found`));
-        }
-
-        const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
-        const numbers = ["Singular", "Dual", "Plural"];
-
-        // internal builder that sets data-raw on each TD
-        function buildTable(id, label, containerId) {
-            const wrapper = document.createElement("div");
-            const table = document.createElement("table");
-            table.id = id;
-
-            const thead = document.createElement("thead");
-
-            // Merged header row
-            const mergedRow = document.createElement("tr");
-            const mergedCell = document.createElement("th");
-            mergedCell.id = id + "-header";
-            mergedCell.colSpan = 4;
-            mergedCell.textContent = label;
-            mergedRow.appendChild(mergedCell);
-            thead.appendChild(mergedRow);
-
-            // Column header row
-            const headerRow = document.createElement("tr");
-            headerRow.innerHTML = `<th class="GenderTh";>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
-            thead.appendChild(headerRow);
-
-            table.appendChild(thead);
-
-            const tbody = document.createElement("tbody");
-            Object.values(GENDERS).forEach(gender => {
-                const row = document.createElement("tr");
-                const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
-                row.innerHTML = `<th>${gender.NAME}</th>` + cellsHtml;
-                tbody.appendChild(row);
-            });
-            table.appendChild(tbody);
-
-            wrapper.appendChild(table);
-
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            container.appendChild(wrapper);
-        }
-
-        // create wrapper divs with unique IDs if prefix provided
-        const dirsummarytablefinalwrapper = document.createElement("div");
-        const recsummarytablefinalwrapper = document.createElement("div");
-
-        if (uniquePrefix) {
-            dirsummarytablefinalwrapper.id = `${uniquePrefix}-dirTableDiv`;
-            recsummarytablefinalwrapper.id = `${uniquePrefix}-recTableDiv`;
-            dirsummarytablefinalwrapper.className = "dirTableDivs";
-            recsummarytablefinalwrapper.className = "recTableDivs";
-        } else {
-            dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
-            recsummarytablefinalwrapper.id = "recSummaryTablediv";
-        }
-
-        DivId.appendChild(dirsummarytablefinalwrapper);
-        DivId.appendChild(recsummarytablefinalwrapper);
-
-        const dirTableId = uniquePrefix ? `${uniquePrefix}-dirSummaryTable` : "dirSummaryTable";
-        const recTableId = uniquePrefix ? `${uniquePrefix}-recSummaryTable` : "recSummaryTable";
-
-        buildTable(dirTableId, "Directive", dirsummarytablefinalwrapper.id);
-        buildTable(recTableId, "Recessive", recsummarytablefinalwrapper.id);
-
-        // Allow a paint cycle so the DOM is actually available to queries/measurements
-        requestAnimationFrame(() => resolve());
-    });
-}
-
-// === Create verb summary tables ===
-function createVerbSummaryTables() {
-    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-    if (!leftleftdivdictionary) {
-        console.error("leftleftdivdictionary element not found");
-        return;
-    }
-
-    // Create verb conjugation table
-    const verbConjWrapper = document.createElement("div");
-    verbConjWrapper.id = "verbPrefixTablediv";
-    leftleftdivdictionary.appendChild(verbConjWrapper);
-
-    const verbFormsWrapper = document.createElement("div");
-    verbFormsWrapper.id = "verbSuffixTablediv";
-    leftleftdivdictionary.appendChild(verbFormsWrapper);
-
-    buildVerbTable("pages/dictionarypage/tables/subjectprefix.html", "verbPrefixTablediv");
-    buildVerbTable("pages/dictionarypage/tables/objectsuffix.html", "verbSuffixTablediv");
-}
-
-// === Create adverb summary tables ===
-function createAdverbSummaryTables() {
-    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-    if (!leftleftdivdictionary) {
-        console.error("leftleftdivdictionary element not found");
-        return;
-    }
-
-    const adverbWrapper = document.createElement("div");
-    adverbWrapper.id = "adverbFormsTablediv";
-    leftleftdivdictionary.appendChild(adverbWrapper);
-
-    buildAdverbTable("adverbFormsTable", "Adverb Forms", "adverbFormsTablediv");
-    // populate the created td
-    const baseSource = document.getElementById("cell0");
-    const elativeSource = document.getElementById("cell3");
-
-    const baseTd = document.getElementById(`adverbFormsTable-base-form`);
-    const elativeTd = document.getElementById(`adverbFormsTable-elative-form`);
-
-    if (baseTd && baseSource) baseTd.textContent = baseSource.textContent;
-    if (elativeTd && elativeSource) elativeTd.textContent = elativeSource.textContent;
-}
-
-// === Create auxiliary summary tables ===
-function createAuxiliarySummaryTables() {
-    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-    if (!leftleftdivdictionary) {
-        console.error("leftleftdivdictionary element not found");
-        return;
-    } // /\(/o.o\)/\ - Spooky the spider
-
-    const auxWrapper = document.createElement("div");
-    auxWrapper.id = "auxiliaryFormsTablediv";
-    leftleftdivdictionary.appendChild(auxWrapper);
-
-    buildAuxiliaryTable("auxiliaryFormsTable", "Auxiliary Forms", "auxiliaryFormsTablediv");
-    // populate the created td
-    const EpiNonSource = document.getElementById("cell0");
-    const tripleSource = document.getElementById("cell3");
-
-    const EpiNonTd = document.getElementById(`auxiliaryFormsTable-episodic-non-past`);
-    const EpiPastTd = document.getElementById(`auxiliaryFormsTable-episodic-past`);
-    const GnoNonTd = document.getElementById(`auxiliaryFormsTable-gnomic-non-past`);
-    const GnoPastTd = document.getElementById(`auxiliaryFormsTable-gnomic-past`);
-
-    // copy single-value sources
-    if (EpiNonTd && EpiNonSource) EpiNonTd.textContent = EpiNonSource.textContent;
-    if (EpiPastTd && tripleSource) {
-        EpiPastTd.textContent = tripleSource.textContent;
-    }
-    // split cell3 into three parts and populate the three target TDs
-    if (tripleSource) {
-        const parts = tripleSource.textContent.split(",").map(s => s.trim());
-        if (GnoNonTd) GnoNonTd.textContent = parts[1] ?? "";
-        if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
-        if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
-    }
-    const isDefective = EpiPastTd.textContent.trim();
-    if (isDefective === "defective") {
-        const EpiNonText = EpiNonTd.textContent.trim();
-        console.log(`${EpiNonText} is defective`);
-        EpiPastTd.textContent = `${EpiNonText}`;
-        GnoNonTd.textContent = `${EpiNonText}`;
-        GnoPastTd.textContent = `${EpiNonText}`;
-    }
-}
-
-// === Create preposition summary tables ===
-function createPrepositionSummaryTables() {
-    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-    if (!leftleftdivdictionary) {
-        console.error("leftleftdivdictionary element not found");
-        return;
-    }
-
-    const ppWrapper = document.createElement("div");
-    ppWrapper.id = "prepositionFormsTablediv";
-    leftleftdivdictionary.appendChild(ppWrapper);
-
-    buildPrepositionTable("prepositionFormsTable", "Preposition Forms", "prepositionFormsTablediv");
-    // populate the created td
-    const EpiNonSource = document.getElementById("cell0");
-    const tripleSource = document.getElementById("cell3");
-
-    const EpiNonTd = document.getElementById(`auxiliaryFormsTable-episodic-non-past`);
-    const EpiPastTd = document.getElementById(`auxiliaryFormsTable-episodic-past`);
-    const GnoNonTd = document.getElementById(`auxiliaryFormsTable-gnomic-non-past`);
-    const GnoPastTd = document.getElementById(`auxiliaryFormsTable-gnomic-past`);
-
-    // copy single-value sources
-    if (EpiNonTd && EpiNonSource) EpiNonTd.textContent = EpiNonSource.textContent;
-    if (EpiPastTd && tripleSource) {
-        EpiPastTd.textContent = tripleSource.textContent;
-    }
-    // split cell3 into three parts and populate the three target TDs
-    if (tripleSource) {
-        const parts = tripleSource.textContent.split(",").map(s => s.trim());
-        if (GnoNonTd) GnoNonTd.textContent = parts[1] ?? "";
-        if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
-        if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
-    }
-}
-
-// === Create particle summary tables ===
-function createParticleSummaryTables() {
-    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-    if (!leftleftdivdictionary) {
-        console.error("leftleftdivdictionary element not found");
-        return;
-    }
-
-    const ppWrapper = document.createElement("div");
-    ppWrapper.id = "particleFormsTablediv";
-    leftleftdivdictionary.appendChild(ppWrapper);
-
-    buildParticleTable("particleFormsTable", "Particle Forms", "particleFormsTablediv");
-    // populate the created td
-    const EpiNonSource = document.getElementById("cell0");
-    const tripleSource = document.getElementById("cell3");
-
-    const EpiNonTd = document.getElementById(`auxiliaryFormsTable-episodic-non-past`);
-    const EpiPastTd = document.getElementById(`auxiliaryFormsTable-episodic-past`);
-    const GnoNonTd = document.getElementById(`auxiliaryFormsTable-gnomic-non-past`);
-    const GnoPastTd = document.getElementById(`auxiliaryFormsTable-gnomic-past`);
-
-    // copy single-value sources
-    if (EpiNonTd && EpiNonSource) EpiNonTd.textContent = EpiNonSource.textContent;
-    if (EpiPastTd && tripleSource) {
-        EpiPastTd.textContent = tripleSource.textContent;
-    }
-    // split cell3 into three parts and populate the three target TDs
-    if (tripleSource) {
-        const parts = tripleSource.textContent.split(",").map(s => s.trim());
-        if (GnoNonTd) GnoNonTd.textContent = parts[1] ?? "";
-        if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
-        if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
-    }
-}
-
-// === Create adjective summary tables ===
-function createAdjectiveSummaryTables() {
-    const leftleftdivdictionary = document.getElementById("leftleftdivdictionary");
-    if (!leftleftdivdictionary) {
-        console.error("leftleftdivdictionary element not found");
-        return;
-    }
-
-    const ppWrapper = document.createElement("div");
-    ppWrapper.id = "adjectiveFormsTablediv";
-    leftleftdivdictionary.appendChild(ppWrapper);
-
-    buildAdjectiveTable("adjectiveFormsTable", "Adjective Forms", "adjectiveFormsTablediv");
-    // populate the created td
-    const EpiNonSource = document.getElementById("cell0");
-    const tripleSource = document.getElementById("cell3");
-
-    const EpiNonTd = document.getElementById(`auxiliaryFormsTable-episodic-non-past`);
-    const EpiPastTd = document.getElementById(`auxiliaryFormsTable-episodic-past`);
-    const GnoNonTd = document.getElementById(`auxiliaryFormsTable-gnomic-non-past`);
-    const GnoPastTd = document.getElementById(`auxiliaryFormsTable-gnomic-past`);
-
-    // copy single-value sources
-    if (EpiNonTd && EpiNonSource) EpiNonTd.textContent = EpiNonSource.textContent;
-    if (EpiPastTd && tripleSource) {
-        EpiPastTd.textContent = tripleSource.textContent;
-    }
-    // split cell3 into three parts and populate the three target TDs
-    if (tripleSource) {
-        const parts = tripleSource.textContent.split(",").map(s => s.trim());
-        if (GnoNonTd) GnoNonTd.textContent = parts[1] ?? "";
-        if (GnoPastTd) GnoPastTd.textContent = parts[2] ?? "";
-        if (EpiPastTd && parts[0] != null) EpiPastTd.textContent = parts[0];
-    } // /\(/o.o\)/\ - Spooky the spider
-}
-
 // Define your  glyph classes
 const conlangVowels = ["i", "ī", "e", "ē", "æ", "y", "u", "ū", "o", "ō", "a", "ā", "ú", "û", "ó", "ô", "á", "â"];
 const conlangConsonants = ["t", "k", "q", "q̇", "'", "c", "f", "d", "s", "z", "g", "χ", "h", "l", "r", "ɾ", "m", "n", "ŋ"];
@@ -1636,281 +1895,17 @@ console.log(`Consonants = ${conlangConsonants}`);
 //     return text_to_entries(char)[0].properties.includes(window.REG.CONSONANT);
 // } // unused
 
-function buildVerbTable(sourcePath, containerId) {
-    fetch(sourcePath)
-        .then(response => {
-            if (!response.ok) throw new Error(`Failed to load ${sourcePath}: ${response.status}`);
-            return response.text();
-        })
-        .then(html => {
-            const container = document.getElementById(containerId);
-            if (container) {
-                container.innerHTML = html;
-            }
-        })
-        .catch(error => {
-            console.error("Error loading table:", error);
-        });
-}// this is really just a fetch and paste. should it be kept, just for consistency with the other builders, or directly implemented in createVerbSummaryTables?
-
-// Helper function to build adverb tables
-function buildAdverbTable(id, label, containerId) {
-    const wrapper = document.createElement("div");
-    const table = document.createElement("table");
-    table.id = id;
-
-    // fixed column width via colgroup
-    const colgroup = document.createElement("colgroup");
-    const col1 = document.createElement("col");
-    col1.style.width = "120px";
-    const col2 = document.createElement("col");
-    colgroup.append(col1, col2);
-    table.appendChild(colgroup);
-
-    const thead = document.createElement("thead");
-    const mergedRow = document.createElement("tr");
-    const mergedCell = document.createElement("th");
-    mergedCell.id = id + "-header";
-    mergedCell.colSpan = 2;
-    mergedCell.textContent = label;
-    mergedRow.appendChild(mergedCell);
-    thead.appendChild(mergedRow);
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-    const forms = ["Base Form", "Elative Form"];
-    forms.forEach((form) => {
-        const formz = form;
-        // create a safe id fragment from the form text
-        const safe = formz.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
-        const rowIdBase = `${id}-${safe}`;
-
-        const row = document.createElement("tr");
-
-        const th = document.createElement("th");
-        th.textContent = form;
-
-        const td = document.createElement("td");
-        td.id = `${rowIdBase}`; // e.g. "myTable-base-form-0-value"
-
-        row.appendChild(th);
-        row.appendChild(td);
-        tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
-
-    wrapper.appendChild(table);
-    const container = document.getElementById(containerId);
-    if (container) container.appendChild(wrapper);
-}
-
-// Helper function to build auxiliary tables
-function buildAuxiliaryTable(id, label, containerId) {
-    const wrapper = document.createElement("div");
-    const table = document.createElement("table");
-    table.id = id;
-
-    const thead = document.createElement("thead");
-    const mergedRow = document.createElement("tr");
-    const mergedCell = document.createElement("th");
-    mergedCell.id = id + "-header";
-    mergedCell.colSpan = 5;
-    mergedCell.textContent = label;
-    mergedRow.appendChild(mergedCell);
-    thead.appendChild(mergedRow);
 
 
-    const headerRow = document.createElement("tr");
-    // keep the visible header texts
-    const headers = ["Form", "Episodic Non-Past", "Episodic Past", "Gnomic Non-Past", "Gnomic Past"];
-    headers.forEach(h => {
-        const th = document.createElement("th");
-        th.textContent = h;
-        headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-    const row = document.createElement("tr");
-
-    // first cell is the row label
-    const thLabel = document.createElement("th");
-    thLabel.textContent = "Forms";
-    row.appendChild(thLabel);
-
-    // create a TD for each remaining header and assign an id derived from the header text
-    headers.slice(1).forEach(hdr => {
-        const td = document.createElement("td");
-        // sanitize header text to form a valid id fragment
-        const safe = hdr.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
-        td.id = `${id}-${safe}`;
-        row.appendChild(td);
-    });
-
-    tbody.appendChild(row);
-    table.appendChild(tbody);
-
-    wrapper.appendChild(table);
-    const container = document.getElementById(containerId);
-    if (container) container.appendChild(wrapper);
-}
-
-// Helper function to build auxiliary tables
-function buildPrepositionTable(id, label, containerId) {
-    const wrapper = document.createElement("div");
-    const table = document.createElement("table");
-    table.id = id;
-
-    const thead = document.createElement("thead");
-    const mergedRow = document.createElement("tr");
-    const mergedCell = document.createElement("th");
-    mergedCell.id = id + "-header";
-    mergedCell.colSpan = 5;
-    mergedCell.textContent = label;
-    mergedRow.appendChild(mergedCell);
-    thead.appendChild(mergedRow);
 
 
-    const headerRow = document.createElement("tr");
-    // keep the visible header texts
-    const headers = ["Form", "Episodic Non-Past", "Episodic Past", "Gnomic Non-Past", "Gnomic Past"];
-    headers.forEach(h => {
-        const th = document.createElement("th");
-        th.textContent = h;
-        headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-    const row = document.createElement("tr");
-
-    // first cell is the row label
-    const thLabel = document.createElement("th");
-    thLabel.textContent = "Forms";
-    row.appendChild(thLabel);
-
-    // create a TD for each remaining header and assign an id derived from the header text
-    headers.slice(1).forEach(hdr => {
-        const td = document.createElement("td");
-        // sanitize header text to form a valid id fragment
-        const safe = hdr.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
-        td.id = `${id}-${safe}`;
-        row.appendChild(td);
-    });
-
-    tbody.appendChild(row);
-    table.appendChild(tbody);
-
-    wrapper.appendChild(table);
-    const container = document.getElementById(containerId);
-    if (container) container.appendChild(wrapper);
-}
-
-// Helper function to build auxiliary tables
-function buildParticleTable(id, label, containerId) {
-    const wrapper = document.createElement("div");
-    const table = document.createElement("table");
-    table.id = id;
-
-    const thead = document.createElement("thead");
-    const mergedRow = document.createElement("tr");
-    const mergedCell = document.createElement("th");
-    mergedCell.id = id + "-header";
-    mergedCell.colSpan = 5;
-    mergedCell.textContent = label;
-    mergedRow.appendChild(mergedCell);
-    thead.appendChild(mergedRow);
 
 
-    const headerRow = document.createElement("tr");
-    // keep the visible header texts
-    const headers = ["Form", "Episodic Non-Past", "Episodic Past", "Gnomic Non-Past", "Gnomic Past"];
-    headers.forEach(h => {
-        const th = document.createElement("th");
-        th.textContent = h;
-        headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-    const row = document.createElement("tr");
-
-    // first cell is the row label
-    const thLabel = document.createElement("th");
-    thLabel.textContent = "Forms";
-    row.appendChild(thLabel);
-
-    // create a TD for each remaining header and assign an id derived from the header text
-    headers.slice(1).forEach(hdr => {
-        const td = document.createElement("td");
-        // sanitize header text to form a valid id fragment
-        const safe = hdr.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
-        td.id = `${id}-${safe}`;
-        row.appendChild(td);
-    });
-
-    tbody.appendChild(row);
-    table.appendChild(tbody);
-
-    wrapper.appendChild(table);
-    const container = document.getElementById(containerId);
-    if (container) container.appendChild(wrapper);
-} // /\(/o.o\)/\ - Spooky the spider
-
-// Helper function to build adjective tables
-function buildAdjectiveTable(id, label, containerId) {
-    const wrapper = document.createElement("div");
-    const table = document.createElement("table");
-    table.id = id;
-
-    const thead = document.createElement("thead");
-    const mergedRow = document.createElement("tr");
-    const mergedCell = document.createElement("th");
-    mergedCell.id = id + "-header";
-    mergedCell.colSpan = 5;
-    mergedCell.textContent = label;
-    mergedRow.appendChild(mergedCell);
-    thead.appendChild(mergedRow);
 
 
-    const headerRow = document.createElement("tr");
-    // keep the visible header texts
-    const headers = ["Form", "Episodic Non-Past", "Episodic Past", "Gnomic Non-Past", "Gnomic Past"];
-    headers.forEach(h => {
-        const th = document.createElement("th");
-        th.textContent = h;
-        headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
 
-    const tbody = document.createElement("tbody");
-    const row = document.createElement("tr");
 
-    // first cell is the row label
-    const thLabel = document.createElement("th");
-    thLabel.textContent = "Forms";
-    row.appendChild(thLabel); // /\(/o.o\)/\ - Spooky the spider
 
-    // create a TD for each remaining header and assign an id derived from the header text
-    headers.slice(1).forEach(hdr => {
-        const td = document.createElement("td");
-        // sanitize header text to form a valid id fragment
-        const safe = hdr.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
-        td.id = `${id}-${safe}`;
-        row.appendChild(td);
-    });
-
-    tbody.appendChild(row);
-    table.appendChild(tbody);
-
-    wrapper.appendChild(table);
-    const container = document.getElementById(containerId);
-    if (container) container.appendChild(wrapper);
-}
 
 // === Map of identifiers to stems ===
 const tableMap = {
@@ -2574,11 +2569,15 @@ function performSearch() {
     const field2 = document.getElementById('search_field1');
     const keywordDisplay = field1?.value.trim()
     const keyword = keywordDisplay.toLowerCase();
+
+    const occurrences = WordDictionary.findOccurrences(keyword);
+    const parentArray = generateNounWithSuffixes(occurrences[0].baseWord, { useAttachAsSuffix: true });
     const keywordData =
     {
         keyword,
         pageID: pages1[keyword],
-        occurrences: WordDictionary.findOccurrences(keyword),
+        occurrences: occurrences,
+        parentArray: parentArray,
     };
     dictionaryData.keyword = keywordData;
 
