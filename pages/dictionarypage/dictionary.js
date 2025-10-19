@@ -265,11 +265,18 @@ const ALLOWED_NOUN_FIELDS = new Set(
         'number',
         'person',
         'rawSuffix',
+        'rawPrefix',
         'html',
         'fullText',
         'all',
         'keywordStem',
-        'keyword'
+        'keyword',
+        'sourceWordclass',
+        'resultWordclass',
+        'baseNounForm',
+        'baseNounStem',
+        'prefixDisplay',
+        'context'
     ]
 );
 
@@ -388,11 +395,69 @@ function getNounResult(genderIn, moodIn, numberIn, personIn, field = 'all', noun
 // getNounResult('e','D','S',1,'fullText', NounResults);
 
 function generateAdjectiveWithSuffixes(keyword, options = {}) {
-    const adjectiveEntries = generateNounWithSuffixes(keyword, options);
-    return adjectiveEntries.map(entry => ({
-        ...entry,
-        wordclass: 'adjective'
-    }));
+    const nounEntries = generateNounWithSuffixes(keyword, options);
+    if (!Array.isArray(nounEntries) || nounEntries.length === 0) {
+        return [];
+    }
+
+    const prefixInput = (typeof options.adjectivePrefix === 'string' && options.adjectivePrefix.trim().length > 0)
+        ? options.adjectivePrefix.trim()
+        : 'i-';
+    const prefixCore = prefixInput.endsWith('-') ? prefixInput.slice(0, -1) : prefixInput;
+
+    return nounEntries.map(nounEntry => {
+        const nounForm = nounEntry.fullText;
+        const baseWord = nounEntry.keyword || keyword;
+        const suffix = nounEntry.rawSuffix || '';
+
+        let html = nounEntry.html;
+        let fullText = nounEntry.fullText;
+        let keywordStem = nounEntry.keywordStem;
+
+        if (prefixCore) {
+            const derivedEntries = connect_split(prefixCore, baseWord, suffix);
+            const prefixText = entries_to_text(derivedEntries[0]);
+            const stemText = entries_to_text(derivedEntries[1]);
+            const suffixText = entries_to_text(derivedEntries[2]);
+            html = `<strong>${prefixText}</strong>${stemText}<strong>${suffixText}</strong>`;
+            fullText = `${prefixText}${stemText}${suffixText}`;
+            keywordStem = stemText;
+        }
+
+        const context = {
+            forwardTransform: {
+                description: `Adding the "${prefixInput}" prefix derives an adjective from the noun.`,
+                fromWordclass: 'noun',
+                toWordclass: 'adjective',
+                affixApplied: prefixInput,
+                baseWord,
+                result: fullText
+            },
+            reverseTransform: {
+                description: `Removing the "${prefixInput}" prefix restores the noun form.`,
+                fromWordclass: 'adjective',
+                toWordclass: 'noun',
+                affixRemoved: prefixInput,
+                baseWord,
+                result: nounForm
+            }
+        };
+
+        return {
+            ...nounEntry,
+            rawPrefix: prefixCore,
+            prefixDisplay: prefixInput,
+            html,
+            fullText,
+            keywordStem,
+            wordclass: 'adjective',
+            sourceWordclass: 'noun',
+            resultWordclass: 'adjective',
+            baseNounForm: nounForm,
+            baseNounStem: nounEntry.keywordStem,
+            context
+        };
+    });
 }
 let AdjectiveResults;
 
@@ -3142,7 +3207,14 @@ const WordDictionary = (() => {
                             gender: entry.gender,
                             number: entry.number,
                             declension,
-                            html: entry.html
+                            html: entry.html,
+                            rawPrefix: entry.rawPrefix,
+                            prefixDisplay: entry.prefixDisplay,
+                            sourceWordclass: entry.sourceWordclass,
+                            resultWordclass: entry.resultWordclass,
+                            baseNounForm: entry.baseNounForm,
+                            baseNounStem: entry.baseNounStem,
+                            context: entry.context
                         });
                     });
                 });
@@ -3295,7 +3367,14 @@ const WordDictionary = (() => {
                         gender: entry.gender,
                         number: entry.number,
                         declension,
-                        html: entry.html
+                        html: entry.html,
+                        rawPrefix: entry.rawPrefix,
+                        prefixDisplay: entry.prefixDisplay,
+                        sourceWordclass: entry.sourceWordclass,
+                        resultWordclass: entry.resultWordclass,
+                        baseNounForm: entry.baseNounForm,
+                        baseNounStem: entry.baseNounStem,
+                        context: entry.context
                     });
                 });
             } else if (type === "adv") {
