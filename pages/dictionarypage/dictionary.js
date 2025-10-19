@@ -387,6 +387,92 @@ function getNounResult(genderIn, moodIn, numberIn, personIn, field = 'all', noun
 // example usage
 // getNounResult('e','D','S',1,'fullText', NounResults);
 
+function generateAdjectiveWithSuffixes(keyword, options = {}) {
+    const adjectiveEntries = generateNounWithSuffixes(keyword, options);
+    return adjectiveEntries.map(entry => ({
+        ...entry,
+        wordclass: 'adjective'
+    }));
+}
+let AdjectiveResults;
+
+function getAdjectiveResult(genderIn, moodIn, numberIn, personIn, field = 'all', adjectiveArray = window.AdjectiveResults) {
+    return getNounResult(genderIn, moodIn, numberIn, personIn, field, adjectiveArray);
+}
+
+function generateAdverbForms(keyword, options = {}) {
+    const suffix = typeof options.adverbSuffix === 'string' ? options.adverbSuffix : 'nyl';
+    const adjectiveForms = Array.isArray(options.adjectiveForms)
+        ? options.adjectiveForms
+        : generateAdjectiveWithSuffixes(keyword, options);
+
+    if (!Array.isArray(adjectiveForms) || adjectiveForms.length === 0) {
+        return [];
+    }
+
+    return adjectiveForms.map(adj => {
+        const sourceAdjective = adj.fullText || adj.keyword || keyword;
+        const adjectiveStem = adj.keywordStem || adj.keyword || keyword;
+        const entries = connect_split("", adjectiveStem, suffix);
+        const prefixText = entries_to_text(entries[0]);
+        const stemText = entries_to_text(entries[1]);
+        const suffixText = entries_to_text(entries[2]);
+        const html = `<strong>${prefixText}</strong>${stemText}<strong>${suffixText}</strong>`;
+        const fullText = `${prefixText}${stemText}${suffixText}`;
+        const context = {
+            forwardTransform: {
+                fromWordclass: 'adjective',
+                toWordclass: 'adverb',
+                affixApplied: suffix,
+                result: fullText
+            },
+            reverseTransform: {
+                description: `Adding "${suffix}" to the adverb restores its adjective form.`,
+                fromWordclass: 'adverb',
+                toWordclass: 'adjective',
+                affixApplied: suffix,
+                result: sourceAdjective
+            }
+        };
+
+        return {
+            mood: adj.mood,
+            gender: adj.gender,
+            number: adj.number,
+            person: adj.person,
+            rawSuffix: suffix,
+            html,
+            fullText,
+            keyword,
+            keywordStem: stemText,
+            baseAdjective: sourceAdjective,
+            adjectiveStem,
+            adjectiveHtml: adj.html,
+            adjectiveFullText: adj.fullText,
+            wordclass: 'adverb',
+            resultWordclass: 'adverb',
+            context
+        };
+    });
+}
+let AdverbResults;
+
+const ALLOWED_ADVERB_EXTRA_FIELDS = new Set(['baseAdjective', 'adjectiveStem', 'adjectiveHtml', 'adjectiveFullText', 'resultWordclass', 'context']);
+
+function getAdverbResult(genderIn, moodIn, numberIn, personIn, field = 'all', adverbArray = window.AdverbResults) {
+    const entry = getNounResult(genderIn, moodIn, numberIn, personIn, 'all', adverbArray);
+    if (!entry) return null;
+
+    if (field === 'all') return entry;
+    if (ALLOWED_NOUN_FIELDS.has(field) || ALLOWED_ADVERB_EXTRA_FIELDS.has(field)) {
+        return entry[field];
+    }
+
+    const allowed = Array.from(new Set([...ALLOWED_NOUN_FIELDS, ...ALLOWED_ADVERB_EXTRA_FIELDS]));
+    console.error('Invalid field requested:', field, 'Allowed:', allowed.join(','));
+    return null;
+}
+
 
 /*
 <div class="declensiontables">
@@ -812,6 +898,172 @@ function getVerbResult
     VerbResults);
 */
 
+function generateAuxiliaryForms(keyword, options = {}) {
+    const prefixTables = AFFIXSTATE[affixState.P];
+    if (!prefixTables) return [];
+
+    const includeBare = options.includeBare !== false;
+    const result = [];
+
+    Object.keys(prefixTables).forEach(genderName => {
+        const genderTbl = prefixTables[genderName];
+        if (!genderTbl) return;
+
+        Object.keys(genderTbl).forEach(numberKey => {
+            const numberTbl = genderTbl[numberKey];
+            if (!numberTbl) return;
+
+            Object.keys(numberTbl).forEach(personKey => {
+                const rawPrefix = (numberTbl[personKey] || "").toString().trim();
+                if (!rawPrefix) return;
+
+                const entries = connect_split(rawPrefix, keyword, "");
+                const prefixText = entries_to_text(entries[0]);
+                const stemText = entries_to_text(entries[1]);
+                const suffixText = entries_to_text(entries[2]);
+                const html = `<strong>${prefixText}</strong>${stemText}<strong>${suffixText}</strong>`;
+                const fullText = `${prefixText}${stemText}${suffixText}`;
+                const prefixObj = {
+                    state: affixState.P,
+                    gender: genderName,
+                    number: numberKey,
+                    person: personKey,
+                    rawAffix: rawPrefix
+                };
+                const prefixKey = `${genderName}_${numberKey}_${personKey}`;
+
+                result.push({
+                    combinationType: 'prefix-only',
+                    state: affixState.P,
+                    gender: genderName,
+                    number: numberKey,
+                    person: personKey,
+                    rawAffix: rawPrefix,
+                    html,
+                    fullText,
+                    keyword,
+                    keywordStem: stemText,
+                    prefix: prefixObj,
+                    prefixKey,
+                    suffix: null,
+                    wordclass: 'auxiliary'
+                });
+            });
+        });
+    });
+
+    if (includeBare) {
+        const entries = connect_split("", keyword, "");
+        const prefixText = entries_to_text(entries[0]);
+        const stemText = entries_to_text(entries[1]);
+        const suffixText = entries_to_text(entries[2]);
+        const html = `<strong>${prefixText}</strong>${stemText}<strong>${suffixText}</strong>`;
+        const fullText = `${prefixText}${stemText}${suffixText}`;
+
+        result.push({
+            combinationType: 'bare',
+            state: null,
+            gender: null,
+            number: null,
+            person: null,
+            rawAffix: '',
+            html,
+            fullText,
+            keyword,
+            keywordStem: stemText || keyword,
+            prefix: null,
+            prefixKey: 'none',
+            suffix: null,
+            wordclass: 'auxiliary'
+        });
+    }
+
+    return result;
+}
+let AuxiliaryResults;
+
+const ALLOWED_AUXILIARY_FIELDS = new Set([
+    'state',
+    'gender',
+    'number',
+    'person',
+    'rawAffix',
+    'html',
+    'fullText',
+    'all',
+    'keywordStem',
+    'keyword',
+    'combinationType',
+    'prefix',
+    'prefixKey',
+    'suffix'
+]);
+
+function getAuxiliaryResult(prefixSpec, field = 'all', auxiliaryArray = window.AuxiliaryResults) {
+    if (!Array.isArray(auxiliaryArray)) {
+        console.error('AuxiliaryResults not found or not an array');
+        return null;
+    }
+
+    const normalizeSpec = (spec) => {
+        if (!spec) return null;
+        const { gender, number, person } = spec;
+
+        let genderName = null;
+        if (gender) {
+            const g = String(gender);
+            const foundG = Object.values(GENDERS).find(v => v.SHORT === g || v.NAME === g);
+            genderName = foundG ? foundG.NAME : g;
+        }
+
+        let numberName = null;
+        if (number) {
+            const n = String(number);
+            const foundNum = Object.entries(NUMBERS).find(([k, name]) => k === n || name === n);
+            numberName = foundNum ? foundNum[1] : n;
+        }
+
+        let personName = null;
+        if (person) {
+            personName = `${person}. Person`;
+        }
+
+        return { gender: genderName, number: numberName, person: personName };
+    };
+
+    const prefixNorm = normalizeSpec(prefixSpec);
+
+    const entry = auxiliaryArray.find(v => {
+        if (!prefixNorm) {
+            return !v.prefix;
+        }
+        if (!v.prefix) return false;
+
+        const genderMatch = prefixNorm.gender ? v.prefix.gender === prefixNorm.gender : true;
+        const numberMatch = prefixNorm.number ? v.prefix.number === prefixNorm.number : true;
+        const personMatch = prefixNorm.person ? v.prefix.person === prefixNorm.person : true;
+
+        if (genderMatch && numberMatch && personMatch) {
+            console.log(`AUX MATCH FOUND: ${v.fullText}`);
+        }
+
+        return genderMatch && numberMatch && personMatch;
+    });
+
+    if (!entry) {
+        console.error('No auxiliary entry matches the specified prefix');
+        return null;
+    }
+
+    if (field === 'all') return entry;
+    if (!ALLOWED_AUXILIARY_FIELDS.has(field)) {
+        console.error('Invalid field requested:', field, 'Allowed:', Array.from(ALLOWED_AUXILIARY_FIELDS).join(','));
+        return null;
+    }
+
+    return entry[field];
+}
+
 
 
 
@@ -824,7 +1076,7 @@ function getVerbResult
 let examples = [];
 
 // Adjust this to where your file is served in the repository
-const EXCEL_URL = '22-09-2025.xlsx';
+const EXCEL_URL = 'assets/22-09-2025.xlsx';
 
 // Helper to populate a datalist (optional)
 function populateDatalist(items) {
@@ -1197,7 +1449,7 @@ function removePageDivsExceptKeyword(keyword, start, end) {
 
 function createSummaryTables() {
 
-    const keyword = dictionaryData.keyword.keyword;
+    const keyword = dictionaryData.keyword.baseKeyword || dictionaryData.keyword.keyword;
 
     switch (getCurrentWordClass()) {
         case 'n':
@@ -2137,6 +2389,15 @@ function buildFromDictionaryTable() {
             case 'v':
                 declensionsArray = generateVerbAffixes(word);
                 break;
+            case 'adj':
+                declensionsArray = generateAdjectiveWithSuffixes(word, { useAttachAsSuffix: true });
+                break;
+            case 'adv':
+                declensionsArray = generateAdverbForms(word, { useAttachAsSuffix: true });
+                break;
+            case 'aux':
+                declensionsArray = generateAuxiliaryForms(word);
+                break;
         }
         // Convert array row into an object with labels
         const rowObject = {
@@ -2384,17 +2645,92 @@ function doSearch() {
         // get keyword data
         const field1 = document.getElementById('search_field');
         const field2 = document.getElementById('search_field1');
-        const keywordDisplay = field1?.value.trim()
+        const keywordDisplay = (field1 && field1.value ? field1.value.trim() : '') ||
+            (field2 && field2.value ? field2.value.trim() : '');
+
+        if (!keywordDisplay) {
+            alert('Please enter a search term.');
+            console.warn('performSearch() aborted: no keyword provided.');
+            return;
+        }
+
         const keyword = keywordDisplay.toLowerCase();
 
-        const occurrences = WordDictionary.findOccurrences(keyword);
-        const parentArray = generateNounWithSuffixes(occurrences[0].baseWord, { useAttachAsSuffix: true });
+        const normalizeTypeLabel = (typeIn) => {
+            const t = String(typeIn || '').toLowerCase();
+            switch (t) {
+                case 'n':
+                case 'noun':
+                    return 'noun';
+                case 'v':
+                case 'verb':
+                    return 'verb';
+                case 'adj':
+                case 'adjective':
+                    return 'adjective';
+                case 'adv':
+                case 'adverb':
+                    return 'adverb';
+                case 'aux':
+                case 'auxiliary':
+                case 'auxiliarie':
+                case 'auxiliaries':
+                    return 'auxiliary';
+                default:
+                    return t;
+            }
+        };
+
+        const generateParentArrayForType = (typeKey, baseWord) => {
+            switch (typeKey) {
+                case 'noun':
+                    return generateNounWithSuffixes(baseWord, { useAttachAsSuffix: true }) || [];
+                case 'verb':
+                    return generateVerbAffixes(baseWord) || [];
+                case 'adjective':
+                    return generateAdjectiveWithSuffixes(baseWord, { useAttachAsSuffix: true }) || [];
+                case 'adverb':
+                    return generateAdverbForms(baseWord, { useAttachAsSuffix: true }) || [];
+                case 'auxiliary':
+                    return generateAuxiliaryForms(baseWord) || [];
+                default:
+                    return [];
+            }
+        };
+
+        const occurrences = WordDictionary.findOccurrences(keyword) || [];
+        const parentArraysByType = {};
+        const baseWordsByType = {};
+
+        occurrences.forEach(occurrence => {
+            const typeKey = normalizeTypeLabel(occurrence.type);
+            if (!typeKey) return;
+            if (parentArraysByType[typeKey]) return;
+            const baseWord = occurrence.baseWord || keyword;
+            parentArraysByType[typeKey] = {
+                baseWord,
+                forms: generateParentArrayForType(typeKey, baseWord)
+            };
+            baseWordsByType[typeKey] = baseWord;
+        });
+
+        const primaryOccurrence = occurrences[0] || null;
+        const matchedType = normalizeTypeLabel(primaryOccurrence ? primaryOccurrence.type : '');
+        const matchedBaseWord = baseWordsByType[matchedType] || (primaryOccurrence ? primaryOccurrence.baseWord : null) || keyword;
+        const pageKey = matchedBaseWord ? String(matchedBaseWord).toLowerCase() : keyword;
+        const parentArray = parentArraysByType[matchedType]?.forms || [];
+
         const keywordData =
         {
             keyword,
-            pageID: pages1[keyword],
+            baseKeyword: pageKey,
+            matchedType,
+            matchedBaseWord,
+            pageID: pages1[pageKey],
             occurrences: occurrences,
             parentArray: parentArray,
+            parentArrays: parentArraysByType,
+            baseWordsByType: baseWordsByType,
         };
         dictionaryData.keyword = keywordData;
 
@@ -2436,44 +2772,34 @@ function doSearch() {
 
                 const keyword = dictionaryData.keyword.keyword;
                 const targetPageId = dictionaryData.keyword.pageID;
+                const baseWord = dictionaryData.keyword.matchedBaseWord || dictionaryData.keyword.baseKeyword || keyword;
 
-                const result = WordDictionary.get();
-                const occurrences = WordDictionary.findOccurrences(keyword);
+                WordDictionary.get();
+                const occurrences = Array.isArray(dictionaryData.keyword.occurrences)
+                    ? dictionaryData.keyword.occurrences
+                    : [];
+                const typeKey = dictionaryData.keyword.matchedType || normalizeTypeLabel(occurrences[0]?.type);
+                const parentArrays = dictionaryData.keyword.parentArrays || {};
+                const parentArray = Array.isArray(parentArrays[typeKey]?.forms)
+                    ? parentArrays[typeKey].forms
+                    : (Array.isArray(dictionaryData.keyword.parentArray) ? dictionaryData.keyword.parentArray : []);
 
+                if (parentArray.length > 0) {
+                    const keywordLower = keyword.toLowerCase();
+                    const matchingItem = parentArray.find(item => {
+                        const form = String(item.fullText || '').toLowerCase();
+                        return form === keywordLower;
+                    });
 
-                if (occurrences.length > 0) {
-                    // verb innerHTML
-                    if (occurrences[0].type === "verb") {
-                        const parentArray = generateVerbAffixes(occurrences[0].baseWord);
-
-                        // Only keep items where fullText === keyword
-                        const matchingItems = parentArray.filter(item => item.fullText === keyword);
-
-                        if (matchingItems.length > 0) {
-                            innerHTML = matchingItems[0].html;
-                            console.log(innerHTML);
-                        }
-
-                        console.log("parentArray of keyword:", parentArray);
+                    if (matchingItem) {
+                        innerHTML = matchingItem.html || '';
+                        console.log(innerHTML);
                     }
-                    // noun innerHTML
-                    if (occurrences[0].type === "noun") {
-                        const parentArray = generateNounWithSuffixes(occurrences[0].baseWord, { useAttachAsSuffix: true });
 
-                        // Only keep items where fullText === keyword
-                        const matchingItems = parentArray.filter(item => item.fullText === keyword);
-
-                        if (matchingItems.length > 0) {
-                            innerHTML = matchingItems[0].html;
-                            console.log(innerHTML);
-                        }
-
-                        console.log("parentArray of keyword:", parentArray);
-                    }
-                    console.log("All occurrences of keyword:", occurrences);
+                    console.log("parentArray of keyword:", parentArray);
                 }
 
-                if (occurrences.length > 0) {
+                if (occurrences.length > 0 && innerHTML) {
                     // create the page for keyword
                     const page = document.createElement('div');
                     page.id = 'page11998';
@@ -2514,7 +2840,7 @@ function doSearch() {
             return;
         }
 
-        const targetPageId = pages1[keyword];
+        const targetPageId = dictionaryData.keyword.pageID || pages1[keyword];
         if (!targetPageId) {
             if (document.getElementById("page11998")) return; // dont show if page11998 exists
             alert('No page found for that word.');
@@ -2552,8 +2878,9 @@ function doSearch() {
         // Wait for the page content to load, then setup the table
         waitForElement(`#${targetPageId} .tablesContainer`).then(pageContainer => {
             // Create and fill the table
-            const table = createTable(keyword, pageContainer);
-            fillTable(keyword, table);
+            const baseKeyword = dictionaryData.keyword.baseKeyword || keyword;
+            const table = createTable(baseKeyword, pageContainer);
+            fillTable(baseKeyword, table);
 
             // Update keyword <p>s
             const keywordp = document.getElementById("keywordp");
@@ -2585,10 +2912,16 @@ function doSearch() {
                         contentFile = 'pages/dictionarypage/text/verbtextbox.html'; // verbs text
                         break;
                     case 'adv':
+                    case 'adverb':
                         contentFile = 'pages/dictionarypage/text/adverbtextbox.html'; // adverbs text
                         break;
                     case 'aux':
+                    case 'auxiliary':
                         contentFile = 'pages/dictionarypage/text/auxiliarytextbox.html'; // auxiliaries text
+                        break;
+                    case 'adj':
+                    case 'adjective':
+                        contentFile = 'pages/dictionarypage/text/adjectivetextbox.html'; // adjectives text
                         break;
                     default:
                         contentFile = 'pages/dictionarypage/text/nountextbox.html'; // Default fallback text
@@ -2641,7 +2974,10 @@ function doSearch() {
         return (
             dictionaryData && (
                 (Array.isArray(dictionaryData.nouns) && dictionaryData.nouns.length > 0) ||
-                (Array.isArray(dictionaryData.verbs) && dictionaryData.verbs.length > 0)
+                (Array.isArray(dictionaryData.verbs) && dictionaryData.verbs.length > 0) ||
+                (Array.isArray(dictionaryData.adjectives) && dictionaryData.adjectives.length > 0) ||
+                (Array.isArray(dictionaryData.adverbs) && dictionaryData.adverbs.length > 0) ||
+                (Array.isArray(dictionaryData.auxiliaries) && dictionaryData.auxiliaries.length > 0)
             )
         );
     };
@@ -2710,11 +3046,11 @@ function doSearch() {
                     loadFromGoogleSheets(userKey);
                     console.log("loaded from official sheet");
                 } else {
-                    loadFromExcelFile("22-09-2025.xlsx");
+                    loadFromExcelFile("assets/22-09-2025.xlsx");
                     console.log("loaded from excel file(may be outdated)");
                 }
             } else {
-                loadFromExcelFile("22-09-2025.xlsx");
+                loadFromExcelFile("assets/22-09-2025.xlsx");
                 console.log("loaded from excel file(may be outdated)");
             }
         }
@@ -2772,10 +3108,109 @@ const WordDictionary = (() => {
                         const declension = Number(entry.person);
                         dictionaryMap[baseWord].forms.push({
                             word: entry.fullText,
+                            wordclass: 'noun',
                             mood: entry.mood,
                             gender: entry.gender, // already full gender name
                             number: entry.number,
                             declension
+                        });
+                    });
+                });
+            }
+
+            // Adjectives
+            if (Array.isArray(dictionaryData.adjectives)) {
+                dictionaryData.adjectives.forEach(row => {
+                    const declensions = row["all declensions"];
+                    if (!Array.isArray(declensions) || declensions.length === 0) return;
+
+                    const baseWord = declensions[0]?.keyword
+                        || (row.word ? String(row.word).replace(/\(\d\)/, '').trim().toLowerCase() : null);
+                    if (!baseWord) return;
+
+                    if (!dictionaryMap[baseWord]) {
+                        dictionaryMap[baseWord] = { type: "adjective", forms: [] };
+                    }
+
+                    declensions.forEach(entry => {
+                        if (!entry || !entry.fullText) return;
+                        const declension = Number(entry.person);
+                        dictionaryMap[baseWord].forms.push({
+                            word: entry.fullText,
+                            wordclass: 'adjective',
+                            mood: entry.mood,
+                            gender: entry.gender,
+                            number: entry.number,
+                            declension,
+                            html: entry.html
+                        });
+                    });
+                });
+            }
+
+            // Adverbs
+            if (Array.isArray(dictionaryData.adverbs)) {
+                dictionaryData.adverbs.forEach(row => {
+                    const adverbForms = row["all declensions"];
+                    if (!Array.isArray(adverbForms) || adverbForms.length === 0) return;
+
+                    const baseWord = adverbForms[0]?.keyword
+                        || (row.word ? String(row.word).replace(/\(\d\)/, '').trim().toLowerCase() : null);
+                    if (!baseWord) return;
+
+                    if (!dictionaryMap[baseWord]) {
+                        dictionaryMap[baseWord] = { type: "adverb", forms: [] };
+                    }
+
+                    adverbForms.forEach(entry => {
+                        if (!entry || !entry.fullText) return;
+                        const declension = Number(entry.person);
+                        dictionaryMap[baseWord].forms.push({
+                            word: entry.fullText,
+                            wordclass: 'adverb',
+                            mood: entry.mood,
+                            gender: entry.gender,
+                            number: entry.number,
+                            declension,
+                            html: entry.html,
+                            baseAdjective: entry.baseAdjective,
+                            adjectiveStem: entry.adjectiveStem,
+                            resultWordclass: entry.resultWordclass,
+                            context: entry.context
+                        });
+                    });
+                });
+            }
+
+            // Auxiliaries
+            if (Array.isArray(dictionaryData.auxiliaries)) {
+                dictionaryData.auxiliaries.forEach(row => {
+                    const auxForms = row["all declensions"];
+                    if (!Array.isArray(auxForms) || auxForms.length === 0) return;
+
+                    const baseWord = auxForms[0]?.keyword
+                        || (row.word ? String(row.word).replace(/\(\d\)/, '').trim().toLowerCase() : null);
+                    if (!baseWord) return;
+
+                    if (!dictionaryMap[baseWord]) {
+                        dictionaryMap[baseWord] = { type: "auxiliary", forms: [] };
+                    }
+
+                    auxForms.forEach(entry => {
+                        if (!entry || !entry.fullText) return;
+                        const prefixKey = entry.prefixKey
+                            || (entry.prefix ? `${entry.prefix.gender}_${entry.prefix.number}_${entry.prefix.person}` : "none");
+                        dictionaryMap[baseWord].forms.push({
+                            word: entry.fullText,
+                            wordclass: 'auxiliary',
+                            state: entry.state,
+                            gender: entry.gender,
+                            number: entry.number,
+                            person: entry.person,
+                            rawAffix: entry.rawAffix,
+                            html: entry.html,
+                            combinationType: entry.combinationType,
+                            prefixKey
                         });
                     });
                 });
@@ -2799,7 +3234,7 @@ const WordDictionary = (() => {
                         if (!entry || !entry.fullText) return;
                         const prefixKey = entry.prefix ? `${entry.prefix.gender}_${entry.prefix.number}_${entry.prefix.person}` : "none";
                         const suffixKey = entry.suffix ? `${entry.suffix.gender}_${entry.suffix.number}_${entry.suffix.person}` : "none";
-                        dictionaryMap[baseWord].forms.push({ word: entry.fullText, prefixKey, suffixKey });
+                        dictionaryMap[baseWord].forms.push({ word: entry.fullText, wordclass: 'verb', prefixKey, suffixKey });
                     });
                 });
             }
@@ -2832,7 +3267,7 @@ const WordDictionary = (() => {
                         Object.keys(NUMBERS).forEach(numberKey => {
                             for (let decl = 1; decl <= 4; decl++) {
                                 const affixedWord = getNounResult(gender, mood, numberKey, decl, "fullText", NounResults);
-                                dictionaryMap[keyword].forms.push({ word: affixedWord, mood, gender, number: numberKey, declension: decl });
+                                dictionaryMap[keyword].forms.push({ word: affixedWord, wordclass: 'noun', mood, gender, number: numberKey, declension: decl });
                             }
                         });
                     });
@@ -2845,7 +3280,63 @@ const WordDictionary = (() => {
                 VerbResults.forEach(entry => {
                     const prefixKey = entry.prefix ? `${entry.prefix.gender}_${entry.prefix.number}_${entry.prefix.person}` : "none";
                     const suffixKey = entry.suffix ? `${entry.suffix.gender}_${entry.suffix.number}_${entry.suffix.person}` : "none";
-                    dictionaryMap[keyword].forms.push({ word: entry.fullText, prefixKey, suffixKey });
+                    dictionaryMap[keyword].forms.push({ word: entry.fullText, wordclass: 'verb', prefixKey, suffixKey });
+                });
+            } else if (type === "adj") {
+                dictionaryMap[keyword] = { type: "adjective", forms: [] };
+                const AdjectiveResults = generateAdjectiveWithSuffixes(keyword, { useAttachAsSuffix: true });
+
+                AdjectiveResults.forEach(entry => {
+                    const declension = Number(entry.person);
+                    dictionaryMap[keyword].forms.push({
+                        word: entry.fullText,
+                        wordclass: 'adjective',
+                        mood: entry.mood,
+                        gender: entry.gender,
+                        number: entry.number,
+                        declension,
+                        html: entry.html
+                    });
+                });
+            } else if (type === "adv") {
+                dictionaryMap[keyword] = { type: "adverb", forms: [] };
+                const AdverbResults = generateAdverbForms(keyword, { useAttachAsSuffix: true });
+
+                AdverbResults.forEach(entry => {
+                    const declension = Number(entry.person);
+                    dictionaryMap[keyword].forms.push({
+                        word: entry.fullText,
+                        wordclass: 'adverb',
+                        mood: entry.mood,
+                        gender: entry.gender,
+                        number: entry.number,
+                        declension,
+                        html: entry.html,
+                        baseAdjective: entry.baseAdjective,
+                        adjectiveStem: entry.adjectiveStem,
+                        resultWordclass: entry.resultWordclass,
+                        context: entry.context
+                    });
+                });
+            } else if (type === "aux") {
+                dictionaryMap[keyword] = { type: "auxiliary", forms: [] };
+                const AuxiliaryResults = generateAuxiliaryForms(keyword);
+
+                AuxiliaryResults.forEach(entry => {
+                    const prefixKey = entry.prefixKey
+                        || (entry.prefix ? `${entry.prefix.gender}_${entry.prefix.number}_${entry.prefix.person}` : "none");
+                    dictionaryMap[keyword].forms.push({
+                        word: entry.fullText,
+                        wordclass: 'auxiliary',
+                        state: entry.state,
+                        gender: entry.gender,
+                        number: entry.number,
+                        person: entry.person,
+                        rawAffix: entry.rawAffix,
+                        html: entry.html,
+                        combinationType: entry.combinationType,
+                        prefixKey
+                    });
                 });
             }
         });
@@ -2880,7 +3371,8 @@ const WordDictionary = (() => {
                 const entry = dictionaryMap[baseWord];
                 entry.forms.forEach(form => {
                     if (String(form.word).toLowerCase() === q) {
-                        occurrences.push({ baseWord, type: entry.type, matchType: 'form', ...form });
+                        const formType = String(form.wordclass || form.type || entry.type || '').toLowerCase();
+                        occurrences.push({ baseWord, type: formType, matchType: 'form', ...form });
                     }
                 });
             }
