@@ -203,167 +203,6 @@ let dictionaryData = {
     },
 };
 
-const DICTIONARY_CACHE_VERSION = '1';
-const DICTIONARY_CACHE_KEY = `dictionaryDataCache::${DICTIONARY_CACHE_VERSION}`;
-let dictionaryCacheState = { loaded: false, raw: null, timestamp: null };
-let dictionaryCacheSupported = false;
-
-try {
-    if (typeof window !== 'undefined' && window.localStorage) {
-        const testKey = '__dictionary_cache_test__';
-        window.localStorage.setItem(testKey, '1');
-        window.localStorage.removeItem(testKey);
-        dictionaryCacheSupported = true;
-    }
-} catch (cacheError) {
-    dictionaryCacheSupported = false;
-}
-
-function assignPagesMap(map) {
-    if (typeof globalThis !== 'undefined' && map && typeof map === 'object') {
-        globalThis.pages1 = map;
-    }
-}
-
-function collectDictionaryArrays() {
-    const cachedDictionary = {};
-    for (const key in dictionaryData) {
-        if (!Object.prototype.hasOwnProperty.call(dictionaryData, key)) continue;
-        const value = dictionaryData[key];
-        if (Array.isArray(value) && key !== 'raw' && key !== 'sorted') {
-            cachedDictionary[key] = value;
-        }
-    }
-    return cachedDictionary;
-}
-
-function loadDictionaryCache() {
-    if (!dictionaryCacheSupported) {
-        return { loaded: false, raw: null, timestamp: null };
-    }
-
-    try {
-        const stored = window.localStorage.getItem(DICTIONARY_CACHE_KEY);
-        if (!stored) {
-            return { loaded: false, raw: null, timestamp: null };
-        }
-
-        const payload = JSON.parse(stored);
-        if (!payload || payload.version !== DICTIONARY_CACHE_VERSION || !payload.dictionaryData) {
-            return { loaded: false, raw: null, timestamp: null };
-        }
-
-        const rehydrated = {};
-
-        for (const key in payload.dictionaryData) {
-            if (!Object.prototype.hasOwnProperty.call(payload.dictionaryData, key)) continue;
-            const value = payload.dictionaryData[key];
-            if (Array.isArray(value)) {
-                rehydrated[key] = value;
-            }
-        }
-
-        // Default expected arrays to empty arrays if they are missing
-        [
-            'nouns',
-            'verbs',
-            'adjectives',
-            'adverbs',
-            'auxiliaries',
-            'prepositions',
-            'particles',
-            'conjunctions',
-            'determiners'
-        ].forEach(key => {
-            if (!Array.isArray(rehydrated[key])) {
-                rehydrated[key] = [];
-            }
-        });
-
-        dictionaryData = {
-            ...rehydrated,
-            keyword: null,
-            raw: null
-        };
-
-        assignPagesMap(payload.pages1 && typeof payload.pages1 === 'object' ? payload.pages1 : {});
-
-        const rawTable = Array.isArray(payload.raw) ? payload.raw : null;
-        const timestamp = typeof payload.timestamp === 'number' ? payload.timestamp : null;
-
-        return { loaded: true, raw: rawTable, timestamp };
-    } catch (error) {
-        console.warn('Failed to load dictionary cache', error);
-        return { loaded: false, raw: null, timestamp: null };
-    }
-}
-
-function saveDictionaryCache(rawSnapshot) {
-    if (!dictionaryCacheSupported) {
-        dictionaryCacheState = { loaded: false, raw: null, timestamp: null };
-        return;
-    }
-
-    try {
-        const payload = {
-            version: DICTIONARY_CACHE_VERSION,
-            timestamp: Date.now(),
-            dictionaryData: collectDictionaryArrays(),
-            pages1: (typeof globalThis !== 'undefined' && globalThis.pages1 && typeof globalThis.pages1 === 'object')
-                ? globalThis.pages1
-                : {},
-            raw: Array.isArray(rawSnapshot) ? rawSnapshot : null
-        };
-
-        window.localStorage.setItem(DICTIONARY_CACHE_KEY, JSON.stringify(payload));
-        dictionaryCacheState = {
-            loaded: true,
-            raw: payload.raw,
-            timestamp: payload.timestamp
-        };
-    } catch (error) {
-        console.warn('Failed to save dictionary cache', error);
-    }
-}
-
-function clearDictionaryCache() {
-    if (!dictionaryCacheSupported) return;
-    try {
-        window.localStorage.removeItem(DICTIONARY_CACHE_KEY);
-    } catch (error) {
-        console.warn('Failed to clear dictionary cache', error);
-    }
-    dictionaryCacheState = { loaded: false, raw: null, timestamp: null };
-}
-
-if (typeof window !== 'undefined') {
-    window.clearDictionaryCache = clearDictionaryCache;
-}
-
-function scheduleRenderFromCache(rawTable) {
-    if (!Array.isArray(rawTable) || rawTable.length === 0) return;
-    if (typeof document === 'undefined') return;
-
-    const render = () => {
-        try {
-            renderTable(rawTable, { skipProcessing: true });
-        } catch (error) {
-            console.warn('Failed to render cached dictionary table', error);
-        }
-    };
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', render, { once: true });
-    } else {
-        render();
-    }
-}
-
-dictionaryCacheState = loadDictionaryCache();
-if (dictionaryCacheState.loaded && Array.isArray(dictionaryCacheState.raw)) {
-    scheduleRenderFromCache(dictionaryCacheState.raw);
-}
-
 //isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
 const prepositionCache = { list: null };
 
@@ -1735,8 +1574,7 @@ setTimeout(() => {
     console.log("'showDictionaryPrintout();' to go to dictionary print page")
 }, 250); // mention the command in the console, so you know how to find the dictionary list. also, on delay, so its at the bottom of the console.
 
-function renderTable(data, options = {}) {
-    const skipProcessing = !!(options && options.skipProcessing);
+function renderTable(data) {
     const container = document.getElementById("sheet-data");
     const table = document.createElement("table");
     table.id = "sheet-data-table";
@@ -1781,13 +1619,11 @@ function renderTable(data, options = {}) {
     container.innerHTML = "";
     container.appendChild(table);
 
-    if (!skipProcessing) {
-        // Build pages1 and dictionaryData from table
-        buildFromDictionaryTable();
+    // Build pages1 and dictionaryData from table
+    buildFromDictionaryTable();
 
-        // Continue with declension logic
-        processDictionaryTable(data);
-    }
+    // Continue with declension logic
+    processDictionaryTable(data);
 }
 
 // Helper: make a safe string for IDs/selectors (words containing the ax symbol can now still be converted into ids)
@@ -2886,20 +2722,7 @@ function buildFromDictionaryTable() {
         return;
     }
 
-    const rawSnapshot = Array.isArray(dictionaryData.raw) ? dictionaryData.raw : null;
     pages1 = {};
-
-    dictionaryData.sorted = {
-        adjectives: [],
-        adverbs: [],
-        auxiliaries: [],
-        conjunctions: [],
-        determiners: [],
-        nouns: [],
-        particles: [],
-        prepositions: [],
-        verbs: []
-    };
 
     let pageNumber = 10000; // Start counting up from 10000
 
@@ -2982,12 +2805,12 @@ function buildFromDictionaryTable() {
         }
     });
 
-    finalizeDictionaryData(rawSnapshot);
+    finalizeDictionaryData();
     //console.log("pages1 mapping:", pages1);
     //console.log("dictionaryData:", dictionaryData);
 }
 
-function finalizeDictionaryData(rawSnapshot) {
+function finalizeDictionaryData() {
     if (!dictionaryData) return;
 
     // First, remove raw[]
@@ -3040,8 +2863,6 @@ function finalizeDictionaryData(rawSnapshot) {
             });
         });
     })();
-
-    saveDictionaryCache(rawSnapshot);
 }
 
 
@@ -3345,11 +3166,9 @@ function doSearch() {
                             });
                         } else {
                             resolve(pageEl); // already exists
-        }
-    });
-}
-
-    saveDictionaryCache(rawSnapshot);
+                        }
+                    });
+                }
 
                 const keyword = dictionaryData.keyword.keyword;
                 const targetPageId = dictionaryData.keyword.pageID;
@@ -4021,6 +3840,7 @@ const WordDictionary = (() => {
                 const buckets = [
                     'nouns', 'verbs', 'adjectives', 'adverbs', 'auxiliaries', 'prepositions', 'particles', 'conjunctions', 'determiners'
                 ];
+                const queryNormalized = normalizeSearchValue(q);
                 const matchValue = (value) => {
                     if (!value) return false;
                     const lower = String(value).trim().toLowerCase();
