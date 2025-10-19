@@ -245,7 +245,7 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     }
 
                     const fullTextûlPart = `${fullText}ûl`;
-                    const htmlûlPart = `${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ûl</strong><strong>`;
+                    const htmlûlPart = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ûl</strong>`;
                     const ûl = {
                         fullText: fullTextûlPart,
                         html: htmlûlPart,
@@ -253,7 +253,7 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     }
 
                     const fullTextūnPart = `${fullText}ūn`;
-                    const htmlūnPart = `${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ūn</strong><strong>`;
+                    const htmlūnPart = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ūn</strong>`;
                     const ūn = {
                         fullText: fullTextūnPart,
                         html: htmlūnPart,
@@ -261,7 +261,7 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     }
 
                     const fullTextānPart = `${fullText}ān`;
-                    const htmlānPart = `${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ān</strong><strong>`;
+                    const htmlānPart = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ān</strong>`;
                     const ān = {
                         fullText: fullTextānPart,
                         html: htmlānPart,
@@ -269,7 +269,7 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     }
 
                     const fullTextōnPart = `${fullText}ōn`;
-                    const htmlōnPart = `${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ōn</strong><strong>`;
+                    const htmlōnPart = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ōn</strong>`;
                     const ōn = {
                         fullText: fullTextōnPart,
                         html: htmlōnPart,
@@ -283,6 +283,16 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         ān,
                         ōn
                     };
+                    const withPrepositionsAttached = [];
+                    for (const i = 0; i < 26; i++) {
+                        const normalized = normalizeText(dictionaryData.prepositions[i].word);
+                        const fullTextPP = `${normalized}${fullText}`;
+                        const htmlPP = `<strong>${normalized}</strong><strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+                        withPrepositionsAttached.push({
+                            fullTextPP,
+                            htmlPP
+                        })
+                    }
 
                     result.push({
                         mood: moodKey,
@@ -294,7 +304,8 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         fullText,
                         keyword,
                         keywordStem,
-                        withParticlesAttached
+                        withParticlesAttached,
+                        withPrepositionsAttached
                     });
                 });
             });
@@ -2345,9 +2356,13 @@ function loadTableFilesForWord(stem, rowNumber, gender, wordId) {  // nope
 
 // === Normalize text and hide empty rows ===
 function normalizeText(s) {
-    return (s || "").replace(/\u00a0/g, " ").trim();
-
+    return String(s || "")
+        .replace(/\u00A0/g, " ")        // NBSP -> space
+        .replace(/[-–—]/g, "")          // remove ASCII hyphen, en-dash, em-dash
+        .replace(/\s+/g, " ")           // collapse repeated whitespace
+        .trim();
 }
+
 
 function hideEmptySummaryRowsIn(summaryTableId) {
     const table = document.getElementById(summaryTableId);
