@@ -204,65 +204,6 @@ let dictionaryData = {
 };
 
 //isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
-const prepositionCache = { list: null };
-
-function getPrepositionList() {
-    if (Array.isArray(prepositionCache.list)) {
-        return prepositionCache.list;
-    }
-
-    const seen = new Set();
-    const list = [];
-
-    const addWord = (word, source = null) => {
-        const original = typeof word === 'string' ? word.trim() : (word ? String(word) : '');
-        if (!original) return;
-        const normalizedKey = normalizeText(original);
-        if (!normalizedKey) return;
-        if (seen.has(normalizedKey)) return;
-        seen.add(normalizedKey);
-        list.push({
-            word: original,
-            normalized: normalizedKey,
-            source
-        });
-    };
-
-    const tryFromArray = (arr) => {
-        if (!Array.isArray(arr)) return;
-        arr.forEach(item => {
-            if (!item) return;
-            const word = typeof item === 'string'
-                ? item
-                : (item.word !== undefined ? item.word : Array.isArray(item) ? item[0] : null);
-            addWord(word, item);
-        });
-    };
-
-    if (dictionaryData && typeof dictionaryData === 'object') {
-        tryFromArray(dictionaryData.prepositions);
-        if (dictionaryData.sorted) {
-            tryFromArray(dictionaryData.sorted.prepositions);
-        }
-        if (Array.isArray(dictionaryData.raw)) {
-            dictionaryData.raw.forEach(row => {
-                if (!Array.isArray(row)) return;
-                const wordClass = row[1];
-                if (String(wordClass || '').trim().toLowerCase() === 'pp') {
-                    addWord(row[0], row);
-                }
-            });
-        }
-    }
-
-    if (typeof window !== 'undefined') {
-        tryFromArray(window.PrepositionList);
-        tryFromArray(window.DefaultPrepositions);
-    }
-
-    prepositionCache.list = list;
-    return list;
-}
 
 
 // Produces NounWithSuffix array for a single base word
@@ -341,26 +282,8 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         ūn,
                         ān,
                         ōn
-                    };
-                    const prepositionArray = getPrepositionList();
-
-                    const withPrepositionsAttached = [];
-                    if (Array.isArray(prepositionArray) && prepositionArray.length > 0) {
-                        prepositionArray.forEach(prep => {
-                            if (!prep) return;
-                            const original = (prep.word !== undefined ? prep.word : prep.normalized) || '';
-                            const normalized = prep.normalized || normalizeText(original);
-                            if (!original || !normalized) return;
-                            const fullTextPP = `${original}${fullText}`;
-                            const htmlPP = `<strong>${original}</strong><strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
-                            withPrepositionsAttached.push({
-                                fullText: fullTextPP,
-                                html: htmlPP,
-                                preposition: original,
-                                normalizedPreposition: normalized
-                            });
-                        });
                     }
+                    const withPrepositionsAttached = [];
 
                     result.push({
                         mood: moodKey,
@@ -410,11 +333,7 @@ const ALLOWED_NOUN_FIELDS = new Set(
         'particleDisplay',
         'particleContext',
         'isParticleAttachedForm',
-        'baseFullText',
-        'preposition',
-        'normalizedPreposition',
-        'prepositionContext',
-        'isPrepositionAttachedForm'
+        'baseFullText'
     ]
 );
 
@@ -746,69 +665,6 @@ function collectParticleForms(entry, defaults = {}) {
     return results;
 }
 
-function collectPrepositionForms(entry, defaults = {}) {
-    if (!entry || typeof entry !== 'object') return [];
-    const attachments = entry.withPrepositionsAttached;
-    if (!Array.isArray(attachments) || attachments.length === 0) return [];
-
-    const baseWordclass = entry.wordclass || defaults.wordclass || 'noun';
-    const baseKeyword = entry.keyword || defaults.keyword || '';
-    const baseFullText = entry.fullText || defaults.baseFullText || '';
-    const baseStem = entry.keywordStem || defaults.keywordStem || '';
-    const baseSourceWordclass = entry.sourceWordclass || baseWordclass;
-    const baseResultWordclass = entry.resultWordclass || baseWordclass;
-    const defaultDeclensionRaw = defaults.declension !== undefined ? defaults.declension : entry.declension ?? entry.person;
-    const defaultDeclensionNum = Number(defaultDeclensionRaw);
-    const declensionValue = Number.isFinite(defaultDeclensionNum) ? defaultDeclensionNum : defaultDeclensionRaw;
-
-    const results = [];
-    attachments.forEach(item => {
-        if (!item) return;
-        const fullText = item.fullText || item.word || item.fullTextPP || '';
-        if (!fullText) return;
-        const html = item.html || '';
-        const preposition = item.preposition || item.word || '';
-        const normalizedPreposition = item.normalizedPreposition || normalizeText(preposition);
-        if (!preposition || !normalizedPreposition) return;
-
-        const context = {
-            baseForm: baseFullText,
-            baseKeyword,
-            preposition,
-            normalizedPreposition,
-            result: fullText
-        };
-
-        results.push({
-            word: fullText,
-            fullText,
-            html,
-            mood: entry.mood,
-            gender: entry.gender,
-            number: entry.number,
-            person: entry.person,
-            rawSuffix: entry.rawSuffix,
-            rawPrefix: entry.rawPrefix,
-            keyword: baseKeyword,
-            keywordStem: baseStem,
-            wordclass: baseWordclass,
-            sourceWordclass: baseSourceWordclass,
-            resultWordclass: baseResultWordclass,
-            baseNounForm: entry.baseNounForm || baseFullText,
-            baseNounStem: entry.baseNounStem || baseStem,
-            baseFullText,
-            declension: declensionValue,
-            preposition,
-            normalizedPreposition,
-            isPrepositionAttachedForm: true,
-            context,
-            prepositionContext: context
-        });
-    });
-
-    return results;
-}
-
 function getEntriesWithParticles(entries, defaults = {}) {
     if (!Array.isArray(entries)) {
         return { base: [], extras: [], combined: [] };
@@ -817,7 +673,6 @@ function getEntriesWithParticles(entries, defaults = {}) {
     const extras = [];
     entries.forEach(entry => {
         extras.push(...collectParticleForms(entry, defaults));
-        extras.push(...collectPrepositionForms(entry, defaults));
     });
 
     const combined = extras.length ? entries.concat(extras) : entries.slice();
@@ -2767,11 +2622,9 @@ function buildFromDictionaryTable() {
         switch (wordClass) {
             case "n":
                 dictionaryData.sorted.nouns.push(rowObject);
-                //declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
                 break;
             case "v":
                 dictionaryData.sorted.verbs.push(rowObject);
-                //declensionsArray = generateVerbAffixes(word);
                 break;
             case "adj":
                 dictionaryData.sorted.adjectives.push(rowObject);
@@ -2784,7 +2637,6 @@ function buildFromDictionaryTable() {
                 break;
             case "pp":
                 dictionaryData.sorted.prepositions.push(rowObject);
-                prepositionCache.list = null;
                 break;
             case "part":
                 dictionaryData.sorted.particles.push(rowObject);
@@ -2826,10 +2678,50 @@ function finalizeDictionaryData() {
     // Remove the sorted{} object
     delete dictionaryData.sorted;
 
-    prepositionCache.list = null;
-
 
     console.log("Final dictionaryData structure:", dictionaryData);
+
+    //prepositions push
+    function prepositionsPush() {
+        const nouns = Array.isArray(dictionaryData?.nouns) ? dictionaryData.nouns : [];
+        const preps = Array.isArray(dictionaryData?.prepositions) ? dictionaryData.prepositions : [];
+
+        for (let i = 0; i < nouns.length; i++) {
+            const noun = nouns[i];
+            const decls = Array.isArray(noun?.["all declensions"]) ? noun["all declensions"] : [];
+
+            for (let j = 0; j < decls.length; j++) {
+                const decl = decls[j];
+                if (!decl) continue;
+
+                const html = decl.html || "";
+                const fullText = decl.fullText || "";
+
+                // build a per-declension preposition list
+                const withPrepositionsAttached = [];
+
+                for (let k = 0; k < preps.length; k++) {
+                    const prep = preps[k];
+                    if (!prep || !prep.word) continue;
+
+                    const normalized = normalizeText(prep.word);
+                    const fullTextPP = `${normalized}${fullText}`;
+                    const htmlPP = `<strong>${normalized}</strong>${html}`;
+
+                    withPrepositionsAttached.push({
+                        fullTextPP,
+                        htmlPP,
+                        prepIndex: k,
+                        prepRaw: prep.word
+                    });
+                }
+
+                // write it back to the exact path you specified
+                decl.withPrepositionsAttached = withPrepositionsAttached;
+            }
+        }
+    }
+    prepositionsPush();
 }
 
 
@@ -3486,9 +3378,6 @@ const WordDictionary = (() => {
                         collectParticleForms(entry, { wordclass: 'noun', declension, keyword: baseWord }).forEach(particleForm => {
                             dictionaryMap[baseWord].forms.push(particleForm);
                         });
-                        collectPrepositionForms(entry, { wordclass: 'noun', declension, keyword: baseWord }).forEach(prepositionForm => {
-                            dictionaryMap[baseWord].forms.push(prepositionForm);
-                        });
                     });
                 });
             }
@@ -3530,9 +3419,6 @@ const WordDictionary = (() => {
 
                         collectParticleForms(entry, { wordclass: 'adjective', declension, keyword: baseWord }).forEach(particleForm => {
                             dictionaryMap[baseWord].forms.push(particleForm);
-                        });
-                        collectPrepositionForms(entry, { wordclass: 'adjective', declension, keyword: baseWord }).forEach(prepositionForm => {
-                            dictionaryMap[baseWord].forms.push(prepositionForm);
                         });
                     });
                 });
@@ -3663,8 +3549,8 @@ const WordDictionary = (() => {
                     });
                 });
 
-                getEntriesWithParticles(NounResults, { wordclass: 'noun', keyword }).extras.forEach(attachedForm => {
-                    dictionaryMap[keyword].forms.push(attachedForm);
+                getEntriesWithParticles(NounResults, { wordclass: 'noun', keyword }).extras.forEach(particleForm => {
+                    dictionaryMap[keyword].forms.push(particleForm);
                 });
 
             } else if (type === "v") {
@@ -3700,8 +3586,8 @@ const WordDictionary = (() => {
                     });
                 });
 
-                getEntriesWithParticles(AdjectiveResults, { wordclass: 'adjective', keyword }).extras.forEach(attachedForm => {
-                    dictionaryMap[keyword].forms.push(attachedForm);
+                getEntriesWithParticles(AdjectiveResults, { wordclass: 'adjective', keyword }).extras.forEach(particleForm => {
+                    dictionaryMap[keyword].forms.push(particleForm);
                 });
             } else if (type === "adv") {
                 dictionaryMap[keyword] = { type: "adverb", forms: [] };
