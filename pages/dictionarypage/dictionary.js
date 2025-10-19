@@ -325,7 +325,13 @@ const ALLOWED_NOUN_FIELDS = new Set(
         'baseNounForm',
         'baseNounStem',
         'prefixDisplay',
-        'context'
+        'context',
+        'particleKey',
+        'particleIsSuffix',
+        'particleDisplay',
+        'particleContext',
+        'isParticleAttachedForm',
+        'baseFullText'
     ]
 );
 
@@ -585,6 +591,90 @@ function getAdverbResult(genderIn, moodIn, numberIn, personIn, field = 'all', ad
     const allowed = Array.from(new Set([...ALLOWED_NOUN_FIELDS, ...ALLOWED_ADVERB_EXTRA_FIELDS]));
     console.error('Invalid field requested:', field, 'Allowed:', allowed.join(','));
     return null;
+}
+
+function collectParticleForms(entry, defaults = {}) {
+    if (!entry || typeof entry !== 'object') return [];
+    const particles = entry.withParticlesAttached;
+    if (!particles || typeof particles !== 'object') return [];
+
+    const baseWordclass = entry.wordclass || defaults.wordclass || 'noun';
+    const baseKeyword = entry.keyword || defaults.keyword || '';
+    const baseFullText = entry.fullText || defaults.baseFullText || '';
+    const baseStem = entry.keywordStem || defaults.keywordStem || '';
+    const baseSourceWordclass = entry.sourceWordclass || baseWordclass;
+    const baseResultWordclass = entry.resultWordclass || baseWordclass;
+    const defaultDeclensionRaw = defaults.declension !== undefined ? defaults.declension : entry.declension ?? entry.person;
+    const defaultDeclensionNum = Number(defaultDeclensionRaw);
+    const declensionValue = Number.isFinite(defaultDeclensionNum) ? defaultDeclensionNum : defaultDeclensionRaw;
+
+    const parseSuffixFlag = (value) => {
+        if (typeof value === 'string') return value.toLowerCase() === 'true';
+        return Boolean(value);
+    };
+
+    const results = [];
+    Object.entries(particles).forEach(([particleKeyRaw, particleData]) => {
+        const particleKey = String(particleKeyRaw || '').trim();
+        if (!particleKey || !particleData || typeof particleData !== 'object') return;
+
+        const fullText = particleData.fullText || particleData.word || '';
+        if (!fullText) return;
+
+        const html = particleData.html || particleData.fullText || entry.html || '';
+        const attachesAsSuffix = parseSuffixFlag(particleData.particleIsSuffix);
+
+        const context = {
+            baseForm: baseFullText,
+            baseKeyword,
+            particle: particleKey,
+            attachesAsSuffix,
+            result: fullText
+        };
+
+        results.push({
+            word: fullText,
+            fullText,
+            html,
+            mood: entry.mood,
+            gender: entry.gender,
+            number: entry.number,
+            person: entry.person,
+            rawSuffix: entry.rawSuffix,
+            rawPrefix: entry.rawPrefix,
+            keyword: baseKeyword,
+            keywordStem: baseStem,
+            wordclass: baseWordclass,
+            sourceWordclass: baseSourceWordclass,
+            resultWordclass: baseResultWordclass,
+            baseNounForm: entry.baseNounForm || baseFullText,
+            baseNounStem: entry.baseNounStem || baseStem,
+            baseFullText,
+            declension: declensionValue,
+            particleKey,
+            particleDisplay: particleKey,
+            particleIsSuffix: particleData.particleIsSuffix,
+            isParticleAttachedForm: true,
+            context,
+            particleContext: context
+        });
+    });
+
+    return results;
+}
+
+function getEntriesWithParticles(entries, defaults = {}) {
+    if (!Array.isArray(entries)) {
+        return { base: [], extras: [], combined: [] };
+    }
+
+    const extras = [];
+    entries.forEach(entry => {
+        extras.push(...collectParticleForms(entry, defaults));
+    });
+
+    const combined = extras.length ? entries.concat(extras) : entries.slice();
+    return { base: entries, extras, combined };
 }
 
 
@@ -2821,9 +2911,13 @@ function doSearch() {
             if (!typeKey) return;
             if (parentArraysByType[typeKey]) return;
             const baseWord = occurrence.baseWord || keyword;
+            const baseForms = generateParentArrayForType(typeKey, baseWord);
+            const { combined, extras } = getEntriesWithParticles(baseForms, { wordclass: typeKey, keyword: baseWord });
             parentArraysByType[typeKey] = {
                 baseWord,
-                forms: generateParentArrayForType(typeKey, baseWord)
+                forms: combined,
+                baseForms,
+                particleForms: extras
             };
             baseWordsByType[typeKey] = baseWord;
         });
@@ -2832,7 +2926,10 @@ function doSearch() {
         const matchedType = normalizeTypeLabel(primaryOccurrence ? primaryOccurrence.type : '');
         const matchedBaseWord = baseWordsByType[matchedType] || (primaryOccurrence ? primaryOccurrence.baseWord : null) || keyword;
         const pageKey = matchedBaseWord ? String(matchedBaseWord).toLowerCase() : keyword;
-        const parentArray = parentArraysByType[matchedType]?.forms || [];
+        const matchedParentArrays = parentArraysByType[matchedType] || {};
+        const parentArray = matchedParentArrays.forms || [];
+        const parentParticleForms = matchedParentArrays.particleForms || [];
+        const parentArrayBase = matchedParentArrays.baseForms || parentArray;
 
         const keywordData =
         {
@@ -2843,6 +2940,8 @@ function doSearch() {
             pageID: pages1[pageKey],
             occurrences: occurrences,
             parentArray: parentArray,
+            parentArrayBase,
+            parentParticleForms,
             parentArrays: parentArraysByType,
             baseWordsByType: baseWordsByType,
         };
@@ -3220,13 +3319,18 @@ const WordDictionary = (() => {
                     declensions.forEach(entry => {
                         if (!entry || !entry.fullText) return;
                         const declension = Number(entry.person);
-                        dictionaryMap[baseWord].forms.push({
+                        const baseForm = {
                             word: entry.fullText,
                             wordclass: 'noun',
                             mood: entry.mood,
                             gender: entry.gender, // already full gender name
                             number: entry.number,
                             declension
+                        };
+                        dictionaryMap[baseWord].forms.push(baseForm);
+
+                        collectParticleForms(entry, { wordclass: 'noun', declension, keyword: baseWord }).forEach(particleForm => {
+                            dictionaryMap[baseWord].forms.push(particleForm);
                         });
                     });
                 });
@@ -3249,7 +3353,7 @@ const WordDictionary = (() => {
                     declensions.forEach(entry => {
                         if (!entry || !entry.fullText) return;
                         const declension = Number(entry.person);
-                        dictionaryMap[baseWord].forms.push({
+                        const baseForm = {
                             word: entry.fullText,
                             wordclass: 'adjective',
                             mood: entry.mood,
@@ -3264,6 +3368,11 @@ const WordDictionary = (() => {
                             baseNounForm: entry.baseNounForm,
                             baseNounStem: entry.baseNounStem,
                             context: entry.context
+                        };
+                        dictionaryMap[baseWord].forms.push(baseForm);
+
+                        collectParticleForms(entry, { wordclass: 'adjective', declension, keyword: baseWord }).forEach(particleForm => {
+                            dictionaryMap[baseWord].forms.push(particleForm);
                         });
                     });
                 });
@@ -3394,6 +3503,10 @@ const WordDictionary = (() => {
                     });
                 });
 
+                getEntriesWithParticles(NounResults, { wordclass: 'noun', keyword }).extras.forEach(particleForm => {
+                    dictionaryMap[keyword].forms.push(particleForm);
+                });
+
             } else if (type === "v") {
                 dictionaryMap[keyword] = { type: "verb", forms: [] };
                 const VerbResults = generateVerbAffixes(keyword);
@@ -3425,6 +3538,10 @@ const WordDictionary = (() => {
                         baseNounStem: entry.baseNounStem,
                         context: entry.context
                     });
+                });
+
+                getEntriesWithParticles(AdjectiveResults, { wordclass: 'adjective', keyword }).extras.forEach(particleForm => {
+                    dictionaryMap[keyword].forms.push(particleForm);
                 });
             } else if (type === "adv") {
                 dictionaryMap[keyword] = { type: "adverb", forms: [] };
