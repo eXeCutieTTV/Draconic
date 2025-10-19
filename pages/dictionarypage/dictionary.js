@@ -284,6 +284,10 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         ōn
                     }
                     const withPrepositionsAttached = [];
+                    const normalized = normalizeText(dictionaryData.prepositions[i].word); 
+                    const fullTextPP = `${normalized}${fullText}`; 
+                    const htmlPP = `<strong>${normalized}</strong>${html}`; 
+                    withPrepositionsAttached.push({ fullTextPP, htmlPP });
 
                     result.push({
                         mood: moodKey,
@@ -3683,6 +3687,24 @@ const WordDictionary = (() => {
                 const buckets = [
                     'nouns', 'verbs', 'adjectives', 'adverbs', 'auxiliaries', 'prepositions', 'particles', 'conjunctions', 'determiners'
                 ];
+                const matchValue = (value) => {
+                    if (!value) return false;
+                    return String(value).trim().toLowerCase() === q;
+                };
+                const pushAttachedMatch = (baseWord, type, form, matchType) => {
+                    if (!form || !form.fullText) return;
+                    if (!matchValue(form.fullText)) return;
+                    occurrences.push({
+                        baseWord,
+                        type,
+                        matchType,
+                        word: form.fullText,
+                        html: form.html,
+                        preposition: form.preposition || form.normalizedPreposition,
+                        particle: form.particle || form.particleDisplay,
+                        ...form
+                    });
+                };
                 buckets.forEach(bucket => {
                     const arr = dictionaryData[bucket];
                     if (!Array.isArray(arr)) return;
@@ -3692,6 +3714,34 @@ const WordDictionary = (() => {
                             const type = row.wordclass || bucket.replace(/s$/, '');
                             occurrences.push({ baseWord: w, type, matchType: 'base', word: w });
                         }
+                        const declensions = row && row["all declensions"];
+                        if (!Array.isArray(declensions)) return;
+                        const baseWord = w || ((row && row.word) ? String(row.word).replace(/\(\d\)/, '').trim().toLowerCase() : null);
+                        const type = row.wordclass || bucket.replace(/s$/, '');
+                        declensions.forEach(entry => {
+                            if (!entry || typeof entry !== 'object') return;
+                            const baseMatchWord = entry.fullText;
+                            if (matchValue(baseMatchWord)) {
+                                occurrences.push({
+                                    baseWord: baseWord || baseMatchWord,
+                                    type,
+                                    matchType: 'declension',
+                                    word: baseMatchWord,
+                                    html: entry.html,
+                                    ...entry
+                                });
+                            }
+                            if (entry.withParticlesAttached && typeof entry.withParticlesAttached === 'object') {
+                                Object.values(entry.withParticlesAttached).forEach(particleForm => {
+                                    pushAttachedMatch(baseWord || baseMatchWord, type, particleForm, 'particleAttached');
+                                });
+                            }
+                            if (Array.isArray(entry.withPrepositionsAttached)) {
+                                entry.withPrepositionsAttached.forEach(prepForm => {
+                                    pushAttachedMatch(baseWord || baseMatchWord, type, prepForm, 'prepositionAttached');
+                                });
+                            }
+                        });
                     });
                 });
             }
