@@ -203,7 +203,223 @@ let dictionaryData = {
     },
 };
 
+const DICTIONARY_CACHE_VERSION = '1';
+const DICTIONARY_CACHE_KEY = `dictionaryDataCache::${DICTIONARY_CACHE_VERSION}`;
+let dictionaryCacheState = { loaded: false, raw: null, timestamp: null };
+let dictionaryCacheSupported = false;
+
+try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+        const testKey = '__dictionary_cache_test__';
+        window.localStorage.setItem(testKey, '1');
+        window.localStorage.removeItem(testKey);
+        dictionaryCacheSupported = true;
+    }
+} catch (cacheError) {
+    dictionaryCacheSupported = false;
+}
+
+function assignPagesMap(map) {
+    if (typeof globalThis !== 'undefined' && map && typeof map === 'object') {
+        globalThis.pages1 = map;
+    }
+}
+
+function collectDictionaryArrays() {
+    const cachedDictionary = {};
+    for (const key in dictionaryData) {
+        if (!Object.prototype.hasOwnProperty.call(dictionaryData, key)) continue;
+        const value = dictionaryData[key];
+        if (Array.isArray(value) && key !== 'raw' && key !== 'sorted') {
+            cachedDictionary[key] = value;
+        }
+    }
+    return cachedDictionary;
+}
+
+function loadDictionaryCache() {
+    if (!dictionaryCacheSupported) {
+        return { loaded: false, raw: null, timestamp: null };
+    }
+
+    try {
+        const stored = window.localStorage.getItem(DICTIONARY_CACHE_KEY);
+        if (!stored) {
+            return { loaded: false, raw: null, timestamp: null };
+        }
+
+        const payload = JSON.parse(stored);
+        if (!payload || payload.version !== DICTIONARY_CACHE_VERSION || !payload.dictionaryData) {
+            return { loaded: false, raw: null, timestamp: null };
+        }
+
+        const rehydrated = {};
+
+        for (const key in payload.dictionaryData) {
+            if (!Object.prototype.hasOwnProperty.call(payload.dictionaryData, key)) continue;
+            const value = payload.dictionaryData[key];
+            if (Array.isArray(value)) {
+                rehydrated[key] = value;
+            }
+        }
+
+        // Default expected arrays to empty arrays if they are missing
+        [
+            'nouns',
+            'verbs',
+            'adjectives',
+            'adverbs',
+            'auxiliaries',
+            'prepositions',
+            'particles',
+            'conjunctions',
+            'determiners'
+        ].forEach(key => {
+            if (!Array.isArray(rehydrated[key])) {
+                rehydrated[key] = [];
+            }
+        });
+
+        dictionaryData = {
+            ...rehydrated,
+            keyword: null,
+            raw: null
+        };
+
+        assignPagesMap(payload.pages1 && typeof payload.pages1 === 'object' ? payload.pages1 : {});
+
+        const rawTable = Array.isArray(payload.raw) ? payload.raw : null;
+        const timestamp = typeof payload.timestamp === 'number' ? payload.timestamp : null;
+
+        return { loaded: true, raw: rawTable, timestamp };
+    } catch (error) {
+        console.warn('Failed to load dictionary cache', error);
+        return { loaded: false, raw: null, timestamp: null };
+    }
+}
+
+function saveDictionaryCache(rawSnapshot) {
+    if (!dictionaryCacheSupported) {
+        dictionaryCacheState = { loaded: false, raw: null, timestamp: null };
+        return;
+    }
+
+    try {
+        const payload = {
+            version: DICTIONARY_CACHE_VERSION,
+            timestamp: Date.now(),
+            dictionaryData: collectDictionaryArrays(),
+            pages1: (typeof globalThis !== 'undefined' && globalThis.pages1 && typeof globalThis.pages1 === 'object')
+                ? globalThis.pages1
+                : {},
+            raw: Array.isArray(rawSnapshot) ? rawSnapshot : null
+        };
+
+        window.localStorage.setItem(DICTIONARY_CACHE_KEY, JSON.stringify(payload));
+        dictionaryCacheState = {
+            loaded: true,
+            raw: payload.raw,
+            timestamp: payload.timestamp
+        };
+    } catch (error) {
+        console.warn('Failed to save dictionary cache', error);
+    }
+}
+
+function clearDictionaryCache() {
+    if (!dictionaryCacheSupported) return;
+    try {
+        window.localStorage.removeItem(DICTIONARY_CACHE_KEY);
+    } catch (error) {
+        console.warn('Failed to clear dictionary cache', error);
+    }
+    dictionaryCacheState = { loaded: false, raw: null, timestamp: null };
+}
+
+if (typeof window !== 'undefined') {
+    window.clearDictionaryCache = clearDictionaryCache;
+}
+
+function scheduleRenderFromCache(rawTable) {
+    if (!Array.isArray(rawTable) || rawTable.length === 0) return;
+    if (typeof document === 'undefined') return;
+
+    const render = () => {
+        try {
+            renderTable(rawTable, { skipProcessing: true });
+        } catch (error) {
+            console.warn('Failed to render cached dictionary table', error);
+        }
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', render, { once: true });
+    } else {
+        render();
+    }
+}
+
+dictionaryCacheState = loadDictionaryCache();
+if (dictionaryCacheState.loaded && Array.isArray(dictionaryCacheState.raw)) {
+    scheduleRenderFromCache(dictionaryCacheState.raw);
+}
+
 //isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
+const prepositionCache = { list: null };
+
+function getPrepositionList() {
+    if (Array.isArray(prepositionCache.list)) {
+        return prepositionCache.list;
+    }
+
+    const seen = new Set();
+    const list = [];
+
+    const addWord = (word, source = null) => {
+        const original = typeof word === 'string' ? word.trim() : (word ? String(word) : '');
+        if (!original) return;
+        const normalized = normalizeText(original);
+        if (!normalized) return;
+        if (seen.has(normalized)) return;
+        seen.add(normalized);
+        list.push({ word: original, normalized, source });
+    };
+
+    const tryFromArray = (arr) => {
+        if (!Array.isArray(arr)) return;
+        arr.forEach(item => {
+            if (!item) return;
+            const word = typeof item === 'string'
+                ? item
+                : (item.word !== undefined ? item.word : Array.isArray(item) ? item[0] : null);
+            addWord(word, item);
+        });
+    };
+
+    if (dictionaryData && typeof dictionaryData === 'object') {
+        tryFromArray(dictionaryData.prepositions);
+        if (dictionaryData.sorted) {
+            tryFromArray(dictionaryData.sorted.prepositions);
+        }
+        if (Array.isArray(dictionaryData.raw)) {
+            dictionaryData.raw.forEach(row => {
+                if (!Array.isArray(row)) return;
+                const wordClass = row[1];
+                if (String(wordClass || '').trim().toLowerCase() === 'pp') {
+                    addWord(row[0], row);
+                }
+            });
+        }
+    }
+
+    if (typeof window !== 'undefined') {
+        tryFromArray(window.PrepositionList);
+        tryFromArray(window.DefaultPrepositions);
+    }
+
+    prepositionCache.list = list;
+    return list;
+}
 
 
 // Produces NounWithSuffix array for a single base word
@@ -284,6 +500,23 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         ōn
                     }
                     const withPrepositionsAttached = [];
+                    const prepositionList = getPrepositionList();
+                    if (Array.isArray(prepositionList) && prepositionList.length > 0) {
+                        prepositionList.forEach(prep => {
+                            if (!prep) return;
+                            const original = (prep.word !== undefined ? prep.word : prep.normalized) || '';
+                            const normalized = prep.normalized || normalizeText(original);
+                            if (!normalized) return;
+                            const compositeFullText = `${normalized}${fullText}`;
+                            withPrepositionsAttached.push({
+                                fullText: compositeFullText,
+                                html: `<strong>${normalized}</strong>${html}`,
+                                preposition: original,
+                                normalizedPreposition: normalized,
+                                searchKey: normalizeSearchValue(compositeFullText)
+                            });
+                        });
+                    }
 
                     result.push({
                         mood: moodKey,
@@ -295,6 +528,7 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         fullText,
                         keyword,
                         keywordStem,
+                        searchKey: normalizeSearchValue(fullText),
                         withParticlesAttached,
                         withPrepositionsAttached
                     });
@@ -333,7 +567,12 @@ const ALLOWED_NOUN_FIELDS = new Set(
         'particleDisplay',
         'particleContext',
         'isParticleAttachedForm',
-        'baseFullText'
+        'baseFullText',
+        'preposition',
+        'normalizedPreposition',
+        'prepositionContext',
+        'isPrepositionAttachedForm',
+        'searchKey'
     ]
 );
 
@@ -657,8 +896,74 @@ function collectParticleForms(entry, defaults = {}) {
             particleDisplay: particleKey,
             particleIsSuffix: particleData.particleIsSuffix,
             isParticleAttachedForm: true,
+            searchKey: entry.searchKey || normalizeSearchValue(fullText),
             context,
             particleContext: context
+        });
+    });
+
+    return results;
+}
+
+function collectPrepositionForms(entry, defaults = {}) {
+    if (!entry || typeof entry !== 'object') return [];
+    const attachments = entry.withPrepositionsAttached;
+    if (!Array.isArray(attachments) || attachments.length === 0) return [];
+
+    const baseWordclass = entry.wordclass || defaults.wordclass || 'noun';
+    const baseKeyword = entry.keyword || defaults.keyword || '';
+    const baseFullText = entry.fullText || defaults.baseFullText || '';
+    const baseStem = entry.keywordStem || defaults.keywordStem || '';
+    const baseSourceWordclass = entry.sourceWordclass || baseWordclass;
+    const baseResultWordclass = entry.resultWordclass || baseWordclass;
+    const defaultDeclensionRaw = defaults.declension !== undefined ? defaults.declension : entry.declension ?? entry.person;
+    const defaultDeclensionNum = Number(defaultDeclensionRaw);
+    const declensionValue = Number.isFinite(defaultDeclensionNum) ? defaultDeclensionNum : defaultDeclensionRaw;
+
+    const results = [];
+    attachments.forEach(item => {
+        if (!item) return;
+        const fullText = item.fullText || item.word || '';
+        if (!fullText) return;
+        const html = item.html || entry.html || '';
+        const preposition = item.preposition || item.word || '';
+        const normalizedPreposition = item.normalizedPreposition || normalizeText(preposition);
+        if (!normalizedPreposition) return;
+        const searchKey = item.searchKey || normalizeSearchValue(fullText);
+
+        const context = {
+            baseForm: baseFullText,
+            baseKeyword,
+            preposition,
+            normalizedPreposition,
+            result: fullText
+        };
+
+        results.push({
+            word: fullText,
+            fullText,
+            html,
+            mood: entry.mood,
+            gender: entry.gender,
+            number: entry.number,
+            person: entry.person,
+            rawSuffix: entry.rawSuffix,
+            rawPrefix: entry.rawPrefix,
+            keyword: baseKeyword,
+            keywordStem: baseStem,
+            wordclass: baseWordclass,
+            sourceWordclass: baseSourceWordclass,
+            resultWordclass: baseResultWordclass,
+            baseNounForm: entry.baseNounForm || baseFullText,
+            baseNounStem: entry.baseNounStem || baseStem,
+            baseFullText,
+            declension: declensionValue,
+            preposition,
+            normalizedPreposition,
+            isPrepositionAttachedForm: true,
+            searchKey,
+            context,
+            prepositionContext: context
         });
     });
 
@@ -673,6 +978,7 @@ function getEntriesWithParticles(entries, defaults = {}) {
     const extras = [];
     entries.forEach(entry => {
         extras.push(...collectParticleForms(entry, defaults));
+        extras.push(...collectPrepositionForms(entry, defaults));
     });
 
     const combined = extras.length ? entries.concat(extras) : entries.slice();
@@ -1429,7 +1735,8 @@ setTimeout(() => {
     console.log("'showDictionaryPrintout();' to go to dictionary print page")
 }, 250); // mention the command in the console, so you know how to find the dictionary list. also, on delay, so its at the bottom of the console.
 
-function renderTable(data) {
+function renderTable(data, options = {}) {
+    const skipProcessing = !!(options && options.skipProcessing);
     const container = document.getElementById("sheet-data");
     const table = document.createElement("table");
     table.id = "sheet-data-table";
@@ -1474,11 +1781,13 @@ function renderTable(data) {
     container.innerHTML = "";
     container.appendChild(table);
 
-    // Build pages1 and dictionaryData from table
-    buildFromDictionaryTable();
+    if (!skipProcessing) {
+        // Build pages1 and dictionaryData from table
+        buildFromDictionaryTable();
 
-    // Continue with declension logic
-    processDictionaryTable(data);
+        // Continue with declension logic
+        processDictionaryTable(data);
+    }
 }
 
 // Helper: make a safe string for IDs/selectors (words containing the ax symbol can now still be converted into ids)
@@ -2354,6 +2663,11 @@ function normalizeText(s) {
         .trim();
 }
 
+function normalizeSearchValue(value) {
+    const lowered = String(value || "").toLowerCase();
+    return normalizeText(lowered);
+}
+
 
 function hideEmptySummaryRowsIn(summaryTableId) {
     const table = document.getElementById(summaryTableId);
@@ -2572,7 +2886,20 @@ function buildFromDictionaryTable() {
         return;
     }
 
+    const rawSnapshot = Array.isArray(dictionaryData.raw) ? dictionaryData.raw : null;
     pages1 = {};
+
+    dictionaryData.sorted = {
+        adjectives: [],
+        adverbs: [],
+        auxiliaries: [],
+        conjunctions: [],
+        determiners: [],
+        nouns: [],
+        particles: [],
+        prepositions: [],
+        verbs: []
+    };
 
     let pageNumber = 10000; // Start counting up from 10000
 
@@ -2655,12 +2982,12 @@ function buildFromDictionaryTable() {
         }
     });
 
-    finalizeDictionaryData();
+    finalizeDictionaryData(rawSnapshot);
     //console.log("pages1 mapping:", pages1);
     //console.log("dictionaryData:", dictionaryData);
 }
 
-function finalizeDictionaryData() {
+function finalizeDictionaryData(rawSnapshot) {
     if (!dictionaryData) return;
 
     // First, remove raw[]
@@ -2682,46 +3009,39 @@ function finalizeDictionaryData() {
     console.log("Final dictionaryData structure:", dictionaryData);
 
     //prepositions push
-    function prepositionsPush() {
+    (function prepositionsPush() {
         const nouns = Array.isArray(dictionaryData?.nouns) ? dictionaryData.nouns : [];
-        const preps = Array.isArray(dictionaryData?.prepositions) ? dictionaryData.prepositions : [];
+        const preps = getPrepositionList();
+        if (!Array.isArray(preps) || preps.length === 0) return;
 
-        for (let i = 0; i < nouns.length; i++) {
-            const noun = nouns[i];
-            const decls = Array.isArray(noun?.["all declensions"]) ? noun["all declensions"] : [];
-
-            for (let j = 0; j < decls.length; j++) {
-                const decl = decls[j];
-                if (!decl) continue;
-
+        nouns.forEach(noun => {
+            if (!noun) return;
+            const decls = Array.isArray(noun["all declensions"]) ? noun["all declensions"] : [];
+            decls.forEach(decl => {
+                if (!decl) return;
                 const html = decl.html || "";
                 const fullText = decl.fullText || "";
-
-                // build a per-declension preposition list
-                const withPrepositionsAttached = [];
-
-                for (let k = 0; k < preps.length; k++) {
-                    const prep = preps[k];
-                    if (!prep || !prep.word) continue;
-
-                    const normalized = normalizeText(prep.word);
-                    const fullTextPP = `${normalized}${fullText}`;
-                    const htmlPP = `<strong>${normalized}</strong>${html}`;
-
-                    withPrepositionsAttached.push({
-                        fullTextPP,
-                        htmlPP,
-                        prepIndex: k,
-                        prepRaw: prep.word
+                const attached = [];
+                preps.forEach(prep => {
+                    if (!prep) return;
+                    const original = (prep.word !== undefined ? prep.word : prep.normalized) || "";
+                    const normalized = prep.normalized || normalizeText(original);
+                    if (!normalized) return;
+                    const compositeFullText = `${normalized}${fullText}`;
+                    attached.push({
+                        fullText: compositeFullText,
+                        html: `<strong>${normalized}</strong>${html}`,
+                        preposition: original,
+                        normalizedPreposition: normalized,
+                        searchKey: normalizeSearchValue(compositeFullText)
                     });
-                }
+                });
+                decl.withPrepositionsAttached = attached;
+            });
+        });
+    })();
 
-                // write it back to the exact path you specified
-                decl.withPrepositionsAttached = withPrepositionsAttached;
-            }
-        }
-    }
-    prepositionsPush();
+    saveDictionaryCache(rawSnapshot);
 }
 
 
@@ -3025,9 +3345,11 @@ function doSearch() {
                             });
                         } else {
                             resolve(pageEl); // already exists
-                        }
-                    });
-                }
+        }
+    });
+}
+
+    saveDictionaryCache(rawSnapshot);
 
                 const keyword = dictionaryData.keyword.keyword;
                 const targetPageId = dictionaryData.keyword.pageID;
@@ -3045,9 +3367,13 @@ function doSearch() {
 
                 if (parentArray.length > 0) {
                     const keywordLower = keyword.toLowerCase();
+                    const keywordNormalized = normalizeSearchValue(keyword);
                     const matchingItem = parentArray.find(item => {
-                        const form = String(item.fullText || '').toLowerCase();
-                        return form === keywordLower;
+                        const form = String(item.fullText || '');
+                        const formLower = form.toLowerCase();
+                        if (formLower === keywordLower) return true;
+                        const itemSearchKey = item.searchKey || normalizeSearchValue(formLower);
+                        return itemSearchKey === keywordNormalized;
                     });
 
                     if (matchingItem) {
@@ -3371,12 +3697,16 @@ const WordDictionary = (() => {
                             mood: entry.mood,
                             gender: entry.gender, // already full gender name
                             number: entry.number,
-                            declension
+                            declension,
+                            searchKey: entry.searchKey || normalizeSearchValue(entry.fullText)
                         };
                         dictionaryMap[baseWord].forms.push(baseForm);
 
                         collectParticleForms(entry, { wordclass: 'noun', declension, keyword: baseWord }).forEach(particleForm => {
                             dictionaryMap[baseWord].forms.push(particleForm);
+                        });
+                        collectPrepositionForms(entry, { wordclass: 'noun', declension, keyword: baseWord }).forEach(prepositionForm => {
+                            dictionaryMap[baseWord].forms.push(prepositionForm);
                         });
                     });
                 });
@@ -3413,12 +3743,16 @@ const WordDictionary = (() => {
                             resultWordclass: entry.resultWordclass,
                             baseNounForm: entry.baseNounForm,
                             baseNounStem: entry.baseNounStem,
-                            context: entry.context
+                            context: entry.context,
+                            searchKey: entry.searchKey || normalizeSearchValue(entry.fullText)
                         };
                         dictionaryMap[baseWord].forms.push(baseForm);
 
                         collectParticleForms(entry, { wordclass: 'adjective', declension, keyword: baseWord }).forEach(particleForm => {
                             dictionaryMap[baseWord].forms.push(particleForm);
+                        });
+                        collectPrepositionForms(entry, { wordclass: 'adjective', declension, keyword: baseWord }).forEach(prepositionForm => {
+                            dictionaryMap[baseWord].forms.push(prepositionForm);
                         });
                     });
                 });
@@ -3543,7 +3877,7 @@ const WordDictionary = (() => {
                         Object.keys(NUMBERS).forEach(numberKey => {
                             for (let decl = 1; decl <= 4; decl++) {
                                 const affixedWord = getNounResult(gender, mood, numberKey, decl, "fullText", NounResults);
-                                dictionaryMap[keyword].forms.push({ word: affixedWord, wordclass: 'noun', mood, gender, number: numberKey, declension: decl });
+                                dictionaryMap[keyword].forms.push({ word: affixedWord, wordclass: 'noun', mood, gender, number: numberKey, declension: decl, searchKey: normalizeSearchValue(affixedWord) });
                             }
                         });
                     });
@@ -3582,7 +3916,8 @@ const WordDictionary = (() => {
                         resultWordclass: entry.resultWordclass,
                         baseNounForm: entry.baseNounForm,
                         baseNounStem: entry.baseNounStem,
-                        context: entry.context
+                        context: entry.context,
+                        searchKey: entry.searchKey || normalizeSearchValue(entry.fullText)
                     });
                 });
 
@@ -3657,11 +3992,14 @@ const WordDictionary = (() => {
             const q = (keyword || '').trim().toLowerCase();
 
             const occurrences = [];
+            const queryNormalized = normalizeSearchValue(q);
             // 1) Primary: match against generated forms
             for (const baseWord in dictionaryMap) {
                 const entry = dictionaryMap[baseWord];
                 entry.forms.forEach(form => {
-                    if (String(form.word).toLowerCase() === q) {
+                    const formWordLower = String(form.word || '').toLowerCase();
+                    const formSearchKey = form.searchKey || normalizeSearchValue(formWordLower);
+                    if (formWordLower === q || formSearchKey === queryNormalized) {
                         const formType = String(form.wordclass || form.type || entry.type || '').toLowerCase();
                         occurrences.push({ baseWord, type: formType, matchType: 'form', ...form });
                     }
@@ -3685,11 +4023,14 @@ const WordDictionary = (() => {
                 ];
                 const matchValue = (value) => {
                     if (!value) return false;
-                    return String(value).trim().toLowerCase() === q;
+                    const lower = String(value).trim().toLowerCase();
+                    if (lower === q) return true;
+                    return normalizeSearchValue(lower) === queryNormalized;
                 };
                 const pushAttachedMatch = (baseWord, type, form, matchType) => {
                     if (!form || !form.fullText) return;
-                    if (!matchValue(form.fullText)) return;
+                    const formSearchKey = form.searchKey || normalizeSearchValue(form.fullText);
+                    if (!matchValue(form.fullText) && formSearchKey !== queryNormalized) return;
                     occurrences.push({
                         baseWord,
                         type,
@@ -3698,6 +4039,7 @@ const WordDictionary = (() => {
                         html: form.html,
                         preposition: form.preposition || form.normalizedPreposition,
                         particle: form.particle || form.particleDisplay,
+                        searchKey: formSearchKey,
                         ...form
                     });
                 };
