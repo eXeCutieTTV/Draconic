@@ -3080,7 +3080,7 @@ function keywordToPage() {
                         return;
                     }
                 });
-                const withPrepositionsAttached = row["withParticlesAttached"];
+                const withPrepositionsAttached = row["withPrepositionsAttached"];
                 withPrepositionsAttached.forEach(row => {
                     const fullText = row["fullTextPP"];
                     resultPageKeywordInnerHtml = row["htmlPP"];
