@@ -188,6 +188,36 @@ const AFFIXSTATE = {
     }
 }
 
+// === PREPOSITIONS ===
+const PREPOSITIONS = {
+    1: "æze-",
+    2: "aze-",
+    3: "fenlly-",
+    4: "ħá-",
+    5: "ħáŋ-",
+    6: "ho-",
+    7: "hu-",
+    8: "huz-",
+    9: "kxā-",
+    10: "kxæ-",
+    11: "lleŋ-",
+    12: "lloq̇-",
+    13: "ly-",
+    14: "ō-",
+    15: "qa-",
+    16: "qē-",
+    17: "qēru-",
+    18: "q̇ū-",
+    19: "qχok-",
+    20: "sæχ-",
+    21: "saχ-",
+    22: "sī-",
+    23: "sil-",
+    24: "thū-",
+    25: "tre-",
+    26: "ū-",
+}
+
 let dictionaryData = {
     raw: [],
     sorted: {
@@ -201,7 +231,7 @@ let dictionaryData = {
         prepositions: [],
         verbs: [],
     },
-};
+}
 
 //isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
 
@@ -277,18 +307,19 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     }
 
                     const withPrepositionsAttached = [];
+                    /*
                     const normalized = normalizeText(dictionaryData.prepositions[i].word);
                     const fullTextPP = `${normalized}${fullText}`;
                     const htmlPP = `<strong>${normalized}</strong>${html}`;
                     withPrepositionsAttached.push({ fullTextPP, htmlPP });
-
+*/
                     const withParticlesAttached = {
                         i,
                         ûl,
                         ūn,
                         ān,
                         ōn
-                    };
+                    }
 
                     result.push({
                         mood: moodKey,
@@ -300,7 +331,8 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         fullText,
                         keyword,
                         keywordStem,
-                        withParticlesAttached
+                        withParticlesAttached,
+                        withPrepositionsAttached
                     });
                 });
             });
@@ -593,43 +625,7 @@ function getAdverbResult(genderIn, moodIn, numberIn, personIn, field = 'all', ad
     return null;
 }
 
-
-/*
-<div class="declensiontables">
-    <table>
-        <tr>
-            <th colspan="4" style="font-size: 24px; background-color: rgb(202, 79, 79)">
-                <enbolden>Irrational Directive</enbolden>
-            </th>
-        </tr>
-        <tr>
-            <th style="width: 10px;">
-                <lilbold>Dec.</lilbold>
-            </th>
-            <th>Singular</th>
-            <th>Dual</th>
-            <th>Plural</th>
-        </tr>
-        <th>1.</th>
-        <td>llūl</td>
-        <td>(æ)llūl</td>
-        <td>(æ)llūl</td>
-        </tr>
-        <th>2.</th>
-        <td>cūl</td>
-        <td>cūl</td>
-        <td>(')illūl</td>
-        </tr>
-        <th>3.</th>
-        <td>cūl</td>
-        <td>cūl</td>
-        <td>(')illūl</td>
-        </tr>
-        <th>4.</th> 
-        </tr>
-    </table>
-</div>
-*/ // /\(/o.o\)/\ - Spooky the spider
+// /\(/o.o\)/\ - Spooky the spider
 function generateDeclensionTables(mood, gender) {// generateDeclensionTables(MOODS.R, GENDERS.E.NAME)
     const data = CONJUGATIONS[mood][gender];
     const text = `
