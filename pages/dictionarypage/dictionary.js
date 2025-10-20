@@ -2754,6 +2754,7 @@ function waitForElement(selector, timeout = 5000) {
 // Helper function to setup search functionality for a page
 function setupPageSearchHandlers(pageId) {
 
+    /*
     // Function to handle search from a specific page
     function doSearchFromPage(pageId) {
         const searchField = document.querySelector(`#${pageId} #search_field1`);
@@ -2770,12 +2771,10 @@ function setupPageSearchHandlers(pageId) {
 
         doSearch();
     }
-
-    const searchFieldSelector = `#${pageId} #search_field1`; // those are not used anywhere else
-    const searchButtonSelector = `#${pageId} #search_button1`;
+*/
 
     Promise.all([
-        waitForElement(searchFieldSelector), // move them here?
+        waitForElement(searchFieldSelector),
         waitForElement(searchButtonSelector)
     ]).then(([searchField, searchButton]) => {
         // Remove any existing listeners to prevent duplicates
@@ -2819,9 +2818,7 @@ function doSearch() {
 
         // get keyword data
         const field1 = document.getElementById('search_field');
-        const field2 = document.getElementById('search_field1');
-        const keywordDisplay = (field1 && field1.value ? field1.value.trim() : '') ||
-            (field2 && field2.value ? field2.value.trim() : '');
+        const keywordDisplay = (field1 && field1.value ? field1.value.trim() : '');
 
         if (!keywordDisplay) {
             alert('Please enter a search term.');
@@ -3119,9 +3116,6 @@ function doSearch() {
             if (field1 && field1.value.trim() !== '') {
                 field1.value = '';
                 field1.focus();
-            } else if (field2) {
-                field2.value = '';
-                field2.focus();
             }
 
             createSummaryTables(); // declensiontable
@@ -3134,9 +3128,6 @@ function doSearch() {
             if (field1 && field1.value.trim() !== '') {
                 field1.value = '';
                 field1.focus();
-            } else if (field2) {
-                field2.value = '';
-                field2.focus();
             }
 
         }).catch(error => {
@@ -3252,6 +3243,7 @@ function doSearch() {
 
 
 
+const dictionaryMap = {};
 // Global cached dictionary
 const WordDictionary = (() => {
     let cached = null;
@@ -3259,7 +3251,6 @@ const WordDictionary = (() => {
     // Build the dictionary map by reusing arrays stored in dictionaryData
     function buildDictionary() {
         if (cached) return cached;
-        const dictionaryMap = {};
 
         // Prefer using the processed dictionaryData structure
         if (typeof dictionaryData === 'object' && dictionaryData) {
@@ -3663,7 +3654,7 @@ function cloneWordclassText() {
 }
 
 function reverseSearchIdsOnSearch() {
-    const inpageField = document.getElementById('search_field1');
+    const inpageField = document.getElementById('unusedField');
     if (inpageField) {
         document.getElementById('search_button').id = 'unusedBtn';
         document.getElementById('search_field').id = 'unusedField';
