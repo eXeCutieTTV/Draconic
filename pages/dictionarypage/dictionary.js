@@ -287,12 +287,12 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     let withParticlesAttached = [];
 
                     // for "i"
-                    const fullTextP = `${PARTICLES[affixState.S][1]}${fullText}`;
-                    const htmlP = `<strong>i</strong><strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+                    const fullTextP = `${PARTICLES[affixState.P][1]}${fullText}`;
+                    const htmlP = `<strong>${PARTICLES[affixState.P][1]}</strong><strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
                     // for rest
                     withParticlesAttached.push({ fullTextP, htmlP });
                     for (let i = 0; i < Object.keys(PARTICLES[affixState.S]).length; i++) {
-                        const suffixText = formatSuffixWithAx(fullText, PARTICLES[affixState.P][i]);
+                        const suffixText = formatSuffixWithAx(fullText, PARTICLES[affixState.S][i]);
                         if (!suffixText) continue;
                         const fullTextP = `${fullText}${suffixText}`;
                         const htmlP = `${html}<strong>${suffixText}</strong>`;
