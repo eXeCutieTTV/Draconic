@@ -3043,6 +3043,91 @@ function doSearch() {
 
 }
 
+/*
+function keywordToPage() {
+  const keyword = dictionaryData?.keyword?.keyword;
+  if (!keyword) return { found: false };
+
+  // helper to set common data
+  const setKeywordMeta = (stem, pageID, type, html) => {
+    dictionaryData.keyword.keywordStem = stem;
+    dictionaryData.keyword.pageID = pageID;
+    matchType = type;
+    return { found: true, html: html || "", matchType: type, keywordStem: stem, pageID };
+  };
+
+  // nouns
+  if (Array.isArray(dictionaryData.nouns)) {
+    for (const nounRow of dictionaryData.nouns) {
+      if (keyword === nounRow.keyword) {
+        return setKeywordMeta(nounRow.keyword, pages1[nounRow.keyword], 1, "");
+      }
+      const decls = nounRow["all declensions"];
+      if (!Array.isArray(decls)) continue;
+      for (const decl of decls) {
+        if (keyword === decl.fullText) {
+          return setKeywordMeta(decl.keyword, pages1[decl.keyword], 2, decl.html);
+        }
+        if (Array.isArray(decl.withParticlesAttached)) {
+          for (const p of decl.withParticlesAttached) {
+            if (keyword === p.fullTextP) {
+              return setKeywordMeta(decl.keyword, pages1[decl.keyword], 2, p.htmlP);
+            }
+          }
+        }
+        if (Array.isArray(decl.withPrepositionsAttached)) {
+          for (const pp of decl.withPrepositionsAttached) {
+            if (keyword === pp.fullTextPP) {
+              return setKeywordMeta(decl.keyword, pages1[decl.keyword], 2, pp.htmlPP);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // verbs
+  if (Array.isArray(dictionaryData.verbs)) {
+    for (const verbRow of dictionaryData.verbs) {
+      if (keyword === verbRow.keyword) {
+        return setKeywordMeta(verbRow.keyword, pages1[verbRow.keyword], 1, "");
+      }
+      const decls = verbRow["all declensions"];
+      if (!Array.isArray(decls)) continue;
+      for (const decl of decls) {
+        if (keyword === decl.fullText) {
+          return setKeywordMeta(decl.keyword, pages1[decl.keyword], 2, decl.html);
+        }
+      }
+    }
+  }
+
+  // adjectives, adverbs, auxiliaries, conjunctions, determiners, particles, prepositions
+  const groups = ["adjectives","adverbs","auxilaries","conjunctions","determiners","particles","prepositions"];
+  for (const g of groups) {
+    const arr = dictionaryData[g];
+    if (!Array.isArray(arr)) continue;
+    for (const row of arr) {
+      if (keyword === row.keyword) {
+        return setKeywordMeta(row.keyword, pages1[row.keyword], 1, "");
+      }
+      const decls = row["all declensions"];
+      if (!Array.isArray(decls)) continue;
+      for (const decl of decls) {
+        if (keyword === decl.fullText) {
+          return setKeywordMeta(decl.keyword, pages1[decl.keyword], 2, decl.html);
+        }
+      }
+    }
+  }
+
+  // no match
+  matchType = 0;
+  return { found: false };
+}
+
+*/ //use for...of loops? copilot says so - in order for returns to work. workaround? we dont necesarrily want it to stop looping on first match - we want all matches.
+
 // i make new search match function thing:D
 let resultPageKeywordInnerHtml = ''; // need to add html part for word stems. // need to split declension from noun stems in array.
 let keywordStem = '';
@@ -3050,6 +3135,11 @@ let matchType = 0;
 function keywordToPage() {
     const keyword = dictionaryData.keyword.keyword;
 
+    resultPageKeywordInnerHtml = '';// reset both on every search
+    matchType = 0;
+    if (!keyword) {
+        return '';
+    }
     //noun forms
     if (Array.isArray(dictionaryData.nouns)) {
         dictionaryData.nouns.forEach(row => {
@@ -3063,32 +3153,35 @@ function keywordToPage() {
             const declensions = row["all declensions"];
             declensions.forEach(row => {
                 const fullText = row["fullText"];
-                resultPageKeywordInnerHtml = row["html"];
+                const html = row["html"];
+                resultPageKeywordInnerHtml = html;
                 if (keyword === fullText) {
                     dictionaryData.keyword["keywordStem"] = row["keyword"];
                     dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
                     matchType = 2;
-                    console.log("MATCHMATCHMATCH", fullText);
-                    return resultPageKeywordInnerHtml || '';
+                    console.log("MATCHMATCHMATCH", fullText); // need function for parentarray? log parentarray - not fullText?
+                    return html || '';
                 }
                 const withParticlesAttached = row["withParticlesAttached"];
                 withParticlesAttached.forEach(row => {
                     const fullText = row["fullTextP"];
-                    resultPageKeywordInnerHtml = row["htmlP"];
+                    const htmlP = row["htmlP"];
+                    resultPageKeywordInnerHtml = htmlP;
                     if (keyword === fullText) {
                         matchType = 2;
                         console.log("MATCHMATCHMATCH", fullText);
-                        return resultPageKeywordInnerHtml || '';
+                        return htmlP || '';
                     }
                 });
                 const withPrepositionsAttached = row["withPrepositionsAttached"];
                 withPrepositionsAttached.forEach(row => {
                     const fullText = row["fullTextPP"];
-                    resultPageKeywordInnerHtml = row["htmlPP"];
+                    const htmlPP = row["htmlPP"];
+                    resultPageKeywordInnerHtml = htmlPP;
                     if (keyword === fullText) {
                         matchType = 2;
                         console.log("MATCHMATCHMATCH", fullText);
-                        return resultPageKeywordInnerHtml || '';
+                        return htmlPP || '';
                     }
                 });
             });
