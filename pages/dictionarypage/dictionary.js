@@ -2529,6 +2529,12 @@ function runTableLoader() {
         hideEmptySummaryRowsIn("recSummaryTable");
     });
 }
+function keepDigitsOnly(str) {
+    return String(str).replace(/\D+/g, "");
+}
+function removeParensSpacesAndDigits(str) {
+    return String(str || "").replace(/[\d() \t\r\n]+/g, "");
+}
 
 // === Build pages1 and update dictionaryData ===
 function buildFromDictionaryTable() {
@@ -2575,12 +2581,15 @@ function buildFromDictionaryTable() {
                 break;
         }
         // Convert array row into an object with labels
+        const keyword = removeParensSpacesAndDigits(paddedRow[0]);
+        const nounDeclension = keepDigitsOnly(paddedRow[0]) || '';
         const rowObject = {
-            word: paddedRow[0],
+            keyword,
             wordclass: wordClass,
             definition: paddedRow[2],
             forms: paddedRow[3],
             notes: paddedRow[4],
+            "declension (for nouns)": nounDeclension,
             "pageId(for html)": pages1[word],
             "all declensions": declensionsArray
         };
@@ -2752,57 +2761,6 @@ function waitForElement(selector, timeout = 5000) {
 }
 
 // Helper function to setup search functionality for a page
-function setupPageSearchHandlers(pageId) {
-
-    /*
-    // Function to handle search from a specific page
-    function doSearchFromPage(pageId) {
-        const searchField = document.querySelector(`#${pageId} #search_field1`);
-        if (!searchField) return;
-        // /\(/o.o\)/\ - Spooky the spider
-        const searchTerm = searchField.value.trim();
-        if (!searchTerm) return;
-
-        // Update the global search field and trigger search
-        const mainSearchField = document.getElementById('search_field');
-        if (mainSearchField) {
-            mainSearchField.value = searchTerm;
-        }
-
-        doSearch();
-    }
-*/
-
-    Promise.all([
-        waitForElement(searchFieldSelector),
-        waitForElement(searchButtonSelector)
-    ]).then(([searchField, searchButton]) => {
-        // Remove any existing listeners to prevent duplicates
-        const newSearchButton = searchButton.cloneNode(true);
-        searchButton.parentNode.replaceChild(newSearchButton, searchButton);
-
-        const newSearchField = searchField.cloneNode(true);
-        searchField.parentNode.replaceChild(newSearchField, searchField);
-
-        // Add click listener to button
-        newSearchButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            doSearchFromPage(pageId);
-        });
-
-        // Add enter key listener to field
-        newSearchField.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                doSearchFromPage(pageId);
-            }
-        });
-
-        console.log(`Search handlers setup for ${pageId}`);
-    }).catch(error => {
-        console.error(`Failed to setup search handlers for ${pageId}:`, error);
-    });
-}
 
 
 // === dosearch function ===
@@ -2810,15 +2768,15 @@ function doSearch() {
 
 
     // perform search
-    let innerHTML = '';
     function performSearch() {
         // Prefer value from #search_field if not empty, else #search_field1
         //keywordDisplay = (field1?.value.trim() || field2?.value.trim());
 
 
         // get keyword data
-        const field1 = document.getElementById('search_field');
-        const keywordDisplay = (field1 && field1.value ? field1.value.trim() : '');
+        const field = document.getElementById('search_field');
+        const keywordDisplay = (field && field.value ? field.value.trim() : '');
+        const keyword = keywordDisplay.toLowerCase();
 
         if (!keywordDisplay) {
             alert('Please enter a search term.');
@@ -2826,184 +2784,155 @@ function doSearch() {
             return;
         }
 
-        const keyword = keywordDisplay.toLowerCase();
-
-        const normalizeTypeLabel = (typeIn) => {
-            const t = String(typeIn || '').toLowerCase();
-            switch (t) {
-                case 'n':
-                case 'noun':
-                    return 'noun';
-                case 'v':
-                case 'verb':
-                    return 'verb';
-                case 'adj':
-                case 'adjective':
-                    return 'adjective';
-                case 'adv':
-                case 'adverb':
-                    return 'adverb';
-                case 'aux':
-                case 'auxiliary':
-                case 'auxiliarie':
-                case 'auxiliaries':
-                    return 'auxiliary';
-                default:
-                    return t;
-            }
-        };
-
-        const generateParentArrayForType = (typeKey, baseWord) => {
-            switch (typeKey) {
-                case 'noun':
-                    return generateNounWithSuffixes(baseWord, { useAttachAsSuffix: true }) || [];
-                case 'verb':
-                    return generateVerbAffixes(baseWord) || [];
-                case 'adjective':
-                    return generateAdjectiveWithSuffixes(baseWord, { useAttachAsSuffix: true }) || [];
-                case 'adverb':
-                    return generateAdverbForms(baseWord, { useAttachAsSuffix: true }) || [];
-                case 'auxiliary':
-                    return generateAuxiliaryForms(baseWord) || [];
-                default:
-                    return [];
-            }
-        };
-
-        const occurrences = WordDictionary.findOccurrences(keyword) || [];
-        const parentArraysByType = {};
-        const baseWordsByType = {};
-
-        occurrences.forEach(occurrence => {
-            const typeKey = normalizeTypeLabel(occurrence.type);
-            if (!typeKey) return;
-            if (parentArraysByType[typeKey]) return;
-            const baseWord = occurrence.baseWord || keyword;
-            parentArraysByType[typeKey] = {
-                baseWord,
-                forms: generateParentArrayForType(typeKey, baseWord)
-            };
-            baseWordsByType[typeKey] = baseWord;
-        });
-
-        const primaryOccurrence = occurrences[0] || null;
-        const matchedType = normalizeTypeLabel(primaryOccurrence ? primaryOccurrence.type : '');
-        const matchedBaseWord = baseWordsByType[matchedType] || (primaryOccurrence ? primaryOccurrence.baseWord : null) || keyword;
-        const pageKey = matchedBaseWord ? String(matchedBaseWord).toLowerCase() : keyword;
-        const parentArray = parentArraysByType[matchedType]?.forms || [];
-
         const keywordData =
         {
             keyword,
-            baseKeyword: pageKey,
-            matchedType,
-            matchedBaseWord,
-            pageID: pages1[pageKey],
-            occurrences: occurrences,
-            parentArray: parentArray,
-            parentArrays: parentArraysByType,
-            baseWordsByType: baseWordsByType,
+            keywordStem: keywordStem,
+            pageID: pages1[keywordStem],
         };
         dictionaryData.keyword = keywordData;
 
         // remove page10000..page12000 except page matching current keyword variable
         const removedCount = removePageDivsExceptKeyword(keyword, 10000, 12000);
         console.log('removed', removedCount, 'dictionary pages');
-
+        console.log(keyword);
         if (keyword) {
+            keywordToPage();
+            console.log(keyword);
+            if (matchType == 0) {
+                return;
+            } else if (matchType == 1) {
 
-            function setupAffixedPage() {
-
-                function appendAndOpenPage(pageId, container, htmlContent) {
-                    return new Promise((resolve, reject) => {
-                        if (!container) return reject("No container to append the page to");
-
-                        // Check if the page already exists
-                        let pageEl = document.getElementById(pageId);
-                        if (!pageEl) {
-                            pageEl = document.createElement('div');
-                            pageEl.id = pageId;
-                            pageEl.className = 'page';
-                            pageEl.innerHTML = htmlContent;
-
-                            container.appendChild(pageEl);
-
-                            // Wait for the next animation frame to ensure it's in the DOM
-                            requestAnimationFrame(() => {
-                                if (document.getElementById(pageId)) {
-                                    resolve(pageEl); // exists, resolve promise
-                                } else {
-                                    reject(`Page ${pageId} did not append correctly`);
-                                }
-                            });
-                        } else {
-                            resolve(pageEl); // already exists
-                        }
-                    });
+                const targetPageId = dictionaryData.keyword.pageID || pages1[keyword];
+                // Find or create the .pages wrapper
+                let pagesWrap = document.querySelector('.pages');
+                if (!pagesWrap) {
+                    console.error("no div with class '.pages'");
+                    return;
                 }
 
-                const keyword = dictionaryData.keyword.keyword;
-                const targetPageId = dictionaryData.keyword.pageID;
-                const baseWord = dictionaryData.keyword.matchedBaseWord || dictionaryData.keyword.baseKeyword || keyword;
+                // create pageDiv
+                const pageDiv = document.createElement('div');
+                pageDiv.id = targetPageId;
+                pageDiv.className = 'page';
+                pageDiv.innerHTML = `<include-html src="pages/dictionarypage/dictionary.html"></include-html>`;
 
-                WordDictionary.get();
-                const occurrences = Array.isArray(dictionaryData.keyword.occurrences)
-                    ? dictionaryData.keyword.occurrences
-                    : [];
-                const typeKey = dictionaryData.keyword.matchedType || normalizeTypeLabel(occurrences[0]?.type);
-                const parentArrays = dictionaryData.keyword.parentArrays || {};
-                const parentArray = Array.isArray(parentArrays[typeKey]?.forms)
-                    ? parentArrays[typeKey].forms
-                    : (Array.isArray(dictionaryData.keyword.parentArray) ? dictionaryData.keyword.parentArray : []);
+                pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
 
-                if (parentArray.length > 0) {
-                    const keywordLower = keyword.toLowerCase();
-                    const matchingItem = parentArray.find(item => {
-                        const form = String(item.fullText || '').toLowerCase();
-                        return form === keywordLower;
-                    });
 
-                    if (matchingItem) {
-                        innerHTML = matchingItem.html || '';
-                        console.log(innerHTML);
+
+                // Wait for the page content to load, then setup the table (header table)
+                waitForElement(`#${targetPageId} .tablesContainer`).then(pageContainer => {
+                    // Create and fill the table
+                    const baseKeyword = dictionaryData.keyword.baseKeyword || keyword;
+                    const table = createTable(baseKeyword, pageContainer);
+                    fillTable(baseKeyword, table);
+
+                    // Update keyword <p>s
+                    const keywordp = document.getElementById("keywordp");
+                    if (keywordp) {
+                        keywordp.innerHTML = keywordDisplay;
+                    }
+                    cloneKeywordText();
+
+                    // Update wordclass <p>s
+                    const wordclassp = document.getElementById("wordclassp");
+                    if (wordclassp) {
+                        wordclassp.innerHTML = CurrentWordClassAsText;
+                    }
+                    cloneWordclassText();
+
+                    // Load appropriate content based on word class
+                    function loadWordClassContent(wordClass, pageId) {
+                        const rightDiv = document.querySelector(`#${pageId} #textBoxContainer`);
+                        if (!rightDiv) return;
+
+                        let contentFile = '';
+                        switch (wordClass) {
+                            case 'n':
+                                contentFile = 'pages/dictionarypage/text/nountextbox.html'; // nouns text
+                                break;
+                            case 'v':
+                                contentFile = 'pages/dictionarypage/text/verbtextbox.html'; // verbs text
+                                break;
+                            case 'adv':
+                            case 'adverb':
+                                contentFile = 'pages/dictionarypage/text/adverbtextbox.html'; // adverbs text
+                                break;
+                            case 'aux':
+                            case 'auxiliary':
+                                contentFile = 'pages/dictionarypage/text/auxiliarytextbox.html'; // auxiliaries text
+                                break;
+                            case 'adj':
+                            case 'adjective':
+                                contentFile = 'pages/dictionarypage/text/adjectivetextbox.html'; // adjectives text
+                                break;
+                            default:
+                                contentFile = 'pages/dictionarypage/text/nountextbox.html'; // Default fallback text
+                        }
+
+                        // Load the appropriate content
+                        rightDiv.innerHTML = `<include-html src="${contentFile}"></include-html>`;
+
+                        // Trigger the include-html custom element to load the content
+                        const includeElement = rightDiv.querySelector('include-html');
+                        if (includeElement && includeElement.connectedCallback) {
+                            includeElement.connectedCallback();
+                        }
                     }
 
-                    console.log("parentArray of keyword:", parentArray);
+                    const currentWordClass = getCurrentWordClass();
+                    loadWordClassContent(currentWordClass, targetPageId);
+
+                    // Clear and refocus field
+                    if (field && field.value.trim() !== '') {
+                        field.value = '';
+                        field.focus();
+                    }
+
+                    createSummaryTables(); // declensiontable
+                    runTableLoader(); // call your declension table logic here
+
+                }).catch(error => {
+                    console.error(`Error creating summary tables`, error);
+
+                    // Clear and refocus even if there's an error
+                    if (field && field.value.trim() !== '') {
+                        field.value = '';
+                        field.focus();
+                    }
+
+                }).catch(error => {
+                    console.error(`Failed to find page container for ${targetPageId}:`, error);
+                });
+
+
+                openPageOld(targetPageId);
+                matchType = 0;
+
+            } else if (matchType == 2) {
+                // create the page for keyword
+                const page = document.createElement('div');
+                page.id = 'page11998';
+                page.className = 'page';
+                page.innerHTML = resultPageKeywordInnerHtml;
+
+                let pagesWrap = document.querySelector('.pages');
+                if (!pagesWrap) {
+                    console.error("no div with class '.pages'");
+                    return;
                 }
+                pagesWrap.appendChild(page);
 
-                if (occurrences.length > 0 && innerHTML) {
-                    // create the page for keyword
-                    const page = document.createElement('div');
-                    page.id = 'page11998';
-                    page.className = 'page';
-
-                    //inner htmlget NounResult('e', 'D', 'S', 1, 'html', NounResults);
-
-                    const container = document.getElementsByClassName('pages')[0];
-                    appendAndOpenPage('page11998', container, innerHTML)
-                        .then(() => {
-                            openPageOld('page11998');
-
-                            //correctPageIfOnlyStem;
-                            if (targetPageId && (document.getElementById('page11998') || document.getElementById('page11999'))) {
-                                openPageOld(targetPageId);
-                            }
-                        })
-                        .catch(err => console.error(err));
-                } else {
-                    console.warn(`Keyword "${keyword}" not found in any forms.`);
-                }
-
+                openPageOld('page11998');
+                matchType = 0;
             }
-
-            setupAffixedPage();
         }
 
         const dataReady = (
             dictionaryData && (
                 (Array.isArray(dictionaryData.nouns) && dictionaryData.nouns.length > 0) ||
-                (Array.isArray(dictionaryData.verbs) && dictionaryData.verbs.length > 0) ||
-                (Array.isArray(dictionaryData.raw) && dictionaryData.raw.length > 0)
+                (Array.isArray(dictionaryData.verbs) && dictionaryData.verbs.length > 0)
             )
         );
         if (!keyword || !dataReady) {
@@ -3012,127 +2941,6 @@ function doSearch() {
             return;
         }
 
-        const targetPageId = dictionaryData.keyword.pageID || pages1[keyword];
-        if (!targetPageId) {
-            if (document.getElementById("page11998")) return; // dont show if page11998 exists
-            alert('No page found for that word.');
-            return;
-        }
-
-        // Find or create the .pages wrapper
-        let pagesWrap = document.querySelector('.pages');
-        if (!pagesWrap) {
-            pagesWrap = document.createElement('div');
-            pagesWrap.className = 'pages';
-            document.body.appendChild(pagesWrap);
-        }
-
-        // Create the page if it doesn't exist
-        const existingPage = document.getElementById(targetPageId);
-        if (!existingPage) {
-            // create pageDiv
-            const pageDiv = document.createElement('div');
-            pageDiv.id = targetPageId;
-            pageDiv.className = 'page';
-            pageDiv.innerHTML = `<include-html src="pages/dictionarypage/dictionary.html"></include-html>`;
-
-            pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
-
-            // Setup search handlers for the new page after a short delay
-            setTimeout(() => {
-                setupPageSearchHandlers(targetPageId);
-            }, 100);
-        }
-
-        // Go to the correct page
-        openPageOld(targetPageId);
-
-        // Wait for the page content to load, then setup the table
-        waitForElement(`#${targetPageId} .tablesContainer`).then(pageContainer => {
-            // Create and fill the table
-            const baseKeyword = dictionaryData.keyword.baseKeyword || keyword;
-            const table = createTable(baseKeyword, pageContainer);
-            fillTable(baseKeyword, table);
-
-            // Update keyword <p>s
-            const keywordp = document.getElementById("keywordp");
-            if (keywordp) {
-                keywordp.innerHTML = keywordDisplay;
-            }
-            cloneKeywordText();
-
-            // Update wordclass <p>s
-            setTimeout(() => {
-                const wordclassp = document.getElementById("wordclassp");
-                if (wordclassp) {
-                    wordclassp.innerHTML = CurrentWordClassAsText;
-                }
-                cloneWordclassText();
-            }, 0);
-
-            // Load appropriate content based on word class
-            function loadWordClassContent(wordClass, pageId) {
-                const rightDiv = document.querySelector(`#${pageId} #textBoxContainer`);
-                if (!rightDiv) return;
-
-                let contentFile = '';
-                switch (wordClass) {
-                    case 'n':
-                        contentFile = 'pages/dictionarypage/text/nountextbox.html'; // nouns text
-                        break;
-                    case 'v':
-                        contentFile = 'pages/dictionarypage/text/verbtextbox.html'; // verbs text
-                        break;
-                    case 'adv':
-                    case 'adverb':
-                        contentFile = 'pages/dictionarypage/text/adverbtextbox.html'; // adverbs text
-                        break;
-                    case 'aux':
-                    case 'auxiliary':
-                        contentFile = 'pages/dictionarypage/text/auxiliarytextbox.html'; // auxiliaries text
-                        break;
-                    case 'adj':
-                    case 'adjective':
-                        contentFile = 'pages/dictionarypage/text/adjectivetextbox.html'; // adjectives text
-                        break;
-                    default:
-                        contentFile = 'pages/dictionarypage/text/nountextbox.html'; // Default fallback text
-                }
-
-                // Load the appropriate content
-                rightDiv.innerHTML = `<include-html src="${contentFile}"></include-html>`;
-
-                // Trigger the include-html custom element to load the content
-                const includeElement = rightDiv.querySelector('include-html');
-                if (includeElement && includeElement.connectedCallback) {
-                    includeElement.connectedCallback();
-                }
-            }
-
-            const currentWordClass = getCurrentWordClass();
-            loadWordClassContent(currentWordClass, targetPageId);
-
-            // Clear and refocus whichever field was used
-            if (field1 && field1.value.trim() !== '') {
-                field1.value = '';
-                field1.focus();
-            }
-
-            createSummaryTables(); // declensiontable
-            runTableLoader(); // call your declension table logic here
-
-        }).catch(error => {
-            console.error(`Error creating summary tables`, error);
-
-            // Clear and refocus even if there's an error
-            if (field1 && field1.value.trim() !== '') {
-                field1.value = '';
-                field1.focus();
-            }
-
-        }).catch(error => {
-            console.error(`Failed to find page container for ${targetPageId}:`, error);
-        });
     }
 
     // Helper: consider data ready if processed arrays are available
@@ -3149,7 +2957,7 @@ function doSearch() {
     };
 
     // Auto-load dictionary data if not already loaded/processed
-    if (!isProcessedReady() && (!dictionaryData.raw || dictionaryData.raw.length === 0)) {
+    if (!isProcessedReady()) {
         // loadDictionaryData
         function loadDictionaryData() {
 
@@ -3220,13 +3028,11 @@ function doSearch() {
                 console.log("loaded from excel file(may be outdated)");
             }
         }
-
         loadDictionaryData();
         // Wait for data to load or be processed before continuing
         const checkDataLoaded = setInterval(() => {
-            if (isProcessedReady() || (dictionaryData.raw && dictionaryData.raw.length > 0)) {
+            if (isProcessedReady()) {
                 clearInterval(checkDataLoaded);
-
 
                 performSearch();
             }
@@ -3238,19 +3044,21 @@ function doSearch() {
 
 }
 
-// check if noun matches ANY other possible noun
-
-
 // i make new search match function thing:D
 let resultPageKeywordInnerHtml = ''; // need to add html part for word stems. // need to split declension from noun stems in array.
+let keywordStem = '';
+let matchType = 0;
 function keywordToPage() {
     const keyword = dictionaryData.keyword.keyword;
 
     //noun forms
     if (Array.isArray(dictionaryData.nouns)) {
         dictionaryData.nouns.forEach(row => {
-            if (keyword === row["word"]) {
-                console.log("MATCHMATCHMATCH");
+            if (keyword === row["keyword"]) {
+                dictionaryData.keyword["keywordStem"] = row["keyword"];
+                dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
+                matchType = 1;
+                console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
             const declensions = row["all declensions"];
@@ -3258,7 +3066,10 @@ function keywordToPage() {
                 const fullText = row["fullText"];
                 resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
-                    console.log("MATCHMATCHMATCH");
+                    dictionaryData.keyword["keywordStem"] = row["keyword"];
+                    dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
+                    matchType = 2;
+                    console.log("MATCHMATCHMATCH", fullText);
                     return;
                 }
                 const withParticlesAttached = row["withParticlesAttached"];
@@ -3266,27 +3077,30 @@ function keywordToPage() {
                     const fullText = row["fullTextP"];
                     resultPageKeywordInnerHtml = row["htmlP"];
                     if (keyword === fullText) {
-                        console.log("MATCHMATCHMATCH");
+                        matchType = 2;
+                        console.log("MATCHMATCHMATCH", fullText);
                         return;
                     }
-                })
+                });
                 const withPrepositionsAttached = row["withParticlesAttached"];
                 withPrepositionsAttached.forEach(row => {
                     const fullText = row["fullTextPP"];
                     resultPageKeywordInnerHtml = row["htmlPP"];
                     if (keyword === fullText) {
-                        console.log("MATCHMATCHMATCH");
+                        matchType = 2;
+                        console.log("MATCHMATCHMATCH", fullText);
                         return;
                     }
-                })
-            })
+                });
+            });
         });
     }
     //verb forms
     if (Array.isArray(dictionaryData.verbs)) {
         dictionaryData.verbs.forEach(row => {
             if (keyword === row["word"]) {
-                console.log("MATCHMATCHMATCH");
+                console.log("MATCHMATCHMATCH", keyword);
+                matchType = 1;
                 return;
             }
             const declensions = row["all declensions"];
@@ -3294,17 +3108,17 @@ function keywordToPage() {
                 const fullText = row["fullText"];
                 resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
-                    console.log("MATCHMATCHMATCH");
+                    console.log("MATCHMATCHMATCH", fullText);
                     return;
                 }
-            })
+            });
         });
     }
     //adjective forms
     if (Array.isArray(dictionaryData.adjectives)) {
         dictionaryData.adjectives.forEach(row => {
             if (keyword === row["word"]) {
-                console.log("MATCHMATCHMATCH");
+                console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
             const declensions = row["all declensions"];
@@ -3312,17 +3126,17 @@ function keywordToPage() {
                 const fullText = row["fullText"];
                 resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
-                    console.log("MATCHMATCHMATCH");
+                    console.log("MATCHMATCHMATCH", fullText);
                     return;
                 }
-            })
+            });
         });
     }
     //adverb forms
     if (Array.isArray(dictionaryData.adverbs)) {
         dictionaryData.adverbs.forEach(row => {
             if (keyword === row["word"]) {
-                console.log("MATCHMATCHMATCH");
+                console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
             const declensions = row["all declensions"];
@@ -3330,17 +3144,17 @@ function keywordToPage() {
                 const fullText = row["fullText"];
                 resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
-                    console.log("MATCHMATCHMATCH");
+                    console.log("MATCHMATCHMATCH", fullText);
                     return;
                 }
-            })
+            });
         });
     }
     //auxilary forms
     if (Array.isArray(dictionaryData.auxilaries)) {
         dictionaryData.auxilaries.forEach(row => {
             if (keyword === row["word"]) {
-                console.log("MATCHMATCHMATCH");
+                console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
             const declensions = row["all declensions"];
@@ -3348,17 +3162,17 @@ function keywordToPage() {
                 const fullText = row["fullText"];
                 resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
-                    console.log("MATCHMATCHMATCH");
+                    console.log("MATCHMATCHMATCH", fullText);
                     return;
                 }
-            })
+            });
         });
     }
     //conjunction forms
     if (Array.isArray(dictionaryData.conjunctions)) {
         dictionaryData.conjunctions.forEach(row => {
             if (keyword === row["word"]) {
-                console.log("MATCHMATCHMATCH");
+                console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
             const declensions = row["all declensions"];
@@ -3366,17 +3180,17 @@ function keywordToPage() {
                 const fullText = row["fullText"];
                 resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
-                    console.log("MATCHMATCHMATCH");
+                    console.log("MATCHMATCHMATCH", fullText);
                     return;
                 }
-            })
+            });
         });
     }
     //conjunction forms
     if (Array.isArray(dictionaryData.conjunctions)) {
         dictionaryData.conjunctions.forEach(row => {
             if (keyword === row["word"]) {
-                console.log("MATCHMATCHMATCH");
+                console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
             /*
@@ -3395,7 +3209,7 @@ function keywordToPage() {
     if (Array.isArray(dictionaryData.determiners)) {
         dictionaryData.determiners.forEach(row => {
             if (keyword === row["word"]) {
-                console.log("MATCHMATCHMATCH");
+                console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
             /*
@@ -3414,7 +3228,7 @@ function keywordToPage() {
     if (Array.isArray(dictionaryData.particles)) {
         dictionaryData.particles.forEach(row => {
             if (keyword === row["word"]) {
-                console.log("MATCHMATCHMATCH");
+                console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
             /*
@@ -3433,7 +3247,7 @@ function keywordToPage() {
     if (Array.isArray(dictionaryData.prepositions)) {
         dictionaryData.prepositions.forEach(row => {
             if (keyword === row["word"]) {
-                console.log("MATCHMATCHMATCH");
+                console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
             /*
