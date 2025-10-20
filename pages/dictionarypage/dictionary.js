@@ -2795,10 +2795,8 @@ function doSearch() {
         // remove page10000..page12000 except page matching current keyword variable
         const removedCount = removePageDivsExceptKeyword(keyword, 10000, 12000);
         console.log('removed', removedCount, 'dictionary pages');
-        console.log(keyword);
         if (keyword) {
             keywordToPage();
-            console.log(keyword);
             if (matchType == 0) {
                 return;
             } else if (matchType == 1) {
@@ -3098,7 +3096,9 @@ function keywordToPage() {
     //verb forms
     if (Array.isArray(dictionaryData.verbs)) {
         dictionaryData.verbs.forEach(row => {
-            if (keyword === row["word"]) {
+            if (keyword === row["keyword"]) {
+                dictionaryData.keyword["keywordStem"] = row["keyword"];
+                dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
                 console.log("MATCHMATCHMATCH", keyword);
                 matchType = 1;
                 return;
@@ -3108,6 +3108,9 @@ function keywordToPage() {
                 const fullText = row["fullText"];
                 resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
+                    dictionaryData.keyword["keywordStem"] = row["keyword"];
+                    dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
+                    matchType = 2;
                     console.log("MATCHMATCHMATCH", fullText);
                     return;
                 }
@@ -3117,7 +3120,8 @@ function keywordToPage() {
     //adjective forms
     if (Array.isArray(dictionaryData.adjectives)) {
         dictionaryData.adjectives.forEach(row => {
-            if (keyword === row["word"]) {
+            if (keyword === row["keyword"]) {
+                matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
@@ -3126,6 +3130,7 @@ function keywordToPage() {
                 const fullText = row["fullText"];
                 resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
+                    matchType = 2;
                     console.log("MATCHMATCHMATCH", fullText);
                     return;
                 }
@@ -3135,7 +3140,8 @@ function keywordToPage() {
     //adverb forms
     if (Array.isArray(dictionaryData.adverbs)) {
         dictionaryData.adverbs.forEach(row => {
-            if (keyword === row["word"]) {
+            if (keyword === row["keyword"]) {
+                matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
@@ -3144,6 +3150,7 @@ function keywordToPage() {
                 const fullText = row["fullText"];
                 resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
+                    matchType = 2;
                     console.log("MATCHMATCHMATCH", fullText);
                     return;
                 }
@@ -3153,7 +3160,8 @@ function keywordToPage() {
     //auxilary forms
     if (Array.isArray(dictionaryData.auxilaries)) {
         dictionaryData.auxilaries.forEach(row => {
-            if (keyword === row["word"]) {
+            if (keyword === row["keyword"]) {
+                matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
@@ -3162,6 +3170,7 @@ function keywordToPage() {
                 const fullText = row["fullText"];
                 resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
+                    matchType = 2;
                     console.log("MATCHMATCHMATCH", fullText);
                     return;
                 }
@@ -3171,25 +3180,8 @@ function keywordToPage() {
     //conjunction forms
     if (Array.isArray(dictionaryData.conjunctions)) {
         dictionaryData.conjunctions.forEach(row => {
-            if (keyword === row["word"]) {
-                console.log("MATCHMATCHMATCH", keyword);
-                return;
-            }
-            const declensions = row["all declensions"];
-            declensions.forEach(row => {
-                const fullText = row["fullText"];
-                resultPageKeywordInnerHtml = row["html"];
-                if (keyword === fullText) {
-                    console.log("MATCHMATCHMATCH", fullText);
-                    return;
-                }
-            });
-        });
-    }
-    //conjunction forms
-    if (Array.isArray(dictionaryData.conjunctions)) {
-        dictionaryData.conjunctions.forEach(row => {
-            if (keyword === row["word"]) {
+            if (keyword === row["keyword"]) {
+                matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
@@ -3208,7 +3200,8 @@ function keywordToPage() {
     //determiner forms
     if (Array.isArray(dictionaryData.determiners)) {
         dictionaryData.determiners.forEach(row => {
-            if (keyword === row["word"]) {
+            if (keyword === row["keyword"]) {
+                matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
@@ -3227,7 +3220,8 @@ function keywordToPage() {
     //particle forms
     if (Array.isArray(dictionaryData.particles)) {
         dictionaryData.particles.forEach(row => {
-            if (keyword === row["word"]) {
+            if (keyword === row["keyword"]) {
+                matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
@@ -3246,7 +3240,8 @@ function keywordToPage() {
     //preposition forms
     if (Array.isArray(dictionaryData.prepositions)) {
         dictionaryData.prepositions.forEach(row => {
-            if (keyword === row["word"]) {
+            if (keyword === row["keyword"]) {
+                matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
                 return;
             }
