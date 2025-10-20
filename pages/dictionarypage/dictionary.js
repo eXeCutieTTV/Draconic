@@ -2184,6 +2184,20 @@ const conlangConsonants = ["t", "k", "q", "q̇", "'", "c", "f", "d", "s", "z", "
 console.log(`Vowels = ${conlangVowels}`);
 console.log(`Consonants = ${conlangConsonants}`);
 
+const CONLANG_VOWEL_SET = (() => {
+    const set = new Set();
+    conlangVowels.forEach(vowelGlyph => {
+        const normalized = String(vowelGlyph).normalize("NFKC");
+        [normalized, normalized.toLowerCase(), normalized.toUpperCase()].forEach(form => set.add(form));
+
+        const stripped = normalized.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+        if (stripped) {
+            [stripped, stripped.toLowerCase(), stripped.toUpperCase()].forEach(form => set.add(form));
+        }
+    });
+    return set;
+})();
+
 // will redo -lirox
 // function isConlangVowel(char) {
 //     return text_to_entries(char)[0].properties.includes(window.REG.VOWEL);
@@ -2231,19 +2245,6 @@ function loadTableFiles(rowNumber, gender) {
     const recPromise = pasteFromHTML(generateDeclensionTables(MOODS.R, gender), rowNumber, gender, "rec");
     return Promise.all([dirPromise, recPromise]);//how does it know where to paste it? well, its returning the thing, so another function place it
 }
-
-// === Fetch a stem's dir/rec tables for a specific word and paste into word-specific summary tables ===
-// function loadTableFilesForWord(stem, rowNumber, gender, wordId) {
-//     const dirPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}dir.html`)
-//         .then(res => res.text())
-//         .then(html => pasteFromHTMLForWord(html, rowNumber, gender, "dir", wordId));
-
-//     const recPromise = fetch(`pages/dictionarypage/tables/declensiontables/${stem}rec.html`)
-//         .then(res => res.text())
-//         .then(html => pasteFromHTMLForWord(html, rowNumber, gender, "rec", wordId));
-
-//     return Promise.all([dirPromise, recPromise]);
-// } // old
 
 function loadTableFilesForWord(stem, rowNumber, gender, wordId) {  // nope
     const dirPromise = pasteFromHTMLForWord(generateDeclensionTables(MOODS.D, gender), rowNumber, gender, "dir", wordId);
@@ -2293,8 +2294,25 @@ function isLetter(char) {
 
 function isVowel(char) {
     if (!char) return false;
-    const base = char.normalize("NFKD").replace(/[^A-Za-z]/g, "").charAt(0) || char.charAt(0);
-    return "aeiouy".includes(base.toLowerCase());
+    const glyph = String(char).normalize("NFKC");
+    const variants = new Set([
+        glyph,
+        glyph.toLowerCase(),
+        glyph.toUpperCase()
+    ]);
+
+    const stripped = glyph.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+    if (stripped) {
+        variants.add(stripped);
+        variants.add(stripped.toLowerCase());
+        variants.add(stripped.toUpperCase());
+    }
+
+    for (const variant of variants) {
+        if (CONLANG_VOWEL_SET.has(variant)) return true;
+    }
+
+    return false;
 }
 
 // === Normalize text and hide empty rows ===
