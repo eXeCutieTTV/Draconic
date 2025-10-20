@@ -218,6 +218,18 @@ const PREPOSITIONS = {
     25: "ū-",
 }
 
+const PARTICLES = {
+    [affixState.P]: {
+        0: "ûl",
+        1: "ūn",
+        2: "ān",
+        3: "ōn"
+    },
+    [affixState.S]: {
+        0: "i"
+    }
+}
+
 let dictionaryData = {
     raw: [],
     sorted: {
@@ -264,61 +276,28 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     const fullText = `${entries_to_text(entries[0])}${entries_to_text(entries[1])}${entries_to_text(entries[2])}`;
                     const keywordStem = `${entries_to_text(entries[1])}`;
 
-                    const fullTextIPart = `i${fullText}`;
-                    const htmlIPart = `<strong>i</strong><strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
-                    const i = {
-                        fullText: fullTextIPart,
-                        html: htmlIPart,
-                        particleIsSuffix: "False"
-                    }
-
-                    const fullTextûlPart = `${fullText}ûl`;
-                    const htmlûlPart = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ûl</strong>`;
-                    const ûl = {
-                        fullText: fullTextûlPart,
-                        html: htmlûlPart,
-                        particleIsSuffix: "True"
-                    }
-
-                    const fullTextūnPart = `${fullText}ūn`;
-                    const htmlūnPart = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ūn</strong>`;
-                    const ūn = {
-                        fullText: fullTextūnPart,
-                        html: htmlūnPart,
-                        particleIsSuffix: "True"
-                    }
-
-                    const fullTextānPart = `${fullText}ān`;
-                    const htmlānPart = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ān</strong>`;
-                    const ān = {
-                        fullText: fullTextānPart,
-                        html: htmlānPart,
-                        particleIsSuffix: "True"
-                    }
-
-                    const fullTextōnPart = `${fullText}ōn`;
-                    const htmlōnPart = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong><strong>ōn</strong>`;
-                    const ōn = {
-                        fullText: fullTextōnPart,
-                        html: htmlōnPart,
-                        particleIsSuffix: "True"
-                    }
-
                     let withPrepositionsAttached = [];
                     for (let i = 0; i < Object.keys(PREPOSITIONS).length; i++) {
-                        const normalized = formatPrepositionAttachment(PREPOSITIONS[i], fullText);
+                        const normalized = formatPrefixWithAx(PREPOSITIONS[i], fullText);
                         const fullTextPP = `${normalized}${fullText}`;
                         const htmlPP = `<strong>${normalized}</strong>${html}`;
                         withPrepositionsAttached.push({ fullTextPP, htmlPP });
                     }
 
-                    const withParticlesAttached = {
-                        i,
-                        ûl,
-                        ūn,
-                        ān,
-                        ōn
+                    let withParticlesAttached = [];
+
+                    // for "i"
+                    const fullTextP = `i${fullText}`;
+                    const htmlP = `<strong>i</strong><strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+// for rest
+                    withParticlesAttached.push({ fullTextP, htmlP });
+                    for (let i = 0; i < Object.keys(PARTICLES[affixState.P]).length; i++) {
+                        const normalized = formatPrefixWithAx(PARTICLES[affixState.P][i], fullText);
+                        const fullTextP = `${normalized}${fullText}`;
+                        const htmlP = `<strong>${normalized}</strong>${html}`;
+                        withParticlesAttached.push({ fullTextP, htmlP });
                     }
+
 
                     result.push({
                         mood: moodKey,
@@ -2254,7 +2233,7 @@ function loadTableFilesForWord(stem, rowNumber, gender, wordId) {  // nope
     return Promise.all([dirPromise, recPromise]);
 }
 
-function formatPrepositionAttachment(preposition, fullText) {
+function formatPrefixWithAx(preposition, fullText) {
     const base = normalizeText(preposition).replace(/-/g, "");
     const target = String(fullText || "");
 
