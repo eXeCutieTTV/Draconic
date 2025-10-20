@@ -279,8 +279,8 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     let withPrepositionsAttached = [];
                     for (let i = 0; i < Object.keys(PREPOSITIONS).length; i++) {
                         const normalized = formatPrefixWithAx(PREPOSITIONS[i], fullText);
-                        const fullTextPP = `${normalized}${fullText}`;
-                        const htmlPP = `<strong>${normalized}</strong>${html}`;
+                        const fullTextPP = `${fullText}${normalized}`;
+                        const htmlPP = `${html}<strong>${normalized}</strong>`;
                         withPrepositionsAttached.push({ fullTextPP, htmlPP });
                     }
 
@@ -289,12 +289,13 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     // for "i"
                     const fullTextP = `i${fullText}`;
                     const htmlP = `<strong>i</strong><strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
-// for rest
+                    // for rest
                     withParticlesAttached.push({ fullTextP, htmlP });
                     for (let i = 0; i < Object.keys(PARTICLES[affixState.P]).length; i++) {
-                        const normalized = formatPrefixWithAx(PARTICLES[affixState.P][i], fullText);
-                        const fullTextP = `${normalized}${fullText}`;
-                        const htmlP = `<strong>${normalized}</strong>${html}`;
+                        const suffixText = formatSuffixWithAx(fullText, PARTICLES[affixState.P][i]);
+                        if (!suffixText) continue;
+                        const fullTextP = `${fullText}${suffixText}`;
+                        const htmlP = `${html}<strong>${suffixText}</strong>`;
                         withParticlesAttached.push({ fullTextP, htmlP });
                     }
 
@@ -2244,6 +2245,22 @@ function formatPrefixWithAx(preposition, fullText) {
 
     if (isVowel(lastLetter) && isVowel(firstLetter)) {
         return `${base}'`;
+    }
+
+    return base;
+}
+
+function formatSuffixWithAx(fullText, suffix) {
+    const base = normalizeText(suffix).replace(/-/g, "");
+    const target = String(fullText || "");
+
+    if (!base) return base;
+
+    const lastLetter = getLastLetter(target);
+    const firstLetter = getFirstLetter(base);
+
+    if (isVowel(lastLetter) && isVowel(firstLetter)) {
+        return `'${base}`;
     }
 
     return base;
