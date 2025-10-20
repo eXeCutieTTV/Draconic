@@ -3972,16 +3972,26 @@ function cloneWordclassText() {
     }
 }
 
-// put buttons on index.js?
+function reverseSearchIdsOnSearch() {
+    const inpageField = document.getElementById('search_field1');
+    if (inpageField) {
+        document.getElementById('search_button').id = 'unusedBtn';
+        document.getElementById('search_field').id = 'unusedField';
+        document.getElementById('unusedBtn').id = 'search_button';
+        document.getElementById('unusedField').id = 'search_field';
+    }
+}
+function setSearchIdsOnPageOpen() {
+    document.getElementById('search_button').id = 'unusedBtn';
+    document.getElementById('search_field').id = 'unusedField';
+    document.getElementById('unusedBtn').id = 'search_button';
+    document.getElementById('unusedField').id = 'search_field';
+}
+
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
     doSearch(); // /\(/o.o\)/\ - Spooky the spider
-});
-
-document.addEventListener('click', (e) => {
-    if (e.target.id === 'search_button1') {
-        doSearch();
-    }
+    reverseSearchIdsOnSearch();
 });
 
 // === Trigger search on Enter key ===
@@ -3989,5 +3999,6 @@ document.getElementById('search_field').addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault(); // prevent form submission
         doSearch();
+        reverseSearchIdsOnSearch();
     }
 });
