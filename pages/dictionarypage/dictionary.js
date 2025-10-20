@@ -219,13 +219,13 @@ const PREPOSITIONS = {
 }
 
 const PARTICLES = {
-    [affixState.P]: {
+    [affixState.S]: {
         0: "ûl",
         1: "ūn",
         2: "ān",
         3: "ōn"
     },
-    [affixState.S]: {
+    [affixState.P]: {
         0: "i"
     }
 }
@@ -287,11 +287,11 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     let withParticlesAttached = [];
 
                     // for "i"
-                    const fullTextP = `i${fullText}`;
+                    const fullTextP = `${PARTICLES[affixState.S][1]}${fullText}`;
                     const htmlP = `<strong>i</strong><strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
                     // for rest
                     withParticlesAttached.push({ fullTextP, htmlP });
-                    for (let i = 0; i < Object.keys(PARTICLES[affixState.P]).length; i++) {
+                    for (let i = 0; i < Object.keys(PARTICLES[affixState.S]).length; i++) {
                         const suffixText = formatSuffixWithAx(fullText, PARTICLES[affixState.P][i]);
                         if (!suffixText) continue;
                         const fullTextP = `${fullText}${suffixText}`;
