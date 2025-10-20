@@ -306,13 +306,16 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         particleIsSuffix: "True"
                     }
 
-                    const withPrepositionsAttached = [];
-                    /*
-                    const normalized = normalizeText(dictionaryData.prepositions[i].word);
-                    const fullTextPP = `${normalized}${fullText}`;
-                    const htmlPP = `<strong>${normalized}</strong>${html}`;
-                    withPrepositionsAttached.push({ fullTextPP, htmlPP });
-*/
+                    let withPrepositionsAttached = [];
+                    for (let i = 1; i < 27; i++) {
+                        let withPrepositionsAttached = [];
+
+                        let normalized = normalizeText(PREPOSITIONS[i]);
+                        const fullTextPP = `${normalized}${fullText}`;
+                        const htmlPP = `<strong>${normalized}</strong>${html}`;
+                        withPrepositionsAttached.push({ fullTextPP, htmlPP });
+                    }
+
                     const withParticlesAttached = {
                         i,
                         ûl,
@@ -2257,8 +2260,11 @@ function loadTableFilesForWord(stem, rowNumber, gender, wordId) {  // nope
 
 // === Normalize text and hide empty rows ===
 function normalizeText(s) {
-    return (s || "").replace(/\u00a0/g, " ").trim();
-
+    return String(s || "")
+        .replace(/\u00A0/g, " ")        // NBSP -> space
+        .replace(/[-–—]/g, "")          // remove ASCII hyphen, en-dash, em-dash
+        .replace(/\s+/g, " ")           // collapse repeated whitespace
+        .trim();
 }
 
 function hideEmptySummaryRowsIn(summaryTableId) {
