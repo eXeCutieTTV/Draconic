@@ -308,9 +308,7 @@ function generateNounWithSuffixes(keyword, options = {}) {
 
                     let withPrepositionsAttached = [];
                     for (let i = 1; i < 27; i++) {
-                        let withPrepositionsAttached = [];
-
-                        let normalized = normalizeText(PREPOSITIONS[i]);
+                        const normalized = normalizeText(PREPOSITIONS[i]);
                         const fullTextPP = `${normalized}${fullText}`;
                         const htmlPP = `<strong>${normalized}</strong>${html}`;
                         withPrepositionsAttached.push({ fullTextPP, htmlPP });
