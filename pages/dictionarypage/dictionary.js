@@ -2890,6 +2890,7 @@ function doSearch() {
 
                     createSummaryTables(); // declensiontable
                     runTableLoader(); // call your declension table logic here
+                    reverseSearchIdsOnSearch(); // fix searchfield & btn onpage
 
                 }).catch(error => {
                     console.error(`Error creating summary tables`, error);
@@ -3057,7 +3058,7 @@ function keywordToPage() {
                 dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
-                return;
+                return '';
             }
             const declensions = row["all declensions"];
             declensions.forEach(row => {
@@ -3068,7 +3069,7 @@ function keywordToPage() {
                     dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
                     matchType = 2;
                     console.log("MATCHMATCHMATCH", fullText);
-                    return;
+                    return resultPageKeywordInnerHtml || '';
                 }
                 const withParticlesAttached = row["withParticlesAttached"];
                 withParticlesAttached.forEach(row => {
@@ -3077,7 +3078,7 @@ function keywordToPage() {
                     if (keyword === fullText) {
                         matchType = 2;
                         console.log("MATCHMATCHMATCH", fullText);
-                        return;
+                        return resultPageKeywordInnerHtml || '';
                     }
                 });
                 const withPrepositionsAttached = row["withPrepositionsAttached"];
@@ -3087,7 +3088,7 @@ function keywordToPage() {
                     if (keyword === fullText) {
                         matchType = 2;
                         console.log("MATCHMATCHMATCH", fullText);
-                        return;
+                        return resultPageKeywordInnerHtml || '';
                     }
                 });
             });
@@ -3101,7 +3102,7 @@ function keywordToPage() {
                 dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
                 console.log("MATCHMATCHMATCH", keyword);
                 matchType = 1;
-                return;
+                return '';
             }
             const declensions = row["all declensions"];
             declensions.forEach(row => {
@@ -3112,7 +3113,7 @@ function keywordToPage() {
                     dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
                     matchType = 2;
                     console.log("MATCHMATCHMATCH", fullText);
-                    return;
+                    return resultPageKeywordInnerHtml || '';
                 }
             });
         });
@@ -3123,7 +3124,7 @@ function keywordToPage() {
             if (keyword === row["keyword"]) {
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
-                return;
+                return '';
             }
             const declensions = row["all declensions"];
             declensions.forEach(row => {
@@ -3132,7 +3133,7 @@ function keywordToPage() {
                 if (keyword === fullText) {
                     matchType = 2;
                     console.log("MATCHMATCHMATCH", fullText);
-                    return;
+                    return resultPageKeywordInnerHtml || '';
                 }
             });
         });
@@ -3143,7 +3144,7 @@ function keywordToPage() {
             if (keyword === row["keyword"]) {
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
-                return;
+                return '';
             }
             const declensions = row["all declensions"];
             declensions.forEach(row => {
@@ -3152,7 +3153,7 @@ function keywordToPage() {
                 if (keyword === fullText) {
                     matchType = 2;
                     console.log("MATCHMATCHMATCH", fullText);
-                    return;
+                    return resultPageKeywordInnerHtml || '';
                 }
             });
         });
@@ -3163,7 +3164,7 @@ function keywordToPage() {
             if (keyword === row["keyword"]) {
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
-                return;
+                return '';
             }
             const declensions = row["all declensions"];
             declensions.forEach(row => {
@@ -3172,7 +3173,7 @@ function keywordToPage() {
                 if (keyword === fullText) {
                     matchType = 2;
                     console.log("MATCHMATCHMATCH", fullText);
-                    return;
+                    return resultPageKeywordInnerHtml || '';
                 }
             });
         });
@@ -3183,7 +3184,7 @@ function keywordToPage() {
             if (keyword === row["keyword"]) {
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
-                return;
+                return '';
             }
             /*
             const declensions = row["all declensions"];
@@ -3203,7 +3204,7 @@ function keywordToPage() {
             if (keyword === row["keyword"]) {
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
-                return;
+                return '';
             }
             /*
             const declensions = row["all declensions"];
@@ -3223,7 +3224,7 @@ function keywordToPage() {
             if (keyword === row["keyword"]) {
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
-                return;
+                return '';
             }
             /*
             const declensions = row["all declensions"];
@@ -3243,7 +3244,7 @@ function keywordToPage() {
             if (keyword === row["keyword"]) {
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", keyword);
-                return;
+                return '';
             }
             /*
             const declensions = row["all declensions"];
@@ -3290,26 +3291,34 @@ function cloneWordclassText() {
     }
 }
 
+// Safely swap two element IDs using a temporary third ID to avoid duplicates.
+// Call this to swap the button IDs and the field IDs.
+function swapSearchIds(idA, idB) {
+    const a = document.getElementById(idA);
+    const b = document.getElementById(idB);
+    if (!a && !b) return;          // nothing to do
+    if (!a && b) { b.id = idA; return; }
+    if (a && !b) { a.id = idB; return; }
+
+    // use a temporary id unlikely to collide
+    const tmp = `__tmp_id_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    a.id = tmp;        // step 1: move A out of the way
+    b.id = idA;        // step 2: move B into A's original id
+    const movedA = document.getElementById(tmp);
+    if (movedA) movedA.id = idB; // step 3: restore A into B's original id
+}
+
 function reverseSearchIdsOnSearch() {
-    const inpageField = document.getElementById('unusedField');
-    if (inpageField) {
-        document.getElementById('search_button').id = 'unusedBtn';
-        document.getElementById('search_field').id = 'unusedField';
-        document.getElementById('unusedBtn').id = 'search_button';
-        document.getElementById('unusedField').id = 'search_field';
+    if (document.getElementById('search_button') && document.getElementById('unusedBtn')) {
+        swapSearchIds('search_button', 'unusedBtn');
+        swapSearchIds('search_field', 'unusedField');
     }
 }
-function setSearchIdsOnPageOpen() {
-    document.getElementById('search_button').id = 'unusedBtn';
-    document.getElementById('search_field').id = 'unusedField';
-    document.getElementById('unusedBtn').id = 'search_button';
-    document.getElementById('unusedField').id = 'search_field';
-}
+
 
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
     doSearch(); // /\(/o.o\)/\ - Spooky the spider
-    reverseSearchIdsOnSearch();
 });
 
 // === Trigger search on Enter key ===
@@ -3317,6 +3326,5 @@ document.getElementById('search_field').addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
         event.preventDefault(); // prevent form submission
         doSearch();
-        reverseSearchIdsOnSearch();
     }
 });
