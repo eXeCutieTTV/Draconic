@@ -190,32 +190,32 @@ const AFFIXSTATE = {
 
 // === PREPOSITIONS ===
 const PREPOSITIONS = {
-    1: "æze-",
-    2: "aze-",
-    3: "fenlly-",
-    4: "ħá-",
-    5: "ħáŋ-",
-    6: "ho-",
-    7: "hu-",
-    8: "huz-",
-    9: "kxā-",
-    10: "kxæ-",
-    11: "lleŋ-",
-    12: "lloq̇-",
-    13: "ly-",
-    14: "ō-",
-    15: "qa-",
-    16: "qē-",
-    17: "qēru-",
-    18: "q̇ū-",
-    19: "qχok-",
-    20: "sæχ-",
-    21: "saχ-",
-    22: "sī-",
-    23: "sil-",
-    24: "thū-",
-    25: "tre-",
-    26: "ū-",
+    0: "æze-",
+    1: "aze-",
+    2: "fenlly-",
+    3: "ħá-",
+    4: "ħáŋ-",
+    5: "ho-",
+    6: "hu-",
+    7: "huz-",
+    8: "kxā-",
+    9: "kxæ-",
+    10: "lleŋ-",
+    11: "lloq̇-",
+    12: "ly-",
+    13: "ō-",
+    14: "qa-",
+    15: "qē-",
+    16: "qēru-",
+    17: "q̇ū-",
+    18: "qχok-",
+    19: "sæχ-",
+    20: "saχ-",
+    21: "sī-",
+    22: "sil-",
+    23: "thū-",
+    24: "tre-",
+    25: "ū-",
 }
 
 let dictionaryData = {
@@ -234,8 +234,6 @@ let dictionaryData = {
 }
 
 //isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
-
-
 // Produces NounWithSuffix array for a single base word
 function generateNounWithSuffixes(keyword, options = {}) {
     const moodsToInclude = options.moodsToInclude || Object.keys(CONJUGATIONS);
@@ -307,8 +305,8 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     }
 
                     let withPrepositionsAttached = [];
-                    for (let i = 1; i < 27; i++) {
-                        const normalized = normalizeText(PREPOSITIONS[i]);
+                    for (let i = 0; i < Object.keys(PREPOSITIONS).length; i++) {
+                        const normalized = formatPrepositionAttachment(PREPOSITIONS[i], fullText);
                         const fullTextPP = `${normalized}${fullText}`;
                         const htmlPP = `<strong>${normalized}</strong>${html}`;
                         withPrepositionsAttached.push({ fullTextPP, htmlPP });
@@ -2255,6 +2253,49 @@ function loadTableFilesForWord(stem, rowNumber, gender, wordId) {  // nope
     return Promise.all([dirPromise, recPromise]);
 }
 
+function formatPrepositionAttachment(preposition, fullText) {
+    const base = normalizeText(preposition).replace(/-/g, "");
+    const target = String(fullText || "");
+
+    if (!base) return base;
+
+    const lastLetter = getLastLetter(base);
+    const firstLetter = getFirstLetter(target);
+
+    if (isVowel(lastLetter) && isVowel(firstLetter)) {
+        return `${base}'`;
+    }
+
+    return base;
+}
+
+function getFirstLetter(value) {
+    const str = String(value || "");
+    for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        if (isLetter(char)) return char;
+    }
+    return "";
+}
+
+function getLastLetter(value) {
+    const str = String(value || "");
+    for (let i = str.length - 1; i >= 0; i--) {
+        const char = str[i];
+        if (isLetter(char)) return char;
+    }
+    return "";
+}
+
+function isLetter(char) {
+    return typeof char === "string" && char.length === 1 && char.toLowerCase() !== char.toUpperCase();
+}
+
+function isVowel(char) {
+    if (!char) return false;
+    const base = char.normalize("NFKD").replace(/[^A-Za-z]/g, "").charAt(0) || char.charAt(0);
+    return "aeiouy".includes(base.toLowerCase());
+}
 
 // === Normalize text and hide empty rows ===
 function normalizeText(s) {
