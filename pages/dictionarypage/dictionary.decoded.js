@@ -1,4 +1,4 @@
-ï»¿// when you press the first search button, then the id of the first field and button gets replaces, and those ids are placed into the onpage search button and field?
+ÿþ// when you press the first search button, then the id of the first field and button gets replaces, and those ids are placed into the onpage search button and field?
 // hi 16-10-2025
 // === DATA ===
 const GENDERS = {
@@ -26,76 +26,76 @@ const MOODS = {
 const CONJUGATIONS = { // /\(/o.o\)/\ - Spooky the spider
     [MOODS.D]: {
         [GENDERS.E.NAME]: {
-            [NUMBERS.S]: { 1: "Ä“n", 2: "Ã¦n", 3: "Ä“n", 4: "Ä§Ã¡n" },
-            [NUMBERS.D]: { 1: "(Ä“)Ï‡en", 2: "(y)Ï‡en", 3: "(o)Ï‡en", 4: "Ä§Ã³Ï‡Ä§on" },
-            [NUMBERS.P]: { 1: "illyn", 2: "Än", 3: "Ä“'yn", 4: "qÌ‡yn" }
+            [NUMBERS.S]: { 1: "en", 2: "ýÿn", 3: "en", 4: "hýÿn" },
+            [NUMBERS.D]: { 1: "(e)?en", 2: "(y)?en", 3: "(o)?en", 4: "hýÿ?hon" },
+            [NUMBERS.P]: { 1: "illyn", 2: "an", 3: "e'yn", 4: "q?yn" }
         },
         [GENDERS.R.NAME]: {
-            [NUMBERS.S]: { 1: "Ä“f", 2: "(a)xef", 3: "lef", 4: "lef" },
-            [NUMBERS.D]: { 1: "eÏ‡ef", 2: "hyf", 3: "(o)Ï‡ef", 4: "(o)Ï‡ef" },
+            [NUMBERS.S]: { 1: "ef", 2: "(a)xef", 3: "lef", 4: "lef" },
+            [NUMBERS.D]: { 1: "e?ef", 2: "hyf", 3: "(o)?ef", 4: "(o)?ef" },
             [NUMBERS.P]: { 1: "yf", 2: "hyf", 3: "'yf", 4: "'yf" }
         },
         [GENDERS.MON.NAME]: {
-            [NUMBERS.S]: { 1: "Ã´", 2: "Ã´", 3: "Ã´", 4: "Ã´" },
-            [NUMBERS.D]: { 1: "yÄ§qÌ‡Ã´", 2: "qÌ‡Ã´", 3: "qÌ‡Ã´", 4: "Ã»qÌ‡Ã´" },
-            [NUMBERS.P]: { 1: "oÄ§Ã´", 2: "qÌ‡Ã´", 3: "qÌ‡Ã´", 4: "Ã»qÌ‡Ã´" }
+            [NUMBERS.S]: { 1: "ýÿ", 2: "ýÿ", 3: "ýÿ", 4: "ýÿ" },
+            [NUMBERS.D]: { 1: "yhq?ýÿ", 2: "q?ýÿ", 3: "q?ýÿ", 4: "ýÿq?ýÿ" },
+            [NUMBERS.P]: { 1: "ohýÿ", 2: "q?ýÿ", 3: "q?ýÿ", 4: "ýÿq?ýÿ" }
         },
         [GENDERS.I.NAME]: {
-            [NUMBERS.S]: { 1: "llÅ«l", 2: "cÅ«l", 3: "cÅ«l", 4: "cÅ«l" },
-            [NUMBERS.D]: { 1: "(Ã¦)llÅ«l", 2: "(')illÅ«l", 3: "(')illÅ«l", 4: "(')illÅ«l" },
-            [NUMBERS.P]: { 1: "(Ã¦)llÅ«l", 2: "(')illÅ«l", 3: "(')illÅ«l", 4: "(')illÅ«l" } // /\(/o.o\)/\ - Spooky the spider
+            [NUMBERS.S]: { 1: "llul", 2: "cul", 3: "cul", 4: "cul" },
+            [NUMBERS.D]: { 1: "(ýÿ)llul", 2: "(')illul", 3: "(')illul", 4: "(')illul" },
+            [NUMBERS.P]: { 1: "(ýÿ)llul", 2: "(')illul", 3: "(')illul", 4: "(')illul" } // /\(/o.o\)/\ - Spooky the spider
         },
         [GENDERS.MAG.NAME]: {
-            [NUMBERS.S]: { 1: "(Å)Ï‡", 2: "huÏ‡", 3: "huÏ‡", 4: "qÌ‡Ä§ÃºÏ‡" },
-            [NUMBERS.D]: { 1: "uÏ‡", 2: "'Å«Ï‡", 3: "'Å«Ï‡", 4: "(')Å«Ï‡" },
-            [NUMBERS.P]: { 1: "uÏ‡", 2: "'Å«Ï‡", 3: "'Å«Ï‡", 4: "(')Å«Ï‡" }
+            [NUMBERS.S]: { 1: "(o)?", 2: "hu?", 3: "hu?", 4: "q?hýÿ?" },
+            [NUMBERS.D]: { 1: "u?", 2: "'u?", 3: "'u?", 4: "(')u?" },
+            [NUMBERS.P]: { 1: "u?", 2: "'u?", 3: "'u?", 4: "(')u?" }
         },
         [GENDERS.MUN.NAME]: {
-            [NUMBERS.S]: { 1: "(e)rk", 2: "tyk", 3: "tyk", 4: "(Ã¡)rk" },
-            [NUMBERS.D]: { 1: "Årk", 2: "Årk", 3: "Årk", 4: "(')urk" },
-            [NUMBERS.P]: { 1: "Årk", 2: "Årk", 3: "Årk", 4: "(')urk" }
+            [NUMBERS.S]: { 1: "(e)rk", 2: "tyk", 3: "tyk", 4: "(ýÿ)rk" },
+            [NUMBERS.D]: { 1: "ork", 2: "ork", 3: "ork", 4: "(')urk" },
+            [NUMBERS.P]: { 1: "ork", 2: "ork", 3: "ork", 4: "(')urk" }
         },
         [GENDERS.A.NAME]: {
-            [NUMBERS.S]: { 1: "(y)qÌ‡", 2: "(o)qÌ‡", 3: "(o)qÌ‡", 4: "(Ãº)Ä§Ã¡qÌ‡" },
-            [NUMBERS.D]: { 1: "ÄqÌ‡", 2: "ÅqÌ‡", 3: "ÅqÌ‡", 4: "Å«qÌ‡" },
-            [NUMBERS.P]: { 1: "ÄqÌ‡", 2: "ÅqÌ‡", 3: "ÅqÌ‡", 4: "Å«qÌ‡" }
+            [NUMBERS.S]: { 1: "(y)q?", 2: "(o)q?", 3: "(o)q?", 4: "(ýÿ)hýÿq?" },
+            [NUMBERS.D]: { 1: "aq?", 2: "oq?", 3: "oq?", 4: "uq?" },
+            [NUMBERS.P]: { 1: "aq?", 2: "oq?", 3: "oq?", 4: "uq?" }
         }
     },
     [MOODS.R]: {
         [GENDERS.E.NAME]: {
-            [NUMBERS.S]: { 1: "oÄ§Ã¢n", 2: "Ä§Ã¢n", 3: "Ä“qÃ¢n", 4: "qÃ¢n" },
-            [NUMBERS.D]: { 1: "Ä§Ã¢n", 2: "(Å)n", 3: "on", 4: "Ä§Ã»n" },
-            [NUMBERS.P]: { 1: "illyrn", 2: "(Å)rn", 3: "Ä“'yrn", 4: "qÌ‡yrn" }
+            [NUMBERS.S]: { 1: "ohýÿn", 2: "hýÿn", 3: "eqýÿn", 4: "qýÿn" },
+            [NUMBERS.D]: { 1: "hýÿn", 2: "(o)n", 3: "on", 4: "hýÿn" },
+            [NUMBERS.P]: { 1: "illyrn", 2: "(o)rn", 3: "e'yrn", 4: "q?yrn" }
         },
         [GENDERS.R.NAME]: {
-            [NUMBERS.S]: { 1: "oÄ§Ã¢f", 2: "Ä§Ã¢f", 3: "(o)qÃ¢f", 4: "(o)qÃ¢f" },
-            [NUMBERS.D]: { 1: "Ä«llyf", 2: "(')Å«llef", 3: "yf", 4: "yf" },
-            [NUMBERS.P]: { 1: "Ä«llyf", 2: "(')Å«llef", 3: "Å«lef", 4: "'Å«lef" }
+            [NUMBERS.S]: { 1: "ohýÿf", 2: "hýÿf", 3: "(o)qýÿf", 4: "(o)qýÿf" },
+            [NUMBERS.D]: { 1: "illyf", 2: "(')ullef", 3: "yf", 4: "yf" },
+            [NUMBERS.P]: { 1: "illyf", 2: "(')ullef", 3: "ulef", 4: "'ulef" }
         },
         [GENDERS.MON.NAME]: {
-            [NUMBERS.S]: { 1: "oÄ§Ã´", 2: "qÃ¢Ä§Ã³", 3: "qÃ¢Ä§Ã³", 4: "Ã´" },
-            [NUMBERS.D]: { 1: "Å«Ä§Ã³", 2: "qÌ‡Ã´", 3: "qÌ‡Ã´", 4: "Ã»qÌ‡Ã´" },
-            [NUMBERS.P]: { 1: "ÅqÌ‡Ã´", 2: "qÌ‡Ã´", 3: "qÌ‡Ã´", 4: "Ã»qÌ‡Ã´" }
+            [NUMBERS.S]: { 1: "ohýÿ", 2: "qýÿhýÿ", 3: "qýÿhýÿ", 4: "ýÿ" },
+            [NUMBERS.D]: { 1: "uhýÿ", 2: "q?ýÿ", 3: "q?ýÿ", 4: "ýÿq?ýÿ" },
+            [NUMBERS.P]: { 1: "oq?ýÿ", 2: "q?ýÿ", 3: "q?ýÿ", 4: "ýÿq?ýÿ" }
         },
         [GENDERS.I.NAME]: {
-            [NUMBERS.S]: { 1: "llÅ«l", 2: "qÃ¢llÅ«l", 3: "qÃ¢llÅ«l", 4: "qÃ¢llÅ«l" },
-            [NUMBERS.D]: { 1: "(y)ll'Å«l", 2: "(')llÅ«l", 3: "(')llÅ«l", 4: "(')llÅ«l" },
-            [NUMBERS.P]: { 1: "(y)ll'Å«l", 2: "(')Å«cÅ«l", 3: "(')Å«cÅ«l", 4: "(')Å«cÅ«l" }
+            [NUMBERS.S]: { 1: "llul", 2: "qýÿllul", 3: "qýÿllul", 4: "qýÿllul" },
+            [NUMBERS.D]: { 1: "(y)ll'ul", 2: "(')llul", 3: "(')llul", 4: "(')llul" },
+            [NUMBERS.P]: { 1: "(y)ll'ul", 2: "(')ucul", 3: "(')ucul", 4: "(')ucul" }
         },
         [GENDERS.MAG.NAME]: {
-            [NUMBERS.S]: { 1: "(Å)Ä§ÃºÏ‡Ä§", 2: "(y)qÌ‡Ä§Ã´Ï‡", 3: "(y)qÌ‡Ä§Ã´Ï‡", 4: "qÌ‡Ä§Ã´Ï‡" },
-            [NUMBERS.D]: { 1: "(a)lluÏ‡", 2: "(y)lÅ«rÏ‡", 3: "(y)lÅ«rÏ‡", 4: "(')Å«rÏ‡" },
-            [NUMBERS.P]: { 1: "(a)lluÏ‡", 2: "(y)lÅ«rÏ‡", 3: "(y)lÅ«rÏ‡", 4: "(')Å«rÏ‡" }
+            [NUMBERS.S]: { 1: "(o)hýÿ?h", 2: "(y)q?hýÿ?", 3: "(y)q?hýÿ?", 4: "q?hýÿ?" },
+            [NUMBERS.D]: { 1: "(a)llu?", 2: "(y)lur?", 3: "(y)lur?", 4: "(')ur?" },
+            [NUMBERS.P]: { 1: "(a)llu?", 2: "(y)lur?", 3: "(y)lur?", 4: "(')ur?" }
         },
         [GENDERS.MUN.NAME]: {
-            [NUMBERS.S]: { 1: "(o)Ä§Ã¡rk	", 2: "Ä§Ã¡rk	", 3: "Ä§Ã¡rk	", 4: "qÌ‡Ä§Ã¡rk" },
-            [NUMBERS.D]: { 1: "Årk", 2: "Årk", 3: "Årk", 4: "(')urk	" },
-            [NUMBERS.P]: { 1: "Årk", 2: "Årk", 3: "Årk", 4: "(')urk	" }
+            [NUMBERS.S]: { 1: "(o)hýÿrk	", 2: "hýÿrk	", 3: "hýÿrk	", 4: "q?hýÿrk" },
+            [NUMBERS.D]: { 1: "ork", 2: "ork", 3: "ork", 4: "(')urk	" },
+            [NUMBERS.P]: { 1: "ork", 2: "ork", 3: "ork", 4: "(')urk	" }
         },  // /\(/o.o\)/\ - Spooky the spider
         [GENDERS.A.NAME]: {
-            [NUMBERS.S]: { 1: "aÄ§Ã´qÌ‡", 2: "(y)qÌ‡Ä§Ã´qÌ‡", 3: "(y)qÌ‡Ä§Ã´qÌ‡", 4: "Ã¡qÌ‡Ä§Ã´qÌ‡" },
-            [NUMBERS.D]: { 1: "ÄqÌ‡", 2: "ÅqÌ‡", 3: "ÅqÌ‡", 4: "Å«qÌ‡" },
-            [NUMBERS.P]: { 1: "ÄqÌ‡", 2: "ÅqÌ‡", 3: "ÅqÌ‡", 4: "Å«qÌ‡" }
+            [NUMBERS.S]: { 1: "ahýÿq?", 2: "(y)q?hýÿq?", 3: "(y)q?hýÿq?", 4: "ýÿq?hýÿq?" },
+            [NUMBERS.D]: { 1: "aq?", 2: "oq?", 3: "oq?", 4: "uq?" },
+            [NUMBERS.P]: { 1: "aq?", 2: "oq?", 3: "oq?", 4: "uq?" }
         }
     }
 }
@@ -115,115 +115,115 @@ const AFFIXSTATE = {
     [affixState.P]: {
         [GENDERS.E.NAME]: {
             [NUMBERS.S]: { [person[1]]: "xen-", [person[2]]: "syn-", [person[3]]: "ten-" },
-            [NUMBERS.D]: { [person[1]]: "xyn-", [person[2]]: "sÃ³n-", [person[3]]: "qÌ‡yn-" },
-            [NUMBERS.P]: { [person[1]]: "hen-", [person[2]]: "thÃ¡Ä§-", [person[3]]: "tyn-" }
+            [NUMBERS.D]: { [person[1]]: "xyn-", [person[2]]: "sýÿn-", [person[3]]: "q?yn-" },
+            [NUMBERS.P]: { [person[1]]: "hen-", [person[2]]: "thýÿh-", [person[3]]: "tyn-" }
         },
         [GENDERS.R.NAME]: {
             [NUMBERS.S]: { [person[1]]: "xef-", [person[2]]: "sy-", [person[3]]: "tolli-" },
-            [NUMBERS.D]: { [person[1]]: "xyf-", [person[2]]: "sÃ³nlli-", [person[3]]: "qÌ‡yll-" },
-            [NUMBERS.P]: { [person[1]]: "hef-", [person[2]]: "thÃ¡ll-", [person[3]]: "tyf-" }
+            [NUMBERS.D]: { [person[1]]: "xyf-", [person[2]]: "sýÿnlli-", [person[3]]: "q?yll-" },
+            [NUMBERS.P]: { [person[1]]: "hef-", [person[2]]: "thýÿll-", [person[3]]: "tyf-" }
         },
         [GENDERS.MON.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "Ï‡Ä§Ã´-", [person[2]]: "sÃ´-", [person[3]]: "tÃ´-" },
-            [NUMBERS.D]: { [person[1]]: "xÃ³Ä§-", [person[2]]: "sÃ³nqÌ‡Ä§Ã³-", [person[3]]: "qÌ‡Ä§Ã³-" },
-            [NUMBERS.P]: { [person[1]]: "hÃ´-", [person[2]]: "thÃ¡qÌ‡Ä§Ã³-", [person[3]]: "tuÄ§-" }
+            [NUMBERS.S]: { [person[1]]: "?hýÿ-", [person[2]]: "sýÿ-", [person[3]]: "týÿ-" },
+            [NUMBERS.D]: { [person[1]]: "xýÿh-", [person[2]]: "sýÿnq?hýÿ-", [person[3]]: "q?hýÿ-" },
+            [NUMBERS.P]: { [person[1]]: "hýÿ-", [person[2]]: "thýÿq?hýÿ-", [person[3]]: "tuh-" }
         },
         [GENDERS.I.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "xellu-", [person[2]]: "sucu-", [person[3]]: "tÃ³cu-" },
-            [NUMBERS.D]: { [person[1]]: "llu-", [person[2]]: "sÃ³ncu-", [person[3]]: "qÌ‡Ã¡cu-" },
-            [NUMBERS.P]: { [person[1]]: "llu-", [person[2]]: "thÃ¡cu-", [person[3]]: "tÄ«ll-" }
+            [NUMBERS.S]: { [person[1]]: "xellu-", [person[2]]: "sucu-", [person[3]]: "týÿcu-" },
+            [NUMBERS.D]: { [person[1]]: "llu-", [person[2]]: "sýÿncu-", [person[3]]: "q?ýÿcu-" },
+            [NUMBERS.P]: { [person[1]]: "llu-", [person[2]]: "thýÿcu-", [person[3]]: "till-" }
         },
         [GENDERS.MAG.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "xo-", [person[2]]: "su-", [person[3]]: "toÄ§-" },
-            [NUMBERS.D]: { [person[1]]: "ho-", [person[2]]: "thÃ¢-", [person[3]]: "tÅ«-" },
-            [NUMBERS.P]: { [person[1]]: "ho-", [person[2]]: "thÃ¢-", [person[3]]: "tÅ«-" }
+            [NUMBERS.S]: { [person[1]]: "xo-", [person[2]]: "su-", [person[3]]: "toh-" },
+            [NUMBERS.D]: { [person[1]]: "ho-", [person[2]]: "thýÿ-", [person[3]]: "tu-" },
+            [NUMBERS.P]: { [person[1]]: "ho-", [person[2]]: "thýÿ-", [person[3]]: "tu-" }
         },
         [GENDERS.MUN.NAME]: {
             [NUMBERS.S]: { [person[1]]: "xyr-", [person[2]]: "syr-", [person[3]]: "try-" },
-            [NUMBERS.D]: { [person[1]]: "ry-", [person[2]]: "thÃ¡r-", [person[3]]: "tur-" },
-            [NUMBERS.P]: { [person[1]]: "ry-", [person[2]]: "thÃ¡r-", [person[3]]: "tur-" }
+            [NUMBERS.D]: { [person[1]]: "ry-", [person[2]]: "thýÿr-", [person[3]]: "tur-" },
+            [NUMBERS.P]: { [person[1]]: "ry-", [person[2]]: "thýÿr-", [person[3]]: "tur-" }
         },
         [GENDERS.A.NAME]: {
             [NUMBERS.S]: { [person[1]]: "xy-", [person[2]]: "su-", [person[3]]: "to-" },
-            [NUMBERS.D]: { [person[1]]: "hy-", [person[2]]: "thÃ¡-", [person[3]]: "tu-" },
-            [NUMBERS.P]: { [person[1]]: "hy-", [person[2]]: "thÃ¡-", [person[3]]: "tu-" }
+            [NUMBERS.D]: { [person[1]]: "hy-", [person[2]]: "thýÿ-", [person[3]]: "tu-" },
+            [NUMBERS.P]: { [person[1]]: "hy-", [person[2]]: "thýÿ-", [person[3]]: "tu-" }
         }
     },
     [affixState.S]: {
         [GENDERS.E.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-(o)n", [person[2]]: "-(u)n", [person[3]]: "-tÃ³n" },
-            [NUMBERS.D]: { [person[1]]: "-(')Ã¦n", [person[2]]: "-(o)nÄ“n", [person[3]]: "-(qÌ‡)Ã¢n" },
-            [NUMBERS.P]: { [person[1]]: "-(')Ã¦n", [person[2]]: "-Ä§en", [person[3]]: "-tun" }
+            [NUMBERS.S]: { [person[1]]: "-(o)n", [person[2]]: "-(u)n", [person[3]]: "-týÿn" },
+            [NUMBERS.D]: { [person[1]]: "-(')ýÿn", [person[2]]: "-(o)nen", [person[3]]: "-(q?)ýÿn" },
+            [NUMBERS.P]: { [person[1]]: "-(')ýÿn", [person[2]]: "-hen", [person[3]]: "-tun" }
         },
         [GENDERS.R.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-(y)f", [person[2]]: "-(u)f", [person[3]]: "-Ä§yf" },
-            [NUMBERS.D]: { [person[1]]: "-(')Ã¦f", [person[2]]: "-nef", [person[3]]: "-(y)qÌ‡Ä§Ã¡f" },
-            [NUMBERS.P]: { [person[1]]: "-(')Ã¦f", [person[2]]: "-Ä§Ã¡f", [person[3]]: "-if" }
+            [NUMBERS.S]: { [person[1]]: "-(y)f", [person[2]]: "-(u)f", [person[3]]: "-hyf" },
+            [NUMBERS.D]: { [person[1]]: "-(')ýÿf", [person[2]]: "-nef", [person[3]]: "-(y)q?hýÿf" },
+            [NUMBERS.P]: { [person[1]]: "-(')ýÿf", [person[2]]: "-hýÿf", [person[3]]: "-if" }
         },
         [GENDERS.MON.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-(u)Ä§Ã³", [person[2]]: "-(u)Ä§Ã³", [person[3]]: "-(o)Ä§Ã³" },
-            [NUMBERS.D]: { [person[1]]: "-(')Ã´", [person[2]]: "-(Ã¡)Ä§Ã³", [person[3]]: "-Ä§Ã³" },
-            [NUMBERS.P]: { [person[1]]: "-(')Ã´", [person[2]]: "-(Ã¡)Ä§Ã³", [person[3]]: "-Ä§Ã³" }
+            [NUMBERS.S]: { [person[1]]: "-(u)hýÿ", [person[2]]: "-(u)hýÿ", [person[3]]: "-(o)hýÿ" },
+            [NUMBERS.D]: { [person[1]]: "-(')ýÿ", [person[2]]: "-(ýÿ)hýÿ", [person[3]]: "-hýÿ" },
+            [NUMBERS.P]: { [person[1]]: "-(')ýÿ", [person[2]]: "-(ýÿ)hýÿ", [person[3]]: "-hýÿ" }
         },
         [GENDERS.I.NAME]: {
             [NUMBERS.S]: { [person[1]]: "-llul", [person[2]]: "-llul", [person[3]]: "-llul" },
-            [NUMBERS.D]: { [person[1]]: "-(')allÅ«l", [person[2]]: "-(Ã¡)llul", [person[3]]: "-(Ãº)cul" },
-            [NUMBERS.P]: { [person[1]]: "-(')allÅ«l", [person[2]]: "-(Ã¡)llul", [person[3]]: "-(Ãº)cul" }
+            [NUMBERS.D]: { [person[1]]: "-(')allul", [person[2]]: "-(ýÿ)llul", [person[3]]: "-(ýÿ)cul" },
+            [NUMBERS.P]: { [person[1]]: "-(')allul", [person[2]]: "-(ýÿ)llul", [person[3]]: "-(ýÿ)cul" }
         },
         [GENDERS.MAG.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-(u)Ï‡", [person[2]]: "-(u)Ï‡", [person[3]]: "-Ä§uÏ‡" },
-            [NUMBERS.D]: { [person[1]]: "-(')ÅÏ‡", [person[2]]: "-(Ã³)nÅÏ‡", [person[3]]: "-Ä§ÃºÏ‡" },
-            [NUMBERS.P]: { [person[1]]: "-(')ÅÏ‡", [person[2]]: "-(Ã³)nÅÏ‡", [person[3]]: "-Ä§ÃºÏ‡" }
+            [NUMBERS.S]: { [person[1]]: "-(u)?", [person[2]]: "-(u)?", [person[3]]: "-hu?" },
+            [NUMBERS.D]: { [person[1]]: "-(')o?", [person[2]]: "-(ýÿ)no?", [person[3]]: "-hýÿ?" },
+            [NUMBERS.P]: { [person[1]]: "-(')o?", [person[2]]: "-(ýÿ)no?", [person[3]]: "-hýÿ?" }
         },
         [GENDERS.MUN.NAME]: {
             [NUMBERS.S]: { [person[1]]: "-(u)r", [person[2]]: "-(u)r", [person[3]]: "-(u)r" },
-            [NUMBERS.D]: { [person[1]]: "-(')ar", [person[2]]: "-(Ã¡)r", [person[3]]: "-(Ãº)r" },
-            [NUMBERS.P]: { [person[1]]: "-(')ar", [person[2]]: "-(Ã¡)r", [person[3]]: "-(Ãº)r" }
+            [NUMBERS.D]: { [person[1]]: "-(')ar", [person[2]]: "-(ýÿ)r", [person[3]]: "-(ýÿ)r" },
+            [NUMBERS.P]: { [person[1]]: "-(')ar", [person[2]]: "-(ýÿ)r", [person[3]]: "-(ýÿ)r" }
         },
         [GENDERS.A.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-(y)qÌ‡", [person[2]]: "-(u)qÌ‡", [person[3]]: "-(Ãº)qÌ‡" },
-            [NUMBERS.D]: { [person[1]]: "-(y)qÌ‡", [person[2]]: "-Ä§Ã³qÌ‡", [person[3]]: "-(u)qÌ‡" },
-            [NUMBERS.P]: { [person[1]]: "-(y)qÌ‡", [person[2]]: "-Ä§Ã³qÌ‡", [person[3]]: "-(u)qÌ‡" }
+            [NUMBERS.S]: { [person[1]]: "-(y)q?", [person[2]]: "-(u)q?", [person[3]]: "-(ýÿ)q?" },
+            [NUMBERS.D]: { [person[1]]: "-(y)q?", [person[2]]: "-hýÿq?", [person[3]]: "-(u)q?" },
+            [NUMBERS.P]: { [person[1]]: "-(y)q?", [person[2]]: "-hýÿq?", [person[3]]: "-(u)q?" }
         }
     }
 }
 
 // === PREPOSITIONS ===
 const PREPOSITIONS = {
-    0: "Ã¦ze-",
+    0: "ýÿze-",
     1: "aze-",
     2: "fenlly-",
-    3: "Ä§Ã¡-",
-    4: "Ä§Ã¡Å‹-",
+    3: "hýÿ-",
+    4: "hýÿ?-",
     5: "ho-",
     6: "hu-",
     7: "huz-",
-    8: "kxÄ-",
-    9: "kxÃ¦-",
-    10: "lleÅ‹-",
-    11: "lloqÌ‡-",
+    8: "kxa-",
+    9: "kxýÿ-",
+    10: "lle?-",
+    11: "lloq?-",
     12: "ly-",
-    13: "Å-",
+    13: "o-",
     14: "qa-",
-    15: "qÄ“-",
-    16: "qÄ“ru-",
-    17: "qÌ‡Å«-",
-    18: "qÏ‡ok-",
-    19: "sÃ¦Ï‡-",
-    20: "saÏ‡-",
-    21: "sÄ«-",
+    15: "qe-",
+    16: "qeru-",
+    17: "q?u-",
+    18: "q?ok-",
+    19: "sýÿ?-",
+    20: "sa?-",
+    21: "si-",
     22: "sil-",
-    23: "thÅ«-",
+    23: "thu-",
     24: "tre-",
-    25: "Å«-",
+    25: "u-",
 }
 
 const PARTICLES = {
     [affixState.S]: {
-        0: "Ã»l",
-        1: "Å«n",
-        2: "Än",
-        3: "Ån"
+        0: "ýÿl",
+        1: "un",
+        2: "an",
+        3: "on"
     },
     [affixState.P]: {
         0: "i"
@@ -313,7 +313,9 @@ function generateNounWithSuffixes(
                     wordclass: 'n',
                     notes: notesText,
                     definition: definitionText,
+                    lemmaGenders: sourceGenders,
                     keyword,
+                    baseKeyword: keyword,
                     mood: moodKey,
                     gender: genderName,
                     number: numberKey,
@@ -332,7 +334,7 @@ function generateNounWithSuffixes(
     return result;
 }
 let NounResults;
-//NounResults = generateNounWithSuffixes("Ã¦klu", { useAttachAsSuffix: true });// find one matching entry and print its html
+//NounResults = generateNounWithSuffixes("ýÿklu", { useAttachAsSuffix: true });// find one matching entry and print its html
 
 // Allowed output keys (must match properties pushed into each item)
 const ALLOWED_NOUN_FIELDS = new Set(
@@ -771,7 +773,7 @@ function generateVerbAffixes(keyword) {
 
     return result;
 } let VerbResults;
-// Example usage: VerbResults = generateVerbAffixes("Ã¦f");// find one matching entry and print its html
+// Example usage: VerbResults = generateVerbAffixes("ýÿf");// find one matching entry and print its html
 
 
 // Allowed output keys (must match properties pushed into each item)
@@ -2172,8 +2174,8 @@ function populateSummaryTables(keyword, tables) {
 }
 
 // Define your  glyph classes
-const conlangVowels = ["i", "Ä«", "e", "Ä“", "Ã¦", "y", "u", "Å«", "o", "Å", "a", "Ä", "Ãº", "Ã»", "Ã³", "Ã´", "Ã¡", "Ã¢"];
-const conlangConsonants = ["t", "k", "q", "qÌ‡", "'", "c", "f", "d", "s", "z", "g", "Ï‡", "h", "l", "r", "É¾", "m", "n", "Å‹"];
+const conlangVowels = ["i", "i", "e", "e", "ýÿ", "y", "u", "u", "o", "o", "a", "a", "ýÿ", "ýÿ", "ýÿ", "ýÿ", "ýÿ", "ýÿ"];
+const conlangConsonants = ["t", "k", "q", "q?", "'", "c", "f", "d", "s", "z", "g", "?", "h", "l", "r", "?", "m", "n", "?"];
 console.log(`Vowels = ${conlangVowels}`);
 console.log(`Consonants = ${conlangConsonants}`);
 
@@ -2328,7 +2330,7 @@ function isVowel(char) {
 function normalizeText(s) {
     return String(s || "")
         .replace(/\u00A0/g, " ")        // NBSP -> space
-        .replace(/[-â€“â€”]/g, "")          // remove ASCII hyphen, en-dash, em-dash
+        .replace(/[-ýÿýÿ]/g, "")          // remove ASCII hyphen, en-dash, em-dash
         .replace(/\s+/g, " ")           // collapse repeated whitespace
         .trim();
 }
@@ -2612,7 +2614,7 @@ function buildFromDictionaryTable() {
     let rows = [];
 
     if (typeof raw === 'object') {
-        // raw is a map keyed by word: { "Ã¦kluu": [ {word..}, ... ], ... }
+        // raw is a map keyed by word: { "ýÿkluu": [ {word..}, ... ], ... }
         for (const key of Object.keys(raw)) {
             const arr = Array.isArray(raw[key]) ? raw[key] : [raw[key]];
             arr.forEach(obj => {
@@ -3054,7 +3056,7 @@ function loadDictionaryData() {
     // loadFromExcelFile
     function loadFromExcelFile(filename) {
         const container = document.getElementById("sheet-data");
-        container.textContent = "Loading local Excel fileâ€¦";
+        container.textContent = "Loading local Excel fileýÿ";
 
         fetch(filename)
             .then(res => res.arrayBuffer())
@@ -3180,8 +3182,8 @@ function doSearch() {
         const keywordData =
         {
             keyword,
-            keywordStem: "",
-            pageID: "",
+            keywordStem: keywordStem,
+            pageID: pages1[keywordstem],
             parentarrays,
         };
         dictionaryData.keyword = keywordData;
@@ -3327,8 +3329,8 @@ function doSearch() {
 
                 const matches = Array.isArray(parentarrays) ? parentarrays : [];
                 let rowCount = matches.length;
-                if (typeof parentarrays.lenght === 'number' && parentarrays.lenght > 0) {
-                    rowCount = Math.min(parentarrays.lenght, matches.length);
+                if (typeof parentarrays.length === 'number' && parentarrays.length > 0) {
+                    rowCount = Math.min(parentarrays.length, matches.length);
                 }
 
                 const rowsFragment = document.createDocumentFragment();
@@ -3353,7 +3355,7 @@ function doSearch() {
                 }
                 table.appendChild(rowsFragment);
 
-                parentarrays.lenght = rowCount;
+                parentarrays.length = rowCount;
                 page.appendChild(table);
                 openPageOld('page11998');
 
@@ -3422,7 +3424,7 @@ function keywordToPage() {
 
     //function vv
     if (!keyword) {
-        return '';
+        return;
     }
     //noun forms
     if (Array.isArray(dictionaryData.nouns)) {
@@ -3435,7 +3437,7 @@ function keywordToPage() {
                 dictionaryData.keyword["pageID"] = pages1[baseKeyword];
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", row);
-                return '';
+                return;
             }
 
             const declensions = Array.isArray(row["all declensions"]) ? row["all declensions"] : [];
@@ -3447,7 +3449,7 @@ function keywordToPage() {
                     parentarrays.push(form);
                     matchType = 2;
                     console.log("MATCHMATCHMATCH", form);
-                    return '';
+                    return;
                 }
 
                 const withParticlesAttached = Array.isArray(form["withParticlesAttached"]) ? form["withParticlesAttached"] : [];
@@ -3459,7 +3461,7 @@ function keywordToPage() {
                         resultPageKeywordInnerHtml = particleForm["htmlP"] || '';
                         matchType = 2;
                         console.log("MATCHMATCHMATCH", particleForm);
-                        return '';
+                        return;
                     }
                 }
 
@@ -3472,12 +3474,12 @@ function keywordToPage() {
                         resultPageKeywordInnerHtml = prepForm["htmlPP"] || '';
                         matchType = 2;
                         console.log("MATCHMATCHMATCH", prepForm);
-                        return '';
+                        return;
                     }
                 }
             }
         }
-    } if (matchType > 0) { return ''; }
+    } if (matchType > 0) { return; }
     //verb forms
     if (Array.isArray(dictionaryData.verbs)) {
         dictionaryData.verbs.forEach(row => {
