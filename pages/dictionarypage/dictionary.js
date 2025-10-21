@@ -3721,3 +3721,4 @@ document.getElementById('search_field').addEventListener('keydown', (event) => {
     }
 });
 
+//table gen error is due to page98 table not being generated anymore. fix generation for tables - ie, they should go though the arrays and not the table that no longer exists...
