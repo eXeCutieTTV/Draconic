@@ -2789,6 +2789,7 @@ function doSearch() {
             keyword,
             keywordStem: keywordStem,
             pageID: pages1[keywordStem],
+            parentarrays,
         };
         dictionaryData.keyword = keywordData;
 
@@ -2916,18 +2917,20 @@ function doSearch() {
                 const page = document.createElement('div');
                 page.id = 'page11998';
                 page.className = 'page';
-                page.innerHTML = 'Placeholder';
+                page.innerHTML = '';
 
                 let pagesWrap = document.querySelector('.pages');
                 pagesWrap.appendChild(page);
 
                 //inner html list.
-                matchesArray.forEach(row => {
-                    if (page.innerHTML === 'Placeholder') { page.innerHTML = row["html"] }
-                    if (page.innerHTML !== 'Placeholder') { page.innerHTML = `${document.getElementById('page11998').innerHTML}<br>${row["html"]}`; }
+                parentarrays.forEach(row => {
+                    page.innerHTML = `${document.getElementById('page11998').innerHTML}<br>${row["html"]}`;
                     console.log(row["html"]);
                 });
                 openPageOld('page11998');
+
+                //TODO create a table inside page11998, with a row for each match (use parentarrays.lenght to determine?). each row is 6 cells long. has one headerrow.
+
                 matchType = 0;
             }
         }
@@ -3133,15 +3136,19 @@ function keywordToPage() {
 */ //use for...of loops? copilot says so - in order for returns to work. workaround? we dont necesarrily want it to stop looping on first match - we want all matches.
 
 // i make new search match function thing:D
-let resultPageKeywordInnerHtml = ''; // need to add html part for word stems. // need to split declension from noun stems in array.
+let resultPageKeywordInnerHtml = '';
 let keywordStem = '';
 let matchType = 0;
-let matchesArray = [];
+let parentarrays = [];
 function keywordToPage() {
     const keyword = dictionaryData.keyword.keyword;
 
-    resultPageKeywordInnerHtml = '';// reset both on every search
+    // resets vv
+    resultPageKeywordInnerHtml = '';
     matchType = 0;
+    parentarrays.lenght = 0;
+
+    //function vv
     if (!keyword) {
         return '';
     }
@@ -3161,17 +3168,10 @@ function keywordToPage() {
                 if (keyword === fullText) {
                     dictionaryData.keyword["keywordStem"] = row["keyword"];
                     dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
-                    const parentarray = row;
-                    const html = row["html"];
-                    matchesArray.push({ html });
+                    parentarrays.push(row);
 
-                    /*
-                    const matchDiv = document.createElement('div');
-                    matchDiv.class = 'matchNoun';
-                    document.querySelectorAll(".matchNoun").forEach(el => );
-*/
                     matchType = 2;
-                    console.log("MATCHMATCHMATCH", parentarray, resultPageKeywordInnerHtml);
+                    console.log("MATCHMATCHMATCH", resultPageKeywordInnerHtml);
                 }
                 const withParticlesAttached = row["withParticlesAttached"];
                 withParticlesAttached.forEach(row => {
