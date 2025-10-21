@@ -274,7 +274,9 @@ function generateNounWithSuffixes(keyword, options = {}) {
 
                     const html = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
                     const fullText = `${entries_to_text(entries[0])}${entries_to_text(entries[1])}${entries_to_text(entries[2])}`;
-                    const keywordStem = `${entries_to_text(entries[1])}`;
+                    const stem = `${entries_to_text(entries[1])}`;
+                    const notes = dictionaryData.raw.keyword[0].notes || '';
+                    const definition = dictionaryData.raw.keyword[0].definition || '';
 
                     let withPrepositionsAttached = [];
                     for (let i = 0; i < Object.keys(PREPOSITIONS).length; i++) {
@@ -301,6 +303,9 @@ function generateNounWithSuffixes(keyword, options = {}) {
 
 
                     result.push({
+                        wordClass: 'noun',
+                        definition,
+                        notes,
                         mood: moodKey,
                         gender: genderName,
                         number: numberKey,
@@ -308,8 +313,7 @@ function generateNounWithSuffixes(keyword, options = {}) {
                         rawSuffix,
                         html,
                         fullText,
-                        keyword,
-                        keywordStem,
+                        stem,
                         withParticlesAttached,
                         withPrepositionsAttached
                     });
@@ -2319,6 +2323,12 @@ function normalizeText(s) {
         .replace(/\s+/g, " ")           // collapse repeated whitespace
         .trim();
 }
+function keepDigitsOnly(str) {
+    return String(str).replace(/\D+/g, "");
+}
+function removeParensSpacesAndDigits(str) {
+    return String(str || "").replace(/[\d() \t\r\n]+/g, "");
+}
 
 function hideEmptySummaryRowsIn(summaryTableId) {
     const table = document.getElementById(summaryTableId);
@@ -2529,12 +2539,7 @@ function runTableLoader() {
         hideEmptySummaryRowsIn("recSummaryTable");
     });
 }
-function keepDigitsOnly(str) {
-    return String(str).replace(/\D+/g, "");
-}
-function removeParensSpacesAndDigits(str) {
-    return String(str || "").replace(/[\d() \t\r\n]+/g, "");
-}
+
 
 // === Build pages1 and update dictionaryData ===
 function buildFromDictionaryTable() {
@@ -2542,20 +2547,17 @@ function buildFromDictionaryTable() {
         console.warn("No dictionary data available.");
         return;
     }
+    const raw = dictionaryData.raw;
 
     pages1 = {};
 
     let pageNumber = 10000; // Start counting up from 10000
 
-    dictionaryData.raw.forEach((row, index) => {
-        const paddedRow = [];
-        for (let i = 0; i < 5; i++) {
-            paddedRow[i] = row[i] || "";
-        }
+    dictionaryData.raw.forEach((el, index) => {
 
-        const wordRaw = paddedRow[0];
+        const wordRaw = el[0].word;
         const word = wordRaw.replace(/\(\d\)/, "").trim().toLowerCase();
-        const wordClass = paddedRow[1];
+        const wordclass = el[0].wordclass;
         let declensionsArray = [];
 
         if (word) {
@@ -2563,7 +2565,7 @@ function buildFromDictionaryTable() {
             pageNumber++; // Count upward
         }
         // Determine declensions array based on wordclass
-        switch (wordClass) {
+        switch (wordclass) {
             case 'n':
                 declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
                 break;
@@ -2581,19 +2583,35 @@ function buildFromDictionaryTable() {
                 break;
         }
         // Convert array row into an object with labels
+        /*
         const keyword = removeParensSpacesAndDigits(paddedRow[0]);
         const nounDeclension = keepDigitsOnly(paddedRow[0]) || '';
         const rowObject = {
             keyword,
-            wordclass: wordClass,
+            wordclass: wordclass,
             definition: paddedRow[2],
             forms: paddedRow[3],
             notes: paddedRow[4],
             "declension (for nouns)": nounDeclension,
             "pageId(for html)": pages1[word],
             "all declensions": declensionsArray
+        };*/ // still works for api usage probably ^^
+
+
+        const keyword = removeParensSpacesAndDigits(el[0].word);
+        const nounDeclension = keepDigitsOnly(el[0].word) || '';
+        const rowObject = {
+            keyword,
+            wordclass,
+            definition: el[0].definition,
+            forms: el[0].gender,
+            notes: el[0].notes,
+            "declension (for nouns)": nounDeclension,
+            "pageId(for html)": pages1[word],
+            "all declensions": declensionsArray
         };
-        switch (wordClass) {
+
+        switch (wordclass) {
             case "n":
                 dictionaryData.sorted.nouns.push(rowObject);
                 //declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
@@ -2626,7 +2644,7 @@ function buildFromDictionaryTable() {
 
 
             default:
-                console.warn(`Unknown word class: '${wordClass}' for word '${word}'`);
+                console.warn(`Unknown word class: '${wordclass}' for word '${word}'`);
                 break;
         }
     });
@@ -2917,19 +2935,52 @@ function doSearch() {
                 const page = document.createElement('div');
                 page.id = 'page11998';
                 page.className = 'page';
-                page.innerHTML = '';
 
-                let pagesWrap = document.querySelector('.pages');
+                const pagesWrap = document.querySelector('.pages');
                 pagesWrap.appendChild(page);
 
-                //inner html list.
-                parentarrays.forEach(row => {
-                    page.innerHTML = `${document.getElementById('page11998').innerHTML}<br>${row["html"]}`;
-                    console.log(row["html"]);
-                });
-                openPageOld('page11998');
+                //table gen
+                const table = document.createElement('table');
+                const headers = ['Word', 'Gender', 'Number', 'Declension', 'dir/rec', 'Notes', 'Definition'];
+                const headerRow = document.createElement('tr');
+                for (let i = 0; i < headers.length; i += 1) {
+                    const th = document.createElement('th');
+                    th.textContent = headers[i];
+                    headerRow.appendChild(th);
+                }
+                table.appendChild(headerRow);
 
-                //TODO create a table inside page11998, with a row for each match (use parentarrays.lenght to determine?). each row is 6 cells long. has one headerrow.
+                const matches = Array.isArray(parentarrays) ? parentarrays : [];
+                let rowCount = matches.length;
+                if (typeof parentarrays.lenght === 'number' && parentarrays.lenght > 0) {
+                    rowCount = Math.min(parentarrays.lenght, matches.length);
+                }
+
+                const rowsFragment = document.createDocumentFragment();
+                for (let i = 0; i < rowCount; i += 1) {
+                    const row = matches[i];
+                    if (!row) continue;
+                    //tds
+                    const tr = document.createElement('tr');
+                    const previewCell = document.createElement('td');
+                    previewCell.innerHTML = row.html || '';
+                    tr.appendChild(previewCell);
+                    const cellValues = [row.gender, row.number, row.person, row.mood, row.fullText, row.fullText]; //last row.fullText should be notes and second to last be definition. ie, add definition to noun array.
+                    for (let j = 0; j < cellValues.length; j += 1) {
+                        const td = document.createElement('td');
+                        const value = cellValues[j];
+                        td.textContent = value !== undefined && value !== null ? value : '';
+                        tr.appendChild(td);
+                    }
+
+
+                    rowsFragment.appendChild(tr);
+                }
+                table.appendChild(rowsFragment);
+
+                parentarrays.lenght = rowCount;
+                page.appendChild(table);
+                openPageOld('page11998');
 
                 matchType = 0;
             }
@@ -2997,25 +3048,45 @@ function doSearch() {
                 container.textContent = "Loading local Excel file…";
 
                 fetch(filename)
-                    .then(response => response.arrayBuffer())
+                    .then(res => res.arrayBuffer())
                     .then(data => {
-                        // Read workbook
                         const workbook = XLSX.read(data, { type: "array" });
                         const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-                        // Convert to 2D array (rows & columns)
-                        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                        // If your sheet has a header row, remove it. If not, remove this line.
+                        const dataRows = rows.slice(1);
 
-                        // Skip header row, store the rest in dictionaryData.raw
-                        dictionaryData.raw = json.slice(1);
+                        // Build the map: { word: [ {word,wordclass,definition,gender,notes}, ... ] }
+                        const map = {};
 
-                        console.log("Loaded raw data:", dictionaryData.raw.length, "rows");
-                        renderTable(dictionaryData.raw); // optional — displays the unprocessed version
+                        dataRows.forEach((r) => {
+                            const row = Array.isArray(r) ? r : [];
+                            const word = String(row[0] ?? "").trim();
+                            const wordclass = String(row[1] ?? "").trim();
+                            const definition = String(row[2] ?? "").trim();
+                            const gender = String(row[3] ?? "").trim();
+                            const notes = String(row[4] ?? "").trim();
+
+                            // Skip completely empty rows (optional). Remove this check if you want empty-key entries.
+                            if (!word && !wordclass && !definition && !gender && !notes) return;
+
+                            const cleanWord = removeParensSpacesAndDigits(word);
+                            const entry = { word, wordclass, definition, gender, notes };
+
+                            if (!map[cleanWord]) map[cleanWord] = [];
+                            map[cleanWord].push(entry);
+                        });
+
+
+
+                        dictionaryData.raw = map;
+                        console.log("Loaded entries:", Object.keys(map).length, "keys");
                     })
-                    .catch(error => {
-                        console.error("Failed to load Excel file:", error);
+                    .catch(err => {
+                        console.error("Failed to load Excel file:", err);
                         container.textContent = "Error loading local file.";
-                    });
+                    }); console.log(dictionaryData.raw);
             }
 
             const APIfield = document.getElementById("api_field");
