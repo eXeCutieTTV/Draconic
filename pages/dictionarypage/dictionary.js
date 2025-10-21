@@ -229,9 +229,9 @@ const PARTICLES = {
         0: "i"
     }
 }
-
+let rawDic = [];
 let dictionaryData = {
-    raw: [],
+    raw: rawDic,
     sorted: {
         adjectives: [],
         adverbs: [],
@@ -275,8 +275,8 @@ function generateNounWithSuffixes(keyword, options = {}) {
                     const html = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
                     const fullText = `${entries_to_text(entries[0])}${entries_to_text(entries[1])}${entries_to_text(entries[2])}`;
                     const stem = `${entries_to_text(entries[1])}`;
-                    const notes = dictionaryData.raw.keyword[0].notes || '';
-                    const definition = dictionaryData.raw.keyword[0].definition || '';
+                    // const notes = dictionaryData.raw.keyword[0].notes || '';
+                    //const definition = dictionaryData.raw.keyword[0].definition || '';
 
                     let withPrepositionsAttached = [];
                     for (let i = 0; i < Object.keys(PREPOSITIONS).length; i++) {
@@ -304,8 +304,6 @@ function generateNounWithSuffixes(keyword, options = {}) {
 
                     result.push({
                         wordClass: 'noun',
-                        definition,
-                        notes,
                         mood: moodKey,
                         gender: genderName,
                         number: numberKey,
@@ -2543,183 +2541,303 @@ function runTableLoader() {
 
 // === Build pages1 and update dictionaryData ===
 function buildFromDictionaryTable() {
-    const raw = dictionaryData.raw;
-    if (!raw) {
+    if (!dictionaryData || !dictionaryData.raw) {
         console.warn("No dictionary data available.");
         return;
     }
 
-    const sorted = {
-        adjectives: [],
-        adverbs: [],
-        auxiliaries: [],
-        conjunctions: [],
-        determiners: [],
-        nouns: [],
-        particles: [],
-        prepositions: [],
-        verbs: [],
-    };
+    // Ensure pages1 exists
+    if (typeof pages1 === 'undefined') pages1 = {};
 
-    const classMap = {
-        n: "nouns",
-        v: "verbs",
-        adj: "adjectives",
-        adv: "adverbs",
-        aux: "auxiliaries",
-        pp: "prepositions",
-        part: "particles",
-        con: "conjunctions",
-        det: "determiners",
-    };
+    // Initialize sorted buckets if missing
+    dictionaryData.sorted = dictionaryData.sorted || {};
+    const classes = ['nouns', 'verbs', 'adjectives', 'adverbs', 'auxiliaries', 'prepositions', 'particles', 'conjunctions', 'determiners'];
+    classes.forEach(k => {
+        if (!Array.isArray(dictionaryData.sorted[k])) dictionaryData.sorted[k] = [];
+    });
 
-    const declensionCache = new Map();
-    let pageNumber = 10000;
-    let processedCount = 0;
-    let totalEntries = 0;
+    // formatting inside raw
+    const raw = dictionaryData.raw;
+    let rows = [];
 
-    pages1 = {};
-
-    const buildDeclensions = (wordclass, normalizedWord) => {
-        if (declensionCache.has(normalizedWord)) {
-            return declensionCache.get(normalizedWord);
+    if (typeof raw === 'object') {
+        // raw is a map keyed by word: { "ækluu": [ {word..}, ... ], ... }
+        for (const key of Object.keys(raw)) {
+            const arr = Array.isArray(raw[key]) ? raw[key] : [raw[key]];
+            arr.forEach(obj => {
+                rows.push({
+                    word: obj.word || key || '',
+                    wordclass: obj.wordclass || '',
+                    definition: obj.definition || '',
+                    gender: obj.gender || '',
+                    notes: obj.notes || ''
+                });
+            });
         }
-
-        let declensions = [];
-        switch ((wordclass || "").toLowerCase()) {
-            case "n":
-                declensions = generateNounWithSuffixes(normalizedWord, { useAttachAsSuffix: true });
-                break;
-            case "v":
-                declensions = generateVerbAffixes(normalizedWord);
-                break;
-            case "adj":
-                declensions = generateAdjectiveWithSuffixes(normalizedWord, { useAttachAsSuffix: true });
-                break;
-            case "adv":
-                declensions = generateAdverbForms(normalizedWord, { useAttachAsSuffix: true });
-                break;
-            case "aux":
-                declensions = generateAuxiliaryForms(normalizedWord);
-                break;
-            default:
-                declensions = [];
-                break;
-        }
-
-        if (!Array.isArray(declensions)) {
-            declensions = [];
-        }
-
-        declensionCache.set(normalizedWord, declensions);
-        return declensions;
-    };
-
-    const addEntry = (entry, fallbackWord = "") => {
-        if (!entry) return;
-
-        let word = "";
-        let wordclass = "";
-        let definition = "";
-        let forms = "";
-        let notes = "";
-
-        if (Array.isArray(entry)) {
-            [word, wordclass, definition, forms, notes] = entry;
-        } else if (typeof entry === "object") {
-            word = entry.word ?? entry.keyword ?? fallbackWord ?? "";
-            wordclass = entry.wordclass ?? entry.class ?? entry.pos ?? entry.wordClass ?? "";
-            definition = entry.definition ?? entry.meaning ?? entry.gloss ?? "";
-            forms = entry.forms ?? entry.gender ?? entry.form ?? "";
-            notes = entry.notes ?? entry.note ?? "";
-        } else {
-            return;
-        }
-
-        word = String(word ?? fallbackWord ?? "").trim();
-        if (!word) return;
-
-        const normalizedWord = word.replace(/\(\d+\)/g, "").trim().toLowerCase();
-        if (!normalizedWord) return;
-
-        if (!pages1[normalizedWord]) {
-            pages1[normalizedWord] = `page${pageNumber++}`;
-        }
-
-        const wordclassNormalized = String(wordclass ?? "")
-            .trim()
-            .toLowerCase()
-            .replace(/\.+$/, "");
-        const definitionStr = String(definition ?? "").trim();
-        const formsStr = String(forms ?? "").trim();
-        const notesStr = String(notes ?? "").trim();
-        const keyword = removeParensSpacesAndDigits(word);
-        const nounDeclension = keepDigitsOnly(word) || "";
-        const declensionsArray = buildDeclensions(wordclassNormalized, normalizedWord);
-
-        totalEntries++;
-
-        const rowObject = {
-            keyword,
-            wordclass: wordclassNormalized,
-            definition: definitionStr,
-            forms: formsStr,
-            notes: notesStr,
-            "declension (for nouns)": nounDeclension,
-            "pageId(for html)": pages1[normalizedWord],
-            "all declensions": declensionsArray,
-        };
-
-        const targetKey = classMap[wordclassNormalized];
-        if (targetKey) {
-            sorted[targetKey].push(rowObject);
-            processedCount++;
-        } else if (wordclassNormalized) {
-            console.warn(`Unknown word class: '${wordclassNormalized}' for word '${word}'`);
-        }
-    };
-
-    const processValue = (value, fallbackWord = "") => {
-        if (!value) return;
-
-        if (Array.isArray(value)) {
-            value.forEach(item => addEntry(item, fallbackWord));
-            return;
-        }
-
-        if (value instanceof Map) {
-            value.forEach((item, key) => processValue(item, key || fallbackWord));
-            return;
-        }
-
-        if (typeof value === "object") {
-            addEntry(value, fallbackWord);
-        }
-    };
-
-    if (Array.isArray(raw)) {
-        raw.forEach(item => processValue(item));
-    } else if (raw instanceof Map) {
-        raw.forEach((value, key) => processValue(value, key));
-    } else if (typeof raw === "object") {
-        Object.keys(raw).forEach(key => processValue(raw[key], key));
-    }
-
-    if (!totalEntries) {
-        console.warn("No dictionary entries found after processing.");
+    } else {
+        console.warn('Unknown dictionaryData.raw shape:', raw);
         return;
     }
 
-    if (!processedCount) {
-        console.warn("Dictionary entries were loaded, but no known word classes were processed.");
-    }
+    // Now iterate normalized rows and build pages1 and dictionaryData.sorted
+    let pageNumber = 10000;
+    rows.forEach(row => {
+        const wordRaw = row.word || '';
+        const word = String(wordRaw).replace(/\(\d\)/g, "").trim().toLowerCase();
+        const wordclass = (row.wordclass || '').trim();
 
-    dictionaryData.sorted = sorted;
+        let declensionsArray = [];
+        if (word) {
+            pages1[word] = `page${pageNumber++}`;
+        }
+
+        switch (wordclass) {
+            case 'n':
+                declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
+                break;
+            case 'v':
+                declensionsArray = generateVerbAffixes(word);
+                break;
+            case 'adj':
+                declensionsArray = generateAdjectiveWithSuffixes(word, { useAttachAsSuffix: true });
+                break;
+            case 'adv':
+                declensionsArray = generateAdverbForms(word, { useAttachAsSuffix: true });
+                break;
+            case 'aux':
+                declensionsArray = generateAuxiliaryForms(word);
+                break;
+        }
+        let rowObject = {};
+
+        const keyword = removeParensSpacesAndDigits(row.word || '');
+        const nounDeclension = keepDigitsOnly(row.word || '') || '';
+
+        switch (wordclass) {
+            case "n":
+                rowObject = {
+                    keyword,
+                    wordclass,
+                    definition: row.definition || '',
+                    genders: row.gender || '',
+                    notes: row.notes || '',
+                    declension: nounDeclension,
+                    "pageId(for html)": pages1[word] || '',
+                    "all declensions": declensionsArray
+                };
+                dictionaryData.sorted.nouns.push(rowObject);
+                break;
+            case "v":
+                rowObject = {
+                    keyword,
+                    wordclass,
+                    definition: row.definition || '',
+                    forms: row.gender || '',
+                    notes: row.notes || '',
+                    "pageId(for html)": pages1[word] || '',
+                    "all declensions": declensionsArray
+                };
+                dictionaryData.sorted.verbs.push(rowObject);
+                break;
+            case "adj":
+                rowObject = {
+                    keyword,
+                    wordclass,
+                    definition: row.definition || '',
+                    forms: row.gender || '',
+                    notes: row.notes || '',
+                    declension: nounDeclension,
+                    "pageId(for html)": pages1[word] || '',
+                    "all declensions": declensionsArray
+                };
+                dictionaryData.sorted.adjectives.push(rowObject);
+                break;
+            case "adv":
+                let gender = row.gender;
+                if (gender === 'N/A') { gender = '' }
+                rowObject = {
+                    keyword,
+                    wordclass,
+                    definition: row.definition || '',
+                    forms: gender || '',
+                    notes: row.notes || '',
+                    "pageId(for html)": pages1[word] || '',
+                    "all declensions": declensionsArray
+                };
+                dictionaryData.sorted.adverbs.push(rowObject);
+                break;
+            case "aux":
+                rowObject = {
+                    keyword,
+                    wordclass,
+                    definition: row.definition || '',
+                    forms: row.gender || '',
+                    notes: row.notes || '',
+                    "pageId(for html)": pages1[word] || '',
+                    "all declensions": declensionsArray
+                };
+                dictionaryData.sorted.auxiliaries.push(rowObject);
+                break;
+            case "pp":
+                rowObject = {
+                    keyword,
+                    wordclass,
+                    definition: row.definition || '',
+                    notes: row.notes || '',
+                    "pageId(for html)": pages1[word] || '',
+                };
+                dictionaryData.sorted.prepositions.push(rowObject);
+                break;
+            case "part":
+                rowObject = {
+                    keyword,
+                    wordclass,
+                    definition: row.definition || '',
+                    forms: row.gender || '',
+                    notes: row.notes || '',
+                    "pageId(for html)": pages1[word] || '',
+                };
+                dictionaryData.sorted.particles.push(rowObject);
+                break;
+            case "con":
+                rowObject = {
+                    keyword,
+                    wordclass,
+                    definition: row.definition || '',
+                    notes: row.notes || '',
+                    "pageId(for html)": pages1[word] || '',
+                };
+                dictionaryData.sorted.conjunctions.push(rowObject);
+                break;
+            case "det":
+                rowObject = {
+                    keyword,
+                    wordclass,
+                    definition: row.definition || '',
+                    notes: row.notes || '',
+                    "pageId(for html)": pages1[word] || '',
+                };
+                dictionaryData.sorted.determiners.push(rowObject);
+                break;
+            default: console.warn(`Unknown word class: '${wordclass}' for word '${word}'`); break;
+        }
+    });
+
+    finalizeDictionaryData();
+}
+/*
+function buildFromDictionaryTable() {
+    if (!dictionaryData.raw || dictionaryData.raw.length === 0) {
+        console.warn("No dictionary data available.");
+        return;
+    }
+    const raw = dictionaryData.raw;
+
+    pages1 = {};
+
+    let pageNumber = 10000; // Start counting up from 10000
+
+    dictionaryData.raw.forEach((el, index) => {
+
+        const wordRaw = el[0].word;
+        const word = wordRaw.replace(/\(\d\)/, "").trim().toLowerCase();
+        const wordclass = el[0].wordclass;
+        let declensionsArray = [];
+
+        if (word) {
+            pages1[word] = `page${pageNumber}`;
+            pageNumber++; // Count upward
+        }
+        // Determine declensions array based on wordclass
+        switch (wordclass) {
+            case 'n':
+                declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
+                break;
+            case 'v':
+                declensionsArray = generateVerbAffixes(word);
+                break;
+            case 'adj':
+                declensionsArray = generateAdjectiveWithSuffixes(word, { useAttachAsSuffix: true });
+                break;
+            case 'adv':
+                declensionsArray = generateAdverbForms(word, { useAttachAsSuffix: true });
+                break;
+            case 'aux':
+                declensionsArray = generateAuxiliaryForms(word);
+                break;
+        }
+        // Convert array row into an object with labels
+        
+        const keyword = removeParensSpacesAndDigits(paddedRow[0]);
+        const nounDeclension = keepDigitsOnly(paddedRow[0]) || '';
+        const rowObject = {
+            keyword,
+            wordclass: wordclass,
+            definition: paddedRow[2],
+            forms: paddedRow[3],
+            notes: paddedRow[4],
+            "declension (for nouns)": nounDeclension,
+            "pageId(for html)": pages1[word],
+            "all declensions": declensionsArray
+        }; // still works for api usage probably ^^
+
+
+        const keyword = removeParensSpacesAndDigits(el[0].word);
+        const nounDeclension = keepDigitsOnly(el[0].word) || '';
+        const rowObject = {
+            keyword,
+            wordclass,
+            definition: el[0].definition,
+            forms: el[0].gender,
+            notes: el[0].notes,
+            "declension (for nouns)": nounDeclension,
+            "pageId(for html)": pages1[word],
+            "all declensions": declensionsArray
+        };
+
+        switch (wordclass) {
+            case "n":
+                dictionaryData.sorted.nouns.push(rowObject);
+                //declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
+                break;
+            case "v":
+                dictionaryData.sorted.verbs.push(rowObject);
+                //declensionsArray = generateVerbAffixes(word);
+                break;
+            case "adj":
+                dictionaryData.sorted.adjectives.push(rowObject);
+                break;
+            case "adv":
+                dictionaryData.sorted.adverbs.push(rowObject);
+                break;
+            case "aux":
+                dictionaryData.sorted.auxiliaries.push(rowObject);
+                break;
+            case "pp":
+                dictionaryData.sorted.prepositions.push(rowObject);
+                break;
+            case "part":
+                dictionaryData.sorted.particles.push(rowObject);
+                break;
+            case "con":
+                dictionaryData.sorted.conjunctions.push(rowObject);
+                break;
+            case "det":
+                dictionaryData.sorted.determiners.push(rowObject);
+                break;
+
+
+            default:
+                console.warn(`Unknown word class: '${wordclass}' for word '${word}'`);
+                break;
+        }
+    });
+
     finalizeDictionaryData();
     //console.log("pages1 mapping:", pages1);
     //console.log("dictionaryData:", dictionaryData);
 }
-
+*/
 function finalizeDictionaryData() {
     if (!dictionaryData) return;
 
@@ -2847,9 +2965,143 @@ function waitForElement(selector, timeout = 5000) {
 // Helper function to setup search functionality for a page
 
 
+// loadDictionaryData
+/*
+function loadDictionaryData() {
+
+    // loadFromGoogleSheets
+    function loadFromGoogleSheets(apiKey) {
+        const SHEET_ID = "168-Rzwk2OjxKJfHy-xNYvwPmDTi5Olv9KTgAs4v33HE";
+        const RANGE = "Dictionary!A2:E999";
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${apiKey}`;
+
+        const container = document.getElementById("sheet-data");
+        container.textContent = "Loading...";
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                dictionaryData.raw = data.values;
+                renderTable(dictionaryData.raw);
+            })
+            .catch(error => {
+                console.error("Failed to load sheet:", error);
+                container.textContent = "Error loading sheet.";
+            });
+    }
+
+    // loadFromExcelFile
+    function loadFromExcelFile(filename) {
+        const container = document.getElementById("sheet-data");
+        container.textContent = "Loading local Excel file…";
+
+        fetch(filename)
+            .then(res => res.arrayBuffer())
+            .then(data => {
+                const workbook = XLSX.read(data, { type: "array" });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                // If your sheet has a header row, remove it. If not, remove this line.
+                const dataRows = rows.slice(1);
+
+                // Build the map: { word: [ {word,wordclass,definition,gender,notes}, ... ] }
+                const map = {};
+
+                dataRows.forEach((r) => {
+                    const row = Array.isArray(r) ? r : [];
+                    const word = String(row[0] ?? "").trim();
+                    const wordclass = String(row[1] ?? "").trim();
+                    const definition = String(row[2] ?? "").trim();
+                    const gender = String(row[3] ?? "").trim();
+                    const notes = String(row[4] ?? "").trim();
+
+                    // Skip completely empty rows (optional). Remove this check if you want empty-key entries.
+                    if (!word && !wordclass && !definition && !gender && !notes) return;
+
+                    const cleanWord = removeParensSpacesAndDigits(word);
+                    const entry = { word, wordclass, definition, gender, notes };
+
+                    if (!map[cleanWord]) map[cleanWord] = [];
+                    map[cleanWord].push(entry);
+                });
+
+
+
+                dictionaryData.raw = map;
+                console.log("Loaded entries:", Object.keys(map).length, "keys");
+            })
+            .catch(err => {
+                console.error("Failed to load Excel file:", err);
+                container.textContent = "Error loading local file.";
+            }); console.log(dictionaryData.raw);
+    }
+
+    const APIfield = document.getElementById("api_field");
+
+    if (APIfield && APIfield.value) {
+        const userKey = APIfield.value.trim();
+        if (userKey) {
+            loadFromGoogleSheets(userKey);
+            console.log("loaded from official sheet");
+        } else {
+            loadFromExcelFile("assets/22-09-2025.xlsx");
+            console.log("loaded from excel file(may be outdated)");
+        }
+    } else {
+        loadFromExcelFile("assets/22-09-2025.xlsx");
+        console.log("loaded from excel file(may be outdated)");
+    }
+}*/
+
+function loadFromExcelFile(filename) {
+    fetch(filename)
+        .then(res => res.arrayBuffer())
+        .then(data => {
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+            // If your sheet has a header row, remove it. If not, remove this line.
+            const dataRows = rows.slice(1);
+
+            // Build the map: { word: [ {word,wordclass,definition,gender,notes}, ... ] }
+            const map = {};
+
+            dataRows.forEach((r) => {
+                const row = Array.isArray(r) ? r : [];
+                const word = String(row[0] ?? "").trim();
+                const wordclass = String(row[1] ?? "").trim();
+                const definition = String(row[2] ?? "").trim();
+                const gender = String(row[3] ?? "").trim();
+                const notes = String(row[4] ?? "").trim();
+
+                // Skip completely empty rows (optional). Remove this check if you want empty-key entries.
+                //if (!word && !wordclass && !definition && !gender && !notes) return;
+
+                const cleanWord = removeParensSpacesAndDigits(word);
+                const entry = { word, wordclass, definition, gender, notes };
+
+                if (!map[cleanWord]) map[cleanWord] = [];
+                map[cleanWord].push(entry);
+            });
+            dictionaryData.raw = map;
+            console.log("Loaded entries:", Object.keys(map).length, "keys", map);
+        })
+        .catch(err => {
+            console.error("Failed to load Excel file:", err)
+        });
+    console.log(dictionaryData.raw);
+}
+loadFromExcelFile("assets/22-09-2025.xlsx");
+
 // === dosearch function ===
 function doSearch() {
 
+    buildFromDictionaryTable();
 
     // perform search
     function performSearch() {
@@ -3081,96 +3333,6 @@ function doSearch() {
 
     // Auto-load dictionary data if not already loaded/processed
     if (!isProcessedReady()) {
-        // loadDictionaryData
-        function loadDictionaryData() {
-
-            // loadFromGoogleSheets
-            function loadFromGoogleSheets(apiKey) {
-                const SHEET_ID = "168-Rzwk2OjxKJfHy-xNYvwPmDTi5Olv9KTgAs4v33HE";
-                const RANGE = "Dictionary!A2:E999";
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${apiKey}`;
-
-                const container = document.getElementById("sheet-data");
-                container.textContent = "Loading...";
-
-                fetch(url)
-                    .then(response => {
-                        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                        return response.json();
-                    })
-                    .then(data => {
-                        dictionaryData.raw = data.values;
-                        renderTable(dictionaryData.raw);
-                    })
-                    .catch(error => {
-                        console.error("Failed to load sheet:", error);
-                        container.textContent = "Error loading sheet.";
-                    });
-            }
-
-            // loadFromExcelFile
-            function loadFromExcelFile(filename) {
-                const container = document.getElementById("sheet-data");
-                container.textContent = "Loading local Excel file…";
-
-                fetch(filename)
-                    .then(res => res.arrayBuffer())
-                    .then(data => {
-                        const workbook = XLSX.read(data, { type: "array" });
-                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-                        // If your sheet has a header row, remove it. If not, remove this line.
-                        const dataRows = rows.slice(1);
-
-                        // Build the map: { word: [ {word,wordclass,definition,gender,notes}, ... ] }
-                        const map = {};
-
-                        dataRows.forEach((r) => {
-                            const row = Array.isArray(r) ? r : [];
-                            const word = String(row[0] ?? "").trim();
-                            const wordclass = String(row[1] ?? "").trim();
-                            const definition = String(row[2] ?? "").trim();
-                            const gender = String(row[3] ?? "").trim();
-                            const notes = String(row[4] ?? "").trim();
-
-                            // Skip completely empty rows (optional). Remove this check if you want empty-key entries.
-                            if (!word && !wordclass && !definition && !gender && !notes) return;
-
-                            const cleanWord = removeParensSpacesAndDigits(word);
-                            const entry = { word, wordclass, definition, gender, notes };
-
-                            if (!map[cleanWord]) map[cleanWord] = [];
-                            map[cleanWord].push(entry);
-                        });
-
-
-
-                        dictionaryData.raw = map;
-                        console.log("Loaded entries:", Object.keys(map).length, "keys");
-                    })
-                    .catch(err => {
-                        console.error("Failed to load Excel file:", err);
-                        container.textContent = "Error loading local file.";
-                    }); console.log(dictionaryData.raw);
-            }
-
-            const APIfield = document.getElementById("api_field");
-
-            if (APIfield && APIfield.value) {
-                const userKey = APIfield.value.trim();
-                if (userKey) {
-                    loadFromGoogleSheets(userKey);
-                    console.log("loaded from official sheet");
-                } else {
-                    loadFromExcelFile("assets/22-09-2025.xlsx");
-                    console.log("loaded from excel file(may be outdated)");
-                }
-            } else {
-                loadFromExcelFile("assets/22-09-2025.xlsx");
-                console.log("loaded from excel file(may be outdated)");
-            }
-        }
         loadDictionaryData();
         // Wait for data to load or be processed before continuing
         const checkDataLoaded = setInterval(() => {
@@ -3187,90 +3349,6 @@ function doSearch() {
 
 }
 
-/*
-function keywordToPage() {
-  const keyword = dictionaryData?.keyword?.keyword;
-  if (!keyword) return { found: false };
- 
-  // helper to set common data
-  const setKeywordMeta = (stem, pageID, type, html) => {
-    dictionaryData.keyword.keywordStem = stem;
-    dictionaryData.keyword.pageID = pageID;
-    matchType = type;
-    return { found: true, html: html || "", matchType: type, keywordStem: stem, pageID };
-  };
- 
-  // nouns
-  if (Array.isArray(dictionaryData.nouns)) {
-    for (const nounRow of dictionaryData.nouns) {
-      if (keyword === nounRow.keyword) {
-        return setKeywordMeta(nounRow.keyword, pages1[nounRow.keyword], 1, "");
-      }
-      const decls = nounRow["all declensions"];
-      if (!Array.isArray(decls)) continue;
-      for (const decl of decls) {
-        if (keyword === decl.fullText) {
-          return setKeywordMeta(decl.keyword, pages1[decl.keyword], 2, decl.html);
-        }
-        if (Array.isArray(decl.withParticlesAttached)) {
-          for (const p of decl.withParticlesAttached) {
-            if (keyword === p.fullTextP) {
-              return setKeywordMeta(decl.keyword, pages1[decl.keyword], 2, p.htmlP);
-            }
-          }
-        }
-        if (Array.isArray(decl.withPrepositionsAttached)) {
-          for (const pp of decl.withPrepositionsAttached) {
-            if (keyword === pp.fullTextPP) {
-              return setKeywordMeta(decl.keyword, pages1[decl.keyword], 2, pp.htmlPP);
-            }
-          }
-        }
-      }
-    }
-  }
- 
-  // verbs
-  if (Array.isArray(dictionaryData.verbs)) {
-    for (const verbRow of dictionaryData.verbs) {
-      if (keyword === verbRow.keyword) {
-        return setKeywordMeta(verbRow.keyword, pages1[verbRow.keyword], 1, "");
-      }
-      const decls = verbRow["all declensions"];
-      if (!Array.isArray(decls)) continue;
-      for (const decl of decls) {
-        if (keyword === decl.fullText) {
-          return setKeywordMeta(decl.keyword, pages1[decl.keyword], 2, decl.html);
-        }
-      }
-    }
-  }
- 
-  // adjectives, adverbs, auxiliaries, conjunctions, determiners, particles, prepositions
-  const groups = ["adjectives","adverbs","auxilaries","conjunctions","determiners","particles","prepositions"];
-  for (const g of groups) {
-    const arr = dictionaryData[g];
-    if (!Array.isArray(arr)) continue;
-    for (const row of arr) {
-      if (keyword === row.keyword) {
-        return setKeywordMeta(row.keyword, pages1[row.keyword], 1, "");
-      }
-      const decls = row["all declensions"];
-      if (!Array.isArray(decls)) continue;
-      for (const decl of decls) {
-        if (keyword === decl.fullText) {
-          return setKeywordMeta(decl.keyword, pages1[decl.keyword], 2, decl.html);
-        }
-      }
-    }
-  }
- 
-  // no match
-  matchType = 0;
-  return { found: false };
-}
- 
-*/ //use for...of loops? copilot says so - in order for returns to work. workaround? we dont necesarrily want it to stop looping on first match - we want all matches.
 
 // i make new search match function thing:D
 let resultPageKeywordInnerHtml = '';
