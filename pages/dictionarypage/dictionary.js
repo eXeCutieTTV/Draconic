@@ -2543,112 +2543,178 @@ function runTableLoader() {
 
 // === Build pages1 and update dictionaryData ===
 function buildFromDictionaryTable() {
-    if (!dictionaryData.raw || dictionaryData.raw.length === 0) {
+    const raw = dictionaryData.raw;
+    if (!raw) {
         console.warn("No dictionary data available.");
         return;
     }
-    const raw = dictionaryData.raw;
+
+    const sorted = {
+        adjectives: [],
+        adverbs: [],
+        auxiliaries: [],
+        conjunctions: [],
+        determiners: [],
+        nouns: [],
+        particles: [],
+        prepositions: [],
+        verbs: [],
+    };
+
+    const classMap = {
+        n: "nouns",
+        v: "verbs",
+        adj: "adjectives",
+        adv: "adverbs",
+        aux: "auxiliaries",
+        pp: "prepositions",
+        part: "particles",
+        con: "conjunctions",
+        det: "determiners",
+    };
+
+    const declensionCache = new Map();
+    let pageNumber = 10000;
+    let processedCount = 0;
+    let totalEntries = 0;
 
     pages1 = {};
 
-    let pageNumber = 10000; // Start counting up from 10000
-
-    dictionaryData.raw.forEach((el, index) => {
-
-        const wordRaw = el[0].word;
-        const word = wordRaw.replace(/\(\d\)/, "").trim().toLowerCase();
-        const wordclass = el[0].wordclass;
-        let declensionsArray = [];
-
-        if (word) {
-            pages1[word] = `page${pageNumber}`;
-            pageNumber++; // Count upward
+    const buildDeclensions = (wordclass, normalizedWord) => {
+        if (declensionCache.has(normalizedWord)) {
+            return declensionCache.get(normalizedWord);
         }
-        // Determine declensions array based on wordclass
-        switch (wordclass) {
-            case 'n':
-                declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
-                break;
-            case 'v':
-                declensionsArray = generateVerbAffixes(word);
-                break;
-            case 'adj':
-                declensionsArray = generateAdjectiveWithSuffixes(word, { useAttachAsSuffix: true });
-                break;
-            case 'adv':
-                declensionsArray = generateAdverbForms(word, { useAttachAsSuffix: true });
-                break;
-            case 'aux':
-                declensionsArray = generateAuxiliaryForms(word);
-                break;
-        }
-        // Convert array row into an object with labels
-        /*
-        const keyword = removeParensSpacesAndDigits(paddedRow[0]);
-        const nounDeclension = keepDigitsOnly(paddedRow[0]) || '';
-        const rowObject = {
-            keyword,
-            wordclass: wordclass,
-            definition: paddedRow[2],
-            forms: paddedRow[3],
-            notes: paddedRow[4],
-            "declension (for nouns)": nounDeclension,
-            "pageId(for html)": pages1[word],
-            "all declensions": declensionsArray
-        };*/ // still works for api usage probably ^^
 
-
-        const keyword = removeParensSpacesAndDigits(el[0].word);
-        const nounDeclension = keepDigitsOnly(el[0].word) || '';
-        const rowObject = {
-            keyword,
-            wordclass,
-            definition: el[0].definition,
-            forms: el[0].gender,
-            notes: el[0].notes,
-            "declension (for nouns)": nounDeclension,
-            "pageId(for html)": pages1[word],
-            "all declensions": declensionsArray
-        };
-
-        switch (wordclass) {
+        let declensions = [];
+        switch ((wordclass || "").toLowerCase()) {
             case "n":
-                dictionaryData.sorted.nouns.push(rowObject);
-                //declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
+                declensions = generateNounWithSuffixes(normalizedWord, { useAttachAsSuffix: true });
                 break;
             case "v":
-                dictionaryData.sorted.verbs.push(rowObject);
-                //declensionsArray = generateVerbAffixes(word);
+                declensions = generateVerbAffixes(normalizedWord);
                 break;
             case "adj":
-                dictionaryData.sorted.adjectives.push(rowObject);
+                declensions = generateAdjectiveWithSuffixes(normalizedWord, { useAttachAsSuffix: true });
                 break;
             case "adv":
-                dictionaryData.sorted.adverbs.push(rowObject);
+                declensions = generateAdverbForms(normalizedWord, { useAttachAsSuffix: true });
                 break;
             case "aux":
-                dictionaryData.sorted.auxiliaries.push(rowObject);
+                declensions = generateAuxiliaryForms(normalizedWord);
                 break;
-            case "pp":
-                dictionaryData.sorted.prepositions.push(rowObject);
-                break;
-            case "part":
-                dictionaryData.sorted.particles.push(rowObject);
-                break;
-            case "con":
-                dictionaryData.sorted.conjunctions.push(rowObject);
-                break;
-            case "det":
-                dictionaryData.sorted.determiners.push(rowObject);
-                break;
-
-
             default:
-                console.warn(`Unknown word class: '${wordclass}' for word '${word}'`);
+                declensions = [];
                 break;
         }
-    });
 
+        if (!Array.isArray(declensions)) {
+            declensions = [];
+        }
+
+        declensionCache.set(normalizedWord, declensions);
+        return declensions;
+    };
+
+    const addEntry = (entry, fallbackWord = "") => {
+        if (!entry) return;
+
+        let word = "";
+        let wordclass = "";
+        let definition = "";
+        let forms = "";
+        let notes = "";
+
+        if (Array.isArray(entry)) {
+            [word, wordclass, definition, forms, notes] = entry;
+        } else if (typeof entry === "object") {
+            word = entry.word ?? entry.keyword ?? fallbackWord ?? "";
+            wordclass = entry.wordclass ?? entry.class ?? entry.pos ?? entry.wordClass ?? "";
+            definition = entry.definition ?? entry.meaning ?? entry.gloss ?? "";
+            forms = entry.forms ?? entry.gender ?? entry.form ?? "";
+            notes = entry.notes ?? entry.note ?? "";
+        } else {
+            return;
+        }
+
+        word = String(word ?? fallbackWord ?? "").trim();
+        if (!word) return;
+
+        const normalizedWord = word.replace(/\(\d+\)/g, "").trim().toLowerCase();
+        if (!normalizedWord) return;
+
+        if (!pages1[normalizedWord]) {
+            pages1[normalizedWord] = `page${pageNumber++}`;
+        }
+
+        const wordclassNormalized = String(wordclass ?? "")
+            .trim()
+            .toLowerCase()
+            .replace(/\.+$/, "");
+        const definitionStr = String(definition ?? "").trim();
+        const formsStr = String(forms ?? "").trim();
+        const notesStr = String(notes ?? "").trim();
+        const keyword = removeParensSpacesAndDigits(word);
+        const nounDeclension = keepDigitsOnly(word) || "";
+        const declensionsArray = buildDeclensions(wordclassNormalized, normalizedWord);
+
+        totalEntries++;
+
+        const rowObject = {
+            keyword,
+            wordclass: wordclassNormalized,
+            definition: definitionStr,
+            forms: formsStr,
+            notes: notesStr,
+            "declension (for nouns)": nounDeclension,
+            "pageId(for html)": pages1[normalizedWord],
+            "all declensions": declensionsArray,
+        };
+
+        const targetKey = classMap[wordclassNormalized];
+        if (targetKey) {
+            sorted[targetKey].push(rowObject);
+            processedCount++;
+        } else if (wordclassNormalized) {
+            console.warn(`Unknown word class: '${wordclassNormalized}' for word '${word}'`);
+        }
+    };
+
+    const processValue = (value, fallbackWord = "") => {
+        if (!value) return;
+
+        if (Array.isArray(value)) {
+            value.forEach(item => addEntry(item, fallbackWord));
+            return;
+        }
+
+        if (value instanceof Map) {
+            value.forEach((item, key) => processValue(item, key || fallbackWord));
+            return;
+        }
+
+        if (typeof value === "object") {
+            addEntry(value, fallbackWord);
+        }
+    };
+
+    if (Array.isArray(raw)) {
+        raw.forEach(item => processValue(item));
+    } else if (raw instanceof Map) {
+        raw.forEach((value, key) => processValue(value, key));
+    } else if (typeof raw === "object") {
+        Object.keys(raw).forEach(key => processValue(raw[key], key));
+    }
+
+    if (!totalEntries) {
+        console.warn("No dictionary entries found after processing.");
+        return;
+    }
+
+    if (!processedCount) {
+        console.warn("Dictionary entries were loaded, but no known word classes were processed.");
+    }
+
+    dictionaryData.sorted = sorted;
     finalizeDictionaryData();
     //console.log("pages1 mapping:", pages1);
     //console.log("dictionaryData:", dictionaryData);
