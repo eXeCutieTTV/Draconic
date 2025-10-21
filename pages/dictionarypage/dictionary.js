@@ -247,17 +247,27 @@ let dictionaryData = {
 
 //isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
 // Produces NounWithSuffix array for a single base word
-function generateNounWithSuffixes(declension, keyword, options = {}) {
+function generateNounWithSuffixes(
+    declension,
+    notes,
+    definition,
+    gender,
+    keyword,
+    options = {}
+) {
     const moodsToInclude = options.moodsToInclude || Object.keys(CONJUGATIONS);
     const useAttachAsSuffix = options.useAttachAsSuffix !== undefined ? options.useAttachAsSuffix : true;
     const result = [];
+    const definitionText = definition || '';
+    const notesText = notes || '';
+    //const sourceGenders = parseGenderList(gender);
 
     moodsToInclude.forEach(moodKey => {
         const moodTbl = CONJUGATIONS[moodKey];
         if (!moodTbl) return;
 
         Object.keys(moodTbl).forEach(genderName => {
-            const genderTbl = moodTbl[genderName];
+            const genderTbl = gender;
             if (!genderTbl) return;
 
             Object.keys(genderTbl).forEach(numberKey => {
@@ -274,9 +284,6 @@ function generateNounWithSuffixes(declension, keyword, options = {}) {
                 const html = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
                 const fullText = `${entries_to_text(entries[0])}${entries_to_text(entries[1])}${entries_to_text(entries[2])}`;
                 const stem = `${entries_to_text(entries[1])}`;
-
-                //const notes = .notes || '';
-                //const definition = .definition || '';
 
                 let withPrepositionsAttached = [];
                 for (let i = 0; i < Object.keys(PREPOSITIONS).length; i++) {
@@ -304,6 +311,8 @@ function generateNounWithSuffixes(declension, keyword, options = {}) {
 
                 result.push({
                     wordclass: 'n',
+                    notes: notesText,
+                    definition: definitionText,
                     mood: moodKey,
                     gender: genderName,
                     number: numberKey,
@@ -343,7 +352,10 @@ const ALLOWED_NOUN_FIELDS = new Set(
         'baseNounForm',
         'baseNounStem',
         'prefixDisplay',
-        'context'
+        'context',
+        'lemmaDefinition',
+        'lemmaNotes',
+        'lemmaGenders'
     ]
 );
 
@@ -2327,6 +2339,18 @@ function removeParensSpacesAndDigits(str) {
     return String(str || "").replace(/[\d() \t\r\n]+/g, "");
 }
 
+function parseGenderList(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+
+    return String(value)
+        .replace(/^\(/, "")
+        .replace(/\)$/, "")
+        .split(",")
+        .map(part => part.replace(/\u00A0/g, " ").trim())
+        .filter(Boolean);
+}
+
 function hideEmptySummaryRowsIn(summaryTableId) {
     const table = document.getElementById(summaryTableId);
     if (!table) return;
@@ -2594,15 +2618,33 @@ function buildFromDictionaryTable() {
 
         const keyword = removeParensSpacesAndDigits(row.word || '');
         const nounDeclension = keepDigitsOnly(row.word || '') || '';
-
+        /*
+        function generateNounWithSuffixes(
+            declension,
+            notes,
+            definition,
+            gender,
+            keyword,
+            options = {}
+        ) 
+        */
         switch (wordclass) {
-            case "n":
-                declensionsArray = generateNounWithSuffixes(nounDeclension, word, { useAttachAsSuffix: true });
+            case "n": {
+                const genderList = parseGenderList(row.gender);
+                declensionsArray = generateNounWithSuffixes(
+                    nounDeclension,
+                    row.notes || '',
+                    row.definition || '',
+                    genderList,
+                    word,
+                    { useAttachAsSuffix: true }
+                );
                 rowObject = {
                     keyword,
                     wordclass,
                     definition: row.definition || '',
-                    genders: row.gender || '',
+                    genders: genderList,
+                    gendersRaw: row.gender || '',
                     notes: row.notes || '',
                     declension: nounDeclension,
                     "pageId(for html)": pages1[word] || '',
@@ -2610,6 +2652,7 @@ function buildFromDictionaryTable() {
                 };
                 dictionaryData.sorted.nouns.push(rowObject);
                 break;
+            }
             case "v":
                 declensionsArray = generateVerbAffixes(word);
                 rowObject = {
