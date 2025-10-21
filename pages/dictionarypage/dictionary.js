@@ -2912,22 +2912,21 @@ function doSearch() {
             } else if (matchType == 2) {
                 // create the page for keyword
 
-                matchesArray.forEach(row => {
-                    console.log(row["html"]);
-                });
 
                 const page = document.createElement('div');
                 page.id = 'page11998';
                 page.className = 'page';
-                page.innerHTML = resultPageKeywordInnerHtml;
+                page.innerHTML = 'Placeholder';
 
                 let pagesWrap = document.querySelector('.pages');
-                if (!pagesWrap) {
-                    console.error("no div with class '.pages'");
-                    return;
-                }
                 pagesWrap.appendChild(page);
 
+                //inner html list.
+                matchesArray.forEach(row => {
+                    if (page.innerHTML === 'Placeholder') { page.innerHTML = row["html"] }
+                    if (page.innerHTML !== 'Placeholder') { page.innerHTML = `${document.getElementById('page11998').innerHTML}<br>${row["html"]}`; }
+                    console.log(row["html"]);
+                });
                 openPageOld('page11998');
                 matchType = 0;
             }
