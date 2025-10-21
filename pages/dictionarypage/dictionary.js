@@ -3720,3 +3720,4 @@ document.getElementById('search_field').addEventListener('keydown', (event) => {
         doSearch();
     }
 });
+
