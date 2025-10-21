@@ -247,7 +247,7 @@ let dictionaryData = {
 
 //isSuffix[GENDERS.E.NAME][NUMBERS.S][person[1]]
 // Produces NounWithSuffix array for a single base word
-function generateNounWithSuffixes(keyword, options = {}) {
+function generateNounWithSuffixes(declension, keyword, options = {}) {
     const moodsToInclude = options.moodsToInclude || Object.keys(CONJUGATIONS);
     const useAttachAsSuffix = options.useAttachAsSuffix !== undefined ? options.useAttachAsSuffix : true;
     const result = [];
@@ -264,57 +264,56 @@ function generateNounWithSuffixes(keyword, options = {}) {
                 const numberTbl = genderTbl[numberKey];
                 if (!numberTbl) return;
 
-                Object.keys(numberTbl).forEach(personKey => {
-                    const rawSuffix = (numberTbl[personKey] || "").toString().trim();
-                    if (!rawSuffix) return;
+                const rawSuffix = (numberTbl[declension] || "").toString().trim();
+                if (!rawSuffix) return;
 
-                    const entries = useAttachAsSuffix
-                        ? connect_split("", keyword, rawSuffix)
-                        : connect_split(rawSuffix, keyword, "");
+                const entries = useAttachAsSuffix
+                    ? connect_split("", keyword, rawSuffix)
+                    : connect_split(rawSuffix, keyword, "");
 
-                    const html = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
-                    const fullText = `${entries_to_text(entries[0])}${entries_to_text(entries[1])}${entries_to_text(entries[2])}`;
-                    const stem = `${entries_to_text(entries[1])}`;
-                    // const notes = dictionaryData.raw.keyword[0].notes || '';
-                    //const definition = dictionaryData.raw.keyword[0].definition || '';
+                const html = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+                const fullText = `${entries_to_text(entries[0])}${entries_to_text(entries[1])}${entries_to_text(entries[2])}`;
+                const stem = `${entries_to_text(entries[1])}`;
 
-                    let withPrepositionsAttached = [];
-                    for (let i = 0; i < Object.keys(PREPOSITIONS).length; i++) {
-                        const normalized = formatPrefixWithAx(PREPOSITIONS[i], fullText);
-                        const fullTextPP = `${fullText}${normalized}`;
-                        const htmlPP = `${html}<strong>${normalized}</strong>`;
-                        withPrepositionsAttached.push({ fullTextPP, htmlPP });
-                    }
+                //const notes = .notes || '';
+                //const definition = .definition || '';
 
-                    let withParticlesAttached = [];
+                let withPrepositionsAttached = [];
+                for (let i = 0; i < Object.keys(PREPOSITIONS).length; i++) {
+                    const normalized = formatPrefixWithAx(PREPOSITIONS[i], fullText);
+                    const fullTextPP = `${fullText}${normalized}`;
+                    const htmlPP = `${html}<strong>${normalized}</strong>`;
+                    withPrepositionsAttached.push({ fullTextPP, htmlPP });
+                }
 
-                    // for "i"
-                    const fullTextP = `${PARTICLES[affixState.P][1]}${fullText}`;
-                    const htmlP = `<strong>${PARTICLES[affixState.P][1]}</strong><strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
-                    // for rest
+                let withParticlesAttached = [];
+
+                // for "i"
+                const fullTextP = `${PARTICLES[affixState.P][0]}${fullText}`;
+                const htmlP = `<strong>${PARTICLES[affixState.P][0]}</strong><strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+                // for rest
+                withParticlesAttached.push({ fullTextP, htmlP });
+                for (let i = 0; i < Object.keys(PARTICLES[affixState.S]).length; i++) {
+                    const suffixText = formatSuffixWithAx(fullText, PARTICLES[affixState.S][i]);
+                    if (!suffixText) continue;
+                    const fullTextP = `${fullText}${suffixText}`;
+                    const htmlP = `${html}<strong>${suffixText}</strong>`;
                     withParticlesAttached.push({ fullTextP, htmlP });
-                    for (let i = 0; i < Object.keys(PARTICLES[affixState.S]).length; i++) {
-                        const suffixText = formatSuffixWithAx(fullText, PARTICLES[affixState.S][i]);
-                        if (!suffixText) continue;
-                        const fullTextP = `${fullText}${suffixText}`;
-                        const htmlP = `${html}<strong>${suffixText}</strong>`;
-                        withParticlesAttached.push({ fullTextP, htmlP });
-                    }
+                }
 
 
-                    result.push({
-                        wordClass: 'noun',
-                        mood: moodKey,
-                        gender: genderName,
-                        number: numberKey,
-                        person: personKey,
-                        rawSuffix,
-                        html,
-                        fullText,
-                        stem,
-                        withParticlesAttached,
-                        withPrepositionsAttached
-                    });
+                result.push({
+                    wordclass: 'n',
+                    mood: moodKey,
+                    gender: genderName,
+                    number: numberKey,
+                    declension: declension,
+                    rawSuffix,
+                    html,
+                    fullText,
+                    stem,
+                    withParticlesAttached,
+                    withPrepositionsAttached
                 });
             });
         });
@@ -2591,23 +2590,6 @@ function buildFromDictionaryTable() {
             pages1[word] = `page${pageNumber++}`;
         }
 
-        switch (wordclass) {
-            case 'n':
-                declensionsArray = generateNounWithSuffixes(word, { useAttachAsSuffix: true });
-                break;
-            case 'v':
-                declensionsArray = generateVerbAffixes(word);
-                break;
-            case 'adj':
-                declensionsArray = generateAdjectiveWithSuffixes(word, { useAttachAsSuffix: true });
-                break;
-            case 'adv':
-                declensionsArray = generateAdverbForms(word, { useAttachAsSuffix: true });
-                break;
-            case 'aux':
-                declensionsArray = generateAuxiliaryForms(word);
-                break;
-        }
         let rowObject = {};
 
         const keyword = removeParensSpacesAndDigits(row.word || '');
@@ -2615,6 +2597,7 @@ function buildFromDictionaryTable() {
 
         switch (wordclass) {
             case "n":
+                declensionsArray = generateNounWithSuffixes(nounDeclension, word, { useAttachAsSuffix: true });
                 rowObject = {
                     keyword,
                     wordclass,
@@ -2628,6 +2611,7 @@ function buildFromDictionaryTable() {
                 dictionaryData.sorted.nouns.push(rowObject);
                 break;
             case "v":
+                declensionsArray = generateVerbAffixes(word);
                 rowObject = {
                     keyword,
                     wordclass,
@@ -2640,6 +2624,7 @@ function buildFromDictionaryTable() {
                 dictionaryData.sorted.verbs.push(rowObject);
                 break;
             case "adj":
+                declensionsArray = generateAdjectiveWithSuffixes(word, { useAttachAsSuffix: true });
                 rowObject = {
                     keyword,
                     wordclass,
@@ -2653,6 +2638,7 @@ function buildFromDictionaryTable() {
                 dictionaryData.sorted.adjectives.push(rowObject);
                 break;
             case "adv":
+                declensionsArray = generateAdverbForms(word, { useAttachAsSuffix: true });
                 let gender = row.gender;
                 if (gender === 'N/A') { gender = '' }
                 rowObject = {
@@ -2667,6 +2653,7 @@ function buildFromDictionaryTable() {
                 dictionaryData.sorted.adverbs.push(rowObject);
                 break;
             case "aux":
+                declensionsArray = generateAuxiliaryForms(word);
                 rowObject = {
                     keyword,
                     wordclass,
@@ -2838,6 +2825,72 @@ function buildFromDictionaryTable() {
     //console.log("dictionaryData:", dictionaryData);
 }
 */
+function createKeywordLookupProxy(array, keyField = 'keyword') {
+    if (!Array.isArray(array)) return array;
+
+    const cache = new Map();
+    const indexEntry = (entry) => {
+        const keyValue = entry && entry[keyField];
+        if (typeof keyValue !== 'string') return;
+        const trimmed = keyValue.trim();
+        if (!trimmed) return;
+
+        cache.set(trimmed, entry);
+        const lower = trimmed.toLowerCase();
+        if (lower !== trimmed) cache.set(lower, entry);
+    };
+    const removeKey = (key) => {
+        if (typeof key !== 'string') return;
+        cache.delete(key);
+        const lower = key.toLowerCase();
+        if (lower !== key) cache.delete(lower);
+    };
+
+    array.forEach(indexEntry);
+
+    return new Proxy(array, {
+        get(target, prop, receiver) {
+            if (typeof prop === 'string' && !(prop in target)) {
+                const lowerProp = prop.toLowerCase();
+                const cached = cache.get(prop) || cache.get(lowerProp);
+                if (cached) return cached;
+
+                const match = target.find(entry => {
+                    if (!entry) return false;
+                    const keyValue = entry[keyField];
+                    if (typeof keyValue !== 'string') return false;
+                    if (keyValue === prop) return true;
+                    return keyValue.toLowerCase() === lowerProp;
+                });
+
+                if (match) indexEntry(match);
+                return match;
+            }
+
+            return Reflect.get(target, prop, receiver);
+        },
+        set(target, prop, value, receiver) {
+            const result = Reflect.set(target, prop, value, receiver);
+            if (typeof prop === 'string') {
+                if (prop === 'length') {
+                    cache.clear();
+                    target.forEach(indexEntry);
+                } else if (Number.isInteger(Number(prop)) && value) {
+                    indexEntry(value);
+                } else {
+                    removeKey(prop);
+                    if (value && typeof value === 'object') indexEntry(value);
+                }
+            }
+            return result;
+        },
+        deleteProperty(target, prop) {
+            removeKey(prop);
+            return Reflect.deleteProperty(target, prop);
+        }
+    });
+}
+
 function finalizeDictionaryData() {
     if (!dictionaryData) return;
 
@@ -2848,7 +2901,7 @@ function finalizeDictionaryData() {
     if (dictionaryData.sorted) {
         for (const key in dictionaryData.sorted) {
             if (dictionaryData.sorted.hasOwnProperty(key)) {
-                dictionaryData[key] = dictionaryData.sorted[key];
+                dictionaryData[key] = createKeywordLookupProxy(dictionaryData.sorted[key]);
             }
         }
     }
@@ -3094,7 +3147,6 @@ function loadFromExcelFile(filename) {
         .catch(err => {
             console.error("Failed to load Excel file:", err)
         });
-    console.log(dictionaryData.raw);
 }
 loadFromExcelFile("assets/22-09-2025.xlsx");
 
