@@ -2911,6 +2911,11 @@ function doSearch() {
 
             } else if (matchType == 2) {
                 // create the page for keyword
+
+                matchesArray.forEach(row => {
+                    console.log(row["html"]);
+                });
+
                 const page = document.createElement('div');
                 page.id = 'page11998';
                 page.className = 'page';
@@ -3047,7 +3052,7 @@ function doSearch() {
 function keywordToPage() {
   const keyword = dictionaryData?.keyword?.keyword;
   if (!keyword) return { found: false };
-
+ 
   // helper to set common data
   const setKeywordMeta = (stem, pageID, type, html) => {
     dictionaryData.keyword.keywordStem = stem;
@@ -3055,7 +3060,7 @@ function keywordToPage() {
     matchType = type;
     return { found: true, html: html || "", matchType: type, keywordStem: stem, pageID };
   };
-
+ 
   // nouns
   if (Array.isArray(dictionaryData.nouns)) {
     for (const nounRow of dictionaryData.nouns) {
@@ -3085,7 +3090,7 @@ function keywordToPage() {
       }
     }
   }
-
+ 
   // verbs
   if (Array.isArray(dictionaryData.verbs)) {
     for (const verbRow of dictionaryData.verbs) {
@@ -3101,7 +3106,7 @@ function keywordToPage() {
       }
     }
   }
-
+ 
   // adjectives, adverbs, auxiliaries, conjunctions, determiners, particles, prepositions
   const groups = ["adjectives","adverbs","auxilaries","conjunctions","determiners","particles","prepositions"];
   for (const g of groups) {
@@ -3120,18 +3125,19 @@ function keywordToPage() {
       }
     }
   }
-
+ 
   // no match
   matchType = 0;
   return { found: false };
 }
-
+ 
 */ //use for...of loops? copilot says so - in order for returns to work. workaround? we dont necesarrily want it to stop looping on first match - we want all matches.
 
 // i make new search match function thing:D
 let resultPageKeywordInnerHtml = ''; // need to add html part for word stems. // need to split declension from noun stems in array.
 let keywordStem = '';
 let matchType = 0;
+let matchesArray = [];
 function keywordToPage() {
     const keyword = dictionaryData.keyword.keyword;
 
@@ -3146,138 +3152,148 @@ function keywordToPage() {
             if (keyword === row["keyword"]) {
                 dictionaryData.keyword["keywordStem"] = row["keyword"];
                 dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
+                const parentarray = row;
                 matchType = 1;
-                console.log("MATCHMATCHMATCH", keyword);
-                return '';
+                console.log("MATCHMATCHMATCH", parentarray);
             }
             const declensions = row["all declensions"];
             declensions.forEach(row => {
                 const fullText = row["fullText"];
-                const html = row["html"];
-                resultPageKeywordInnerHtml = html;
                 if (keyword === fullText) {
                     dictionaryData.keyword["keywordStem"] = row["keyword"];
                     dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
+                    const parentarray = row;
+                    const html = row["html"];
+                    matchesArray.push({ html });
+
+                    /*
+                    const matchDiv = document.createElement('div');
+                    matchDiv.class = 'matchNoun';
+                    document.querySelectorAll(".matchNoun").forEach(el => );
+*/
                     matchType = 2;
-                    console.log("MATCHMATCHMATCH", fullText); // need function for parentarray? log parentarray - not fullText?
-                    return html || '';
+                    console.log("MATCHMATCHMATCH", parentarray, resultPageKeywordInnerHtml);
                 }
                 const withParticlesAttached = row["withParticlesAttached"];
                 withParticlesAttached.forEach(row => {
                     const fullText = row["fullTextP"];
-                    const htmlP = row["htmlP"];
-                    resultPageKeywordInnerHtml = htmlP;
                     if (keyword === fullText) {
+                        const parentarray = row;
+                        resultPageKeywordInnerHtml = row["htmlp"];
                         matchType = 2;
-                        console.log("MATCHMATCHMATCH", fullText);
-                        return htmlP || '';
+                        console.log("MATCHMATCHMATCH", parentarray);
                     }
                 });
                 const withPrepositionsAttached = row["withPrepositionsAttached"];
                 withPrepositionsAttached.forEach(row => {
                     const fullText = row["fullTextPP"];
-                    const htmlPP = row["htmlPP"];
-                    resultPageKeywordInnerHtml = htmlPP;
                     if (keyword === fullText) {
+                        const parentarray = row;
+                        resultPageKeywordInnerHtml = row["htmlpp"];
                         matchType = 2;
-                        console.log("MATCHMATCHMATCH", fullText);
-                        return htmlPP || '';
+                        console.log("MATCHMATCHMATCH", parentarray);
                     }
                 });
             });
-        });
-    }
+        }); // instead of html= a tring, make it a `<div class="asdas"><div id="match[i]">all of the matches' htmls</div></div>`
+    } if (matchType > 0) { return; }
     //verb forms
     if (Array.isArray(dictionaryData.verbs)) {
         dictionaryData.verbs.forEach(row => {
             if (keyword === row["keyword"]) {
                 dictionaryData.keyword["keywordStem"] = row["keyword"];
                 dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
-                console.log("MATCHMATCHMATCH", keyword);
+                const parentarray = row;
+                resultPageKeywordInnerHtml = row["html"];
                 matchType = 1;
-                return '';
+                console.log("MATCHMATCHMATCH", parentarray);
             }
             const declensions = row["all declensions"];
             declensions.forEach(row => {
                 const fullText = row["fullText"];
-                resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
                     dictionaryData.keyword["keywordStem"] = row["keyword"];
                     dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
+                    const parentarray = row;
+                    resultPageKeywordInnerHtml = row["html"];
                     matchType = 2;
-                    console.log("MATCHMATCHMATCH", fullText);
-                    return resultPageKeywordInnerHtml || '';
+                    console.log("MATCHMATCHMATCH", parentarray);
                 }
             });
         });
-    }
+    } if (matchType > 0) { return; }
     //adjective forms
     if (Array.isArray(dictionaryData.adjectives)) {
         dictionaryData.adjectives.forEach(row => {
             if (keyword === row["keyword"]) {
+                const parentarray = row;
+                resultPageKeywordInnerHtml = row["html"];
                 matchType = 1;
-                console.log("MATCHMATCHMATCH", keyword);
-                return '';
+                console.log("MATCHMATCHMATCH", parentarray);
             }
             const declensions = row["all declensions"];
             declensions.forEach(row => {
                 const fullText = row["fullText"];
                 resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
+                    const parentarray = row;
+                    resultPageKeywordInnerHtml = row["html"];
                     matchType = 2;
-                    console.log("MATCHMATCHMATCH", fullText);
-                    return resultPageKeywordInnerHtml || '';
+                    console.log("MATCHMATCHMATCH", parentarray);
                 }
             });
         });
-    }
+    } if (matchType > 0) { return; }
     //adverb forms
     if (Array.isArray(dictionaryData.adverbs)) {
         dictionaryData.adverbs.forEach(row => {
             if (keyword === row["keyword"]) {
+                const parentarray = row;
+                resultPageKeywordInnerHtml = row["html"];
                 matchType = 1;
-                console.log("MATCHMATCHMATCH", keyword);
-                return '';
+                console.log("MATCHMATCHMATCH", parentarray);
             }
             const declensions = row["all declensions"];
             declensions.forEach(row => {
                 const fullText = row["fullText"];
-                resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
+                    const parentarray = row;
+                    resultPageKeywordInnerHtml = row["html"];
                     matchType = 2;
-                    console.log("MATCHMATCHMATCH", fullText);
-                    return resultPageKeywordInnerHtml || '';
+                    console.log("MATCHMATCHMATCH", parentarray);
                 }
             });
         });
-    }
+    } if (matchType > 0) { return; }
     //auxilary forms
     if (Array.isArray(dictionaryData.auxilaries)) {
         dictionaryData.auxilaries.forEach(row => {
             if (keyword === row["keyword"]) {
+                const parentarray = row;
+                resultPageKeywordInnerHtml = row["html"];
                 matchType = 1;
-                console.log("MATCHMATCHMATCH", keyword);
-                return '';
+                console.log("MATCHMATCHMATCH", parentarray);
             }
             const declensions = row["all declensions"];
             declensions.forEach(row => {
                 const fullText = row["fullText"];
-                resultPageKeywordInnerHtml = row["html"];
                 if (keyword === fullText) {
+                    const parentarray = row;
+                    resultPageKeywordInnerHtml = row["html"];
                     matchType = 2;
-                    console.log("MATCHMATCHMATCH", fullText);
-                    return resultPageKeywordInnerHtml || '';
+                    console.log("MATCHMATCHMATCH", parentarray);
                 }
             });
         });
-    }
+    } if (matchType > 0) { return; }
     //conjunction forms
     if (Array.isArray(dictionaryData.conjunctions)) {
         dictionaryData.conjunctions.forEach(row => {
             if (keyword === row["keyword"]) {
+                const parentarray = row;
+                resultPageKeywordInnerHtml = row["html"];
                 matchType = 1;
-                console.log("MATCHMATCHMATCH", keyword);
-                return '';
+                console.log("MATCHMATCHMATCH", parentarray);
             }
             /*
             const declensions = row["all declensions"];
@@ -3290,14 +3306,15 @@ function keywordToPage() {
                 }
             })*/
         });
-    }
+    } if (matchType > 0) { return; }
     //determiner forms
     if (Array.isArray(dictionaryData.determiners)) {
         dictionaryData.determiners.forEach(row => {
             if (keyword === row["keyword"]) {
+                const parentarray = row;
+                resultPageKeywordInnerHtml = row["html"];
                 matchType = 1;
-                console.log("MATCHMATCHMATCH", keyword);
-                return '';
+                console.log("MATCHMATCHMATCH", parentarray);
             }
             /*
             const declensions = row["all declensions"];
@@ -3310,14 +3327,15 @@ function keywordToPage() {
                 }
             })*/
         });
-    }
+    } if (matchType > 0) { return; }
     //particle forms
     if (Array.isArray(dictionaryData.particles)) {
         dictionaryData.particles.forEach(row => {
             if (keyword === row["keyword"]) {
+                const parentarray = row;
+                resultPageKeywordInnerHtml = row["html"];
                 matchType = 1;
-                console.log("MATCHMATCHMATCH", keyword);
-                return '';
+                console.log("MATCHMATCHMATCH", parentarray);
             }
             /*
             const declensions = row["all declensions"];
@@ -3330,14 +3348,15 @@ function keywordToPage() {
                 }
             })*/
         });
-    }
+    } if (matchType > 0) { return; }
     //preposition forms
     if (Array.isArray(dictionaryData.prepositions)) {
         dictionaryData.prepositions.forEach(row => {
             if (keyword === row["keyword"]) {
+                const parentarray = row;
+                resultPageKeywordInnerHtml = row["html"];
                 matchType = 1;
-                console.log("MATCHMATCHMATCH", keyword);
-                return '';
+                console.log("MATCHMATCHMATCH", parentarray);
             }
             /*
             const declensions = row["all declensions"];
@@ -3350,7 +3369,7 @@ function keywordToPage() {
                 }
             })*/
         });
-    }
+    } if (matchType > 0) { return; }
 }
 
 
@@ -3407,7 +3426,6 @@ function reverseSearchIdsOnSearch() {
         swapSearchIds('search_field', 'unusedField');
     }
 }
-
 
 // === Search button click ===
 document.getElementById('search_button').addEventListener('click', () => {
