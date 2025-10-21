@@ -1,15 +1,15 @@
 /* TableWrapper */
-.TableWrapperp1 {
+.TableWrapperp2 {
     display: flex;
 }
 
 
-.Leftdivp1 {
+.Leftdivp2 {
     display: inline;
     flex: 1;
 }
 
-.rightdivp1 {
+.rightdivp2 {
     display: inline;
     flex: 0.8;
     margin-left: 25px;

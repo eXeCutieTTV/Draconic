@@ -2,15 +2,17 @@
 <link rel="stylesheet" href="pages\page.css">
 
 <div class="tab-bar">
-    <div class="tab active" onclick="openPage('page0', this)">Welcome</div>
-    <div id="permatab" class="tab" onclick="openPage('page99', this)">Dictionary</div>
-    <div class="tab" onclick="openPage('page1', this); deletealphabet(); generate_alphabet();">1. Alphabet</div>
-    <div class="tab" onclick="openPage('page2', this)">2. Phonology</div>
-    <div class="tab" onclick="openPage('page3', this)">3. Nouns</div>
-    <div class="tab" onclick="openPage('page4', this)">4. Verbs</div>
-    <div class="tab" onclick="openPage('page5', this)">5. Adverbs</div>
-    <div class="tab" onclick="openPage('page6', this)">6. Auxilaries</div>
-    <div class="tab" onclick="openPage('page7', this)">7. Adjectives</div>
-    <div class="tab" onclick="openPage('page8', this)">8. Animacy & Agency</div>
-    <div class="tab" onclick="openPage('page9', this)">9. Games</div>
+    <div class="tab active" onclick="openPage('pages/welcomepage/page0.html', 'page0', { runScripts: true, replace: false}, this)">Welcome</div>
+    <div id="permatab" class="tab" onclick="openPageOld('page99', this); reverseSearchIdsOnSearch();">Dictionary</div>
+    <div class="tab" onclick="openPage('pages/alphabetpage/page1.html', 'page1', { runScripts: true, replace: false}, this); alphabetOnTimeout();">1. Alphabet</div>
+    <div class="tab" onclick="openPage('pages/phonologypage/page2.html', 'page2', { runScripts: true, replace: false}, this);">2. Phonology</div>
+    <div class="tab" onclick="openPage('pages/nounspage/page3.html', 'page3', { runScripts: true, replace: false}, this);">3. Nouns</div>
+    <div class="tab" onclick="openPage('pages/verbspage/page4.html', 'page4', { runScripts: true, replace: false}, this);">4. Verbs</div>
+    <div class="tab" onclick="openPage('pages/adverbspage/page5.html', 'page5', { runScripts: true, replace: false}, this);">5. Adverbs</div>
+    <div class="tab" onclick="openPage('pages/auxilariespage/page6.html', 'page6', { runScripts: true, replace: false}, this);">6. Auxilaries</div>
+    <div class="tab" onclick="openPage('pages/adjectivespage/page7.html', 'page7', { runScripts: true, replace: false}, this);">7. Adjectives</div>
+    <div class="tab" onclick="openPage('pages/animacy&agencypage/page8.html', 'page8', { runScripts: true, replace: false}, this);">8. Animacy & Agency</div>
+    <div class="tab" onclick="openPage('pages/prepositionspage/page9.html', 'page9', { runScripts: true, replace: false}, this);">9. Prepositions</div>
+    <div class="tab" onclick="openPage('', 'page9', { runScripts: true, replace: false}, this);">9. Games</div>
+    <div class="tab" onclick="openPage('', 'page9', { runScripts: true, replace: false}, this);">9. Glossing Tool</div>
 </div>

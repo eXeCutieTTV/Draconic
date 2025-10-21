@@ -3,11 +3,9 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Revisioned Draconic spreadsheet</title>
+  <title>Fafnir the Golden</title> <!-- call the website Fafnir? another dragons name? parralleling perseus hopper-->
   <link rel="stylesheet" href="index.css"> <!--index.css link-->
   <link rel="stylesheet" href="pages\defaultable.css"> <!--defaultable.css link-->
-
-  <link rel="stylesheet" href="https://supduzz.github.io/Draconic/shared/alphabet.css" />
 </head>
 
 <body>
@@ -17,37 +15,43 @@
     <include-html src="pages\welcomepage\page0.html"></include-html>
 
     <!-- Page 1 -->
-    <include-html src="pages\alphabetpage\page1.html"></include-html>
+    <div id="page1" class="page"></div>
 
     <!-- Page 2 -->
-    <include-html src="pages\phonologypage\page2.html"></include-html>
+    <div id="page2" class="page"></div>
 
     <!-- Page 3 -->
-    <include-html src="pages\nounspage\page3.html"></include-html>
+    <div id="page3" class="page"></div>
 
     <!-- Page 4 -->
-    <include-html src="pages\verbspage\page4.html"></include-html>
+    <div id="page4" class="page"></div>
 
     <!-- Page 5 -->
-    <include-html src="pages\adverbspage\page5.html"></include-html>
+    <div id="page5" class="page"></div>
 
     <!-- Page 6 -->
-    <include-html src="pages\auxilariespage\page6.html"></include-html>
+    <div id="page6" class="page"></div>
 
     <!-- Page 7 -->
-    <include-html src="pages\adjectivespage\page7.html"></include-html>
+    <div id="page7" class="page"></div>
 
     <!-- Page 8 -->
-    <include-html src="pages\animacy&agencypage\page8.html"></include-html>
+    <div id="page8" class="page"></div>
 
-    <!-- Page 99 -->
-    <link rel="stylesheet" href="pages\dictionarypage\dictionarytables.css">
-    <link rel="stylesheet" href="pages\dictionarypage\dictionary.css">
-    <link rel="stylesheet" href="pages\dictionarypage\page99.css">
-    <link rel="stylesheet" href="pages\dictionarypage\text\adverbtextbox.css">
-    <link rel="stylesheet" href="pages\dictionarypage\text\auxiliarytextbox.css">
-    <link rel="stylesheet" href="pages\dictionarypage\text\verbtextbox.css">
+    <!-- Page 9 -->
+    <div id="page9" class="page"></div>
+
+    <!-- Dictionary page --> <!-- can't be hidden, i assume .js cant get ids? idfk-->
     <div id="page99" class="page">
+      <link rel="stylesheet" href="pages\dictionarypage\dictionarytables.css">
+      <link rel="stylesheet" href="pages\dictionarypage\dictionary.css">
+      <link rel="stylesheet" href="pages\dictionarypage\page99.css">
+      <link rel="stylesheet" href="pages\dictionarypage\text\adverbtextbox.css">
+      <link rel="stylesheet" href="pages\dictionarypage\text\auxiliarytextbox.css">
+      <link rel="stylesheet" href="pages\dictionarypage\text\verbtextbox.css">
+      <link rel="stylesheet" href="pages\dictionarypage\text\nountextbox.css">
+      <link rel="stylesheet" href="pages\dictionarypage\tables\affixes.css">
+
       <div class="outerdivp99">
         <div class="leftdivp99">
           <h2 class="headerp99">Dictionary</h2>
@@ -56,21 +60,30 @@
 
         <div class="rightdivp99">
           <div class="page99Search">
-            <button id="search_button">Search</button>
-            <input id="search_field" type="text" placeholder="Search..."><br>
-            <input id="api_field" type="text" placeholder="API key" style="margin-top: 5px;">
-            <br>
-            <p class="inline" style="margin: 0px; margin-top: 10px; font-size: 12px;">If you don't use an Api key, you
-            </p>
-            <p class="inline" style="margin: 0px; font-size: 12px;"><br>may get outdated information.</p>
+            <div class="search-wrap" style="position:relative;">
+              <button id="search_button">Search</button>
+              <input id="search_field" autocomplete="off" type="text" placeholder="Search...">
+              <ul id="suggestions" class="suggestions" role="listbox" hidden>
+              </ul>
+              <br>
+              <input id="api_field" type="text" placeholder="API key" style="margin-top: 5px;">
+              <br>
+              <p class="inline" style="margin: 0px; margin-top: 10px; font-size: 12px;">If you don't use an Api key, you
+              </p>
+              <p class="inline" style="margin: 0px; font-size: 12px;"><br>may get outdated information.</p>
+            </div>
           </div>
         </div>
       </div>
       <input type="file" id="excel-upload" accept=".xlsx" style="display:none">
     </div>
-    <div id="page98" class="page"> <!--hidden page for excel data-->
+
+    <!--Hidden page for excel data-->
+    <div id="page98" class="page">
       <div id="sheet-data"></div>
+      <div id="test"></div>
     </div>
+
   </div>
 
   <!-- Tab bar -->
