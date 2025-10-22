@@ -2694,11 +2694,11 @@ function processDictionaryTable(data) {
 }
 
 // === runTableLoader ===
-function runTableLoader() {
-    const currentWordClass = getCurrentWordClass(); // /\(/o.o\)/\ - Spooky the spider
+function runTableLoader(wordclass) {
+    // /\(/o.o\)/\ - Spooky the spider
 
     // Only run the existing noun declension logic for nouns
-    if (currentWordClass !== 'n') {
+    if (wordclass !== 'n') {
         return;
     }
 
@@ -3520,7 +3520,7 @@ function doSearch() {
                     }
                     console.log(wordclass);
                     createSummaryTables(wordclass); // declensiontable
-                    runTableLoader(); // call your declension table logic here
+                    runTableLoader(wordclass); // call your declension table logic here
                     reverseSearchIdsOnSearch(); // fix searchfield & btn onpage
 
                 }).catch(error => {
