@@ -3671,7 +3671,8 @@ function keywordToPage() {
                 dictionaryData.keyword["pageID"] = pages1[fullText];
                 dictionaryData.keyword["wordclass"] = 'n';
                 matchType = 1;
-                console.log("MATCHMATCHMATCH", dictionaryData.nouns[i]);
+                console.log("MATCHMATCHMATCH", dictionaryData.nouns[i], matchType);
+                return;
             }
 
             const declensions = Array.isArray(dictionaryData.nouns[i]["all declensions"]) ? dictionaryData.nouns[i]["all declensions"] : [];
@@ -3683,7 +3684,7 @@ function keywordToPage() {
                     dictionaryData.keyword["wordclass"] = 'n';
                     parentarrays.push(row);
                     matchType = 2;
-                    console.log("MATCHMATCHMATCH", row);
+                    console.log("MATCHMATCHMATCH", row, matchType);
                 }
 
                 const withParticlesAttached = Array.isArray(row["withParticlesAttached"]) ? row["withParticlesAttached"] : [];
@@ -3695,7 +3696,7 @@ function keywordToPage() {
                         parentarrays.push(row);
                         resultPageKeywordInnerHtml = row["htmlP"] || '';
                         matchType = 2;
-                        console.log("MATCHMATCHMATCH", row);
+                        console.log("MATCHMATCHMATCH", row, matchType);
                     }
                 });
 
@@ -3708,7 +3709,7 @@ function keywordToPage() {
                         parentarrays.push(row);
                         resultPageKeywordInnerHtml = row["htmlPP"] || '';
                         matchType = 2;
-                        console.log("MATCHMATCHMATCH", row);
+                        console.log("MATCHMATCHMATCH", row, matchType);
                     }
                 });
             });
