@@ -229,6 +229,31 @@ const PARTICLES = {
         0: "i"
     }
 }
+
+const WORDCLASS_COLLECTION_MAP = {
+    n: "nouns",
+    noun: "nouns",
+    v: "verbs",
+    verb: "verbs",
+    adj: "adjectives",
+    adjective: "adjectives",
+    adv: "adverbs",
+    adverb: "adverbs",
+    aux: "auxiliaries",
+    auxiliary: "auxiliaries",
+    pp: "prepositions",
+    prep: "prepositions",
+    preposition: "prepositions",
+    p: "prepositions",
+    part: "particles",
+    particle: "particles",
+    con: "conjunctions",
+    conj: "conjunctions",
+    conjunction: "conjunctions",
+    det: "determiners",
+    determiner: "determiners"
+};
+
 let rawDic = [];
 let dictionaryData = {
     raw: rawDic,
@@ -1330,7 +1355,7 @@ function showDictionaryPrintout() {
 setTimeout(() => {
     console.log("'showDictionaryPrintout();' to go to dictionary print page")
 }, 250); // mention the command in the console, so you know how to find the dictionary list. also, on delay, so its at the bottom of the console.
-
+/*
 function renderTable(data) {
     const container = document.getElementById("sheet-data");
     const table = document.createElement("table");
@@ -1382,7 +1407,7 @@ function renderTable(data) {
     // Continue with declension logic
     processDictionaryTable(data);
 }
-
+*/
 // Helper: make a safe string for IDs/selectors (words containing the ax symbol can now still be converted into ids)
 function safeIdPart(str) {
     return str.replace(/[^a-z0-9_-]/gi, '_'); // replace anything not alphanumeric, underscore, or dash '_'
@@ -1555,11 +1580,12 @@ function removePageDivsExceptKeyword(keyword, start, end) {
     return removed;
 }
 
-function createSummaryTables() {
+function createSummaryTables(wordclass) {
 
     const keyword = dictionaryData.keyword.baseKeyword || dictionaryData.keyword.keyword;
 
-    switch (getCurrentWordClass()) {
+
+    switch (wordclass) {
         case 'n':
             // === Create noun summary tables ===
             /*
@@ -2222,9 +2248,9 @@ function createSummaryTables() {
 
 // Helper function to get current word class from the displayed table
 function getCurrentWordClass() {
-    const cell5 = document.getElementById('cell5'); // wordclass is in cell5 (6th column)
-    if (!cell5) return null;
-    return cell5.textContent.trim();
+    const wordclass = console.log("asasdascdcwdasdwwcwaddwcdwcwdc");
+    if (!wordclass) return null;
+    return wordclass.textContent.trim();
 }
 
 // populateSummaryTables
@@ -2438,7 +2464,28 @@ function defineKeywordLookupProperty(target, key, entry) {
         value: entry
     });
 }
+function attachWordclassAliases(container) {
+    if (!container || typeof container !== "object") return container;
 
+    Object.entries(WORDCLASS_COLLECTION_MAP).forEach(([alias, canonical]) => {
+        if (alias === canonical) return;
+        if (!(canonical in container)) return;
+        if (Object.prototype.hasOwnProperty.call(container, alias)) return;
+
+        Object.defineProperty(container, alias, {
+            configurable: true,
+            enumerable: false,
+            get() {
+                return container[canonical];
+            },
+            set(value) {
+                container[canonical] = value;
+            }
+        });
+    });
+
+    return container;
+}
 function attachKeywordLookups(array, keyField = 'keyword') {
     if (!Array.isArray(array)) return array;
 
@@ -2581,75 +2628,69 @@ function pasteFromHTMLForWord(html, rowNumber, gender, type, wordId) {
 }
 
 // processDictionaryTable
+
 function processDictionaryTable(data) {
-    const rows = data || dictionaryData?.raw;
-    if (!rows || rows.length === 0) {
-        console.warn("No dictionary data available.");
+    const entries = [];
+
+    if (Array.isArray(data)) {
+        data.forEach(row => {
+            if (!row) return;
+            const word = String(row[0] || "").trim();
+            const wordclass = String(row[1] || "").trim();
+            const gender = String(row[3] || "").trim();
+            if (!word || !wordclass) return;
+            entries.push({ word, wordclass, gender });
+        });
+    }
+
+    if (entries.length === 0 && dictionaryData?.raw && typeof dictionaryData.raw === "object") {
+        Object.values(dictionaryData.raw).forEach(value => {
+            const arr = Array.isArray(value) ? value : [value];
+            arr.forEach(obj => {
+                if (!obj) return;
+                const word = String(obj.word || "").trim();
+                const wordclass = String(obj.wordclass || "").trim();
+                const gender = String(obj.gender || "").trim();
+                if (!word || !wordclass) return;
+                entries.push({ word, wordclass, gender });
+            });
+        });
+    }
+
+    if (entries.length === 0) {
+        console.warn("processDictionaryTable(): no dictionary entries available.");
         return;
     }
 
-    rows.forEach((row, index) => {
-        const paddedRow = [];
-        for (let i = 0; i < 5; i++) {
-            paddedRow[i] = row[i] || "";
-        }
+    const seenLoads = new Set();
+    const loadPromises = [];
 
-        let word = paddedRow[0];
-        const wordclass = paddedRow[1];
-        let extractedNumber = "";
+    entries.forEach(entry => {
+        if (!entry || entry.wordclass !== "n") return;
 
-        if ((wordclass === "n") && /\(\d\)/.test(word)) {
-            const match = word.match(/\((\d)\)/);
-            if (match) {
-                extractedNumber = match[1];
-                word = word.replace(/\(\d\)/, "").trim();
-            }
-        }
-        const raw = dictionaryData.raw;
-        let rows = [];
+        const rowNumber = parseInt(keepDigitsOnly(entry.word), 10);
+        if (!rowNumber) return;
 
-        if (typeof raw === 'object') {
-            // raw is a map keyed by word: { "ækluu": [ {word..}, ... ], ... }
-            for (const key of Object.keys(raw)) {
-                const arr = Array.isArray(raw[key]) ? raw[key] : [raw[key]];
-                arr.forEach(obj => {
-                    rows.push({
-                        word: obj.word || key || '',
-                        wordclass: obj.wordclass || '',
-                        definition: obj.definition || '',
-                        gender: obj.gender || '',
-                        notes: obj.notes || ''
-                    });
-                });
-            }
-        } else {
-            console.warn('Unknown dictionaryData.raw shape:', raw);
-            return;
-        }
-        rows.forEach(row => {
-            const wordRaw = row.word || '';
-            const word = String(wordRaw).replace(/\(\d\)/g, "").trim().toLowerCase();
-            const wordclass = (row.wordclass || '').trim();
-            const gender = row.gender;
-            const rowNumber = parseInt(extractedNumber, 10);
-            const stem = tableMap[gender];//rename lmao.
-            if (stem && gender && rowNumber) {
-                loadTableFiles(rowNumber, gender); // there be stem, in fucntion there aint
-            }
+        genderTokens.forEach(token => {
+            expandGenderTokens(token).forEach(genderName => {
+                const key = `${rowNumber}|${genderName}`;
+                if (seenLoads.has(key)) return;
+                seenLoads.add(key);
+                loadPromises.push(loadTableFiles(rowNumber, genderName));
+            });
         });
-
-        //^^
-        /*
-        const stemPrefix = paddedRow[4]; // assuming column 5 holds the identifier like "mag.", "r.", etc.
-        const stem = tableMap[stemPrefix];
-        const gender = paddedRow[3]; // assuming column 4 holds gender
-        const rowNumber = parseInt(extractedNumber, 10);
-        *//*
-        if (stem && gender && rowNumber) {
-            loadTableFiles(rowNumber, gender); // there be stem, in fucntion there aint
-        }
-        */ // ???
     });
+
+    if (!loadPromises.length) return;
+
+    Promise.all(loadPromises)
+        .then(() => {
+            hideEmptySummaryRowsIn("dirSummaryTable");
+            hideEmptySummaryRowsIn("recSummaryTable");
+        })
+        .catch(error => {
+            console.error("processDictionaryTable(): failed to populate summary tables", error);
+        });
 }
 
 // === runTableLoader ===
@@ -3024,6 +3065,8 @@ function finalizeDictionaryData() {
         }
     }
 
+    attachWordclassAliases(dictionaryData);
+
     // Remove the sorted{} object
     delete dictionaryData.sorted;
 
@@ -3069,48 +3112,95 @@ function createTable(keyword, container) {
     return table;
 }
 
-// === Fill table from Excel data ===
-function fillTable(keyword, table) {
-    const kw = String(keyword).toLowerCase();
-    const sourceTable = document.querySelector("#sheet-data table");
-    if (!sourceTable) {
-        alert("Source table not found.");
-        return;
+// === Fill table from structured dictionary data ===
+function resolveDictionaryEntry(wordclass, keyword) {
+    if (!dictionaryData) return null;
+
+    const normalizedClass = String(wordclass || "").trim().toLowerCase();
+    const collectionKey = WORDCLASS_COLLECTION_MAP[normalizedClass] || normalizedClass;
+    const collection = dictionaryData[collectionKey];
+    if (!collection) return null;
+
+    const attempts = new Set([
+        keyword,
+        String(keyword || "").trim(),
+        String(keyword || "").trim().toLowerCase(),
+        removeParensSpacesAndDigits(keyword)
+    ]);
+
+    for (const key of attempts) {
+        if (!key) continue;
+        const candidate = collection[key];
+        if (candidate) return candidate;
     }
 
-    const rows = Array.from(sourceTable.querySelectorAll("tbody tr, tr")); // support both tbody and flat tables
-    let foundRow = null;
+    if (Array.isArray(collection)) {
+        const lowered = String(keyword || "").trim().toLowerCase();
+        return collection.find(entry => {
+            if (!entry || typeof entry !== "object") return false;
+            const entryKey = String(entry.keyword || "").trim().toLowerCase();
+            return entryKey === lowered;
+        }) || null;
+    }
 
-    for (const row of rows) {
-        const cells = Array.from(row.querySelectorAll("td"));
-        if (cells.length < 6) continue; // Now expecting 6 cells including word class
+    return null;
+}
 
-        const word = cells[0].textContent.trim().toLowerCase();
-        if (word === kw) {
-            foundRow = cells;
-            break;
+function deriveTableCellValues(entry, keyword, wordclass) {
+    const wordValue = entry.word || entry.keyword || keyword || "";
+    const declensionValue =
+        entry.declension ||
+        entry["declension (for nouns)"] ||
+        entry.declensions ||
+        "";
+
+    const definitionValue = entry.definition || "";
+
+    const formsValue = (() => {
+        if (entry.forms) return entry.forms;
+        if (entry.gendersRaw) return entry.gendersRaw;
+        if (Array.isArray(entry.genders) && entry.genders.length) {
+            return entry.genders.join(", ");
         }
-    }
+        return "";
+    })();
 
-    if (!foundRow) {
+    const notesValue = entry.notes || "";
+    const wordclassValue = entry.wordclass || wordclass || "";
+
+    return [wordValue, declensionValue, definitionValue, formsValue, notesValue, wordclassValue];
+}
+
+function fillTable(keyword, wordclass, table) {
+    if (!table) return;
+
+    const entry = resolveDictionaryEntry(wordclass, keyword);
+    if (!entry) {
         alert("No matching row found.");
+        console.warn("fillTable(): no entry found for", { keyword, wordclass });
         return;
     }
 
-    for (let i = 0; i < 6; i++) { // Now filling 6 cells including word class
-        const td = table.querySelector(`#cell${i}`);
-        if (td) {
-            const raw = foundRow[i].textContent;
+    const cellValues = deriveTableCellValues(entry, keyword, wordclass);
 
-            let count = 0;
-            const html = raw.replace(/-/g, () => {
-                count += 1;
-                return count === 1 ? "- " : "<br>- ";
-            });
+    cellValues.forEach((value, index) => {
+        const td = table.querySelector(`#cell${index}`);
+        if (!td) return;
 
-            td.innerHTML = html;
+        const normalized = String(value || "");
+        if (!normalized) {
+            td.textContent = "";
+            return;
         }
-    }
+
+        let dashCount = 0;
+        const html = normalized.replace(/-/g, () => {
+            dashCount += 1;
+            return dashCount === 1 ? "- " : "<br>- ";
+        });
+
+        td.innerHTML = html;
+    });
 }
 
 // Helper function to wait for element to exist
@@ -3295,6 +3385,7 @@ function doSearch() {
             keyword,
             keywordStem: "",
             pageID: "",
+            wordclass: "",
             parentarrays,
         };
         dictionaryData.keyword = keywordData;
@@ -3320,7 +3411,41 @@ function doSearch() {
                 const pageDiv = document.createElement('div');
                 pageDiv.id = targetPageId;
                 pageDiv.className = 'page';
-                pageDiv.innerHTML = `<include-html src="pages/dictionarypage/dictionary.html"></include-html>`;
+                pageDiv.innerHTML = `
+                <div class="outerdiv">
+                    <div id="leftdivdictionary" class="leftdivdictionary">
+                        <div class="keyworddiv"></div>
+                        <h2>
+                            <p id="keywordp">Keyword</p>
+                        </h2>
+                        <p class="inline" id="keywordp1">keyword</p>
+                        <p class="inline"> is a</p>
+                        <p class="inline" id="wordclassp">wordclass</p>.
+                        <p class="inline"> Read more about
+                        <p class="inline" id="wordclassp1">wordclass</p>s <a href="#"
+                            onclick="event.preventDefault(); dictionaryPageReference()">here</a>,
+                        or read the short outline in here.
+                        </p>
+                        <br><br>
+                        <p class="inline">The declention tables that would be relevant for </p>
+                        <p class="inline" id="keywordp2">keyword</p>
+                        <p class="inline"> can be seen bellow.</p>
+
+                        <div class="tablesContainer"></div>
+
+                        <div id="includeTarget">
+                            <div id="leftleftdivdictionary"></div>
+                            <div id="rightleftdivdictionary"></div>
+                        </div>
+                    </div>
+                    <div id="rightdivdictionary" class="rightdivdictionary">
+                        <div class="pageSearch">
+                            <input type="text" id="unusedField" placeholder="Search..." />
+                            <button id="unusedBtn">Search</button>
+                            <div id="textBoxContainer"></div>
+                        </div>
+                    </div>
+                </div>`;
 
                 pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
 
@@ -3329,9 +3454,10 @@ function doSearch() {
                 // Wait for the page content to load, then setup the table (header table)
                 waitForElement(`#${targetPageId} .tablesContainer`).then(pageContainer => {
                     // Create and fill the table
-                    const baseKeyword = dictionaryData.keyword.baseKeyword || keyword;
+                    const baseKeyword = dictionaryData.keyword.keyword;
                     const table = createTable(baseKeyword, pageContainer);
-                    fillTable(baseKeyword, table);
+                    const wordclass = dictionaryData.keyword.wordclass;
+                    fillTable(baseKeyword, wordclass, table);
 
                     // Update keyword <p>s
                     const keywordp = document.getElementById("keywordp");
@@ -3351,6 +3477,7 @@ function doSearch() {
                     function loadWordClassContent(wordClass, pageId) {
                         const rightDiv = document.querySelector(`#${pageId} #textBoxContainer`);
                         if (!rightDiv) return;
+                        console.log(wordClass);
 
                         let contentFile = '';
                         switch (wordClass) {
@@ -3361,19 +3488,16 @@ function doSearch() {
                                 contentFile = 'pages/dictionarypage/text/verbtextbox.html'; // verbs text
                                 break;
                             case 'adv':
-                            case 'adverb':
                                 contentFile = 'pages/dictionarypage/text/adverbtextbox.html'; // adverbs text
                                 break;
                             case 'aux':
-                            case 'auxiliary':
                                 contentFile = 'pages/dictionarypage/text/auxiliarytextbox.html'; // auxiliaries text
                                 break;
                             case 'adj':
-                            case 'adjective':
                                 contentFile = 'pages/dictionarypage/text/adjectivetextbox.html'; // adjectives text
                                 break;
                             default:
-                                contentFile = 'pages/dictionarypage/text/nountextbox.html'; // Default fallback text
+                                contentFile = 'wordclass could not be detected.'; // Default fallback text
                         }
 
                         // Load the appropriate content
@@ -3386,16 +3510,16 @@ function doSearch() {
                         }
                     }
 
-                    const currentWordClass = getCurrentWordClass();
-                    loadWordClassContent(currentWordClass, targetPageId);
+                    //const currentWordClass = getCurrentWordClass();
+                    loadWordClassContent(wordclass, targetPageId);
 
                     // Clear and refocus field
                     if (field && field.value.trim() !== '') {
                         field.value = '';
                         field.focus();
                     }
-
-                    createSummaryTables(); // declensiontable
+                    console.log(wordclass);
+                    createSummaryTables(wordclass); // declensiontable
                     runTableLoader(); // call your declension table logic here
                     reverseSearchIdsOnSearch(); // fix searchfield & btn onpage
 
@@ -3546,6 +3670,7 @@ function keywordToPage() {
             if (keyword === baseKeyword) {
                 dictionaryData.keyword["keywordStem"] = baseKeyword;
                 dictionaryData.keyword["pageID"] = pages1[baseKeyword];
+                dictionaryData.keyword["wordclass"] = 'n';
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", row);
                 return '';
@@ -3557,6 +3682,7 @@ function keywordToPage() {
                 if (keyword === fullText) {
                     dictionaryData.keyword["keywordStem"] = baseKeyword;
                     dictionaryData.keyword["pageID"] = pages1[baseKeyword];
+                    dictionaryData.keyword["wordclass"] = 'n';
                     parentarrays.push(form);
                     matchType = 2;
                     console.log("MATCHMATCHMATCH", form);
@@ -3568,6 +3694,7 @@ function keywordToPage() {
                     if (keyword === particleForm["fullTextP"]) {
                         dictionaryData.keyword["keywordStem"] = baseKeyword;
                         dictionaryData.keyword["pageID"] = pages1[baseKeyword];
+                        dictionaryData.keyword["wordclass"] = 'n';
                         parentarrays.push(particleForm);
                         resultPageKeywordInnerHtml = particleForm["htmlP"] || '';
                         matchType = 2;
@@ -3581,6 +3708,7 @@ function keywordToPage() {
                     if (keyword === prepForm["fullTextPP"]) {
                         dictionaryData.keyword["keywordStem"] = baseKeyword;
                         dictionaryData.keyword["pageID"] = pages1[baseKeyword];
+                        dictionaryData.keyword["wordclass"] = 'n';
                         parentarrays.push(prepForm);
                         resultPageKeywordInnerHtml = prepForm["htmlPP"] || '';
                         matchType = 2;
