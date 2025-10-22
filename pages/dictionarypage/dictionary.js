@@ -1562,6 +1562,7 @@ function createSummaryTables() {
     switch (getCurrentWordClass()) {
         case 'n':
             // === Create noun summary tables ===
+            /*
             function createNounSummaryTables(inDivById, uniquePrefix = "") {
                 return new Promise((resolve, reject) => {
                     const DivId = document.getElementById(`${inDivById}`);
@@ -1570,6 +1571,82 @@ function createSummaryTables() {
                     }
 
                     const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
+                    const numbers = ["Singular", "Dual", "Plural"];
+
+                    // internal builder that sets data-raw on each TD
+                    function buildTable(id, label, containerId) {
+                        const wrapper = document.createElement("div");
+                        const table = document.createElement("table");
+                        table.id = id;
+
+                        const thead = document.createElement("thead");
+
+                        // Merged header row
+                        const mergedRow = document.createElement("tr");
+                        const mergedCell = document.createElement("th");
+                        mergedCell.id = id + "-header";
+                        mergedCell.colSpan = 4;
+                        mergedCell.textContent = label;
+                        mergedRow.appendChild(mergedCell);
+                        thead.appendChild(mergedRow);
+
+                        // Column header row
+                        const headerRow = document.createElement("tr");
+                        headerRow.innerHTML = `<th class="GenderTh";>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
+                        thead.appendChild(headerRow);
+
+                        table.appendChild(thead);
+
+                        const tbody = document.createElement("tbody");
+                        Object.values(GENDERS).forEach(gender => {
+                            const row = document.createElement("tr");
+                            const cellsHtml = numbers.map(() => `<td data-raw=""></td>`).join("");
+                            row.innerHTML = `<th>${gender.NAME}</th>` + cellsHtml;
+                            tbody.appendChild(row);
+                        });
+                        table.appendChild(tbody);
+
+                        wrapper.appendChild(table);
+
+                        const container = document.getElementById(containerId);
+                        if (!container) return;
+                        container.appendChild(wrapper);
+                    }
+
+                    // create wrapper divs with unique IDs if prefix provided
+                    const dirsummarytablefinalwrapper = document.createElement("div");
+                    const recsummarytablefinalwrapper = document.createElement("div");
+
+                    if (uniquePrefix) {
+                        dirsummarytablefinalwrapper.id = `${uniquePrefix}-dirTableDiv`;
+                        recsummarytablefinalwrapper.id = `${uniquePrefix}-recTableDiv`;
+                        dirsummarytablefinalwrapper.className = "dirTableDivs";
+                        recsummarytablefinalwrapper.className = "recTableDivs";
+                    } else {
+                        dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
+                        recsummarytablefinalwrapper.id = "recSummaryTablediv";
+                    }
+
+                    DivId.appendChild(dirsummarytablefinalwrapper);
+                    DivId.appendChild(recsummarytablefinalwrapper);
+
+                    const dirTableId = uniquePrefix ? `${uniquePrefix}-dirSummaryTable` : "dirSummaryTable";
+                    const recTableId = uniquePrefix ? `${uniquePrefix}-recSummaryTable` : "recSummaryTable";
+
+                    buildTable(dirTableId, "Directive", dirsummarytablefinalwrapper.id);
+                    buildTable(recTableId, "Recessive", recsummarytablefinalwrapper.id);
+
+                    // Allow a paint cycle so the DOM is actually available to queries/measurements
+                    requestAnimationFrame(() => resolve());
+                });
+            }*/ //legacy^^
+            function createNounSummaryTables(inDivById, uniquePrefix = "") {
+                return new Promise((resolve, reject) => {
+                    const DivId = document.getElementById(`${inDivById}`);
+                    if (!DivId) {
+                        return reject(new Error(`div by id ${DivId} not found`));
+                    }
+
                     const numbers = ["Singular", "Dual", "Plural"];
 
                     // internal builder that sets data-raw on each TD
@@ -2155,10 +2232,11 @@ function populateSummaryTables(keyword, tables) {
     Object.keys(tables).forEach(tableId => {
         const table = document.getElementById(tableId);
         if (!table) return;
-        const tds = table.querySelectorAll("tbody td");
+        const tds = table.querySelectorAll("td");
         tds.forEach(td => {
             // prefer original stored raw suffix (data-raw) if present 
             const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
+            console.log(td.dataset.raw); // wtf is dataset.raw?
             // console.log(td.innerHTML);
 
             // process raw
@@ -2527,15 +2605,50 @@ function processDictionaryTable(data) {
                 word = word.replace(/\(\d\)/, "").trim();
             }
         }
+        const raw = dictionaryData.raw;
+        let rows = [];
 
+        if (typeof raw === 'object') {
+            // raw is a map keyed by word: { "ækluu": [ {word..}, ... ], ... }
+            for (const key of Object.keys(raw)) {
+                const arr = Array.isArray(raw[key]) ? raw[key] : [raw[key]];
+                arr.forEach(obj => {
+                    rows.push({
+                        word: obj.word || key || '',
+                        wordclass: obj.wordclass || '',
+                        definition: obj.definition || '',
+                        gender: obj.gender || '',
+                        notes: obj.notes || ''
+                    });
+                });
+            }
+        } else {
+            console.warn('Unknown dictionaryData.raw shape:', raw);
+            return;
+        }
+        rows.forEach(row => {
+            const wordRaw = row.word || '';
+            const word = String(wordRaw).replace(/\(\d\)/g, "").trim().toLowerCase();
+            const wordclass = (row.wordclass || '').trim();
+            const gender = row.gender;
+            const rowNumber = parseInt(extractedNumber, 10);
+            const stem = tableMap[gender];//rename lmao.
+            if (stem && gender && rowNumber) {
+                loadTableFiles(rowNumber, gender); // there be stem, in fucntion there aint
+            }
+        });
+
+        //^^
+        /*
         const stemPrefix = paddedRow[4]; // assuming column 5 holds the identifier like "mag.", "r.", etc.
         const stem = tableMap[stemPrefix];
         const gender = paddedRow[3]; // assuming column 4 holds gender
         const rowNumber = parseInt(extractedNumber, 10);
-
+        *//*
         if (stem && gender && rowNumber) {
             loadTableFiles(rowNumber, gender); // there be stem, in fucntion there aint
-        }// ???
+        }
+        */ // ???
     });
 }
 
