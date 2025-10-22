@@ -3662,18 +3662,19 @@ function keywordToPage() {
     }
     //noun forms
     if (Array.isArray(dictionaryData.nouns)) {
-        dictionaryData.nouns.forEach(row => {
+        for (let i = 0; i < dictionaryData.nouns.length; i++) {
 
-            fullText = row["keyword"];
+            fullText = dictionaryData.nouns[i].keyword;
+            console.log(fullText);
             if (keyword === fullText) {
-                dictionaryData.keyword["keywordStem"] = row["keyword"];
-                dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
+                dictionaryData.keyword["keywordStem"] = fullText;
+                dictionaryData.keyword["pageID"] = pages1[fullText];
                 dictionaryData.keyword["wordclass"] = 'n';
                 matchType = 1;
-                console.log("MATCHMATCHMATCH", row);
+                console.log("MATCHMATCHMATCH", dictionaryData.nouns[i]);
             }
 
-            const declensions = Array.isArray(row["all declensions"]) ? row["all declensions"] : [];
+            const declensions = Array.isArray(dictionaryData.nouns[i]["all declensions"]) ? dictionaryData.nouns[i]["all declensions"] : [];
             declensions.forEach(row => {
                 fullText = row["fullText"];
                 if (keyword === fullText) {
@@ -3711,7 +3712,8 @@ function keywordToPage() {
                     }
                 });
             });
-        });
+        }
+
     } if (matchType > 0) { return ''; }
     //verb forms
     if (Array.isArray(dictionaryData.verbs)) {
