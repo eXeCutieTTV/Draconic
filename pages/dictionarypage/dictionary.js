@@ -3642,7 +3642,12 @@ function doSearch() {
 
 }
 
-
+/*
+dictionaryData.nouns[1]["all declensions"].forEach(row => { 
+const p = row["withParticlesAttached"];
+p.forEach (row => { const ft = row.fullTextP;console.log(ft);});
+});
+*/
 // i make new search match function thing:D
 let resultPageKeywordInnerHtml = '';
 let keywordStem = '';
@@ -3650,7 +3655,7 @@ let matchType = 0;
 let parentarrays = [];
 function keywordToPage() {
     const keyword = dictionaryData.keyword.keyword;
-    let fullText = '';
+    let lfKeyword = '';
     // resets vv
     resultPageKeywordInnerHtml = '';
     matchType = 0;
@@ -3662,13 +3667,12 @@ function keywordToPage() {
     }
     //noun forms
     if (Array.isArray(dictionaryData.nouns)) {
-        for (let i = 0; i < dictionaryData.nouns.length; i++) {
+        for (let i = 0; i < 999999; i++) { // this is dictating the WHOLE sequence. ofc its goofin'
 
-            fullText = dictionaryData.nouns[i].keyword;
-            console.log(fullText);
-            if (keyword === fullText) {
-                dictionaryData.keyword["keywordStem"] = fullText;
-                dictionaryData.keyword["pageID"] = pages1[fullText];
+            lfKeyword = dictionaryData.nouns[i].keyword;
+            if (keyword === lfKeyword) {
+                dictionaryData.keyword["keywordStem"] = keyword;
+                dictionaryData.keyword["pageID"] = pages1[keyword];
                 dictionaryData.keyword["wordclass"] = 'n';
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", dictionaryData.nouns[i], matchType);
@@ -3677,10 +3681,9 @@ function keywordToPage() {
 
             const declensions = Array.isArray(dictionaryData.nouns[i]["all declensions"]) ? dictionaryData.nouns[i]["all declensions"] : [];
             declensions.forEach(row => {
-                fullText = row["fullText"];
-                if (keyword === fullText) {
-                    dictionaryData.keyword["keywordStem"] = row["keyword"];
-                    dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
+                lfKeyword = row.fullText;
+                if (keyword === lfKeyword) {
+                    dictionaryData.keyword["keywordStem"] = keyword;
                     dictionaryData.keyword["wordclass"] = 'n';
                     parentarrays.push(row);
                     matchType = 2;
@@ -3689,9 +3692,9 @@ function keywordToPage() {
 
                 const withParticlesAttached = Array.isArray(row["withParticlesAttached"]) ? row["withParticlesAttached"] : [];
                 withParticlesAttached.forEach(row => {
-                    if (keyword === fullText["fullTextP"]) {
-                        dictionaryData.keyword["keywordStem"] = row["keyword"];
-                        dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
+                    lfKeyword = row.fullTextP;
+                    if (keyword === lfKeyword) {
+                        dictionaryData.keyword["keywordStem"] = keyword;
                         dictionaryData.keyword["wordclass"] = 'n';
                         parentarrays.push(row);
                         resultPageKeywordInnerHtml = row["htmlP"] || '';
@@ -3702,9 +3705,9 @@ function keywordToPage() {
 
                 const withPrepositionsAttached = Array.isArray(row["withPrepositionsAttached"]) ? row["withPrepositionsAttached"] : [];
                 withPrepositionsAttached.forEach(row => {
-                    if (keyword === fullText["fullTextPP"]) {
-                        dictionaryData.keyword["keywordStem"] = row["keyword"];
-                        dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
+                    lfKeyword = row.fullTextPP;
+                    if (keyword === lfKeyword) {
+                        dictionaryData.keyword["keywordStem"] = keyword;
                         dictionaryData.keyword["wordclass"] = 'n';
                         parentarrays.push(row);
                         resultPageKeywordInnerHtml = row["htmlPP"] || '';
