@@ -2750,7 +2750,7 @@ function buildFromDictionaryTable() {
         console.warn("No dictionary data available.");
         return;
     }
-
+    console.log("1");
     // Ensure pages1 exists
     if (typeof pages1 === 'undefined') pages1 = {};
 
@@ -2766,7 +2766,6 @@ function buildFromDictionaryTable() {
     let rows = [];
 
     if (typeof raw === 'object') {
-        // raw is a map keyed by word: { "ækluu": [ {word..}, ... ], ... }
         for (const key of Object.keys(raw)) {
             const arr = Array.isArray(raw[key]) ? raw[key] : [raw[key]];
             arr.forEach(obj => {
@@ -3651,7 +3650,7 @@ let matchType = 0;
 let parentarrays = [];
 function keywordToPage() {
     const keyword = dictionaryData.keyword.keyword;
-
+    let fullText = '';
     // resets vv
     resultPageKeywordInnerHtml = '';
     matchType = 0;
@@ -3663,61 +3662,56 @@ function keywordToPage() {
     }
     //noun forms
     if (Array.isArray(dictionaryData.nouns)) {
-        for (const row of dictionaryData.nouns) {
-            if (!row) continue;
+        dictionaryData.nouns.forEach(row => {
 
-            const baseKeyword = row["keyword"];
-            if (keyword === baseKeyword) {
-                dictionaryData.keyword["keywordStem"] = baseKeyword;
-                dictionaryData.keyword["pageID"] = pages1[baseKeyword];
+            fullText = row["keyword"];
+            if (keyword === fullText) {
+                dictionaryData.keyword["keywordStem"] = row["keyword"];
+                dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
                 dictionaryData.keyword["wordclass"] = 'n';
                 matchType = 1;
                 console.log("MATCHMATCHMATCH", row);
-                return '';
             }
 
             const declensions = Array.isArray(row["all declensions"]) ? row["all declensions"] : [];
-            for (const form of declensions) {
-                const fullText = form["fullText"];
+            declensions.forEach(row => {
+                fullText = row["fullText"];
                 if (keyword === fullText) {
-                    dictionaryData.keyword["keywordStem"] = baseKeyword;
-                    dictionaryData.keyword["pageID"] = pages1[baseKeyword];
+                    dictionaryData.keyword["keywordStem"] = row["keyword"];
+                    dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
                     dictionaryData.keyword["wordclass"] = 'n';
-                    parentarrays.push(form);
+                    parentarrays.push(row);
                     matchType = 2;
-                    console.log("MATCHMATCHMATCH", form);
-                    return '';
+                    console.log("MATCHMATCHMATCH", row);
                 }
 
-                const withParticlesAttached = Array.isArray(form["withParticlesAttached"]) ? form["withParticlesAttached"] : [];
-                for (const particleForm of withParticlesAttached) {
-                    if (keyword === particleForm["fullTextP"]) {
-                        dictionaryData.keyword["keywordStem"] = baseKeyword;
-                        dictionaryData.keyword["pageID"] = pages1[baseKeyword];
+                const withParticlesAttached = Array.isArray(row["withParticlesAttached"]) ? row["withParticlesAttached"] : [];
+                withParticlesAttached.forEach(row => {
+                    if (keyword === fullText["fullTextP"]) {
+                        dictionaryData.keyword["keywordStem"] = row["keyword"];
+                        dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
                         dictionaryData.keyword["wordclass"] = 'n';
-                        parentarrays.push(particleForm);
-                        resultPageKeywordInnerHtml = particleForm["htmlP"] || '';
+                        parentarrays.push(row);
+                        resultPageKeywordInnerHtml = row["htmlP"] || '';
                         matchType = 2;
-                        console.log("MATCHMATCHMATCH", particleForm);
-                        return '';
+                        console.log("MATCHMATCHMATCH", row);
                     }
-                }
+                });
 
-                const withPrepositionsAttached = Array.isArray(form["withPrepositionsAttached"]) ? form["withPrepositionsAttached"] : [];
-                for (const prepForm of withPrepositionsAttached) {
-                    if (keyword === prepForm["fullTextPP"]) {
-                        dictionaryData.keyword["keywordStem"] = baseKeyword;
-                        dictionaryData.keyword["pageID"] = pages1[baseKeyword];
+                const withPrepositionsAttached = Array.isArray(row["withPrepositionsAttached"]) ? row["withPrepositionsAttached"] : [];
+                withPrepositionsAttached.forEach(row => {
+                    if (keyword === fullText["fullTextPP"]) {
+                        dictionaryData.keyword["keywordStem"] = row["keyword"];
+                        dictionaryData.keyword["pageID"] = pages1[row["keyword"]];
                         dictionaryData.keyword["wordclass"] = 'n';
-                        parentarrays.push(prepForm);
-                        resultPageKeywordInnerHtml = prepForm["htmlPP"] || '';
+                        parentarrays.push(row);
+                        resultPageKeywordInnerHtml = row["htmlPP"] || '';
                         matchType = 2;
-                        console.log("MATCHMATCHMATCH", prepForm);
-                        return '';
+                        console.log("MATCHMATCHMATCH", row);
                     }
-                }
-            }
-        }
+                });
+            });
+        });
     } if (matchType > 0) { return ''; }
     //verb forms
     if (Array.isArray(dictionaryData.verbs)) {
