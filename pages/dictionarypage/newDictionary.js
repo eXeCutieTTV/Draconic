@@ -26,7 +26,10 @@ console.log(b);
 // was tired of full consolelog xd
 
 
-
+function search_word(word, dec = "") {
+    if (ALL_WORDS[word] !== undefined) return ALL_WORDS[word];
+    return ALL_WORDS[word + dec];
+}
 
 
 
