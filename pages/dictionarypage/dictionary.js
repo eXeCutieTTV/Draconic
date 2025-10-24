@@ -101,9 +101,10 @@ Object.entries(ALL_WORDS).forEach(([key, wordObj]) => {
 });
 
 
-
-
-
+function findWord(word, dec = "") {
+    if (ALL_WORDS[word] !== undefined) return ALL_WORDS[word];
+    return ALL_WORDS[word + dec];
+}
 
 
 //where do you do the uhhhhhh list thingi. Its a 7 different arrays so i merged them, now ill interate thru them and generate the dictionary

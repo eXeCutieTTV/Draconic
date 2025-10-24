@@ -36,6 +36,8 @@ console.log(b);
 // hm ill think about that
 // i can work w both though tbh.
 // eh ill think still :dragon:
+const searchBTN = document.getElementById('search_button');
+const searchFLD = document.getElementById('search_field');
 
 
 // main search function
@@ -44,12 +46,14 @@ function search() {
     const keyword = (searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase();
     console.log(keyword);
 
+    for (let i = 0; i < 4; i++) {
+        const thing = ALL_WORDS[keyword + [i]]
+        if (thing) {
+            console.log('yes');
+        }
+
+    }
 }
-
-
-
-
-
 
 
 
@@ -107,6 +111,19 @@ function reverseSearchIdsOnSearch() {
     }
 }
 
+// === Search button click ===
+searchBTN.addEventListener('click', () => {
+    search(); // /\(/o.o\)/\ - Spooky the spider
+});
+
+// === Trigger search on Enter key ===
+searchFLD.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // prevent form submission
+        search();
+    }
+});
+/*
 // search ids work when page doesnt exist from launch.
 let searchListenersRetryHandle = null;
 
@@ -158,3 +175,4 @@ if (document.readyState === 'loading') {
 } else {
     startSearchListenerWiring();
 }
+    */

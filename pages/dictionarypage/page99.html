@@ -13,7 +13,7 @@
 
         <table id="dictionary">
             <tr>
-                <th>Word</th> 
+                <th>Word</th>
                 <th>Dec</th>
                 <th>Forms</th>
                 <th>Notes</th>
@@ -24,7 +24,12 @@
     <div class="rightdivp99">
         <div class="page99Search">
             <button id="search_button">Search</button>
-            <input id="search_field" type="text" placeholder="Search..."><br>
+            <input id="search_field" autocomplete="off" type="text" placeholder="Search..."><br>
+            <ul id="suggestions" class="suggestions" role="listbox" hidden>
+            </ul>
         </div>
     </div>
+
 </div>
+<script src="pages\dictionarypage\newDictionary.js"></script> <!--newDictionary.js link-->
+<script src="pages\dictionarypage\searchSuggestions.js"></script> <!--searchSuggestions.js link-->
