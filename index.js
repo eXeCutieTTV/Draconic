@@ -79,7 +79,7 @@ function openPage(url, pageId, opts, element) {
   }
   function clearAllPages() {
     document.querySelectorAll('.page').forEach(el => {
-      if (el.id === 'page98' || el.id === 'page99') return; // never clear page98 or page99
+      if (el.id === 'page98') return; // never clear page98
       el.textContent = '';
     });
   }

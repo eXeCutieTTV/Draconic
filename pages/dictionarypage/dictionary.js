@@ -1,224 +1,20 @@
 ﻿// when you press the first search button, then the id of the first field and button gets replaces, and those ids are placed into the onpage search button and field?
 // hi 16-10-2025
 // === DATA ===
-const GENDERS = {
-    E: { NAME: "exhalted", SHORT: "e", INCLUDED: ["animates", "all"] },
-    R: { NAME: "rational", SHORT: "r", INCLUDED: ["animates", "all"] },
-    MON: { NAME: "monstrous", SHORT: "mon", INCLUDED: ["animates", "all"] },
-    I: { NAME: "irrational", SHORT: "i", INCLUDED: ["animates", "all"] },
-    MAG: { NAME: "magical", SHORT: "mag", INCLUDED: ["inanimates", "all"] },
-    MUN: { NAME: "mundane", SHORT: "mun", INCLUDED: ["inanimates", "all"] },
-    A: { NAME: "abstract", SHORT: "a", INCLUDED: ["inanimates", "all"] }// /\(/o.o\)/\ - Spooky the spider
-}
 
-const NUMBERS = {
-    S: "singular",
-    D: "dual",
-    P: "plural"
-}
-
-// === NOUN DATA ===
-const MOODS = {
-    D: "directive",
-    R: "recessive",
-}
-
-const CONJUGATIONS = { // /\(/o.o\)/\ - Spooky the spider
-    [MOODS.D]: {
-        [GENDERS.E.NAME]: {
-            [NUMBERS.S]: { 1: "ēn", 2: "æn", 3: "ēn", 4: "ħán" },
-            [NUMBERS.D]: { 1: "(ē)χen", 2: "(y)χen", 3: "(o)χen", 4: "ħóχħon" },
-            [NUMBERS.P]: { 1: "illyn", 2: "ān", 3: "ē'yn", 4: "q̇yn" }
-        },
-        [GENDERS.R.NAME]: {
-            [NUMBERS.S]: { 1: "ēf", 2: "(a)xef", 3: "lef", 4: "lef" },
-            [NUMBERS.D]: { 1: "eχef", 2: "hyf", 3: "(o)χef", 4: "(o)χef" },
-            [NUMBERS.P]: { 1: "yf", 2: "hyf", 3: "'yf", 4: "'yf" }
-        },
-        [GENDERS.MON.NAME]: {
-            [NUMBERS.S]: { 1: "ô", 2: "ô", 3: "ô", 4: "ô" },
-            [NUMBERS.D]: { 1: "yħq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
-            [NUMBERS.P]: { 1: "oħô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
-        },
-        [GENDERS.I.NAME]: {
-            [NUMBERS.S]: { 1: "llūl", 2: "cūl", 3: "cūl", 4: "cūl" },
-            [NUMBERS.D]: { 1: "(æ)llūl", 2: "(')illūl", 3: "(')illūl", 4: "(')illūl" },
-            [NUMBERS.P]: { 1: "(æ)llūl", 2: "(')illūl", 3: "(')illūl", 4: "(')illūl" } // /\(/o.o\)/\ - Spooky the spider
-        },
-        [GENDERS.MAG.NAME]: {
-            [NUMBERS.S]: { 1: "(ō)χ", 2: "huχ", 3: "huχ", 4: "q̇ħúχ" },
-            [NUMBERS.D]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "(')ūχ" },
-            [NUMBERS.P]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "(')ūχ" }
-        },
-        [GENDERS.MUN.NAME]: {
-            [NUMBERS.S]: { 1: "(e)rk", 2: "tyk", 3: "tyk", 4: "(á)rk" },
-            [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk" },
-            [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk" }
-        },
-        [GENDERS.A.NAME]: {
-            [NUMBERS.S]: { 1: "(y)q̇", 2: "(o)q̇", 3: "(o)q̇", 4: "(ú)ħáq̇" },
-            [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
-            [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
-        }
-    },
-    [MOODS.R]: {
-        [GENDERS.E.NAME]: {
-            [NUMBERS.S]: { 1: "oħân", 2: "ħân", 3: "ēqân", 4: "qân" },
-            [NUMBERS.D]: { 1: "ħân", 2: "(ō)n", 3: "on", 4: "ħûn" },
-            [NUMBERS.P]: { 1: "illyrn", 2: "(ō)rn", 3: "ē'yrn", 4: "q̇yrn" }
-        },
-        [GENDERS.R.NAME]: {
-            [NUMBERS.S]: { 1: "oħâf", 2: "ħâf", 3: "(o)qâf", 4: "(o)qâf" },
-            [NUMBERS.D]: { 1: "īllyf", 2: "(')ūllef", 3: "yf", 4: "yf" },
-            [NUMBERS.P]: { 1: "īllyf", 2: "(')ūllef", 3: "ūlef", 4: "'ūlef" }
-        },
-        [GENDERS.MON.NAME]: {
-            [NUMBERS.S]: { 1: "oħô", 2: "qâħó", 3: "qâħó", 4: "ô" },
-            [NUMBERS.D]: { 1: "ūħó", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
-            [NUMBERS.P]: { 1: "ōq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
-        },
-        [GENDERS.I.NAME]: {
-            [NUMBERS.S]: { 1: "llūl", 2: "qâllūl", 3: "qâllūl", 4: "qâllūl" },
-            [NUMBERS.D]: { 1: "(y)ll'ūl", 2: "(')llūl", 3: "(')llūl", 4: "(')llūl" },
-            [NUMBERS.P]: { 1: "(y)ll'ūl", 2: "(')ūcūl", 3: "(')ūcūl", 4: "(')ūcūl" }
-        },
-        [GENDERS.MAG.NAME]: {
-            [NUMBERS.S]: { 1: "(ō)ħúχħ", 2: "(y)q̇ħôχ", 3: "(y)q̇ħôχ", 4: "q̇ħôχ" },
-            [NUMBERS.D]: { 1: "(a)lluχ", 2: "(y)lūrχ", 3: "(y)lūrχ", 4: "(')ūrχ" },
-            [NUMBERS.P]: { 1: "(a)lluχ", 2: "(y)lūrχ", 3: "(y)lūrχ", 4: "(')ūrχ" }
-        },
-        [GENDERS.MUN.NAME]: {
-            [NUMBERS.S]: { 1: "(o)ħárk	", 2: "ħárk	", 3: "ħárk	", 4: "q̇ħárk" },
-            [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk	" },
-            [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "(')urk	" }
-        },  // /\(/o.o\)/\ - Spooky the spider
-        [GENDERS.A.NAME]: {
-            [NUMBERS.S]: { 1: "aħôq̇", 2: "(y)q̇ħôq̇", 3: "(y)q̇ħôq̇", 4: "áq̇ħôq̇" },
-            [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
-            [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
-        }
-    }
-}
 // === VERB DATA ===
-const person = {
-    1: "1. Person",
-    2: "2. Person",
-    3: "3. Person"
-}
+// const person = {
+//     1: "1. Person",
+//     2: "2. Person",
+//     3: "3. Person"
+// }
 
-const affixState = {
-    P: "isPrefix",
-    S: "isSuffix"
-}
-
-const AFFIXSTATE = {
-    [affixState.P]: {
-        [GENDERS.E.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "xen-", [person[2]]: "syn-", [person[3]]: "ten-" },
-            [NUMBERS.D]: { [person[1]]: "xyn-", [person[2]]: "són-", [person[3]]: "q̇yn-" },
-            [NUMBERS.P]: { [person[1]]: "hen-", [person[2]]: "tháħ-", [person[3]]: "tyn-" }
-        },
-        [GENDERS.R.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "xef-", [person[2]]: "sy-", [person[3]]: "tolli-" },
-            [NUMBERS.D]: { [person[1]]: "xyf-", [person[2]]: "sónlli-", [person[3]]: "q̇yll-" },
-            [NUMBERS.P]: { [person[1]]: "hef-", [person[2]]: "tháll-", [person[3]]: "tyf-" }
-        },
-        [GENDERS.MON.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "χħô-", [person[2]]: "sô-", [person[3]]: "tô-" },
-            [NUMBERS.D]: { [person[1]]: "xóħ-", [person[2]]: "sónq̇ħó-", [person[3]]: "q̇ħó-" },
-            [NUMBERS.P]: { [person[1]]: "hô-", [person[2]]: "tháq̇ħó-", [person[3]]: "tuħ-" }
-        },
-        [GENDERS.I.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "xellu-", [person[2]]: "sucu-", [person[3]]: "tócu-" },
-            [NUMBERS.D]: { [person[1]]: "llu-", [person[2]]: "sóncu-", [person[3]]: "q̇ácu-" },
-            [NUMBERS.P]: { [person[1]]: "llu-", [person[2]]: "thácu-", [person[3]]: "tīll-" }
-        },
-        [GENDERS.MAG.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "xo-", [person[2]]: "su-", [person[3]]: "toħ-" },
-            [NUMBERS.D]: { [person[1]]: "ho-", [person[2]]: "thâ-", [person[3]]: "tū-" },
-            [NUMBERS.P]: { [person[1]]: "ho-", [person[2]]: "thâ-", [person[3]]: "tū-" }
-        },
-        [GENDERS.MUN.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "xyr-", [person[2]]: "syr-", [person[3]]: "try-" },
-            [NUMBERS.D]: { [person[1]]: "ry-", [person[2]]: "thár-", [person[3]]: "tur-" },
-            [NUMBERS.P]: { [person[1]]: "ry-", [person[2]]: "thár-", [person[3]]: "tur-" }
-        },
-        [GENDERS.A.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "xy-", [person[2]]: "su-", [person[3]]: "to-" },
-            [NUMBERS.D]: { [person[1]]: "hy-", [person[2]]: "thá-", [person[3]]: "tu-" },
-            [NUMBERS.P]: { [person[1]]: "hy-", [person[2]]: "thá-", [person[3]]: "tu-" }
-        }
-    },
-    [affixState.S]: {
-        [GENDERS.E.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-(o)n", [person[2]]: "-(u)n", [person[3]]: "-tón" },
-            [NUMBERS.D]: { [person[1]]: "-(')æn", [person[2]]: "-(o)nēn", [person[3]]: "-(q̇)ân" },
-            [NUMBERS.P]: { [person[1]]: "-(')æn", [person[2]]: "-ħen", [person[3]]: "-tun" }
-        },
-        [GENDERS.R.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-(y)f", [person[2]]: "-(u)f", [person[3]]: "-ħyf" },
-            [NUMBERS.D]: { [person[1]]: "-(')æf", [person[2]]: "-nef", [person[3]]: "-(y)q̇ħáf" },
-            [NUMBERS.P]: { [person[1]]: "-(')æf", [person[2]]: "-ħáf", [person[3]]: "-if" }
-        },
-        [GENDERS.MON.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-(u)ħó", [person[2]]: "-(u)ħó", [person[3]]: "-(o)ħó" },
-            [NUMBERS.D]: { [person[1]]: "-(')ô", [person[2]]: "-(á)ħó", [person[3]]: "-ħó" },
-            [NUMBERS.P]: { [person[1]]: "-(')ô", [person[2]]: "-(á)ħó", [person[3]]: "-ħó" }
-        },
-        [GENDERS.I.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-llul", [person[2]]: "-llul", [person[3]]: "-llul" },
-            [NUMBERS.D]: { [person[1]]: "-(')allūl", [person[2]]: "-(á)llul", [person[3]]: "-(ú)cul" },
-            [NUMBERS.P]: { [person[1]]: "-(')allūl", [person[2]]: "-(á)llul", [person[3]]: "-(ú)cul" }
-        },
-        [GENDERS.MAG.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-(u)χ", [person[2]]: "-(u)χ", [person[3]]: "-ħuχ" },
-            [NUMBERS.D]: { [person[1]]: "-(')ōχ", [person[2]]: "-(ó)nōχ", [person[3]]: "-ħúχ" },
-            [NUMBERS.P]: { [person[1]]: "-(')ōχ", [person[2]]: "-(ó)nōχ", [person[3]]: "-ħúχ" }
-        },
-        [GENDERS.MUN.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-(u)r", [person[2]]: "-(u)r", [person[3]]: "-(u)r" },
-            [NUMBERS.D]: { [person[1]]: "-(')ar", [person[2]]: "-(á)r", [person[3]]: "-(ú)r" },
-            [NUMBERS.P]: { [person[1]]: "-(')ar", [person[2]]: "-(á)r", [person[3]]: "-(ú)r" }
-        },
-        [GENDERS.A.NAME]: {
-            [NUMBERS.S]: { [person[1]]: "-(y)q̇", [person[2]]: "-(u)q̇", [person[3]]: "-(ú)q̇" },
-            [NUMBERS.D]: { [person[1]]: "-(y)q̇", [person[2]]: "-ħóq̇", [person[3]]: "-(u)q̇" },
-            [NUMBERS.P]: { [person[1]]: "-(y)q̇", [person[2]]: "-ħóq̇", [person[3]]: "-(u)q̇" }
-        }
-    }
-}
-
-// === PREPOSITIONS ===
-const PREPOSITIONS = {
-    0: "æze-",
-    1: "aze-",
-    2: "fenlly-",
-    3: "ħá-",
-    4: "ħáŋ-",
-    5: "ho-",
-    6: "hu-",
-    7: "huz-",
-    8: "kxā-",
-    9: "kxæ-",
-    10: "lleŋ-",
-    11: "lloq̇-",
-    12: "ly-",
-    13: "ō-",
-    14: "qa-",
-    15: "qē-",
-    16: "qēru-",
-    17: "q̇ū-",
-    18: "qχok-",
-    19: "sæχ-",
-    20: "saχ-",
-    21: "sī-",
-    22: "sil-",
-    23: "thū-",
-    24: "tre-",
-    25: "ū-",
-}
-
-const PARTICLES = {
+// const affixState = {
+//     P: "isPrefix",
+//     S: "isSuffix"
+// }
+/*
+const PARTICLES_legacy = {
     [affixState.S]: {
         0: "ûl",
         1: "ūn",
@@ -229,8 +25,96 @@ const PARTICLES = {
         0: "i"
     }
 }
+*/
+/*
+There are NOUNS, VERBS, ADJECTIVES, ADVERBS, AUXILIARIES, PREPOSITIONS, PARTICLES being a key-value pairs of:
 
-const WORDCLASS_COLLECTION_MAP = {
+"noun+declesion": new Noun({
+  word,
+  declension,
+  genders, // {"Gender": "meaning"}
+  usage_notes
+}) // "æklū1": new Noun("æklū", 1, {'Mundane': 'salt', 'Abstract': 'saltiness, salinity'}, ""),
+
+"verb": new Verb({
+  word,
+  defenition,
+  froms,
+  usage_notes
+}) // "æf": new Verb("æf", "to denounce, to insult; to spit, to spit upon", "æfad, āf, āfad", ""),
+
+"adjective+declesion": new Adjective({
+  word,
+  declesion,
+  defenition,
+  froms,
+  usage_notes
+}) // "æklôħ1": new Adjective("æklôħ", 1, "salted, salty; well-seasoned", "āklôħ", ""),
+
+"adverb": new Adverb({
+  word,
+  defenition,
+  froms,
+  usage_notes
+}) // "ax": new Adverb("ax", "not; negates verbs and regular auxiliaries", "nan", "- Is not used with lur 'to be,' as both a verb and an auxiliary. Negative copula q̇em is used instead "),
+
+"auxiliary": new Auxiliary({
+  word,
+  defenition,
+  froms,
+  usage_notes
+}) // "āhk": new Auxiliary("āhk", "do not! (prohibitive)", "defective", "- always in the second person"),
+
+"preposition": new Preposition({
+  word,
+  defenition,
+  usage_notes
+}) // "æze-": new Preposition("æze-", "through", ""),
+
+"particle": new Particle({
+  word,
+  defenition,
+  usage_notes
+}) // "ān": new Particle("ān", "optional noun suffix on animate roots to specify feminine", "- rare"),
+
+
+like uhhh
+*/ // wh.. does the file get generated and wheres the file? 86 gives word, 87 gives word+declension
+
+// with declesion is its key cause repeats//alr - so we just need to remove all numbers before using them. // we need to use thing.wordhm
+
+const ALL_WORDS = Object.fromEntries(
+    Object.entries({
+        ...NOUNS,
+        ...VERBS,
+        ...ADJECTIVES,
+        ...ADVERBS,
+        ...AUXILIARIES,
+        ...PREPOSITIONS,
+        ...PARTICLES
+    }).sort(([aKey], [bKey]) => aKey.localeCompare(bKey))
+);
+
+Object.entries(ALL_WORDS).forEach(([key, wordObj]) => {
+    console.log(key);
+    console.log(wordObj.word);
+});
+
+
+
+
+
+
+
+//where do you do the uhhhhhh list thingi. Its a 7 different arrays so i merged them, now ill interate thru them and generate the dictionary
+//wdym. we dont want to build an array from this, do we? cant we use this from the file directly? or doesnt this conjugate?
+// what function generates the initial dictionar
+// build from excel gets the raw, then build from raw or something formats it.
+
+// check this out sick error in console bro. xd // what is it?Uncaught SyntaxError: Identifier 'PARTICLES' has already been declared (at dictionary.js:1:1) ah
+
+// first we need to? //hm. probably explain yuor code tbh so i get a better understanding. we prob need to rework everything with the current arrays(xd) if i understand it correctly though.
+const WORDCLASS_COLLECTION_MAP = {// idk if we need this now vv
     n: "nouns",
     noun: "nouns",
     v: "verbs",
@@ -268,7 +152,7 @@ let dictionaryData = {
         prepositions: [],
         verbs: [],
     },
-}
+} 
 
 const DICTIONARY_CLASS_KEYS = [
     'nouns',
@@ -280,7 +164,7 @@ const DICTIONARY_CLASS_KEYS = [
     'particles',
     'conjunctions',
     'determiners'
-];
+]; // idk if we need this now ^^
 
 let dictionaryDataLoadPromise = null;
 let dictionaryDataLoading = false;
@@ -3353,70 +3237,70 @@ function loadDictionaryData() {
     }
 }*/
 
-function loadFromExcelFile(filename) {
-    if (dictionaryDataLoaded && dictionaryDataLoadPromise) {
-        return dictionaryDataLoadPromise;
-    }
-    if (dictionaryDataLoaded && !dictionaryDataLoadPromise) {
-        dictionaryDataLoadPromise = Promise.resolve(dictionaryData);
-        return dictionaryDataLoadPromise;
-    }
-    if (dictionaryDataLoading && dictionaryDataLoadPromise) {
-        return dictionaryDataLoadPromise;
-    }
+// function loadFromExcelFile(filename) {
+//     if (dictionaryDataLoaded && dictionaryDataLoadPromise) {
+//         return dictionaryDataLoadPromise;
+//     }
+//     if (dictionaryDataLoaded && !dictionaryDataLoadPromise) {
+//         dictionaryDataLoadPromise = Promise.resolve(dictionaryData);
+//         return dictionaryDataLoadPromise;
+//     }
+//     if (dictionaryDataLoading && dictionaryDataLoadPromise) {
+//         return dictionaryDataLoadPromise;
+//     }
 
-    dictionaryDataLoading = true;
+//     dictionaryDataLoading = true;
 
-    const loadPromise = fetch(filename)
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`Failed to load ${filename}: ${res.status}`);
-            }
-            return res.arrayBuffer();
-        })
-        .then(data => {
-            const workbook = XLSX.read(data, { type: "array" });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+//     const loadPromise = fetch(filename)
+//         .then(res => {
+//             if (!res.ok) {
+//                 throw new Error(`Failed to load ${filename}: ${res.status}`);
+//             }
+//             return res.arrayBuffer();
+//         })
+//         .then(data => {
+//             const workbook = XLSX.read(data, { type: "array" });
+//             const sheet = workbook.Sheets[workbook.SheetNames[0]];
+//             const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-            const dataRows = rows.slice(1);
-            const map = {};
+//             const dataRows = rows.slice(1);
+//             const map = {};
 
-            dataRows.forEach((r) => {
-                const row = Array.isArray(r) ? r : [];
-                const word = String(row[0] ?? "").trim();
-                const wordclass = String(row[1] ?? "").trim();
-                const definition = String(row[2] ?? "").trim();
-                const gender = String(row[3] ?? "").trim();
-                const notes = String(row[4] ?? "").trim();
+//             dataRows.forEach((r) => {
+//                 const row = Array.isArray(r) ? r : [];
+//                 const word = String(row[0] ?? "").trim();
+//                 const wordclass = String(row[1] ?? "").trim();
+//                 const definition = String(row[2] ?? "").trim();
+//                 const gender = String(row[3] ?? "").trim();
+//                 const notes = String(row[4] ?? "").trim();
 
-                const cleanWord = removeParensSpacesAndDigits(word);
-                const entry = { word, wordclass, definition, gender, notes };
+//                 const cleanWord = removeParensSpacesAndDigits(word);
+//                 const entry = { word, wordclass, definition, gender, notes };
 
-                if (!map[cleanWord]) map[cleanWord] = [];
-                map[cleanWord].push(entry);
-            });
+//                 if (!map[cleanWord]) map[cleanWord] = [];
+//                 map[cleanWord].push(entry);
+//             });
 
-            dictionaryData.raw = map;
-            console.log("Loaded entries:", Object.keys(map).length, "keys");
+//             dictionaryData.raw = map;
+//             console.log("Loaded entries:", Object.keys(map).length, "keys");
 
-            buildFromDictionaryTable();
-            return dictionaryData;
-        })
-        .catch(err => {
-            dictionaryDataLoaded = false;
-            dictionaryDataLoadPromise = null;
-            console.error("Failed to load Excel file:", err);
-            throw err;
-        })
-        .finally(() => {
-            dictionaryDataLoading = false;
-        });
+//             buildFromDictionaryTable();
+//             return dictionaryData;
+//         })
+//         .catch(err => {
+//             dictionaryDataLoaded = false;
+//             dictionaryDataLoadPromise = null;
+//             console.error("Failed to load Excel file:", err);
+//             throw err;
+//         })
+//         .finally(() => {
+//             dictionaryDataLoading = false;
+//         });
 
-    dictionaryDataLoadPromise = loadPromise;
-    return loadPromise;
-}
-loadFromExcelFile("assets/22-09-2025.xlsx");
+//     dictionaryDataLoadPromise = loadPromise;
+//     return loadPromise;
+// }
+//loadFromExcelFile("assets/22-09-2025.xlsx");
 
 function loadDictionaryData(source) {
     const filename = typeof source === 'string' && source ? source : "assets/22-09-2025.xlsx";
