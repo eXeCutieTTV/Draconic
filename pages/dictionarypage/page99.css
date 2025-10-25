@@ -22,6 +22,7 @@
 .page99Search {
     vertical-align: top;
     text-align: right;
+    height: auto;
 }
 
 .headerp99 {
@@ -35,16 +36,16 @@
 
 #suggestions {
     border: solid 0px black;
-    position:absolute;
-    left:0;
-    right:0;
-    margin:0;
-    padding:0;
-    list-style:none;
-    background:#ececec;
-    max-height:200px;
-    overflow:auto;
-    z-index:10;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: #ececec;
+    max-height: 200px;
+    overflow: auto;
+    z-index: 10;
 
     width: 177px;
     margin-left: auto;
@@ -54,10 +55,12 @@
     width: 150px;
 }
 
-.dictionaryDirTables td:hover, .dictionaryRecTables td:hover {
+.dictionaryDirTables td:hover,
+.dictionaryRecTables td:hover {
     background-color: #f1d3d3;
 }
 
-.dictionaryDirTables, .dictionaryRecTables {
+.dictionaryDirTables,
+.dictionaryRecTables {
     margin-top: 1px;
 }
