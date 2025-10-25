@@ -127,7 +127,70 @@ function dictionaryPage() {
         // where is array of prefixes for verbs? do we need to make one, or do you have in api?
         // i need to mak
         //alf
-
+        /*
+            // MY FUCKING GOD
+            // so it can start both with preposition and particle? alr
+            // only the i- paarticle.
+            // verbs can start with particle or preposition? //my assumption would be yes to prepositions.  fuck //nope. nouns and determiners only.
+            // with verbs, we need to make sure to have it be an if else if. such that we dont accidently count raw words that just happen to start with the same letters as those of the prefixes, as verbs. so if it isnt in raw, then check verb prefixes.
+                    
+                    
+                    
+            // æze-
+            // aze-
+            // fenlly-
+            // ħá-
+            // ħáŋ-
+            // ho-
+            // hu-
+            // huz-
+            // kxā-
+            // kxæ-
+            // lleŋ-
+            // lloq̇-
+            // ly-
+            // ō-
+            // qa-
+            // qē-
+            // qēru-
+            // q̇ū-
+            // qχok-
+            // sæχ-
+            // saχ-
+            // sī-
+            // sil-
+            // thū-
+            // tre-
+            // ū-
+            // all prepositions^^
+                    
+                    
+            // i- prefix to turn nouns into adjectives
+            // -nyl to turn adjectives into adverbs
+            // -ûl
+            // -ūn
+            // -ān
+            // -ōn
+            // particles^^
+                    
+            // -hyn	
+            // -hyf	
+            // -ħó	
+            // -llīl	
+            // -huχ	
+            // -thok	
+            // -hoq̇
+            // ^^ unique determiner suffixes. (only for determiners).
+                    
+            // noun suffixes
+                    
+            // verb prefixes
+            // verb suffixes
+                    
+            // i think this is it.^^
+                    
+            // raw exact match
+        */
 
         const nounFormCache = new Map();
         const verbFormCache = new Map();
