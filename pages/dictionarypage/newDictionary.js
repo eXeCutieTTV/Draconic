@@ -48,61 +48,72 @@ function dictionaryPage() {
         const searchFLD = document.getElementById('search_field');
         const keyword = (searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase();
         console.log('Current keyword |', keyword);
-
-        let matchType = 0;
-        let array = '';
-        for (let i = 0; i < 5; i++) {
-            if (i === 0) {//not nouns/adj
-                const thing = ALL_WORDS[keyword]
-                if (thing) {
-                    array = thing;
-                    matchType = 1
-                    console.log('yes1');
+        /*
+                let matchType = 0;
+                let array = '';
+                for (let i = 0; i < 5; i++) {
+                    if (i === 0) {//not nouns/adj
+                        const thing = ALL_WORDS[keyword]
+                        if (thing) {
+                            array = thing;
+                            matchType = 1
+                            console.log('yes1');
+                        } else {
+                            matchType = 3
+                        }
+                    }
+                    else if (i > 0) {//nouns/adj
+                        const thing = ALL_WORDS[keyword + [i]]
+                        if (thing) {
+                            array = thing;
+                            matchType = 2;
+                            console.log('yes2');
+                        }
+                    }
+        
                 }
-            }
-            else if (i > 0) {//nouns/adj
-                const thing = ALL_WORDS[keyword + [i]]
-                if (thing) {
-                    array = thing;
-                    matchType = 2;
-                    console.log('yes2');
+        
+                if (matchType == 1) {
+                    const wordclass = array.type;
+                    switch (wordclass) {
+                        case 'v': console.log('verb')
+                            break;
+                        case 'adv': console.log('adverb')
+                            break;
+                        case 'aux': console.log('auxilary')
+                            break;
+                        case 'pp': console.log('preposition')
+                            break;
+                        case 'part': console.log('particle')
+                            break;
+                        case 'det': console.log('determiner')
+                            break;
+                        case 'con': console.log('conjunction')
+                            break;
+                        default: console.warn('no match in main wordclass switchcase')
+                    }
+        
+                    console.log('yes3', array, wordclass)
+                } else if (matchType == 2) {
+                    const wordclass = array.type;
+                    switch (wordclass) {
+                        case 'n': console.log('noun')
+                            break;
+                        case 'adj': console.log('adjective')
+                            break;
+                        default: console.warn('no match in wordclass switchcase for nouns/adjs')
+                    }
+                    console.log('yes4', array, wordclass)
+                } else if (matchType == 3) {
+                    // check verb prefixes
+                    FLAT_VERB_SUBJECT_PREFIXES.forEach(prefix => {
+                        const testo = entries_to_text(connect_prefix(keyword, prefix));
+                        console.log(testo);
+                        if (testo) { console.log('yes5') }
+                    });
+        
                 }
-            }
-
-        }
-        if (matchType == 1) {
-            const wordclass = array.type;
-            switch (wordclass) {
-                case 'v': console.log('verb')
-                    break;
-                case 'adv': console.log('adverb')
-                    break;
-                case 'aux': console.log('auxilary')
-                    break;
-                case 'pp': console.log('preposition')
-                    break;
-                case 'part': console.log('particle')
-                    break;
-                case 'det': console.log('determiner')
-                    break;
-                case 'con': console.log('conjunction')
-                    break;
-                default: console.warn('no match in main wordclass switchcase')
-            }
-
-            console.log('yes3', array, wordclass)
-        } else if (matchType == 2) {
-            const wordclass = array.type;
-            switch (wordclass) {
-                case 'n': console.log('noun')
-                    break;
-                case 'adj': console.log('adjective')
-                    break;
-                default: console.warn('no match in wordclass switchcase for nouns/adjs')
-            }
-            console.log('yes4', array, wordclass)
-        }
-
+        */
         // this^^ works for detecting raw words.
         // we need to be able to detect affixed words. whats the idea you have, that 'doesnt require us to generate every form in an array'?
         // first check for prefix, it could be either a verb, a noun with preposition or something else
@@ -136,91 +147,89 @@ function dictionaryPage() {
 
             Object.entries(PREPOSITIONS).forEach(([key, wordObj]) => {
                 if (text.startsWith(wordObj.word)) {
-                    keys.push(key)
-                    text = text.slice(wordObj.word.length)
+                    keys.push(key);
+                    text = text.slice(wordObj.word.length);
                 }
-            })
+            });
 
             Object.entries(PARTICLES).forEach(([key, wordObj]) => {
                 if (text.startsWith(wordObj.word)) {
-                    keys.push(key)
-                    text = text.slice(wordObj.word.length)
+                    keys.push(key);
+                    text = text.slice(wordObj.word.length);
                 }
-            })
-
-            // MY FUCKING GOD
-            // so it can start both with preposition and particle? alr
-            // only the i- paarticle.
-            // verbs can start with particle or preposition? //my assumption would be yes to prepositions.  fuck //nope. nouns and determiners only.
-            // with verbs, we need to make sure to have it be an if else if. such that we dont accidently count raw words that just happen to start with the same letters as those of the prefixes, as verbs. so if it isnt in raw, then check verb prefixes.
-
-
-
-            // æze-
-            // aze-
-            // fenlly-
-            // ħá-
-            // ħáŋ-
-            // ho-
-            // hu-
-            // huz-
-            // kxā-
-            // kxæ-
-            // lleŋ-
-            // lloq̇-
-            // ly-
-            // ō-
-            // qa-
-            // qē-
-            // qēru-
-            // q̇ū-
-            // qχok-
-            // sæχ-
-            // saχ-
-            // sī-
-            // sil-
-            // thū-
-            // tre-
-            // ū-
-            // all prepositions^^
-
-
-            // i- prefix to turn nouns into adjectives
-            // -nyl to turn adjectives into adverbs
-            // -ûl
-            // -ūn
-            // -ān
-            // -ōn
-            // particles^^
-
-            // -hyn	
-            // -hyf	
-            // -ħó	
-            // -llīl	
-            // -huχ	
-            // -thok	
-            // -hoq̇
-            // ^^ unique determiner suffixes. (only for determiners).
-
-            // noun suffixes
-
-            // verb prefixes
-            // verb suffixes
-
-            // i think this is it.^^
-
-            // raw exact match
-
+            });
+            /*
+                        // MY FUCKING GOD
+                        // so it can start both with preposition and particle? alr
+                        // only the i- paarticle.
+                        // verbs can start with particle or preposition? //my assumption would be yes to prepositions.  fuck //nope. nouns and determiners only.
+                        // with verbs, we need to make sure to have it be an if else if. such that we dont accidently count raw words that just happen to start with the same letters as those of the prefixes, as verbs. so if it isnt in raw, then check verb prefixes.
+            
+            
+            
+                        // æze-
+                        // aze-
+                        // fenlly-
+                        // ħá-
+                        // ħáŋ-
+                        // ho-
+                        // hu-
+                        // huz-
+                        // kxā-
+                        // kxæ-
+                        // lleŋ-
+                        // lloq̇-
+                        // ly-
+                        // ō-
+                        // qa-
+                        // qē-
+                        // qēru-
+                        // q̇ū-
+                        // qχok-
+                        // sæχ-
+                        // saχ-
+                        // sī-
+                        // sil-
+                        // thū-
+                        // tre-
+                        // ū-
+                        // all prepositions^^
+            
+            
+                        // i- prefix to turn nouns into adjectives
+                        // -nyl to turn adjectives into adverbs
+                        // -ûl
+                        // -ūn
+                        // -ān
+                        // -ōn
+                        // particles^^
+            
+                        // -hyn	
+                        // -hyf	
+                        // -ħó	
+                        // -llīl	
+                        // -huχ	
+                        // -thok	
+                        // -hoq̇
+                        // ^^ unique determiner suffixes. (only for determiners).
+            
+                        // noun suffixes
+            
+                        // verb prefixes
+                        // verb suffixes
+            
+                        // i think this is it.^^
+            
+                        // raw exact match
+            */
             // check for every noun form
             Object.entries(NOUNS).forEach(([key, wordObj]) => {
                 if (TEMP_noun_forms_list(wordObj.word).includes(text)) return key;
             });
-
-            // im thinkin
-        }// 'ALL_WORDS is not defined at^^' but my own function from above still works.
-        trace_origin(keyword);
-
-    }//still undefined. ALL_WORDS i mean. idk how thats possible tho tbh...
+        }
+        const uiuaa = trace_origin(keyword);
+        console.log(uiuaa);
+    }
 
 
 
