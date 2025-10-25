@@ -447,48 +447,143 @@ function dictionaryPage() {
             key // fallback if you stored the literal string
         );
 
-        const word = baseEntry.word;
-        const declension = baseEntry.declension;
-        const forms = baseEntry.froms;
-        const definition = baseEntry.defenition;
+        // for noun / adj cases
+        function collectExistingGendersValues(genders) {
+            if (!genders || typeof genders !== 'object') return [];
+            const keys = ['Abstract', 'Exalted', 'Magical', 'Monstrous', 'Mundane', 'Rational', 'Irrational'];
+            const out = [];
+            for (const k of keys) {
+                const v = genders[k];
+                if (v == null || v === '') continue;
+                if (Array.isArray(v)) out.push(...v);
+                else out.push(v);
+            }
+            return out;
+        }
+
+        function collectExistingGenderKeys(genders) {
+            if (!genders || typeof genders !== 'object') return [];
+            const keys = ['Abstract', 'Exalted', 'Magical', 'Monstrous', 'Mundane', 'Rational', 'Irrational'];
+            return keys.filter(k => {
+                const v = genders[k];
+                return v != null && v !== '' && !(Array.isArray(v) && v.length === 0);
+            });
+        }
+
+        // usage: definitions (joined) and gender names (joined)
+        const DefinitionForNounOrAdj = collectExistingGendersValues(baseEntry.genders).join('; ');
+        const gendersList = collectExistingGenderKeys(baseEntry.genders).join(', ');
+
+        const genders = gendersList || '...';
+        const word = baseEntry.word || '...';
+        const declension = baseEntry.declension || '...';
+        const forms = baseEntry.froms || '...';
+        const definition = baseEntry.defenition || DefinitionForNounOrAdj || '...';
         const notes = baseEntry.usage_notes || '...';
 
-        console.log(chain, baseEntry, prefixes);
-        if (chain !== undefined) { extraTableRow(word, declension, forms, definition, notes, keyword) }
+        console.log(chain, baseEntry, prefixes, baseEntry.genders);
+        if (chain !== undefined) { extraTableRow(word, declension, forms, definition, notes, genders, keyword) }
     }
 
-
+    let table = '';
     // table row gen.
-    function extraTableRow(word, declension, forms, defintion, notes, IdIdentifier) {
-        const table = document.getElementById('dictionary');
-        const tr = document.createElement('tr');
+    function extraTableRow(word, declension, forms, defintion, notes, genders, IdIdentifier) {
+
+        table = document.getElementById('dictionaryTable');
+        if (!table) { table = document.createElement('table'); }// create/get depends on if it exists - doesnt conflict.
+
+        //header row
+        const trh = document.createElement('tr');
+
+        const th1 = document.createElement('th');
+        const th2 = document.createElement('th');
+        const th3 = document.createElement('th');
+        const th4 = document.createElement('th');
+        const th5 = document.createElement('th');
+        const th6 = document.createElement('th');
+        const th7 = document.createElement('th');
+
+
+
+        trh.id = trh;
+        if (!document.getElementById(trh)) {
+
+            trh.appendChild(th1);
+            trh.appendChild(th2);
+            trh.appendChild(th3);
+            trh.appendChild(th4);
+            trh.appendChild(th5);
+            trh.appendChild(th6);
+            trh.appendChild(th7);
+
+            table.appendChild(trh);
+
+            th1.textContent = 'Word';
+            th2.textContent = 'Dec';
+            th3.textContent = 'Genders';
+            th4.textContent = 'Forms';
+            th5.textContent = 'Definition';
+            th6.textContent = 'Notes';
+            th7.textContent = 'Search';
+
+            th1.style.width = '12%';
+            th2.style.width = '7%';
+            th3.style.width = '7%';
+            th4.style.width = '7%';
+            th5.style.width = '30%';
+            th6.style.width = '30%';
+            th7.style.width = '7%';
+
+            table.id = 'dictionaryTable';
+        }
+
+        //td rows
+        const trd = document.createElement('tr');
 
         const td1 = document.createElement('td');
         const td2 = document.createElement('td');
         const td3 = document.createElement('td');
         const td4 = document.createElement('td');
         const td5 = document.createElement('td');
+        const td6 = document.createElement('td');
+        const td7 = document.createElement('td');
 
         td1.innerHTML = word;
         td2.innerHTML = declension;
-        td3.innerHTML = forms;
-        td4.innerHTML = defintion;
-        td5.innerHTML = notes;
+        td3.innerHTML = genders;
+        td4.innerHTML = forms;
+        td5.innerHTML = defintion;
+        td6.innerHTML = notes;
+        td7.innerHTML = `<strong>search</strong>`;
 
-        tr.id = `tr-${IdIdentifier}`;
+        trd.id = `tr-${IdIdentifier}`;
+
         td1.id = `td1-${IdIdentifier}`;
         td2.id = `td2-${IdIdentifier}`;
         td3.id = `td3-${IdIdentifier}`;
         td4.id = `td4-${IdIdentifier}`;
         td5.id = `td5-${IdIdentifier}`;
+        td6.id = `td6-${IdIdentifier}`;
+        td7.id = `td7-${IdIdentifier}`;
 
-        tr.appendChild(td1);
-        tr.appendChild(td2);
-        tr.appendChild(td3);
-        tr.appendChild(td4);
-        tr.appendChild(td5);
+        //td6
+        td7.style.cursor = 'pointer';
+        td7.addEventListener('click', (e) => {
+            search(td1.innerHTML);
+        });
 
-        table.appendChild(tr);
+        trd.appendChild(td1);
+        trd.appendChild(td2);
+        trd.appendChild(td3);
+        trd.appendChild(td4);
+        trd.appendChild(td5);
+        trd.appendChild(td6);
+        trd.appendChild(td7);
+
+        table.appendChild(trd);
+
+        const wrap = document.querySelector('#tableWrapper');
+        wrap.appendChild(table);
     }
     // usage => for (let i = 0; i < rowAmount; i++) { extraTableRow(keyword or something custom); }
 

@@ -10,7 +10,8 @@
 }
 
 .tablesContainer td {
-  vertical-align: top;    /* pushes text to the top */
+    vertical-align: top;
+    /* pushes text to the top */
 }
 
 .tablesContainer #cell2 {
@@ -20,4 +21,12 @@
 .tablesContainer th {
     white-space: nowrap;
     font-size: large;
+}
+
+#tableWrapper td {
+    text-align: center;
+}
+#dictionaryTable {
+    display: inline;
+    width: auto;
 }
