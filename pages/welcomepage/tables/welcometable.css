@@ -1,8 +1,0 @@
-.WelcomeTable th,
-.WelcomeTable td {
-    text-align: left;
-}
-
-.WelcomeTable tr:hover td {
-    background-color: #f1d3d3;
-}

@@ -1,0 +1,93 @@
+<link rel="stylesheet" href="/css/tables.css">
+<link rel="stylesheet" href="/css/global.css">
+<script src="https://liroxdeyamon.github.io/DraconicAPIs/js/MainMap.js"></script>
+<script src="https://liroxdeyamon.github.io/DraconicAPIs/js/CharacterMap.js"></script>
+<script src="https://liroxdeyamon.github.io/DraconicAPIs/js/AffixesMap.js"></script>
+<script>
+function generateTable(mood) {
+  const data = SUFFIXES[mood];
+  const genders = Object.keys(data);
+  const numbers = Object.keys(data[genders[0]]);
+  const result = [];
+  
+  result.push(`<table class="individualhover"><tbody>`);
+  result.push(`<tr><th colspan="${1 + genders.length * 3}" style="background:#973B3B">${mood}</th></tr>`);
+  result.push(`<tr><th style="background:#CA4F4F"></th>${genders.map(g => `<th colspan="3" style="background:#CA4F4F">${g}</th>`).join('')}</tr>`);
+  result.push(`<tr><th>Number</th>${genders.map(() => `<th>Singular</th><th>Dual</th><th>Plural</th>`).join('')}</tr>`);
+  
+  // Track merged cells to skip them
+  const mergedCells = {};
+  
+  for (let i = 1; i <= 4; i++) {
+    result.push(`<tr><th>${i}.</th>`);
+    
+    for (let gIdx = 0; gIdx < genders.length; gIdx++) {
+      const g = genders[gIdx];
+      const isLastGender = gIdx === genders.length - 1;
+      
+      for (let nIdx = 0; nIdx < numbers.length; nIdx++) {
+        const n = Object.values(NUMBERS)[nIdx];
+        const cellKey = `${i}-${gIdx}-${nIdx}`;
+        
+        // Skip if this cell is already merged
+        if (mergedCells[cellKey]) continue;
+        
+        const currentValue = data[g][n][i] ?? '';
+        const isLastInGender = nIdx === numbers.length - 1;
+        
+        // First check for horizontal merging in the same row (within the same gender)
+        let colspan = 1;
+        for (let checkCol = nIdx + 1; checkCol < numbers.length; checkCol++) {
+          const nextN = Object.values(NUMBERS)[checkCol];
+          if (data[g][nextN][i] === currentValue && currentValue !== '') {
+            colspan++;
+            mergedCells[`${i}-${gIdx}-${checkCol}`] = true;
+          } else {
+            break;
+          }
+        }
+        
+        // Then check for vertical merging (same value in rows below)
+        let rowspan = 1;
+        let canMergeVertically = true;
+        for (let checkRow = i + 1; checkRow <= 4; checkRow++) {
+          // Check all columns in the colspan range
+          for (let colOffset = 0; colOffset < colspan; colOffset++) {
+            const checkN = Object.values(NUMBERS)[nIdx + colOffset];
+            if (data[g][checkN][checkRow] !== currentValue) {
+              canMergeVertically = false;
+              break;
+            }
+          }
+          
+          if (canMergeVertically && currentValue !== '') {
+            rowspan++;
+            // Mark all cells in this row as merged
+            for (let colOffset = 0; colOffset < colspan; colOffset++) {
+              mergedCells[`${checkRow}-${gIdx}-${nIdx + colOffset}`] = true;
+            }
+          } else {
+            break;
+          }
+        }
+        
+        // Check if this merged cell ends at the last column of the gender
+        const endsAtLastCol = (nIdx + colspan - 1) === numbers.length - 1;
+        const borderStyle = (endsAtLastCol && !isLastGender) ? ' style="border-right: 1px solid black;"' : '';
+        const rowspanAttr = rowspan > 1 ? ` rowspan="${rowspan}"` : '';
+        const colspanAttr = colspan > 1 ? ` colspan="${colspan}"` : '';
+        
+        result.push(`<td${rowspanAttr}${colspanAttr}${borderStyle}>${currentValue}</td>`);
+      }
+    }
+    result.push(`</tr>`);
+  }
+  
+  result.push(`</tbody></table>`);
+  return result.join('');
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.body.innerHTML = generateTable(MOODS.D) + "</br>" + generateTable(MOODS.R);
+});
+</script>

@@ -1,0 +1,37 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 2px;
+    color: black;
+}
+
+th {
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+    border: 0px solid black;
+    background-color: #e26b6b;
+    color: black;
+}
+
+td {
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+    border: 0px solid black;
+    background-color: #f2c8c8;
+    color: black;
+}
+
+.alignleft th,
+.alignleft td {
+    text-align: left;
+}
+
+.hover tr:hover td {
+    background-color: #f1d3d3;
+}
+
+.individualhover td:hover {
+    background-color: #f1d3d3;
+}
