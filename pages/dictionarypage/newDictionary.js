@@ -1,9 +1,12 @@
 function dictionaryPage() {
 
     //yoo new dictionary xd
-
     const a = [];
     const b = [];
+    const z = {
+        a,
+        b
+    }
 
     const ALL_WORDS = Object.fromEntries(
         Object.entries({
@@ -22,8 +25,7 @@ function dictionaryPage() {
         a.push(key);
         b.push(wordObj.word);
     });
-    console.log(a);
-    console.log(b);
+    console.log(z);
     // was tired of full consolelog xd
 
 
