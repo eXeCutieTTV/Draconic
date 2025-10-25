@@ -49,7 +49,8 @@ function dictionaryPage() {
     function search() {
         const searchFLD = document.getElementById('search_field');
         const keyword = (searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase();
-        console.log('Current keyword |', keyword);
+        const ascdascdc = ALL_WORDS[keyword];
+        console.log('Current keyword |', keyword, ascdascdc);
         /*
                 let matchType = 0;
                 let array = '';
@@ -437,8 +438,16 @@ function dictionaryPage() {
 
             return undefined;
         }
-        const uiuaa = trace_origin(keyword);
-        console.log(uiuaa);
+        const chain = trace_origin(keyword);
+        const baseKey = chain?.[chain.length - 1];
+        const baseEntry = baseKey ? ALL_WORDS[baseKey] : undefined;
+        const prefixes = (chain ?? []).slice(0, -1).map(key =>
+            PREPOSITIONS?.[key]?.word ??
+            PARTICLES?.[key]?.word ??
+            key // fallback if you stored the literal string
+        );
+
+        console.log(chain, baseEntry, prefixes);
     }
 
 
@@ -562,6 +571,26 @@ function dictionaryPage() {
         startSearchListenerWiring();
     }
         */
+
+
+    // table row gen.
+    function extraTableRow() {
+        const table = document.getElementById('dictionary');
+        const tr = document.createElement('tr');
+
+        const td1 = document.createElement('td');
+        const td2 = document.createElement('td');
+        const td3 = document.createElement('td');
+        const td4 = document.createElement('td');
+
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+        tr.appendChild(td4);
+
+        table.appendChild(tr);
+    }
+    // usage => for (let i = 0; i < rowAmount; i++) { extraTableRow(); }
 }
 
 
