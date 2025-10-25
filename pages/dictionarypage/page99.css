@@ -28,3 +28,36 @@
     margin-top: 0px;
     padding-top: 0px;
 }
+
+#textBoxContainer {
+    margin-top: 300px;
+}
+
+#suggestions {
+    border: solid 0px black;
+    position:absolute;
+    left:0;
+    right:0;
+    margin:0;
+    padding:0;
+    list-style:none;
+    background:#ececec;
+    max-height:200px;
+    overflow:auto;
+    z-index:10;
+
+    width: 177px;
+    margin-left: auto;
+}
+
+.GenderTh {
+    width: 150px;
+}
+
+.dictionaryDirTables td:hover, .dictionaryRecTables td:hover {
+    background-color: #f1d3d3;
+}
+
+.dictionaryDirTables, .dictionaryRecTables {
+    margin-top: 1px;
+}

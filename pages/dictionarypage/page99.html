@@ -1,0 +1,35 @@
+<link rel="stylesheet" href="pages\dictionarypage\dictionarytables.css">
+<link rel="stylesheet" href="pages\dictionarypage\dictionary.css">
+<link rel="stylesheet" href="pages\dictionarypage\page99.css">
+<link rel="stylesheet" href="pages\dictionarypage\text\adverbtextbox.css">
+<link rel="stylesheet" href="pages\dictionarypage\text\auxiliarytextbox.css">
+<link rel="stylesheet" href="pages\dictionarypage\text\verbtextbox.css">
+<link rel="stylesheet" href="pages\dictionarypage\text\nountextbox.css">
+
+<div class="outerdivp99">
+    <div class="leftdivp99">
+        <h2 class="headerp99">Dictionary</h2>
+        <p>This is dictionary.</p>
+
+        <table id="dictionary">
+            <tr>
+                <th>Word</th>
+                <th>Dec</th>
+                <th>Forms</th>
+                <th>Notes</th>
+            </tr>
+        </table>
+    </div>
+
+    <div class="rightdivp99">
+        <div class="page99Search">
+            <button id="search_button">Search</button>
+            <input id="search_field" autocomplete="off" type="text" placeholder="Search..."><br>
+            <ul id="suggestions" class="suggestions" role="listbox" hidden>
+            </ul>
+        </div>
+    </div>
+
+</div>
+<script src="pages\dictionarypage\newDictionary.js"></script> <!--newDictionary.js link-->
+<script src="pages\dictionarypage\searchSuggestions.js"></script> <!--searchSuggestions.js link-->

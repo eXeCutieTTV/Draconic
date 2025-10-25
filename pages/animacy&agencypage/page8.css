@@ -1,10 +1,10 @@
-#wrapperp7{
+#wrapperp8{
     display: flex;
     width: 100%;
 }
-#leftdivp7{
+#leftdivp8{
     flex: 0.75;
 }
-#rightdivp7{
+#rightdivp8{
     flex: 0.25;
 }

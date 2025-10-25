@@ -1,32 +1,22 @@
 /* TableWrapper */
-.TableWrapperp2 {
+.TableWrapperp3 {
     display: flex;
+    margin: 0px;
+    padding: 0px;
 }
 
-
-.Leftdivp2 {
+.Leftdivp3 {
     display: inline;
     flex: 0.8;
-    margin-left: 8px;
-    margin-right: auto;
+    margin-bottom: 20px;
+    margin-right: 0px;
 }
 
-.rightdivp2 {
+.rightdivp3 {
     display: inline;
     flex: 0.2;
-    margin-left: auto;
-    margin-right: 8px;
-}
-
-.mid1p2 {
-    display: inline;
-    flex: 0;
-    margin-left: 8px;
-    margin-right: 4px;
-}
-.mid2p2 {
-    display: inline;
-    flex: 0;
-    margin-left: 4px;
-    margin-right: 8px;
+    margin: 0px;
+    margin-bottom: 20px;
+    margin-left: 10px;
+    margin-right: 5%;
 }

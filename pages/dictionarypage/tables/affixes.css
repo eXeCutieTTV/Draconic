@@ -1,5 +1,12 @@
+.dictionaryAffix {
+    display: flex;
+    margin: 0px;
+    padding: 0px;
+}
+
 .objectsuffix, .subjectprefix {
-    width: 90%;
+    display: inline;
+    flex: 0.5;
     margin-bottom: 0px;
     margin-left: 2%;
     padding: 10px;
@@ -15,4 +22,8 @@
 }
 .rareAffix:hover{
     background-color: #f2c8c8;
+}
+
+#dictionaryVerbPrefixTable, #dictionaryVerbSuffixTable {
+    width: 750px;
 }
