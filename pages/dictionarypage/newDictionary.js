@@ -130,12 +130,11 @@ function dictionaryPage() {
 
 
         function TEMP_noun_forms_list(noun) {
-            const FLAT_SUFFIXES = Object.values(NOUN_SUFFIXES)
-                .flatMap(m => Object.values(m))
-                .flatMap(g => Object.values(g))
-                .flatMap(n => Object.values(n))
-                .flatMap(c => Object.values(c));
-            return FLAT_SUFFIXES.map(s => entries_to_text(connect_suffix(noun.word, s)));
+            return FLAT_NOUN_SUFFIXES.map(s => entries_to_text(connect_suffix(noun.word, s)));
+        }
+
+        function TEMP_verb_forms_list(noun) {
+            return FLAT_VERB_OBJECT_SUFFIXES.map(s => entries_to_text(connect_suffix(noun.word, s)));
         }
 
         function trace_origin(text) {
@@ -144,89 +143,56 @@ function dictionaryPage() {
             Object.entries(ALL_WORDS).forEach(([key, wordObj]) => {
                 if (text === wordObj.word) return [key];
             });
+            // this looks if the text is a raw word
 
             Object.entries(PREPOSITIONS).forEach(([key, wordObj]) => {
                 if (text.startsWith(wordObj.word)) {
                     keys.push(key);
-                    text = text.slice(wordObj.word.length);
+                    text = text.slice(wordObj.word.length)
+                }
+            })
+            // then this looks for prepositions, is there is, then it probably is a noun
+
+            Object.entries(NOUNS).forEach(([key, wordObj]) => {
+                TEMP_noun_forms_list(wordObj.word).forEach((noun) => {
+                    if (text === noun) {
+                        keys.push(key)
+                        return keys
+                    }
+                })
+            });
+
+            Object.entries(VERBS).forEach(([key, wordObj]) => {
+                TEMP_verb_forms_list(wordObj.word).forEach((noun) => {
+                    if (text === noun) {
+                        keys.push(key)
+                        return keys
+                    }
+                })
+            });
+
+
+            FLAT_VERB_SUBJECT_PREFIXES.forEach((prefix) => {
+                if (text.startsWith(prefix)) {
+                    text = text.slice(prefix.length)
+                    // its either a verb or auxiliary
+                    Object.entries(VERBS).forEach(([key, wordObj]) => {
+                        TEMP_verb_forms_list(wordObj.word).forEach((noun) => {
+                            if (text === noun) {
+                                keys.push(key)
+                                return keys
+                            }
+                        })
+                    });
+
+                    // check for all verb and aux forms
                 }
             });
 
-            Object.entries(PARTICLES).forEach(([key, wordObj]) => {
-                if (text.startsWith(wordObj.word)) {
-                    keys.push(key);
-                    text = text.slice(wordObj.word.length);
-                }
-            });
-            /*
-                        // MY FUCKING GOD
-                        // so it can start both with preposition and particle? alr
-                        // only the i- paarticle.
-                        // verbs can start with particle or preposition? //my assumption would be yes to prepositions.  fuck //nope. nouns and determiners only.
-                        // with verbs, we need to make sure to have it be an if else if. such that we dont accidently count raw words that just happen to start with the same letters as those of the prefixes, as verbs. so if it isnt in raw, then check verb prefixes.
-            
-            
-            
-                        // æze-
-                        // aze-
-                        // fenlly-
-                        // ħá-
-                        // ħáŋ-
-                        // ho-
-                        // hu-
-                        // huz-
-                        // kxā-
-                        // kxæ-
-                        // lleŋ-
-                        // lloq̇-
-                        // ly-
-                        // ō-
-                        // qa-
-                        // qē-
-                        // qēru-
-                        // q̇ū-
-                        // qχok-
-                        // sæχ-
-                        // saχ-
-                        // sī-
-                        // sil-
-                        // thū-
-                        // tre-
-                        // ū-
-                        // all prepositions^^
-            
-            
-                        // i- prefix to turn nouns into adjectives
-                        // -nyl to turn adjectives into adverbs
-                        // -ûl
-                        // -ūn
-                        // -ān
-                        // -ōn
-                        // particles^^
-            
-                        // -hyn	
-                        // -hyf	
-                        // -ħó	
-                        // -llīl	
-                        // -huχ	
-                        // -thok	
-                        // -hoq̇
-                        // ^^ unique determiner suffixes. (only for determiners).
-            
-                        // noun suffixes
-            
-                        // verb prefixes
-                        // verb suffixes
-            
-                        // i think this is it.^^
-            
-                        // raw exact match
-            */
-            // check for every noun form
             Object.entries(NOUNS).forEach(([key, wordObj]) => {
                 if (TEMP_noun_forms_list(wordObj.word).includes(text)) return key;
             });
-        }
+        }//still undefined. ALL_WORDS i mean. idk how thats possible tho tbh...
         const uiuaa = trace_origin(keyword);
         console.log(uiuaa);
     }
