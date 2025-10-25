@@ -129,70 +129,249 @@ function dictionaryPage() {
         //alf
 
 
-        function TEMP_noun_forms_list(noun) {
-            return FLAT_NOUN_SUFFIXES.map(s => entries_to_text(connect_suffix(noun.word, s)));
+        const nounFormCache = new Map();
+        const verbFormCache = new Map();
+        const EMPTY_FORM_SET = Object.freeze(new Set());
+        const failedFormGenerators = new Set();
+
+        function collectForms(generator, cache, entry, label) {
+            const baseWord = typeof entry === 'string' ? entry : entry?.word;
+            if (!baseWord) return EMPTY_FORM_SET;
+            if (cache.has(baseWord)) return cache.get(baseWord);
+
+            const forms = new Set([baseWord]);
+            try {
+                const generated = generator(entry) || [];
+                generated.forEach(form => {
+                    if (typeof form !== 'string') return;
+                    const candidate = form.trim();
+                    if (candidate) forms.add(candidate);
+                });
+            } catch (err) {
+                if (label && !failedFormGenerators.has(label)) {
+                    console.warn(`trace_origin: failed to build ${label} forms`, err);
+                    failedFormGenerators.add(label);
+                }
+            }
+
+            cache.set(baseWord, forms);
+            return forms;
         }
 
-        function TEMP_verb_forms_list(noun) {
-            return FLAT_VERB_OBJECT_SUFFIXES.map(s => entries_to_text(connect_suffix(noun.word, s)));
+        function TEMP_noun_forms_list(noun) {
+            const word = typeof noun === 'string' ? noun : noun?.word;
+            if (!word) return [];
+            if (typeof connect_suffix !== 'function' || typeof entries_to_text !== 'function') return [];
+
+            let suffixes = [];
+            if (typeof FLAT_NOUN_SUFFIXES !== 'undefined') {
+                suffixes = FLAT_NOUN_SUFFIXES;
+            } else if (typeof NOUN_SUFFIXES !== 'undefined') {
+                suffixes = Object.values(NOUN_SUFFIXES || {})
+                    .flatMap(mask => Object.values(mask || {}))
+                    .flatMap(genderMap => Object.values(genderMap || {}))
+                    .flatMap(numberMap => Object.values(numberMap || {}))
+                    .flatMap(caseMap => Object.values(caseMap || {}));
+            }
+
+            if (!Array.isArray(suffixes) || !suffixes.length) return [];
+
+            return suffixes
+                .map(suffix => {
+                    try {
+                        return entries_to_text(connect_suffix(word, suffix));
+                    } catch {
+                        return null;
+                    }
+                })
+                .filter(Boolean);
+        }
+
+        function TEMP_verb_forms_list(verb) {
+            const word = typeof verb === 'string' ? verb : verb?.word;
+            if (!word) return [];
+            if (typeof connect_suffix !== 'function' || typeof entries_to_text !== 'function') return [];
+
+            let suffixes = [];
+            if (typeof FLAT_VERB_OBJECT_SUFFIXES !== 'undefined') {
+                suffixes = FLAT_VERB_OBJECT_SUFFIXES;
+            } else if (typeof VERB_OBJECT_SUFFIXES !== 'undefined') {
+                if (Array.isArray(VERB_OBJECT_SUFFIXES)) {
+                    suffixes = VERB_OBJECT_SUFFIXES;
+                } else {
+                    suffixes = Object.values(VERB_OBJECT_SUFFIXES || {})
+                        .flatMap(mask => Object.values(mask || {}))
+                        .flatMap(formMap => Object.values(formMap || {}));
+                }
+            }
+
+            if (!Array.isArray(suffixes) || !suffixes.length) return [];
+
+            return suffixes
+                .map(suffix => {
+                    try {
+                        return entries_to_text(connect_suffix(word, suffix));
+                    } catch {
+                        return null;
+                    }
+                })
+                .filter(Boolean);
+        }
+
+        function getNounForms(wordObj) {
+            return collectForms(TEMP_noun_forms_list, nounFormCache, wordObj, 'noun');
+        }
+
+        function getVerbForms(wordObj) {
+            return collectForms(TEMP_verb_forms_list, verbFormCache, wordObj, 'verb');
+        }
+
+        function findDirectMatchKey(word) {
+            for (const [key, wordObj] of Object.entries(ALL_WORDS)) {
+                if (wordObj?.word === word) return key;
+            }
+            return undefined;
+        }
+
+        function findNounKeys(word) {
+            if (!word) return undefined;
+            for (const [key, wordObj] of Object.entries(NOUNS)) {
+                if (!wordObj?.word) continue;
+                if (word === wordObj.word) return [key];
+                if (getNounForms(wordObj).has(word)) return [key];
+            }
+            return undefined;
+        }
+
+        function findVerbKeys(word) {
+            if (!word) return undefined;
+            for (const [key, wordObj] of Object.entries(VERBS)) {
+                if (!wordObj?.word) continue;
+                if (word === wordObj.word) return [key];
+                if (getVerbForms(wordObj).has(word)) return [key];
+            }
+            return undefined;
+        }
+
+        function normaliseVerbPrefix(entry) {
+            if (!entry) return '';
+            if (typeof entry === 'string') return entry;
+            if (typeof entry === 'object') {
+                if (typeof entry.word === 'string') return entry.word;
+                if (typeof entry.prefix === 'string') return entry.prefix;
+                if (typeof entry.text === 'string') return entry.text;
+            }
+            return '';
+        }
+
+        function matchPrefixCollection(sourceText, collection, resolveRest) {
+            if (!collection) return undefined;
+
+            const isArrayCollection = Array.isArray(collection);
+            const rawEntries = isArrayCollection
+                ? Array.from(collection.entries())
+                : Object.entries(collection);
+            const entries = rawEntries
+                .map(([key, value]) => {
+                    const prefix = typeof value === 'string'
+                        ? value
+                        : (typeof value?.word === 'string' ? value.word : '');
+                    const entryKey = isArrayCollection
+                        ? (prefix || String(key))
+                        : key;
+                    return [entryKey, prefix];
+                })
+                .filter(([, prefix]) => prefix.length > 0)
+                .sort((a, b) => b[1].length - a[1].length);
+
+            for (const [key, prefix] of entries) {
+                if (!prefix) continue;
+                const candidates = prefix.endsWith('-')
+                    ? [prefix, prefix.slice(0, -1)]
+                    : [prefix];
+
+                let remainder = null;
+                for (const candidate of candidates) {
+                    if (!candidate) continue;
+                    if (!sourceText.startsWith(candidate)) continue;
+                    remainder = sourceText.slice(candidate.length);
+                    break;
+                }
+
+                if (remainder === null) continue;
+
+                const nextKeys = resolveRest(remainder);
+                if (!nextKeys) continue;
+                return [key, ...(Array.isArray(nextKeys) ? nextKeys : [nextKeys])];
+            }
+
+            return undefined;
+        }
+
+        function matchVerbSubjectPrefix(sourceText) {
+            let prefixesSource = [];
+            if (typeof FLAT_VERB_SUBJECT_PREFIXES !== 'undefined') {
+                prefixesSource = Array.isArray(FLAT_VERB_SUBJECT_PREFIXES)
+                    ? FLAT_VERB_SUBJECT_PREFIXES
+                    : Object.values(FLAT_VERB_SUBJECT_PREFIXES || {});
+            }
+            const prefixes = prefixesSource
+                .map(normaliseVerbPrefix)
+                .filter(prefix => typeof prefix === 'string' && prefix.length > 0)
+                .sort((a, b) => b.length - a.length);
+
+            for (const prefix of prefixes) {
+                if (!prefix) continue;
+                const candidates = prefix.endsWith('-')
+                    ? [prefix, prefix.slice(0, -1)]
+                    : [prefix];
+
+                let remainder = null;
+                for (const candidate of candidates) {
+                    if (!candidate) continue;
+                    if (!sourceText.startsWith(candidate)) continue;
+                    remainder = sourceText.slice(candidate.length);
+                    break;
+                }
+
+                if (remainder === null) continue;
+
+                const verbKeys = findVerbKeys(remainder);
+                if (verbKeys) {
+                    return [prefix, ...verbKeys];
+                }
+            }
+
+            return undefined;
         }
 
         function trace_origin(text) {
-            let keys = []
+            if (!text) return undefined;
 
-            Object.entries(ALL_WORDS).forEach(([key, wordObj]) => {
-                if (text === wordObj.word) return [key];
+            const directKey = findDirectMatchKey(text);
+            if (directKey) return [directKey];
+
+            const prepositionNoun = matchPrefixCollection(text, PREPOSITIONS, remainder => {
+                const particleChain = matchPrefixCollection(remainder, PARTICLES, inner => findNounKeys(inner));
+                if (particleChain) return particleChain;
+                return findNounKeys(remainder);
             });
-            // this looks if the text is a raw word
+            if (prepositionNoun) return prepositionNoun;
 
-            Object.entries(PREPOSITIONS).forEach(([key, wordObj]) => {
-                if (text.startsWith(wordObj.word)) {
-                    keys.push(key);
-                    text = text.slice(wordObj.word.length)
-                }
-            })
-            // then this looks for prepositions, is there is, then it probably is a noun
+            const particleNoun = matchPrefixCollection(text, PARTICLES, remainder => findNounKeys(remainder));
+            if (particleNoun) return particleNoun;
 
-            Object.entries(NOUNS).forEach(([key, wordObj]) => {
-                TEMP_noun_forms_list(wordObj.word).forEach((noun) => {
-                    if (text === noun) {
-                        keys.push(key)
-                        return keys
-                    }
-                })
-            });
+            const subjectPrefVerb = matchVerbSubjectPrefix(text);
+            if (subjectPrefVerb) return subjectPrefVerb;
 
-            Object.entries(VERBS).forEach(([key, wordObj]) => {
-                TEMP_verb_forms_list(wordObj.word).forEach((noun) => {
-                    if (text === noun) {
-                        keys.push(key)
-                        return keys
-                    }
-                })
-            });
+            const nounKeys = findNounKeys(text);
+            if (nounKeys) return nounKeys;
 
+            const verbKeys = findVerbKeys(text);
+            if (verbKeys) return verbKeys;
 
-            FLAT_VERB_SUBJECT_PREFIXES.forEach((prefix) => {
-                if (text.startsWith(prefix)) {
-                    text = text.slice(prefix.length)
-                    // its either a verb or auxiliary
-                    Object.entries(VERBS).forEach(([key, wordObj]) => {
-                        TEMP_verb_forms_list(wordObj.word).forEach((noun) => {
-                            if (text === noun) {
-                                keys.push(key)
-                                return keys
-                            }
-                        })
-                    });
-
-                    // check for all verb and aux forms
-                }
-            });
-
-            Object.entries(NOUNS).forEach(([key, wordObj]) => {
-                if (TEMP_noun_forms_list(wordObj.word).includes(text)) return key;
-            });
-        }//still undefined. ALL_WORDS i mean. idk how thats possible tho tbh...
+            return undefined;
+        }
         const uiuaa = trace_origin(keyword);
         console.log(uiuaa);
     }
