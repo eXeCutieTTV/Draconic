@@ -447,10 +447,50 @@ function dictionaryPage() {
             key // fallback if you stored the literal string
         );
 
+        const word = baseEntry.word;
+        const declension = baseEntry.declension;
+        const forms = baseEntry.froms;
+        const definition = baseEntry.defenition;
+        const notes = baseEntry.usage_notes || '...';
+
         console.log(chain, baseEntry, prefixes);
+        if (chain !== undefined) { extraTableRow(word, declension, forms, definition, notes, keyword) }
     }
 
 
+    // table row gen.
+    function extraTableRow(word, declension, forms, defintion, notes, IdIdentifier) {
+        const table = document.getElementById('dictionary');
+        const tr = document.createElement('tr');
+
+        const td1 = document.createElement('td');
+        const td2 = document.createElement('td');
+        const td3 = document.createElement('td');
+        const td4 = document.createElement('td');
+        const td5 = document.createElement('td');
+
+        td1.innerHTML = word;
+        td2.innerHTML = declension;
+        td3.innerHTML = forms;
+        td4.innerHTML = defintion;
+        td5.innerHTML = notes;
+
+        tr.id = `tr-${IdIdentifier}`;
+        td1.id = `td1-${IdIdentifier}`;
+        td2.id = `td2-${IdIdentifier}`;
+        td3.id = `td3-${IdIdentifier}`;
+        td4.id = `td4-${IdIdentifier}`;
+        td5.id = `td5-${IdIdentifier}`;
+
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+        tr.appendChild(td4);
+        tr.appendChild(td5);
+
+        table.appendChild(tr);
+    }
+    // usage => for (let i = 0; i < rowAmount; i++) { extraTableRow(keyword or something custom); }
 
 
     // clone <p> element with keyword data
@@ -573,24 +613,6 @@ function dictionaryPage() {
         */
 
 
-    // table row gen.
-    function extraTableRow() {
-        const table = document.getElementById('dictionary');
-        const tr = document.createElement('tr');
-
-        const td1 = document.createElement('td');
-        const td2 = document.createElement('td');
-        const td3 = document.createElement('td');
-        const td4 = document.createElement('td');
-
-        tr.appendChild(td1);
-        tr.appendChild(td2);
-        tr.appendChild(td3);
-        tr.appendChild(td4);
-
-        table.appendChild(tr);
-    }
-    // usage => for (let i = 0; i < rowAmount; i++) { extraTableRow(); }
 }
 
 
