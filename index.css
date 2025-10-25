@@ -39,9 +39,3 @@ lilitalic {
   width: 100%;
   border: none;
 }
-#tabbar {
-  flex: 0;
-  width: 100%;
-  height: 45px;
-  border: none;
-}
