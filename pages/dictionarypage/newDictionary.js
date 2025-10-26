@@ -513,12 +513,52 @@ function dictionaryPage() {
             const origin = trace_definition(keyword);
             origin.forEach(entry => {
                 //console.log(entry);
-                console.log();
+
+                let genderGroups = '';
+                function groupedGenders(key) {
+                    const map = {
+                        1: 'Exalted',
+                        2: 'Rational',
+                        3: 'Monstrous',
+                        4: 'Irrational',
+                        5: 'Magical',
+                        6: 'Mundane',
+                        7: 'Abstract'
+                    };
+
+                    // safely get genders object
+                    const genders = ALL_WORDS[key].genders || {};
+                    // collect values in numeric order 1..7
+                    const values = [];
+                    for (let i = 1; i <= 7; i++) {
+                        values[i] = genders[map[i]]; // keep 1-based index to match your map
+                        //console.log(`${map[i]}:`, values[i]);
+                    }
+
+                    // helper: compare values treating undefined/null/empty as not equal
+                    const same = (a, b) => a !== undefined && a !== null && a !== '' && a === b;
+
+                    // check 1===2===3===4
+                    if (same(values[1], values[2]) && same(values[2], values[3]) && same(values[3], values[4])) {
+                        genderGroups = values[1];
+                    }
+
+                    // check 5===6===7
+                    if (same(values[5], values[6]) && same(values[6], values[7])) {
+                        genderGroups = values[5];
+                    }
+                    if (genderGroups !== '') { console.log(genderGroups); }
+
+                }
+
+                // call with the key you want to test
+                groupedGenders(entry.key);
+
 
                 const genders = entry.gender || '...';
                 const word = entry.word || '...';
                 const declension = entry.declension || ALL_WORDS[entry.key].declension || '...';
-                const forms = entry.forms || ALL_WORDS[entry.key].forms || '...';
+                const forms = entry.forms || ALL_WORDS[entry.key].forms || genders || '...';
                 const definition = entry.definition || '...';
                 const notes = entry.usage_notes || ALL_WORDS[entry.key].usage_notes || '...';
                 const wordclass = entry.type || '...';
@@ -527,15 +567,16 @@ function dictionaryPage() {
                 if (declension) {
                     wordclassText = `${wordclass} ` + declension;
                 } else (wordclassText = wordclass);
-                console.log(chain, entry, prefixes, entry.gender);
-                extraTableRow(word, wordclassText, forms, definition, notes, genders, keyword)
+                //console.log(chain, entry, prefixes, entry.gender);
+                const uniqueId = (word + '-' + wordclass + '-' + declension + '-' + genders);
+                extraTableRow(word, wordclassText, forms, definition, notes, uniqueId)
             })
         }
     }
 
     let table = '';
     // table row gen.
-    function extraTableRow(word, declension, forms, defintion, notes, genders, IdIdentifier) {
+    function extraTableRow(word, declension, forms, defintion, notes, IdIdentifier) {
 
         table = document.getElementById('dictionaryTable');
         if (!table) { table = document.createElement('table'); }// create/get depends on if it exists - doesnt conflict.
@@ -549,7 +590,6 @@ function dictionaryPage() {
         const th4 = document.createElement('th');
         const th5 = document.createElement('th');
         const th6 = document.createElement('th');
-        const th7 = document.createElement('th');
 
 
 
@@ -562,25 +602,22 @@ function dictionaryPage() {
             trh.appendChild(th4);
             trh.appendChild(th5);
             trh.appendChild(th6);
-            trh.appendChild(th7);
 
             table.appendChild(trh);
 
             th1.textContent = 'Word';
             th2.textContent = 'Wordclass';
-            th3.textContent = 'Genders';
-            th4.textContent = 'Forms';
-            th5.textContent = 'Definition';
-            th6.textContent = 'Notes';
-            th7.textContent = '...';
+            th3.textContent = 'Forms';
+            th4.textContent = 'Definition';
+            th5.textContent = 'Notes';
+            th6.textContent = '...';
 
             th1.style.width = '12%';
             th2.style.width = '7%';
             th3.style.width = '7%';
-            th4.style.width = '7%';
+            th4.style.width = '30%';
             th5.style.width = '30%';
-            th6.style.width = '30%';
-            th7.style.width = '7%';
+            th6.style.width = '7%';
 
             table.id = 'dictionaryTable';
         }
@@ -594,15 +631,13 @@ function dictionaryPage() {
         const td4 = document.createElement('td');
         const td5 = document.createElement('td');
         const td6 = document.createElement('td');
-        const td7 = document.createElement('td');
 
         td1.innerHTML = word;
         td2.innerHTML = declension;
-        td3.innerHTML = genders;
-        td4.innerHTML = forms;
-        td5.innerHTML = defintion;
-        td6.innerHTML = notes;
-        td7.innerHTML = `<strong>search</strong>`;
+        td3.innerHTML = forms;
+        td4.innerHTML = defintion;
+        td5.innerHTML = notes;
+        td6.innerHTML = `<strong>search</strong>`;
 
         trd.id = `tr-${IdIdentifier}`;
 
@@ -612,11 +647,10 @@ function dictionaryPage() {
         td4.id = `td4-${IdIdentifier}`;
         td5.id = `td5-${IdIdentifier}`;
         td6.id = `td6-${IdIdentifier}`;
-        td7.id = `td7-${IdIdentifier}`;
 
         //td6
-        td7.style.cursor = 'pointer';
-        td7.addEventListener('click', (e) => {
+        td6.style.cursor = 'pointer';
+        td6.addEventListener('click', (e) => {
             search(td1.innerHTML);
         });
 
@@ -626,7 +660,6 @@ function dictionaryPage() {
         trd.appendChild(td4);
         trd.appendChild(td5);
         trd.appendChild(td6);
-        trd.appendChild(td7);
 
         table.appendChild(trd);
 
