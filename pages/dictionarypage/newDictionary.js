@@ -447,6 +447,7 @@ function dictionaryPage() {
                 if (!entry) continue;
                 const entryType = (entry.type || '').toLowerCase();
                 if (entryType === 'n' || entryType === 'noun') {
+                    //console.log(entryType);
                     const genders = entry.genders && typeof entry.genders === 'object' ? entry.genders : {};
                     for (const [genderName, rawValue] of Object.entries(genders)) {
                         const values = Array.isArray(rawValue) ? rawValue : [rawValue];
@@ -454,19 +455,20 @@ function dictionaryPage() {
                             const candidateText = typeof candidate === 'string' ? candidate.trim() : '';
                             if (!candidateText) continue;
                             if (!candidateText.toLowerCase().includes(needle)) continue;
-                            matches.push({
+                            matches.push({//noun
                                 key,
-                                word: entry.word,
-                                type: 'n',
-                                gender: genderName,
-                                definition: candidateText,
-                                declension: entry.declension
+                                word: entry.word || '...',
+                                type: entryType || '...',
+                                gender: genderName || '...',
+                                definition: candidateText || '...',
+                                declension: entry.declension || '...'
                             });
                             break;
                         }
                     }
                     continue;
                 }
+
                 const defSources = new Set();
                 if (typeof entry.defenition === 'string') defSources.add(entry.defenition);
                 if (Array.isArray(entry.defenition)) {
@@ -484,12 +486,11 @@ function dictionaryPage() {
                     const defText = typeof defSource === 'string' ? defSource.trim() : '';
                     if (!defText) continue;
                     if (!defText.toLowerCase().includes(needle)) continue;
-                    matches.push({
+                    matches.push({//not noun/adj
                         key,
                         word: entry.word,
-                        type: entry.type ?? '',
+                        type: entryType,
                         definition: defText,
-                        declension: entry.declension
                     });
                     break;
                 }
@@ -506,46 +507,28 @@ function dictionaryPage() {
             key // fallback if you stored the literal string
         );
 
-        // for noun / adj cases
-        function collectExistingGendersValues(genders) {
-            if (!genders || typeof genders !== 'object') return [];
-            const keys = ['Abstract', 'Exalted', 'Magical', 'Monstrous', 'Mundane', 'Rational', 'Irrational'];
-            const out = [];
-            for (const k of keys) {
-                const v = genders[k];
-                if (v == null || v === '') continue;
-                if (Array.isArray(v)) out.push(...v);
-                else out.push(v);
-            }
-            return out;
-        }
 
-        function collectExistingGenderKeys(genders) {
-            if (!genders || typeof genders !== 'object') return [];
-            const keys = ['Abstract', 'Exalted', 'Magical', 'Monstrous', 'Mundane', 'Rational', 'Irrational'];
-            return keys.filter(k => {
-                const v = genders[k];
-                return v != null && v !== '' && !(Array.isArray(v) && v.length === 0);
-            });
-        }
 
         if (trace_definition(keyword)) {
             const origin = trace_definition(keyword);
             origin.forEach(entry => {
                 //console.log(entry);
-                // definitions and gender names
-                const DefinitionForNounOrAdj = collectExistingGendersValues(entry.genders).join('; ');
-                const gendersList = collectExistingGenderKeys(entry.genders).join(', ');
+                console.log();
 
                 const genders = entry.gender || '...';
                 const word = entry.word || '...';
-                const declension = entry.declension || '...';
-                const forms = entry.froms || '...';
+                const declension = entry.declension || ALL_WORDS[entry.key].declension || '...';
+                const forms = entry.forms || ALL_WORDS[entry.key].forms || '...';
                 const definition = entry.definition || '...';
-                const notes = entry.usage_notes || '...';
+                const notes = entry.usage_notes || ALL_WORDS[entry.key].usage_notes || '...';
+                const wordclass = entry.type || '...';
 
+                let wordclassText = '';
+                if (declension) {
+                    wordclassText = `${wordclass} ` + declension;
+                } else (wordclassText = wordclass);
                 console.log(chain, entry, prefixes, entry.gender);
-                extraTableRow(word, declension, forms, definition, notes, genders, keyword)
+                extraTableRow(word, wordclassText, forms, definition, notes, genders, keyword)
             })
         }
     }
@@ -584,12 +567,12 @@ function dictionaryPage() {
             table.appendChild(trh);
 
             th1.textContent = 'Word';
-            th2.textContent = 'Dec';
+            th2.textContent = 'Wordclass';
             th3.textContent = 'Genders';
             th4.textContent = 'Forms';
             th5.textContent = 'Definition';
             th6.textContent = 'Notes';
-            th7.textContent = 'Search';
+            th7.textContent = '...';
 
             th1.style.width = '12%';
             th2.style.width = '7%';
