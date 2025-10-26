@@ -200,6 +200,13 @@ function dictionaryPage() {
         const EMPTY_FORM_SET = Object.freeze(new Set());
         const failedFormGenerators = new Set();
 
+
+
+        if (document.getElementById('dictionaryTable')) { document.getElementById('dictionaryTable').remove() }
+
+
+
+
         function collectForms(generator, cache, entry, label) {
             const baseWord = typeof entry === 'string' ? entry : entry?.word;
             if (!baseWord) return EMPTY_FORM_SET;
@@ -514,60 +521,11 @@ function dictionaryPage() {
             origin.forEach(entry => {
                 //console.log(entry);
 
-                let genderGroups = [];
-                function groupedGenders(key) {
-                    const map = {
-                        1: 'Exalted',
-                        2: 'Rational',
-                        3: 'Monstrous',
-                        4: 'Irrational',
-                        5: 'Magical',
-                        6: 'Mundane',
-                        7: 'Abstract'
-                    };
-
-                    // safely get genders object
-                    const genders = ALL_WORDS[key].genders || {};
-                    // collect values in numeric order 1..7
-                    const values = [];
-                    for (let i = 1; i <= 7; i++) {
-                        values[i] = genders[map[i]]; // keep 1-based index to match your map
-                        //console.log(`${map[i]}:`, values[i]);
-                    }
-
-                    // helper: compare values treating undefined/null/empty as not equal
-                    const same = (a, b) => a !== undefined && a !== null && a !== '' && a === b;
-
-                    // check 1===2===3===4
-                    if (same(values[1], values[2]) && same(values[2], values[3]) && same(values[3], values[4])) {
-                        genderGroups.push({
-                            definition: values[1],
-                            key,
-                            word: ALL_WORDS[key].word,
-                            group: 'Animates'
-                        })
-                    }
-
-                    // check 5===6===7
-                    if (same(values[5], values[6]) && same(values[6], values[7])) {
-                        genderGroups.push({
-                            definition: values[5],
-                            key,
-                            word: ALL_WORDS[key].word,
-                            group: 'Inanimates'
-                        })
-                    }
-                    if (genderGroups.length > 0) { console.log(genderGroups); }
-
-                }
-
-                // call with the key you want to test
-                groupedGenders(entry.key);
 
 
                 const genders = entry.gender || '...';
                 const word = entry.word || '...';
-                const declension = entry.declension || ALL_WORDS[entry.key].declension || '...';
+                const declension = entry.declension || ALL_WORDS[entry.key].declension || '';
                 const forms = entry.forms || ALL_WORDS[entry.key].forms || genders || '...';
                 const definition = entry.definition || '...';
                 const notes = entry.usage_notes || ALL_WORDS[entry.key].usage_notes || '...';
@@ -580,7 +538,71 @@ function dictionaryPage() {
                 //console.log(chain, entry, prefixes, entry.gender);
                 const uniqueId = (word + '-' + wordclass + '-' + declension + '-' + genders);
                 extraTableRow(word, wordclassText, forms, definition, notes, uniqueId)
-            })
+
+
+            });
+            let genderGroups = [];
+            function groupedGenders(key) {
+                const map = {
+                    1: 'Exalted',
+                    2: 'Rational',
+                    3: 'Monstrous',
+                    4: 'Irrational',
+                    5: 'Magical',
+                    6: 'Mundane',
+                    7: 'Abstract'
+                };
+
+                // safely get genders object
+                const genders = ALL_WORDS[key].genders || {};
+                // collect values in numeric order 1..7
+                const values = [];
+                for (let i = 1; i <= 7; i++) {
+                    values[i] = genders[map[i]]; // keep 1-based index to match your map
+                    //console.log(`${map[i]}:`, values[i]);
+                }
+
+                // helper: compare values treating undefined/null/empty as not equal
+                const same = (a, b) => a !== undefined && a !== null && a !== '' && a === b;
+
+                // check 1===2===3===4
+                if (same(values[1], values[2]) && same(values[2], values[3]) && same(values[3], values[4])) {
+                    genderGroups.push({
+                        definition: values[1],
+                        key,
+                        word: ALL_WORDS[key].word,
+                        group: 'Animates'
+                    })
+                }
+
+                // check 5===6===7
+                if (same(values[5], values[6]) && same(values[6], values[7])) {
+                    genderGroups.push({
+                        definition: values[5],
+                        key,
+                        word: ALL_WORDS[key].word,
+                        group: 'Inanimates'
+                    })
+                }
+                if (genderGroups.length > 0) { console.log(genderGroups); if (genderGroups[0].group === 'Animates') { console.log('animates') } }
+
+            }
+            groupedGenders(entry.key);
+            function hideIfGrouped() {
+                if (genderGroups[0].group === 'Animates') {
+                    const tr1 = document.getElementsByClassName('dictionaryTable-1');
+                    const tr2 = document.getElementsByClassName('dictionaryTable-2');
+                    const tr3 = document.getElementsByClassName('dictionaryTable-3');
+                    const tr4 = document.getElementsByClassName('dictionaryTable-4');
+
+                    tr2.remove();
+                    tr3.remove();
+                    tr4.remove();
+
+                    tr1.id = `test`;
+                }
+            }
+            hideIfGrouped();
         }
     }
 
@@ -650,6 +672,7 @@ function dictionaryPage() {
         td6.innerHTML = `<strong>search</strong>`;
 
         trd.id = `tr-${IdIdentifier}`;
+        trd.className = 'dictionaryTable-' + table.rows.length;
 
         td1.id = `td1-${IdIdentifier}`;
         td2.id = `td2-${IdIdentifier}`;
