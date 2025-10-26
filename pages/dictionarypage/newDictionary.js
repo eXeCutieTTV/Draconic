@@ -514,7 +514,7 @@ function dictionaryPage() {
             origin.forEach(entry => {
                 //console.log(entry);
 
-                let genderGroups = '';
+                let genderGroups = [];
                 function groupedGenders(key) {
                     const map = {
                         1: 'Exalted',
@@ -540,14 +540,24 @@ function dictionaryPage() {
 
                     // check 1===2===3===4
                     if (same(values[1], values[2]) && same(values[2], values[3]) && same(values[3], values[4])) {
-                        genderGroups = values[1];
+                        genderGroups.push({
+                            definition: values[1],
+                            key,
+                            word: ALL_WORDS[key].word,
+                            group: 'Animates'
+                        })
                     }
 
                     // check 5===6===7
                     if (same(values[5], values[6]) && same(values[6], values[7])) {
-                        genderGroups = values[5];
+                        genderGroups.push({
+                            definition: values[5],
+                            key,
+                            word: ALL_WORDS[key].word,
+                            group: 'Inanimates'
+                        })
                     }
-                    if (genderGroups !== '') { console.log(genderGroups); }
+                    if (genderGroups.length > 0) { console.log(genderGroups); }
 
                 }
 
