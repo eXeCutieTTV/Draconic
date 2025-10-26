@@ -822,7 +822,7 @@ function dictionaryPage() {
         */
 
 
-}
+}//if(entry.animates && entry.gender === 'e'){genders='animates'}; if(entry.gender === 'r','mon','i'){return;}?
 
 
 
