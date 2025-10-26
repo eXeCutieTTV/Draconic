@@ -21,7 +21,7 @@ function dictionaryPage() {
     );
 
 
-    Object.entries(ALL_WORDS).forEach(([key, wordObj]) => {
+    Object.entries(ALL_WORDS).forEach(([key, wordObj, definition, genders]) => {
         a.push(key);
         b.push(wordObj.word);
     });
@@ -438,6 +438,65 @@ function dictionaryPage() {
 
             return undefined;
         }
+        function trace_definition(text) {
+            if (typeof text !== 'string') return [];
+            const needle = text.trim().toLowerCase();
+            if (!needle) return [];
+            const matches = [];
+            for (const [key, entry] of Object.entries(ALL_WORDS)) {
+                if (!entry) continue;
+                const entryType = (entry.type || '').toLowerCase();
+                if (entryType === 'n' || entryType === 'noun') {
+                    const genders = entry.genders && typeof entry.genders === 'object' ? entry.genders : {};
+                    for (const [genderName, rawValue] of Object.entries(genders)) {
+                        const values = Array.isArray(rawValue) ? rawValue : [rawValue];
+                        for (const candidate of values) {
+                            const candidateText = typeof candidate === 'string' ? candidate.trim() : '';
+                            if (!candidateText) continue;
+                            if (!candidateText.toLowerCase().includes(needle)) continue;
+                            matches.push({
+                                key,
+                                word: entry.word,
+                                type: 'n',
+                                gender: genderName,
+                                definition: candidateText,
+                                declension: entry.declension
+                            });
+                            break;
+                        }
+                    }
+                    continue;
+                }
+                const defSources = new Set();
+                if (typeof entry.defenition === 'string') defSources.add(entry.defenition);
+                if (Array.isArray(entry.defenition)) {
+                    for (const value of entry.defenition) {
+                        if (typeof value === 'string') defSources.add(value);
+                    }
+                }
+                if (typeof entry.definition === 'string') defSources.add(entry.definition);
+                if (Array.isArray(entry.definition)) {
+                    for (const value of entry.definition) {
+                        if (typeof value === 'string') defSources.add(value);
+                    }
+                }
+                for (const defSource of defSources) {
+                    const defText = typeof defSource === 'string' ? defSource.trim() : '';
+                    if (!defText) continue;
+                    if (!defText.toLowerCase().includes(needle)) continue;
+                    matches.push({
+                        key,
+                        word: entry.word,
+                        type: entry.type ?? '',
+                        definition: defText,
+                        declension: entry.declension
+                    });
+                    break;
+                }
+            }
+            return matches;
+        }
+
         const chain = trace_origin(keyword);
         const baseKey = chain?.[chain.length - 1];
         const baseEntry = baseKey ? ALL_WORDS[baseKey] : undefined;
@@ -470,19 +529,25 @@ function dictionaryPage() {
             });
         }
 
-        // usage: definitions (joined) and gender names (joined)
-        const DefinitionForNounOrAdj = collectExistingGendersValues(baseEntry.genders).join('; ');
-        const gendersList = collectExistingGenderKeys(baseEntry.genders).join(', ');
+        if (trace_definition(keyword)) {
+            const origin = trace_definition(keyword);
+            origin.forEach(entry => {
+                //console.log(entry);
+                // definitions and gender names
+                const DefinitionForNounOrAdj = collectExistingGendersValues(entry.genders).join('; ');
+                const gendersList = collectExistingGenderKeys(entry.genders).join(', ');
 
-        const genders = gendersList || '...';
-        const word = baseEntry.word || '...';
-        const declension = baseEntry.declension || '...';
-        const forms = baseEntry.froms || '...';
-        const definition = baseEntry.defenition || DefinitionForNounOrAdj || '...';
-        const notes = baseEntry.usage_notes || '...';
+                const genders = entry.gender || '...';
+                const word = entry.word || '...';
+                const declension = entry.declension || '...';
+                const forms = entry.froms || '...';
+                const definition = entry.definition || '...';
+                const notes = entry.usage_notes || '...';
 
-        console.log(chain, baseEntry, prefixes, baseEntry.genders);
-        if (chain !== undefined) { extraTableRow(word, declension, forms, definition, notes, genders, keyword) }
+                console.log(chain, entry, prefixes, entry.gender);
+                extraTableRow(word, declension, forms, definition, notes, genders, keyword)
+            })
+        }
     }
 
     let table = '';
