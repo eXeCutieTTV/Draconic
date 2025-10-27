@@ -1,12 +1,6 @@
 function dictionaryPage() {
 
     //yoo new dictionary xd
-    const a = [];
-    const b = [];
-    const z = {
-        a,
-        b
-    }
 
     const ALL_WORDS = Object.fromEntries(
         Object.entries({
@@ -19,186 +13,84 @@ function dictionaryPage() {
             ...PARTICLES
         }).sort(([aKey], [bKey]) => aKey.localeCompare(bKey))
     );
+    /*
+        function search_word(word, dec = "") {
+            if (ALL_WORDS[word] !== undefined) return ALL_WORDS[word];
+            return ALL_WORDS[word + dec];
+        }
+    */
 
 
-    Object.entries(ALL_WORDS).forEach(([key, wordObj, definition, genders]) => {
-        a.push(key);
-        b.push(wordObj.word);
-    });
-    console.log(z);
-    // was tired of full consolelog xd
-
-
-    function search_word(word, dec = "") {
-        if (ALL_WORDS[word] !== undefined) return ALL_WORDS[word];
-        return ALL_WORDS[word + dec];
-    }
-
-
-
-    // so my idea is to make Dictionary (page99) be searchfield (will make later) and a table with all words
-    // resultpage on the other hand will be automatically generated based on seached word
-    // wouldnt it be better to have it be updated instead? but have a premade template.
-    // hm ill think about that
-    // i can work w both though tbh.
-    // eh ill think still :dragon:
     const searchBTN = document.getElementById('search_button');
     const searchFLD = document.getElementById('search_field');
 
     // main search function
     function search(word) {
-        const searchFLD = document.getElementById('search_field');
-        const keyType1 = (searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase();
-        const keyType2 = word;
-        const keyword = keyType1 || keyType2;
-        if (keyword === keyType1) {
-            console.log('1');
-        } if (keyword === keyType2) { console.log('2'); }
-        const ascdascdc = ALL_WORDS[keyword];
-        console.log('Current keyword |', keyword, ascdascdc);
-        /*
-                let matchType = 0;
-                let array = '';
-                for (let i = 0; i < 5; i++) {
-                    if (i === 0) {//not nouns/adj
-                        const thing = ALL_WORDS[keyword]
-                        if (thing) {
-                            array = thing;
-                            matchType = 1
-                            console.log('yes1');
-                        } else {
-                            matchType = 3
-                        }
-                    }
-                    else if (i > 0) {//nouns/adj
-                        const thing = ALL_WORDS[keyword + [i]]
-                        if (thing) {
-                            array = thing;
-                            matchType = 2;
-                            console.log('yes2');
-                        }
-                    }
-        
-                }
-        
-                if (matchType == 1) {
-                    const wordclass = array.type;
-                    switch (wordclass) {
-                        case 'v': console.log('verb')
-                            break;
-                        case 'adv': console.log('adverb')
-                            break;
-                        case 'aux': console.log('auxilary')
-                            break;
-                        case 'pp': console.log('preposition')
-                            break;
-                        case 'part': console.log('particle')
-                            break;
-                        case 'det': console.log('determiner')
-                            break;
-                        case 'con': console.log('conjunction')
-                            break;
-                        default: console.warn('no match in main wordclass switchcase')
-                    }
-        
-                    console.log('yes3', array, wordclass)
-                } else if (matchType == 2) {
-                    const wordclass = array.type;
-                    switch (wordclass) {
-                        case 'n': console.log('noun')
-                            break;
-                        case 'adj': console.log('adjective')
-                            break;
-                        default: console.warn('no match in wordclass switchcase for nouns/adjs')
-                    }
-                    console.log('yes4', array, wordclass)
-                } else if (matchType == 3) {
-                    // check verb prefixes
-                    FLAT_VERB_SUBJECT_PREFIXES.forEach(prefix => {
-                        const testo = entries_to_text(connect_prefix(keyword, prefix));
-                        console.log(testo);
-                        if (testo) { console.log('yes5') }
-                    });
-        
-                }
-        */
-        // this^^ works for detecting raw words.
-        // we need to be able to detect affixed words. whats the idea you have, that 'doesnt require us to generate every form in an array'?
-        // first check for prefix, it could be either a verb, a noun with preposition or something else
-        // hm
-        // where is the search help thingi? the examples[]? maybe pages\dictionarypage\searchSuggestions.js
-        // currently its giving errors when visiting the page multiple times, because constants get redefined. can you clear the constants or something somehow?
-        // iframes could fix that xd
-        // im not saying that we 100% dont want iframes, i just didnt really see the point, when we're loading the pages dynamically. only the welcome page exists on launch.
-        // but you can do the iframe thing inside each page i suppose? idk. 
-        // lets do that later though.
-        // where is array of prefixes for verbs? do we need to make one, or do you have in api?
-        // i need to mak
-        //alf
-        /*
-            // MY FUCKING GOD
-            // so it can start both with preposition and particle? alr
-            // only the i- paarticle.
-            // verbs can start with particle or preposition? //my assumption would be yes to prepositions.  fuck //nope. nouns and determiners only.
-            // with verbs, we need to make sure to have it be an if else if. such that we dont accidently count raw words that just happen to start with the same letters as those of the prefixes, as verbs. so if it isnt in raw, then check verb prefixes.
-                    
-                    
-                    
-            // æze-
-            // aze-
-            // fenlly-
-            // ħá-
-            // ħáŋ-
-            // ho-
-            // hu-
-            // huz-
-            // kxā-
-            // kxæ-
-            // lleŋ-
-            // lloq̇-
-            // ly-
-            // ō-
-            // qa-
-            // qē-
-            // qēru-
-            // q̇ū-
-            // qχok-
-            // sæχ-
-            // saχ-
-            // sī-
-            // sil-
-            // thū-
-            // tre-
-            // ū-
-            // all prepositions^^
-                    
-                    
-            // i- prefix to turn nouns into adjectives
-            // -nyl to turn adjectives into adverbs
-            // -ûl
-            // -ūn
-            // -ān
-            // -ōn
-            // particles^^
-                    
-            // -hyn	
-            // -hyf	
-            // -ħó	
-            // -llīl	
-            // -huχ	
-            // -thok	
-            // -hoq̇
-            // ^^ unique determiner suffixes. (only for determiners).
-                    
-            // noun suffixes
-                    
-            // verb prefixes
-            // verb suffixes
-                    
-            // i think this is it.^^
-                    
-            // raw exact match
-        */
+        const keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
+        let matchType = 0;
+
+        const temporary1 = ALL_WORDS[keyword];
+        console.log('Current keyword |', keyword, temporary1); // bro wtf is this variable naming xd. its temporary1. got it :b
+
+        function bkjlcdfkjbacsfksjbsdkabjc() {
+            /*  
+                why cant i close thisadscasdcawdasdawdcadacagkbjgagjbkjbgæsfcækjbgscdfækjibgfscækijbgf
+                æze-
+                aze-
+                fenlly-
+                ħá-
+                ħáŋ-
+                ho-
+                hu-
+                huz-
+                kxā-
+                kxæ-
+                lleŋ-
+                lloq̇-
+                ly-
+                ō-
+                qa-
+                qē-
+                qēru-
+                q̇ū-
+                qχok-
+                sæχ-
+                saχ-
+                sī-
+                sil-
+                thū-
+                tre-
+                ū-
+                all prepositions^^
+                        
+                        
+                i- prefix to turn nouns into adjectives
+                -nyl to turn adjectives into adverbs
+                -ûl
+                -ūn
+                -ān
+                -ōn
+                particles^^
+                        
+                -hyn	
+                -hyf	
+                -ħó	
+                -llīl	
+                -huχ	
+                -thok	
+                -hoq̇
+                ^^ unique determiner suffixes. (only for determiners).
+                        
+                noun suffixes
+                        
+                verb prefixes
+                verb suffixes
+                        
+                i think this is it.^^
+                        
+                raw exact match
+            */
+        }//HAHAHAHHAHAHAHAHHA. FUCK YOU COMMENT >:)
 
         //clear searchFLD
         if (searchFLD && searchFLD.value.trim() !== '') {
@@ -210,13 +102,12 @@ function dictionaryPage() {
         const EMPTY_FORM_SET = Object.freeze(new Set());
         const failedFormGenerators = new Set();
 
-
-
+        // clear english table
         if (document.getElementById('dictionaryTable')) { document.getElementById('dictionaryTable').remove() }
 
 
 
-
+        //helper
         function collectForms(generator, cache, entry, label) {
             const baseWord = typeof entry === 'string' ? entry : entry?.word;
             if (!baseWord) return EMPTY_FORM_SET;
@@ -240,7 +131,7 @@ function dictionaryPage() {
             cache.set(baseWord, forms);
             return forms;
         }
-
+        //helper
         function TEMP_noun_forms_list(noun) {
             const word = typeof noun === 'string' ? noun : noun?.word;
             if (!word) return [];
@@ -269,7 +160,7 @@ function dictionaryPage() {
                 })
                 .filter(Boolean);
         }
-
+        //helper
         function TEMP_verb_forms_list(verb) {
             const word = typeof verb === 'string' ? verb : verb?.word;
             if (!word) return [];
@@ -300,22 +191,22 @@ function dictionaryPage() {
                 })
                 .filter(Boolean);
         }
-
+        //helper
         function getNounForms(wordObj) {
             return collectForms(TEMP_noun_forms_list, nounFormCache, wordObj, 'noun');
         }
-
+        //helper
         function getVerbForms(wordObj) {
             return collectForms(TEMP_verb_forms_list, verbFormCache, wordObj, 'verb');
         }
-
+        //helper
         function findDirectMatchKey(word) {
             for (const [key, wordObj] of Object.entries(ALL_WORDS)) {
                 if (wordObj?.word === word) return key;
             }
             return undefined;
         }
-
+        //helper
         function findNounKeys(word) {
             if (!word) return undefined;
             for (const [key, wordObj] of Object.entries(NOUNS)) {
@@ -325,7 +216,7 @@ function dictionaryPage() {
             }
             return undefined;
         }
-
+        //helper
         function findVerbKeys(word) {
             if (!word) return undefined;
             for (const [key, wordObj] of Object.entries(VERBS)) {
@@ -335,7 +226,7 @@ function dictionaryPage() {
             }
             return undefined;
         }
-
+        //helper
         function normaliseVerbPrefix(entry) {
             if (!entry) return '';
             if (typeof entry === 'string') return entry;
@@ -346,7 +237,7 @@ function dictionaryPage() {
             }
             return '';
         }
-
+        //helper
         function matchPrefixCollection(sourceText, collection, resolveRest) {
             if (!collection) return undefined;
 
@@ -390,7 +281,7 @@ function dictionaryPage() {
 
             return undefined;
         }
-
+        //helper
         function matchVerbSubjectPrefix(sourceText) {
             let prefixesSource = [];
             if (typeof FLAT_VERB_SUBJECT_PREFIXES !== 'undefined') {
@@ -427,7 +318,7 @@ function dictionaryPage() {
 
             return undefined;
         }
-
+        //helper
         function trace_origin(text) {
             if (!text) return undefined;
 
@@ -455,6 +346,7 @@ function dictionaryPage() {
 
             return undefined;
         }
+        //helper
         function trace_definition(text) {
             if (typeof text !== 'string') return [];
             const needle = text.trim().toLowerCase();
@@ -524,35 +416,33 @@ function dictionaryPage() {
             key // fallback if you stored the literal string
         );
 
+        //console.log('1', search_word(keyword), '2', search_word_by_definition(keyword), '3', ALL_WORDS);
 
 
-        if (trace_definition(keyword)) {
-            const origin = trace_definition(keyword);
-            origin.forEach(entry => {
-                //console.log(entry);
+        console.log('baseEntry |', baseEntry);// pref/word
+        console.log('prefixes |', prefixes, 'baseKey |', baseKey, 'chain |', chain);
 
+        if (prefixes.length > 0) {//type 2
 
+        }
+        else if (prefixes.length == 0 && ALL_WORDS[keyword]) {//type 1
+            const searchHandler = search_word(keyword);
+            console.log('searchHandler |', searchHandler);
+            searchHandler.forEach(entry => {
+                const word = entry.word
+                if (word === keyword) {
+                    console.log('clean match |', keyword);
+                }
+            })
+        }
+        else {//type 3
+            const searchHandler = search_word_by_definition(keyword);
+            console.log('3', 'searchHandler |', searchHandler);
 
-                const genders = entry.gender || '...';
-                const word = entry.word || '...';
-                const declension = entry.declension || ALL_WORDS[entry.key].declension || '';
-                const forms = entry.forms || ALL_WORDS[entry.key].forms || genders || '...';
-                const definition = entry.definition || '...';
-                const notes = entry.usage_notes || ALL_WORDS[entry.key].usage_notes || '...';
-                const wordclass = entry.type || '...';
-
-                let wordclassText = '';
-                if (declension) {
-                    wordclassText = `${wordclass} ` + declension;
-                } else (wordclassText = wordclass);
-                //console.log(chain, entry, prefixes, entry.gender);
-                const uniqueId = (word + '-' + wordclass + '-' + declension + '-' + genders);
-                extraTableRow(word, wordclassText, forms, definition, notes, uniqueId)
-
-
-            });
-            let genderGroups = [];
-            function groupedGenders(key) {
+            searchHandler.forEach(entry => {
+                console.log(entry.genders, entry.genders['Exalted']);// <-- works.
+                const type = entry.type || '...';
+                let realGender = '';
                 const map = {
                     1: 'Exalted',
                     2: 'Rational',
@@ -560,67 +450,82 @@ function dictionaryPage() {
                     4: 'Irrational',
                     5: 'Magical',
                     6: 'Mundane',
-                    7: 'Abstract'
-                };
-
-                // safely get genders object
-                const genders = ALL_WORDS[key].genders || {};
-                // collect values in numeric order 1..7
-                const values = [];
-                for (let i = 1; i <= 7; i++) {
-                    values[i] = genders[map[i]]; // keep 1-based index to match your map
-                    //console.log(`${map[i]}:`, values[i]);
+                    7: 'Abstract',
                 }
 
-                // helper: compare values treating undefined/null/empty as not equal
-                const same = (a, b) => a !== undefined && a !== null && a !== '' && a === b;
+                for (const [key, definition] of Object.entries(entry.genders)) {
+                    //definition doesnt exist for nouns... look at image.
+                } // "Gender": "definition"
+                realGender = entry.genders[map[i]];
+                console.log(entry.genders[map[i]], '|', map[i]) // <-- works.  
+                const word = entry.word || '...';
+                const declension = entry.declension || '';
+                const forms = entry.forms || realGender || '...';
+                const usage_notes = entry.usage_notes || '...';
+                const definition = entry.definition || '...';
 
-                // check 1===2===3===4
-                if (same(values[1], values[2]) && same(values[2], values[3]) && same(values[3], values[4])) {
-                    genderGroups.push({
-                        definition: values[1],
-                        key,
-                        word: ALL_WORDS[key].word,
-                        group: 'Animates'
-                    })
-                }
 
-                // check 5===6===7
-                if (same(values[5], values[6]) && same(values[6], values[7])) {
-                    genderGroups.push({
-                        definition: values[5],
-                        key,
-                        word: ALL_WORDS[key].word,
-                        group: 'Inanimates'
-                    })
-                }
-                if (genderGroups.length > 0) { console.log(genderGroups); if (genderGroups[0].group === 'Animates') { console.log('animates') } }
+                let wordclassText = '';
+                if (declension) {
+                    wordclassText = `${type} ` + declension;
+                } else (wordclassText = type);
 
-            }
-            //groupedGenders(entry.key);
-            function hideIfGrouped() {
-                if (genderGroups[0].group === 'Animates') {
-                    const tr1 = document.getElementsByClassName('dictionaryTable-1');
-                    const tr2 = document.getElementsByClassName('dictionaryTable-2');
-                    const tr3 = document.getElementsByClassName('dictionaryTable-3');
-                    const tr4 = document.getElementsByClassName('dictionaryTable-4');
+                console.log(word, wordclassText, forms, definition, usage_notes);// <-- works.
+                extraTableRow(word, wordclassText, forms, definition, usage_notes);// <-- works not.
 
-                    tr2.remove();
-                    tr3.remove();
-                    tr4.remove();
 
-                    tr1.id = `test`;
-                }
-            }
-            //hideIfGrouped();
+            });
         }
+        /*
+            if (trace_definition(keyword)) {
+                const origin = trace_definition(keyword);
+                origin.forEach(entry => {
+                    console.log(entry);
+    
+                    const genders = entry.gender || '...';
+                    const word = entry.word || '...';
+                    const declension = entry.declension || ALL_WORDS[entry.key].declension || '';
+                    const forms = entry.forms || ALL_WORDS[entry.key].forms || genders || '...';
+                    const definition = entry.definition || '...';
+                    const notes = entry.usage_notes || ALL_WORDS[entry.key].usage_notes || '...';
+                    const wordclass = entry.type || '...';
+    
+                    let wordclassText = '';
+                    if (declension) {
+                        wordclassText = `${wordclass} ` + declension;
+                    } else (wordclassText = wordclass);
+                    const uniqueId = (word + '-' + wordclass + '-' + declension + '-' + genders);
+                    extraTableRow(word, wordclassText, forms, definition, notes, uniqueId);
+                });
+            }
+        */
     }
 
     let table = '';
     // Monotonic row id to avoid collisions when rows are removed
     let rowId = 0;
     // table row gen.
-    function extraTableRow(word, declension, forms, defintion, notes, IdIdentifier) {
+    function extraTableRow(word, declension, forms, defintion, notes) {
+        /*
+            const trd = document.createElement('tr');
+            trd.innerHTML = `
+            <td>${word}</td>
+            <td>${declension}</td>
+            <td>${forms}</td>
+            <td>${defintion}</td>
+            <td>${notes}</td>
+            <td style="cursor:pointer"><strong>search</strong></td>
+            `;
+
+            const td6 = trd.querySelector('td:last-child');
+            const td1 = trd.querySelector('td:first-child');
+            td6.addEventListener('click', () => search(td1.textContent));
+
+            table.appendChild(trd);
+            document.querySelector('#tableWrapper').appendChild(table);
+        */
+
+
 
         table = document.getElementById('dictionaryTable');
         if (!table) { table = document.createElement('table'); }// create/get depends on if it exists - doesnt conflict.
@@ -668,63 +573,23 @@ function dictionaryPage() {
 
         //td rows
         const trd = document.createElement('tr');
+        trd.innerHTML = `
+            <td>${word}</td>
+            <td>${declension}</td>
+            <td>${forms}</td>
+            <td>${defintion}</td>
+            <td>${notes}</td>
+            <td style="cursor:pointer"><strong>search</strong></td>
+            `;
 
-        const td1 = document.createElement('td');
-        const td2 = document.createElement('td');
-        const td3 = document.createElement('td');
-        const td4 = document.createElement('td');
-        const td5 = document.createElement('td');
-        const td6 = document.createElement('td');
-
-        td1.innerHTML = word;
-        td2.innerHTML = declension;
-        td3.innerHTML = forms;
-        td4.innerHTML = defintion;
-        td5.innerHTML = notes;
-        td6.innerHTML = `<strong>search</strong>`;
-
-        // Use a monotonic counter for stable, unique IDs (not table.rows.length)
-        rowId += 1;
-        const Index = rowId;
-        trd.id = ('tr-' + Index);
-        trd.className = 'dictionaryTable-' + Index;
-        /*
-                td1.id = `td1-${IdIdentifier}`;
-                td2.id = `td2-${IdIdentifier}`;
-                td3.id = `td3-${IdIdentifier}`;
-                td4.id = `td4-${IdIdentifier}`;
-                td5.id = `td5-${IdIdentifier}`;
-                td6.id = `td6-${IdIdentifier}`;
-        */
-
-        td1.id = `td1-${Index}`;
-        td2.id = `td2-${Index}`;
-        td3.id = `td3-${Index}`;
-        td4.id = `td4-${Index}`;
-        td5.id = `td5-${Index}`;
-        td6.id = `td6-${Index}`;
-
-
-        //td6
-        td6.style.cursor = 'pointer';
-        td6.addEventListener('click', (e) => {
-            search(td1.innerHTML);
-        });
-
-        trd.appendChild(td1);
-        trd.appendChild(td2);
-        trd.appendChild(td3);
-        trd.appendChild(td4);
-        trd.appendChild(td5);
-        trd.appendChild(td6);
+        const td6 = trd.querySelector('td:last-child');
+        const td1 = trd.querySelector('td:first-child');
+        td6.addEventListener('click', () => search(td1.textContent));
 
         table.appendChild(trd);
-
-        const wrap = document.querySelector('#tableWrapper');
-        wrap.appendChild(table);
-
-        function fixTable() {
-            // Find the nearest existing previous row (accounts for rows removed earlier)
+        document.querySelector('#tableWrapper').appendChild(table);
+        function fixTable() {//<--
+            // Find the nearest existing previous row (accounts for rows removed earlier) this for ids? <<< need ids so i can find prev row. yes.
             let prevIndex = Index - 1;
             while (prevIndex > 0 && !document.getElementById('tr-' + prevIndex)) {
                 prevIndex--;
@@ -867,6 +732,8 @@ function dictionaryPage() {
         startSearchListenerWiring();
     }
         */
+
+    // copied from legacy.vv
     const matchType = 1;
     function ifTypeOne(keyword) {
         if (matchType == 1) {
