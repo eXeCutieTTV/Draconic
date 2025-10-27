@@ -372,10 +372,94 @@ function dictionaryPage() {
                 const word = entry.word
                 if (word === keyword) {
                     console.log('clean match |', keyword);
-                    matchType = 1;
-                    ifTypeOne(keyword);
+
+                    let pagesWrap = document.querySelector('.pages');
+                    if (!pagesWrap) {
+                        console.error("no div with class '.pages'");
+                        return;
+                    }
+
+                    // create pageDiv
+                    const pageDiv = document.createElement('div');
+                    pageDiv.id = 'page97';
+                    pageDiv.className = 'page';
+                    pageDiv.innerHTML = `
+                    <div class="outerdiv">
+                        <div id="leftdivdictionary" class="leftdivdictionary">
+                            <div class="keyworddiv"></div>
+                            <h2>
+                                <p id="keywordp">Keyword</p>
+                            </h2>
+                            <p class="inline" id="keywordp1">keyword</p>
+                            <p class="inline"> is a</p>
+                            <p class="inline" id="wordclassp">wordclass</p>.
+                            <p class="inline"> Read more about
+                            <p class="inline" id="wordclassp1">wordclass</p>s <a href="#"
+                                onclick="event.preventDefault(); dictionaryPageReference()">here</a>,
+                            or read the short outline in here.
+                            </p>
+                            <br><br>
+                            <p class="inline">The declention tables that would be relevant for </p>
+                            <p class="inline" id="keywordp2">keyword</p>
+                            <p class="inline"> can be seen bellow.</p>
+
+                            <div class="tablesContainer"></div>
+
+                            <div id="includeTarget">
+                                <div id="leftleftdivdictionary"></div>
+                                <div id="rightleftdivdictionary"></div>
+                            </div>
+                        </div>
+                        <div id="rightdivdictionary" class="rightdivdictionary">
+                            <div class="pageSearch">
+                                <input type="text" id="unusedField" placeholder="Search..." />
+                                <button id="unusedBtn">Search</button>
+                                <div id="textBoxContainer"></div>
+                            </div>
+                        </div>
+                    </div>`;
+
+                    pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
+
+
+
+                    // Wait for the page content to load, then setup the table (header table)
+                    waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
+                        // Create and fill the table
+
+                        const table = createTable(keyword, pageContainer);
+                        const wordclass = ALL_WORDS[keyword].type;
+                        console.log(wordclass);
+                        //fillTable(keyword, wordclass, table);
+                        function newFillTable(table) {
+                            switch (wordclass) {
+                                case 'n':
+
+                                    break;
+                                case 'v':
+                                    table.forEach(td => { td.innerHTML = 'a'; console.log(td); })
+                                    break;
+                            }
+                        } newFillTable(table);
+
+                        // Update keyword <p>s
+                        const keywordp = document.getElementById("keywordp");
+                        if (keywordp) {
+                            keywordp.innerHTML = keyword;
+                        }
+                        cloneKeywordText();
+
+                        // Update wordclass <p>s
+                        const wordclassp = document.getElementById("wordclassp");
+                        if (wordclassp) {
+                            wordclassp.innerHTML = wordclass;
+                        }
+                        cloneWordclassText();
+
+                    });
                 }
-            })
+                openPageOld('page97')
+            });
         }
         else {//type 3
             const searchHandler = search_word_by_definition(keyword); // Array[]
