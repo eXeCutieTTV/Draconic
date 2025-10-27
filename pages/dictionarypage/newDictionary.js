@@ -46,9 +46,10 @@ function dictionaryPage() {
     const searchFLD = document.getElementById('search_field');
 
     // main search function
-    function search() {
+    function search(word) {
         const searchFLD = document.getElementById('search_field');
-        const keyword = (searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase();
+
+        const keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
         const ascdascdc = ALL_WORDS[keyword];
         console.log('Current keyword |', keyword, ascdascdc);
         /*
@@ -195,6 +196,11 @@ function dictionaryPage() {
             // raw exact match
         */
 
+            //clear searchFLD
+        if (searchFLD && searchFLD.value.trim() !== '') {
+            searchFLD.value = '';
+            searchFLD.blur();
+        }
         const nounFormCache = new Map();
         const verbFormCache = new Map();
         const EMPTY_FORM_SET = Object.freeze(new Set());
@@ -729,7 +735,7 @@ function dictionaryPage() {
                     if (definitionCellAbove.textContent === td4.textContent) {
                         const currentHTML = td3.innerHTML;
                         td3.innerHTML = `${formsCellAbove.innerHTML}<br>${currentHTML}`;
-                        // Remove the merged row
+
                         trAbove.remove();
                     }
                 }
