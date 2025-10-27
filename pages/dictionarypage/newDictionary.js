@@ -48,8 +48,12 @@ function dictionaryPage() {
     // main search function
     function search(word) {
         const searchFLD = document.getElementById('search_field');
-
-        const keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
+        const keyType1 = (searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase();
+        const keyType2 = word;
+        const keyword = keyType1 || keyType2;
+        if (keyword === keyType1) {
+            console.log('1');
+        } if (keyword === keyType2) { console.log('2'); }
         const ascdascdc = ALL_WORDS[keyword];
         console.log('Current keyword |', keyword, ascdascdc);
         /*
@@ -923,6 +927,7 @@ function dictionaryPage() {
 
                 const table = createTable(keyword, pageContainer);
                 const wordclass = ALL_WORDS[keyword].type;
+                console.log(wordclass);
                 fillTable(keyword, wordclass, table);
 
                 // Update keyword <p>s
@@ -989,14 +994,14 @@ function dictionaryPage() {
 
 
             }).catch(error => {
-                console.error(`Failed to find page container for ${targetPageId}:`, error);
+                console.error(`Failed to find page container for page97:`, error);
             });
 
 
-            openPageOld(targetPageId);
+            openPageOld('page97');
             //matchType = 0;
         }
-    } ifTypeOne(keyword);
+    } //ifTypeOne(keyword);
     // === runTableLoader ===
     function runTableLoader(wordclass) {
         // /\(/o.o\)/\ - Spooky the spider
