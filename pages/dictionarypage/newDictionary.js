@@ -423,7 +423,7 @@ function dictionaryPage() {
         console.log('prefixes |', prefixes, 'baseKey |', baseKey, 'chain |', chain);
 
         if (prefixes.length > 0) {//type 2
-
+            console.log('type2');
         }
         else if (prefixes.length == 0 && ALL_WORDS[keyword]) {//type 1
             const searchHandler = search_word(keyword);
@@ -441,19 +441,19 @@ function dictionaryPage() {
             const combinedGendersObject = combine_genders(searchHandler[0].genders) // Key-value pairs 
             console.log('combined |', combinedGendersObject)
             searchHandler.forEach(entry => {
-                
+
                 // check for type === "n" then do for () {} else do normal thingi?
                 if (entry.type === "n") {
                     for (const [gender, def] of Object.entries(combinedGendersObject)) {
                         extraTableRow(entry.word, `n ${entry.declension}`, gender, def, entry.usage_notes || '...');
-                        
+
                     }
                 } else {
                     const type = entry.type || '...';
                     const word = entry.word || '...';
                     const declension = entry.declension || '';
-                    const forms = entry.forms ||'...'; 
-                    const usage_notes = entry.usage_notes || '...'; 
+                    const forms = entry.forms || '...';
+                    const usage_notes = entry.usage_notes || '...';
                     const definition = entry.definition || def || '...';
 
 
@@ -464,7 +464,7 @@ function dictionaryPage() {
 
                     //console.log(word, wordclassText, forms, definition, usage_notes);// <-- works.
                     extraTableRow(word, wordclassText, forms, definition, usage_notes);// <-- works not.
-                } 
+                }
             });
         }
         /*

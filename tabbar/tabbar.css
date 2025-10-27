@@ -8,7 +8,7 @@
     grid-auto-flow: column;
     grid-auto-columns: minmax(200px, auto); /* here you edit minimum size */
     justify-content: start;
-    background: #f0f0f0;
+    background: var(--bg1);
     border-top: 1px solid #ccc;
     z-index: 99999;
     position: fixed;
@@ -31,9 +31,9 @@
 }
 
 .tab.active {
-    background: white;
+    background: var(--bg);
     font-weight: bold;
-    border: 1px solid #ff0000;
-    border-top: 2px solid #ff0000;
-    border-bottom: 0px solid #ff0000;
+    border: 1px solid var(--accent);
+    border-top: 2px solid var(--accent);
+    border-bottom: 0px solid var(--accent);
 }
