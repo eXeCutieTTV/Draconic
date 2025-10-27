@@ -436,44 +436,35 @@ function dictionaryPage() {
             })
         }
         else {//type 3
-            const searchHandler = search_word_by_definition(keyword);
+            const searchHandler = search_word_by_definition(keyword); // Array[]
             console.log('3', 'searchHandler |', searchHandler);
-
+            const combinedGendersObject = combine_genders(searchHandler[0].genders) // Key-value pairs 
+            console.log('combined |', combinedGendersObject)
             searchHandler.forEach(entry => {
-                console.log(entry.genders, entry.genders['Exalted']);// <-- works.
-                const type = entry.type || '...';
-                let realGender = '';
-                const map = {
-                    1: 'Exalted',
-                    2: 'Rational',
-                    3: 'Monstrous',
-                    4: 'Irrational',
-                    5: 'Magical',
-                    6: 'Mundane',
-                    7: 'Abstract',
-                }
-
-                for (const [key, definition] of Object.entries(entry.genders)) {
-                    //definition doesnt exist for nouns... look at image.
-                } // "Gender": "definition"
-                realGender = entry.genders[map[i]];
-                console.log(entry.genders[map[i]], '|', map[i]) // <-- works.  
-                const word = entry.word || '...';
-                const declension = entry.declension || '';
-                const forms = entry.forms || realGender || '...';
-                const usage_notes = entry.usage_notes || '...';
-                const definition = entry.definition || '...';
+                
+                // check for type === "n" then do for () {} else do normal thingi?
+                if (entry.type === "n") {
+                    for (const [gender, def] of Object.entries(combinedGendersObject)) {
+                        extraTableRow(entry.word, `n ${entry.declension}`, gender, def, entry.usage_notes || '...');
+                        
+                    }
+                } else {
+                    const type = entry.type || '...';
+                    const word = entry.word || '...';
+                    const declension = entry.declension || '';
+                    const forms = entry.forms ||'...'; 
+                    const usage_notes = entry.usage_notes || '...'; 
+                    const definition = entry.definition || def || '...';
 
 
-                let wordclassText = '';
-                if (declension) {
-                    wordclassText = `${type} ` + declension;
-                } else (wordclassText = type);
+                    let wordclassText = '';
+                    if (declension) {
+                        wordclassText = `${type} ` + declension;
+                    } else (wordclassText = type);
 
-                console.log(word, wordclassText, forms, definition, usage_notes);// <-- works.
-                extraTableRow(word, wordclassText, forms, definition, usage_notes);// <-- works not.
-
-
+                    //console.log(word, wordclassText, forms, definition, usage_notes);// <-- works.
+                    extraTableRow(word, wordclassText, forms, definition, usage_notes);// <-- works not.
+                } 
             });
         }
         /*
@@ -526,90 +517,62 @@ function dictionaryPage() {
         */
 
 
-
-        table = document.getElementById('dictionaryTable');
-        if (!table) { table = document.createElement('table'); }// create/get depends on if it exists - doesnt conflict.
-
-        //header row
-        const trh = document.createElement('tr');
-
-        const th1 = document.createElement('th');
-        const th2 = document.createElement('th');
-        const th3 = document.createElement('th');
-        const th4 = document.createElement('th');
-        const th5 = document.createElement('th');
-        const th6 = document.createElement('th');
-
-
-
-        trh.id = trh;
-        if (!document.getElementById(trh)) {
-
-            trh.appendChild(th1);
-            trh.appendChild(th2);
-            trh.appendChild(th3);
-            trh.appendChild(th4);
-            trh.appendChild(th5);
-            trh.appendChild(th6);
-
-            table.appendChild(trh);
-
-            th1.textContent = 'Word';
-            th2.textContent = 'Wordclass';
-            th3.textContent = 'Forms';
-            th4.textContent = 'Definition';
-            th5.textContent = 'Notes';
-            th6.textContent = '...';
-
-            th1.style.width = '12%';
-            th2.style.width = '7%';
-            th3.style.width = '7%';
-            th4.style.width = '30%';
-            th5.style.width = '30%';
-            th6.style.width = '7%';
-
+        let table = document.getElementById('dictionaryTable');
+        if (!table) {
+            table = document.createElement('table');
             table.id = 'dictionaryTable';
+            const trh = document.createElement('tr');
+            trh.innerHTML = `
+                <th style="width:12%">Word</th>
+                <th style="width:7%">Wordclass</th>
+                <th style="width:7%">Forms</th>
+                <th style="width:30%">Definition</th>
+                <th style="width:30%">Notes</th>
+                <th style="width:7%">...</th>
+            `;
+            table.appendChild(trh);
         }
 
+        const Index = table.rows.length;
         //td rows
         const trd = document.createElement('tr');
         trd.innerHTML = `
-            <td>${word}</td>
-            <td>${declension}</td>
-            <td>${forms}</td>
-            <td>${defintion}</td>
-            <td>${notes}</td>
-            <td style="cursor:pointer"><strong>search</strong></td>
+            <td id="td1-${Index}">${word}</td>
+            <td id="td2-${Index}">${declension}</td>
+            <td id="td3-${Index}">${forms}</td>
+            <td id="td4-${Index}">${defintion}</td>
+            <td id="td5-${Index}">${notes}</td>
+            <td id="td6-${Index}"; style="cursor:pointer"><strong>search</strong></td>
             `;
 
+        trd.id = `trd-${Index}`;
         const td6 = trd.querySelector('td:last-child');
         const td1 = trd.querySelector('td:first-child');
         td6.addEventListener('click', () => search(td1.textContent));
 
         table.appendChild(trd);
+
         document.querySelector('#tableWrapper').appendChild(table);
-        function fixTable() {//<--
-            // Find the nearest existing previous row (accounts for rows removed earlier) this for ids? <<< need ids so i can find prev row. yes.
-            let prevIndex = Index - 1;
-            while (prevIndex > 0 && !document.getElementById('tr-' + prevIndex)) {
-                prevIndex--;
-            }
 
-            if (prevIndex > 0) {
-                const definitionCellAbove = document.getElementById('td4-' + prevIndex);
-                const formsCellAbove = document.getElementById('td3-' + prevIndex);
-                const trAbove = document.getElementById('tr-' + prevIndex);
+        console.log('index |', Index);
+        /* function fixTable() {//<--
+             // Find the nearest existing previous row (accounts for rows removed earlier) 
+             let prevIndex = Index - 1;
+             console.log('prevIndex |', prevIndex);
 
-                if (definitionCellAbove && formsCellAbove && trAbove) {
-                    if (definitionCellAbove.textContent === td4.textContent) {
-                        const currentHTML = td3.innerHTML;
-                        td3.innerHTML = `${formsCellAbove.innerHTML}<br>${currentHTML}`;
-
-                        trAbove.remove();
-                    }
-                }
-            }
-        } fixTable();
+             if (prevIndex > 0) {
+                 const definitionCellAbove = document.getElementById(`td4-${prevIndex}`);
+                 const trAbove = document.getElementById('trd-' + prevIndex);
+                 console.log('above |', trAbove, definitionCellAbove, td4Text); // null null works //worked earlier istg done xd???? we need it. why? 
+                 if (definitionCellAbove && trAbove) {
+                     const a = definitionCellAbove.textContent;
+                     const b = td4.textContent;
+                     if (a === b) {
+                         trAbove.remove();
+                     }
+                 }
+             }
+         } fixTable();*/
     }
     // usage => for (let i = 0; i < rowAmount; i++) { extraTableRow(keyword or something custom); }
 

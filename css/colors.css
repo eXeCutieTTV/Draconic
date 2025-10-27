@@ -1,0 +1,29 @@
+/* later, dont delete */
+/* for darkmode, changing color palletes in one place */
+:root {
+    --bg: #fff;
+    --text: #000;
+    --border: #000;
+    --table1: #F2C8C8;
+    --table2: #E26B6B;
+    --table3: #CA4F4F;
+    --table4: #973B3B;
+}
+
+:root.dark {
+  --bg: #000;
+  --text: #fff;
+  --border: #fff;
+  --table1: #3b2323;
+  --table2: #5a2a2a;
+  --table3: #752f2f;
+  --table4: #9b3b3b;
+}
+
+/* todo: move somewjere else */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: sans-serif;
+  transition: background 0.3s, color 0.3s;
+}
