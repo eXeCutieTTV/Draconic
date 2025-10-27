@@ -587,7 +587,7 @@ function dictionaryPage() {
                 if (genderGroups.length > 0) { console.log(genderGroups); if (genderGroups[0].group === 'Animates') { console.log('animates') } }
 
             }
-            groupedGenders(entry.key);
+            //groupedGenders(entry.key);
             function hideIfGrouped() {
                 if (genderGroups[0].group === 'Animates') {
                     const tr1 = document.getElementsByClassName('dictionaryTable-1');
@@ -602,11 +602,13 @@ function dictionaryPage() {
                     tr1.id = `test`;
                 }
             }
-            hideIfGrouped();
+            //hideIfGrouped();
         }
     }
 
     let table = '';
+    // Monotonic row id to avoid collisions when rows are removed
+    let rowId = 0;
     // table row gen.
     function extraTableRow(word, declension, forms, defintion, notes, IdIdentifier) {
 
@@ -671,15 +673,27 @@ function dictionaryPage() {
         td5.innerHTML = notes;
         td6.innerHTML = `<strong>search</strong>`;
 
-        trd.id = `tr-${IdIdentifier}`;
-        trd.className = 'dictionaryTable-' + table.rows.length;
+        // Use a monotonic counter for stable, unique IDs (not table.rows.length)
+        rowId += 1;
+        const Index = rowId;
+        trd.id = ('tr-' + Index);
+        trd.className = 'dictionaryTable-' + Index;
+        /*
+                td1.id = `td1-${IdIdentifier}`;
+                td2.id = `td2-${IdIdentifier}`;
+                td3.id = `td3-${IdIdentifier}`;
+                td4.id = `td4-${IdIdentifier}`;
+                td5.id = `td5-${IdIdentifier}`;
+                td6.id = `td6-${IdIdentifier}`;
+        */
 
-        td1.id = `td1-${IdIdentifier}`;
-        td2.id = `td2-${IdIdentifier}`;
-        td3.id = `td3-${IdIdentifier}`;
-        td4.id = `td4-${IdIdentifier}`;
-        td5.id = `td5-${IdIdentifier}`;
-        td6.id = `td6-${IdIdentifier}`;
+        td1.id = `td1-${Index}`;
+        td2.id = `td2-${Index}`;
+        td3.id = `td3-${Index}`;
+        td4.id = `td4-${Index}`;
+        td5.id = `td5-${Index}`;
+        td6.id = `td6-${Index}`;
+
 
         //td6
         td6.style.cursor = 'pointer';
@@ -698,6 +712,29 @@ function dictionaryPage() {
 
         const wrap = document.querySelector('#tableWrapper');
         wrap.appendChild(table);
+
+        function fixTable() {
+            // Find the nearest existing previous row (accounts for rows removed earlier)
+            let prevIndex = Index - 1;
+            while (prevIndex > 0 && !document.getElementById('tr-' + prevIndex)) {
+                prevIndex--;
+            }
+
+            if (prevIndex > 0) {
+                const definitionCellAbove = document.getElementById('td4-' + prevIndex);
+                const formsCellAbove = document.getElementById('td3-' + prevIndex);
+                const trAbove = document.getElementById('tr-' + prevIndex);
+
+                if (definitionCellAbove && formsCellAbove && trAbove) {
+                    if (definitionCellAbove.textContent === td4.textContent) {
+                        const currentHTML = td3.innerHTML;
+                        td3.innerHTML = `${formsCellAbove.innerHTML}<br>${currentHTML}`;
+                        // Remove the merged row
+                        trAbove.remove();
+                    }
+                }
+            }
+        } fixTable();
     }
     // usage => for (let i = 0; i < rowAmount; i++) { extraTableRow(keyword or something custom); }
 
