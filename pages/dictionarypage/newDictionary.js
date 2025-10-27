@@ -372,6 +372,8 @@ function dictionaryPage() {
                 const word = entry.word
                 if (word === keyword) {
                     console.log('clean match |', keyword);
+                    matchType = 1;
+                    ifTypeOne(keyword);
                 }
             })
         }
@@ -1543,6 +1545,45 @@ function dictionaryPage() {
         return table;
     }
 
+    function keepDigitsOnly(str) {
+        return String(str).replace(/\D+/g, "");
+    }
+    function removeParensSpacesAndDigits(str) {
+        return String(str || "").replace(/[\d() \t\r\n]+/g, "");
+    }
+    // === Fill table from structured dictionary data ===
+    function resolveDictionaryEntry(wordclass, keyword) {
+        if (!dictionaryData) return null;
+
+        const normalizedClass = String(wordclass || "").trim().toLowerCase();
+        const collectionKey = WORDCLASS_COLLECTION_MAP[normalizedClass] || normalizedClass;
+        const collection = dictionaryData[collectionKey];
+        if (!collection) return null;
+
+        const attempts = new Set([
+            keyword,
+            String(keyword || "").trim(),
+            String(keyword || "").trim().toLowerCase(),
+            removeParensSpacesAndDigits(keyword)
+        ]);
+
+        for (const key of attempts) {
+            if (!key) continue;
+            const candidate = collection[key];
+            if (candidate) return candidate;
+        }
+
+        if (Array.isArray(collection)) {
+            const lowered = String(keyword || "").trim().toLowerCase();
+            return collection.find(entry => {
+                if (!entry || typeof entry !== "object") return false;
+                const entryKey = String(entry.keyword || "").trim().toLowerCase();
+                return entryKey === lowered;
+            }) || null;
+        }
+
+        return null;
+    }
     function fillTable(keyword, wordclass, table) {
         if (!table) return;
 
