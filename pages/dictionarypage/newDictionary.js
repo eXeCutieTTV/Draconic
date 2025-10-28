@@ -431,7 +431,7 @@ function dictionaryPage() {
                     // Wait for the page content to load, then setup the table (header table)
                     waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
                         // Create and fill the table
-
+                        console.log(NOUN_SUFFIXES);
                         //const table = createTable(keyword, pageContainer);//just copy english table logic??
                         const wordclass = entry.type || '...';
                         console.log(wordclass);
@@ -499,7 +499,77 @@ function dictionaryPage() {
                                 entry.usage_notes || '...')
                             newFillTable(row, entry.word, entry.declension, entry.definition, entry.forms, entry.usage_notes, entry.type);
                         }
+                        switch (wordclass) {
+                            case 'n':
+                                function neoSummaryTables(declension) {
+                                    const tableWrap = document.getElementById('leftleftdivdictionary')
+                                    const table1 = document.createElement('table');
 
+                                    //th
+                                    const thead = document.createElement('thead');
+                                    const headerRow = document.createElement('tr');
+                                    const headers = ["...", "Singular", "Dual", "Plural"];
+                                    headers.forEach(text => {
+                                        const th = document.createElement('th');
+                                        th.textContent = text;
+                                        headerRow.appendChild(th);
+                                        th.id = `neoSummaryHeader-${text}`;
+                                    });
+                                    thead.appendChild(headerRow);
+                                    table1.appendChild(thead);
+
+                                    //rows
+                                    for (const [gender, def] of Object.entries(combinedGendersObject)) {
+                                        const trd = document.createElement('tr');
+                                        const rowth = document.createElement('th');
+                                        rowth.textContent = gender;
+                                        trd.appendChild(rowth);
+
+                                        const map = {
+                                            1: 'Singular',
+                                            2: 'Dual',
+                                            3: 'Plural'
+                                        }
+
+                                        for (let i = 0; i < (headers.length - 1); i++) {
+                                            const td = document.createElement('td');
+                                            td.textContent = 'placeholder';
+                                            if (i === 0) {
+                                                td.className = `neoSummarytd-${map[1]}`
+                                            }
+                                            else if (i === 1) {
+                                                td.className = `neoSummarytd-${map[2]}`
+                                            }
+                                            else if (i === 2) {
+                                                td.className = `neoSummarytd-${map[3]}`
+                                            }
+
+                                            //inner
+                                            const entry = Object.entries(NOUN_SUFFIXES.Directive);
+                                            for (const [gndr, array] of entry) {
+                                                if (gndr === gender) {
+                                                    const numberKey = map[i + 1];
+                                                    const cellValue = array[numberKey] && array[numberKey][declension];
+                                                    if (cellValue !== undefined) {
+                                                        td.textContent = cellValue;
+                                                    }
+                                                }
+                                            }
+                                            trd.appendChild(td);
+
+                                        }
+                                        table1.appendChild(trd);
+                                    }
+
+
+
+                                    const tbody = document.createElement('tbody');
+                                    table1.appendChild(tbody);
+
+                                    tableWrap.appendChild(table1);
+                                } neoSummaryTables(entry.declension);
+                                break;
+                        }
                         // Update keyword <p>s
                         const keywordp = document.getElementById("keywordp");
                         if (keywordp) {

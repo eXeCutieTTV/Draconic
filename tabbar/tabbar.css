@@ -6,7 +6,7 @@
 .tab-bar {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: minmax(200px, auto); /* here you edit minimum size */
+    grid-auto-columns: minmax(200px, auto);/* here you edit minimum size */
     justify-content: start;
     background: var(--bg1);
     border-top: 1px solid #ccc;
