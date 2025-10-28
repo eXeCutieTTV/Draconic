@@ -494,7 +494,7 @@ function dictionaryPage() {
                         }
                         switch (wordclass) {
                             case 'n':
-                                function neoSummaryTables(declension, mood) {
+                                function neoNounTables(declension, mood) {
                                     const tableWrap = document.getElementById('leftleftdivdictionary')
                                     const table = document.createElement('table');
 
@@ -565,8 +565,8 @@ function dictionaryPage() {
 
                                     tableWrap.appendChild(table);
                                 }
-                                neoSummaryTables(entry.declension, 1);
-                                neoSummaryTables(entry.declension, 2);
+                                neoNounTables(entry.declension, 1);
+                                neoNounTables(entry.declension, 2);
 
                                 //const dirTable = document.getElementById('Noun-Table-Directive');
                                 //const recTable = document.getElementById('Noun-Table-Recessive');
@@ -574,6 +574,178 @@ function dictionaryPage() {
 
 
                                 break;
+                            case 'v':
+                                function neoVerbTables(affixState) {
+
+                                    const affixStateMap = {
+                                        1: 'Subject Prefix',
+                                        2: 'Object Suffix'
+                                    }
+                                    const div = document.createElement('div');
+                                    div.innerHTML = `
+                                    <table>
+                                        <tr>
+                                            <th colSpan = 2>${affixStateMap[affixState]}</th>
+                                            <th>Exalted</th>
+                                            <th>Rational</th>
+                                            <th>Monstrous</th>
+                                            <th>Irrational</th>
+                                            <th>Magical</th>
+                                            <th>Mundane</th>
+                                            <th>Abstract</th>
+                                        </tr>
+                                        <tr>
+                                            <th rowSpan = 3>Singular</th>
+                                            <th>1.</th>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                        </tr>
+                                        <tr>
+                                            <th>2.</th>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                        </tr>
+                                        <tr>
+                                            <th>3.</th>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                        </tr>
+                                        <tr>
+                                            <th rowSpan = 3>Dual</th>
+                                            <th>1.</th>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                        </tr>
+                                        <tr>
+                                            <th>2.</th>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                        </tr>
+                                        <tr>
+                                            <th>3.</th>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">x</td>
+                                        </tr>
+                                        <tr>
+                                            <th rowSpan = 3>Plural</th>
+                                            <th>1.</th>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                        </tr>
+                                        <tr>
+                                            <th>2.</th>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                        </tr>
+                                        <tr>
+                                            <th>3.</th>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                            <td>x</td>
+                                        </tr>
+                                    </table>
+                                    `;
+                                    div.style = "margin-bottom: 10px"
+                                    /*
+                                    const tableWrap = document.getElementById('leftleftdivdictionary')
+                                    const table = document.createElement('table');
+                                    console.log(VERB_SUBJECT_PREFIXES, VERB_OBJECT_SUFFIXES);
+                                    const affixStateMap = {
+                                        1: 'Subject Prefix',
+                                        2: 'Object Suffix'
+                                    }
+
+                                    table.id = `Verb-Table-${affixStateMap[affixState]}`;
+                                    //th
+                                    const thead = document.createElement('thead');
+                                    const headerRow = document.createElement('tr');
+                                    const headers = [affixStateMap[affixState], "Singular", "Dual", "Plural"];
+                                    headers.forEach(text => {
+                                        const th = document.createElement('th');
+                                        th.textContent = text;
+                                        headerRow.appendChild(th);
+                                        th.id = `neoSummaryHeader-${text}`;
+                                    });
+                                    thead.appendChild(headerRow);
+                                    table.appendChild(thead);
+
+                                    //rows
+                                    const number = {
+                                        1: 'Singular',
+                                        2: 'Dual',
+                                        3: 'Plural'
+                                    }
+                                    for (const [a, b] of Object.entries(number)) {
+                                        const th1 = document.createElement('th');
+                                        th1.colSpan = 3;
+                                        const person = [1, 2, 3];
+                                        person.forEach(prsn => {
+                                            const tr = document.createElement('tr');
+                                            const th2 = document.createElement('th');
+
+                                            tr.appendChild(th2);
+                                        });
+                                    }
+                                   
+                                    const tbody = document.createElement('tbody');
+                                    table.appendChild(tbody);
+
+                                    tableWrap.appendChild(table);
+                                    */
+
+                                    const wrapper = document.getElementById('leftleftdivdictionary');
+                                    wrapper.appendChild(div);
+
+                                }
+
+
+                                neoVerbTables(1);
+                                neoVerbTables(2);
+                                break
                         }
                         // Update keyword <p>s
                         const keywordp = document.getElementById("keywordp");
