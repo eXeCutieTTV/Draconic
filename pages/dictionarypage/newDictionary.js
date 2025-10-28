@@ -501,14 +501,18 @@ function dictionaryPage() {
                         }
                         switch (wordclass) {
                             case 'n':
-                                function neoSummaryTables(declension) {
+                                function neoSummaryTables(declension, mood) {
                                     const tableWrap = document.getElementById('leftleftdivdictionary')
-                                    const table1 = document.createElement('table');
+                                    const table = document.createElement('table');
 
+                                    const moodMap = {
+                                        1: 'Directive',
+                                        2: 'Recessive'
+                                    }
                                     //th
                                     const thead = document.createElement('thead');
                                     const headerRow = document.createElement('tr');
-                                    const headers = ["...", "Singular", "Dual", "Plural"];
+                                    const headers = [moodMap[mood], "Singular", "Dual", "Plural"];
                                     headers.forEach(text => {
                                         const th = document.createElement('th');
                                         th.textContent = text;
@@ -516,7 +520,7 @@ function dictionaryPage() {
                                         th.id = `neoSummaryHeader-${text}`;
                                     });
                                     thead.appendChild(headerRow);
-                                    table1.appendChild(thead);
+                                    table.appendChild(thead);
 
                                     //rows
                                     for (const [gender, def] of Object.entries(combinedGendersObject)) {
@@ -524,7 +528,6 @@ function dictionaryPage() {
                                         const rowth = document.createElement('th');
                                         rowth.textContent = gender;
                                         trd.appendChild(rowth);
-
                                         const map = {
                                             1: 'Singular',
                                             2: 'Dual',
@@ -543,9 +546,9 @@ function dictionaryPage() {
                                             else if (i === 2) {
                                                 td.className = `neoSummarytd-${map[3]}`
                                             }
-
+                                            const mooooood = moodMap[mood];
                                             //inner
-                                            const entry = Object.entries(NOUN_SUFFIXES.Directive);
+                                            const entry = Object.entries(NOUN_SUFFIXES[mooooood]);
                                             for (const [gndr, array] of entry) {
                                                 if (gndr === gender) {
                                                     const numberKey = map[i + 1];
@@ -558,16 +561,18 @@ function dictionaryPage() {
                                             trd.appendChild(td);
 
                                         }
-                                        table1.appendChild(trd);
+                                        table.appendChild(trd);
                                     }
 
-
+                                    table.style = "margin-bottom: 10px";
 
                                     const tbody = document.createElement('tbody');
-                                    table1.appendChild(tbody);
+                                    table.appendChild(tbody);
 
-                                    tableWrap.appendChild(table1);
-                                } neoSummaryTables(entry.declension);
+                                    tableWrap.appendChild(table);
+                                }
+                                neoSummaryTables(entry.declension, 1);
+                                neoSummaryTables(entry.declension, 2);
                                 break;
                         }
                         // Update keyword <p>s
