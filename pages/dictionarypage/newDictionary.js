@@ -618,13 +618,13 @@ function dictionaryPage() {
                                         </tr>
                                         <tr>
                                             <th>3.</th>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Exalted']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Rational']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Monstrous']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Irrational']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Magical']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Mundane']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Abstract']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Singular['Exalted']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Singular['Rational']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Singular['Monstrous']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Singular['Irrational']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Singular['Magical']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Singular['Mundane']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Singular['Abstract']}</td>
                                         </tr>
                                         <tr>
                                             <th rowSpan = 3>Dual</th>
@@ -649,13 +649,13 @@ function dictionaryPage() {
                                         </tr>
                                         <tr>
                                             <th>3.</th>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Exalted']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Rational']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Monstrous']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Irrational']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Magical']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Mundane']}</td>
-                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Abstract']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Dual['Exalted']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Dual['Rational']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Dual['Monstrous']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Dual['Irrational']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Dual['Magical']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Dual['Mundane']}</td>
+                                            <td style = "border-bottom: 1px solid var(--border)">${affixStateMap[affixState][2][3].Dual['Abstract']}</td>
                                         </tr>
                                         <tr>
                                             <th rowSpan = 3>Plural</th>
@@ -1037,7 +1037,7 @@ function dictionaryPage() {
             tds.forEach(td => {
                 // prefer original stored raw suffix (data-raw) if present 
                 const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
-                console.log(td.dataset.raw); // wtf is dataset.raw?
+                //console.log(td.dataset.raw); // wtf is dataset.raw?
                 // console.log(td.innerHTML);
 
                 // process raw
@@ -1096,6 +1096,7 @@ function dictionaryPage() {
                         <div class="pageSearch">
                             <input type="text" id="unusedField" placeholder="Search..." />
                             <button id="unusedBtn">Search</button>
+                            <button id="tableSearchBtn">Table is seachable</button>
                             <div id="textBoxContainer"></div>
                         </div>
                     </div>
