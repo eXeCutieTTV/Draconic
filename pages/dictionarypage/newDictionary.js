@@ -578,14 +578,15 @@ function dictionaryPage() {
                                 function neoVerbTables(affixState) {
 
                                     const affixStateMap = {
-                                        1: 'Subject Prefix',
-                                        2: 'Object Suffix'
+                                        1: { 1: 'Subject Prefix', 2: VERB_SUBJECT_PREFIXES },
+                                        2: { 1: 'Object Suffix', 2: VERB_OBJECT_SUFFIXES }
                                     }
+                                    console.log(affixStateMap[affixState][2]);
                                     const div = document.createElement('div');
                                     div.innerHTML = `
                                     <table>
                                         <tr>
-                                            <th colSpan = 2>${affixStateMap[affixState]}</th>
+                                            <th colSpan = 2>${affixStateMap[affixState][1]}</th>
                                             <th>Exalted</th>
                                             <th>Rational</th>
                                             <th>Monstrous</th>
@@ -597,95 +598,95 @@ function dictionaryPage() {
                                         <tr>
                                             <th rowSpan = 3>Singular</th>
                                             <th>1.</th>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
+                                            <td>${affixStateMap[affixState][2][1].Singular['Exalted']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Singular['Rational']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Singular['Monstrous']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Singular['Irrational']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Singular['Magical']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Singular['Mundane']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Singular['Abstract']}</td>
                                         </tr>
                                         <tr>
                                             <th>2.</th>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
+                                            <td>${affixStateMap[affixState][2][2].Singular['Exalted']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Singular['Rational']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Singular['Monstrous']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Singular['Irrational']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Singular['Magical']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Singular['Mundane']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Singular['Abstract']}</td>
                                         </tr>
                                         <tr>
                                             <th>3.</th>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Exalted']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Rational']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Monstrous']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Irrational']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Magical']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Mundane']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Singular['Abstract']}</td>
                                         </tr>
                                         <tr>
                                             <th rowSpan = 3>Dual</th>
                                             <th>1.</th>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
+                                            <td>${affixStateMap[affixState][2][1].Dual['Exalted']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Dual['Rational']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Dual['Monstrous']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Dual['Irrational']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Dual['Magical']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Dual['Mundane']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Dual['Abstract']}</td>
                                         </tr>
                                         <tr>
                                             <th>2.</th>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
+                                            <td>${affixStateMap[affixState][2][2].Dual['Exalted']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Dual['Rational']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Dual['Monstrous']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Dual['Irrational']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Dual['Magical']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Dual['Mundane']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Dual['Abstract']}</td>
                                         </tr>
                                         <tr>
                                             <th>3.</th>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
-                                            <td style = "border-bottom: 1px solid black">x</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Exalted']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Rational']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Monstrous']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Irrational']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Magical']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Mundane']}</td>
+                                            <td style = "border-bottom: 1px solid black">${affixStateMap[affixState][2][3].Dual['Abstract']}</td>
                                         </tr>
                                         <tr>
                                             <th rowSpan = 3>Plural</th>
                                             <th>1.</th>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
+                                            <td>${affixStateMap[affixState][2][1].Plural['Exalted']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Plural['Rational']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Plural['Monstrous']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Plural['Irrational']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Plural['Magical']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Plural['Mundane']}</td>
+                                            <td>${affixStateMap[affixState][2][1].Plural['Abstract']}</td>
                                         </tr>
                                         <tr>
                                             <th>2.</th>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
+                                            <td>${affixStateMap[affixState][2][2].Plural['Exalted']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Plural['Rational']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Plural['Monstrous']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Plural['Irrational']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Plural['Magical']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Plural['Mundane']}</td>
+                                            <td>${affixStateMap[affixState][2][2].Plural['Abstract']}</td>
                                         </tr>
                                         <tr>
                                             <th>3.</th>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
-                                            <td>x</td>
+                                            <td>${affixStateMap[affixState][2][3].Plural['Exalted']}</td>
+                                            <td>${affixStateMap[affixState][2][3].Plural['Rational']}</td>
+                                            <td>${affixStateMap[affixState][2][3].Plural['Monstrous']}</td>
+                                            <td>${affixStateMap[affixState][2][3].Plural['Irrational']}</td>
+                                            <td>${affixStateMap[affixState][2][3].Plural['Magical']}</td>
+                                            <td>${affixStateMap[affixState][2][3].Plural['Mundane']}</td>
+                                            <td>${affixStateMap[affixState][2][3].Plural['Abstract']}</td>
                                         </tr>
                                     </table>
                                     `;
