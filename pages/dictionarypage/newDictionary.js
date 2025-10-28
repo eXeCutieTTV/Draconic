@@ -427,17 +427,39 @@ function dictionaryPage() {
                     waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
                         // Create and fill the table
 
-                        const table = createTable(keyword, pageContainer);
+                        //const table = createTable(keyword, pageContainer);//just copy english table logic??
+                        const table = type1extraTableRow(
+                            ALL_WORDS[keyword].word,
+                            ALL_WORDS[keyword].declension || '...',
+                            ALL_WORDS[keyword].forms || '...',
+                            ALL_WORDS[keyword].defintion || '...',
+                            ALL_WORDS[keyword].usage_notes || '...')
                         const wordclass = ALL_WORDS[keyword].type;
                         console.log(wordclass);
                         //fillTable(keyword, wordclass, table);
                         function newFillTable(table) {
+                            const cell0 = document.getElementById('cell0');
+                            const cell1 = document.getElementById('cell1');
+                            const cell2 = document.getElementById('cell2');
+                            const cell3 = document.getElementById('cell3');
+                            const cell4 = document.getElementById('cell4');
+                            const cell5 = document.getElementById('cell5');
+
+                            console.log(ALL_WORDS[keyword].definition)
+
+                            cell0.innerHTML = ALL_WORDS[keyword].word;
+                            cell1.innerHTML = ALL_WORDS[keyword].declension || '...';
+                            cell2.innerHTML = ALL_WORDS[keyword].definition || '...';
+                            cell3.innerHTML = ALL_WORDS[keyword].forms || '...';
+                            cell4.innerHTML = ALL_WORDS[keyword].usage_notes || '...';
+                            cell5.innerHTML = ALL_WORDS[keyword].type;
+
                             switch (wordclass) {
                                 case 'n':
 
                                     break;
                                 case 'v':
-                                    table.forEach(td => { td.innerHTML = 'a'; console.log(td); })
+                                    //case n and then default. or just if n, else.
                                     break;
                             }
                         } newFillTable(table);
@@ -518,9 +540,42 @@ function dictionaryPage() {
         */
     }
 
-    let table = '';
-    // Monotonic row id to avoid collisions when rows are removed
-    let rowId = 0;
+
+    function type1extraTableRow(word, declension, forms, defintion, notes) {
+        let table = document.getElementById('type1TopTable');
+        if (!table) {
+            table = document.createElement('table');
+            table.id = 'type1TopTable';
+            const trh = document.createElement('tr');
+            trh.innerHTML = `
+                <th style="width:12%">Word</th>
+                <th style="width:7%">Wordclass</th>
+                <th style="width:7%">Forms</th>
+                <th style="width:30%">Definition</th>
+                <th style="width:30%">Notes</th>
+            `;
+            table.appendChild(trh);
+        }
+        const Index = table.rows.length;
+        //td rows
+        const trd = document.createElement('tr');
+        trd.innerHTML = `
+            <td id="td1-${Index}">${word}</td>
+            <td id="td2-${Index}">${declension}</td>
+            <td id="td3-${Index}">${forms}</td>
+            <td id="td4-${Index}">${defintion}</td>
+            <td id="td5-${Index}">${notes}</td>
+            `;
+
+        trd.id = `trd-${Index}`;
+
+        table.appendChild(trd);
+
+        document.querySelector('.tablesContainer').appendChild(table);
+
+        console.log('index |', Index);
+
+    }
     // table row gen.
     function extraTableRow(word, declension, forms, defintion, notes) {
         /*
@@ -783,8 +838,8 @@ function dictionaryPage() {
 
                 const table = createTable(keyword, pageContainer);
                 const wordclass = ALL_WORDS[keyword].type;
-                console.log(wordclass);
-                fillTable(keyword, wordclass, table);
+                console.log(wordclass, table);
+                //fillTable(keyword, wordclass, table);
 
                 // Update keyword <p>s
                 const keywordp = document.getElementById("keywordp");

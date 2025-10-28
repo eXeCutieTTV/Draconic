@@ -1,0 +1,33 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 2px;
+    color: var(--text);
+}
+
+th {
+    padding: 8px;
+    text-align: center; /* horizontal center */
+    vertical-align: middle; /* vertical center */
+    border: 0px solid var(--border);
+    background-color: var(--table2);
+    color: var(--text);
+}
+
+td {
+    padding: 8px;
+    text-align: center; /* horizontal center */
+    vertical-align: middle; /* vertical center */
+    border: 0px solid var(--border);
+    background-color: var(--table1);
+    color: var(--text);
+}
+
+.alignleft th,
+.alignleft td {
+    text-align: left;
+}
+
+.tdhover tr:hover td {
+    background-color: var(--table0);
+}

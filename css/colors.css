@@ -18,12 +18,10 @@
 :root.dark {
     --accent: #f00;
     --bg: #291f1f;
-    /*this? its a bit brown, but idk. its important that it doesnt stand out though. its a background - its not supposed to stand out. its supposed to be calming to the eyes*/
     --bg1: #333;
-    /* maybe give it a red tint, already did */
     --text: #fff;
     --border: #fff; 
-    --table0: #291515; /*edit later, its hover*/
+    --table0: #291515;
     --table1: #3b2323;
     --table2: #5a2a2a;
     --table3: #752f2f;
