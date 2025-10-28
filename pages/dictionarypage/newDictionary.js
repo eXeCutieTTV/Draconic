@@ -584,7 +584,7 @@ function dictionaryPage() {
                                     console.log(affixStateMap[affixState][2]);
                                     const div = document.createElement('div');
                                     div.innerHTML = `
-                                    <table>
+                                    <table id="Verb-Table-${affixStateMap[affixState][1]}">
                                         <tr>
                                             <th colSpan = 2>${affixStateMap[affixState][1]}</th>
                                             <th>Exalted</th>
@@ -691,61 +691,13 @@ function dictionaryPage() {
                                     </table>
                                     `;
                                     div.style = "margin-bottom: 10px"
-                                    /*
-                                    const tableWrap = document.getElementById('leftleftdivdictionary')
-                                    const table = document.createElement('table');
-                                    console.log(VERB_SUBJECT_PREFIXES, VERB_OBJECT_SUFFIXES);
-                                    const affixStateMap = {
-                                        1: 'Subject Prefix',
-                                        2: 'Object Suffix'
-                                    }
-
-                                    table.id = `Verb-Table-${affixStateMap[affixState]}`;
-                                    //th
-                                    const thead = document.createElement('thead');
-                                    const headerRow = document.createElement('tr');
-                                    const headers = [affixStateMap[affixState], "Singular", "Dual", "Plural"];
-                                    headers.forEach(text => {
-                                        const th = document.createElement('th');
-                                        th.textContent = text;
-                                        headerRow.appendChild(th);
-                                        th.id = `neoSummaryHeader-${text}`;
-                                    });
-                                    thead.appendChild(headerRow);
-                                    table.appendChild(thead);
-
-                                    //rows
-                                    const number = {
-                                        1: 'Singular',
-                                        2: 'Dual',
-                                        3: 'Plural'
-                                    }
-                                    for (const [a, b] of Object.entries(number)) {
-                                        const th1 = document.createElement('th');
-                                        th1.colSpan = 3;
-                                        const person = [1, 2, 3];
-                                        person.forEach(prsn => {
-                                            const tr = document.createElement('tr');
-                                            const th2 = document.createElement('th');
-
-                                            tr.appendChild(th2);
-                                        });
-                                    }
-                                   
-                                    const tbody = document.createElement('tbody');
-                                    table.appendChild(tbody);
-
-                                    tableWrap.appendChild(table);
-                                    */
-
                                     const wrapper = document.getElementById('leftleftdivdictionary');
                                     wrapper.appendChild(div);
-
                                 }
-
-
                                 neoVerbTables(1);
                                 neoVerbTables(2);
+
+                                populateSummaryTables(keyword, { 'Verb-Table-Subject Prefix': true, 'Verb-Table-Object Suffix': false });
                                 break
                         }
                         // Update keyword <p>s
