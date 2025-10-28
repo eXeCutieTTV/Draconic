@@ -431,10 +431,10 @@ function dictionaryPage() {
                     // Wait for the page content to load, then setup the table (header table)
                     waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
                         // Create and fill the table
-                        console.log(NOUN_SUFFIXES);
+                        //console.log(NOUN_SUFFIXES);
                         //const table = createTable(keyword, pageContainer);//just copy english table logic??
                         const wordclass = entry.type || '...';
-                        console.log(wordclass);
+                        //console.log(wordclass);
                         //fillTable(keyword, wordclass, table);
                         function newFillTable(row, word, declension, definition, forms, usage_notes, type) {
                             if (!row) return;
@@ -509,6 +509,7 @@ function dictionaryPage() {
                                         1: 'Directive',
                                         2: 'Recessive'
                                     }
+                                    table.id = `Noun-Table-${moodMap[mood]}`;
                                     //th
                                     const thead = document.createElement('thead');
                                     const headerRow = document.createElement('tr');
@@ -573,6 +574,12 @@ function dictionaryPage() {
                                 }
                                 neoSummaryTables(entry.declension, 1);
                                 neoSummaryTables(entry.declension, 2);
+
+                                //const dirTable = document.getElementById('Noun-Table-Directive');
+                                //const recTable = document.getElementById('Noun-Table-Recessive');
+                                populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
+
+
                                 break;
                         }
                         // Update keyword <p>s
@@ -901,6 +908,31 @@ function dictionaryPage() {
         */
 
     // copied from legacy.vv
+
+
+    // populateSummaryTables
+    function populateSummaryTables(keyword, tables) {
+        Object.keys(tables).forEach(tableId => {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            const tds = table.querySelectorAll("td");
+            tds.forEach(td => {
+                // prefer original stored raw suffix (data-raw) if present 
+                const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
+                console.log(td.dataset.raw); // wtf is dataset.raw?
+                // console.log(td.innerHTML);
+
+                // process raw
+                let entries;
+                if (tables[tableId]) entries = connect_split(textInCell, keyword, "");
+                else entries = connect_split("", keyword, textInCell);
+                td.innerHTML = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+                // place keyword as prefix or suffix (you can change behavior per table)
+            });
+        });
+    }
+
+
     const matchType = 1;
     function ifTypeOne(keyword) {
         if (matchType == 1) {
