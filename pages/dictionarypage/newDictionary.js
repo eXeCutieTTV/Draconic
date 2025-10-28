@@ -28,6 +28,10 @@ function dictionaryPage() {
     function search(word) {
         const keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
         let matchType = 0;
+        const typeOnePage = document.getElementById('page97');
+        if (typeOnePage) {
+            typeOnePage.remove();
+        }
 
         const temporary1 = ALL_WORDS[keyword];
         console.log('Current keyword |', keyword, temporary1); // bro wtf is this variable naming xd. its temporary1. got it :b
@@ -429,12 +433,12 @@ function dictionaryPage() {
 
                         //const table = createTable(keyword, pageContainer);//just copy english table logic??
                         const table = type1extraTableRow(
-                            ALL_WORDS[keyword].word,
-                            ALL_WORDS[keyword].declension || '...',
-                            ALL_WORDS[keyword].forms || '...',
-                            ALL_WORDS[keyword].defintion || '...',
-                            ALL_WORDS[keyword].usage_notes || '...')
-                        const wordclass = ALL_WORDS[keyword].type;
+                            entry.word || '...',
+                            entry.declension || '...',
+                            entry.forms || '...',
+                            entry.defintion || '...',
+                            entry.usage_notes || '...')
+                        const wordclass = entry.type || '...';
                         console.log(wordclass);
                         //fillTable(keyword, wordclass, table);
                         function newFillTable(table) {
@@ -445,14 +449,14 @@ function dictionaryPage() {
                             const cell4 = document.getElementById('cell4');
                             const cell5 = document.getElementById('cell5');
 
-                            console.log(ALL_WORDS[keyword].definition)
+                            console.log(entry.definition)
 
-                            cell0.innerHTML = ALL_WORDS[keyword].word;
-                            cell1.innerHTML = ALL_WORDS[keyword].declension || '...';
-                            cell2.innerHTML = ALL_WORDS[keyword].definition || '...';
-                            cell3.innerHTML = ALL_WORDS[keyword].forms || '...';
-                            cell4.innerHTML = ALL_WORDS[keyword].usage_notes || '...';
-                            cell5.innerHTML = ALL_WORDS[keyword].type;
+                            cell0.innerHTML = entry.word || '...';
+                            cell1.innerHTML = entry.declension || '...';
+                            cell2.innerHTML = entry.definition || '...';
+                            cell3.innerHTML = entry.forms || '...';
+                            cell4.innerHTML = entry.usage_notes || '...';
+                            cell5.innerHTML = entry.type || '...';
 
                             switch (wordclass) {
                                 case 'n':
