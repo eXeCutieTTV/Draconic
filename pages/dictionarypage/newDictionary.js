@@ -377,6 +377,7 @@ function dictionaryPage() {
                 const word = entry.word
                 if (word === keyword) {
                     console.log('clean match |', keyword);
+                    const wordclass = entry.type || '...';
 
                     let pagesWrap = document.querySelector('.pages');
                     if (!pagesWrap) {
@@ -393,20 +394,13 @@ function dictionaryPage() {
                         <div id="leftdivdictionary" class="leftdivdictionary">
                             <div class="keyworddiv"></div>
                             <h2>
-                                <p id="keywordp">Keyword</p>
+                                ${keyword}
                             </h2>
-                            <p class="inline" id="keywordp1">keyword</p>
-                            <p class="inline"> is a</p>
-                            <p class="inline" id="wordclassp">wordclass</p>.
-                            <p class="inline"> Read more about
-                            <p class="inline" id="wordclassp1">wordclass</p>s <a href="#"
+                            <p>${keyword} is a ${wordclass} Read more about ${wordclass}s <a href="#"
                                 onclick="event.preventDefault(); dictionaryPageReference()">here</a>,
-                            or read the short outline in here.
-                            </p>
+                            or read the short outline in here.</p>
                             <br><br>
-                            <p class="inline">The declention tables that would be relevant for </p>
-                            <p class="inline" id="keywordp2">keyword</p>
-                            <p class="inline"> can be seen bellow.</p>
+                            <p>The declention tables that would be relevant for ${keyword} can be seen bellow.</p>
 
                             <div class="tablesContainer"></div>
 
@@ -433,7 +427,6 @@ function dictionaryPage() {
                         // Create and fill the table
                         //console.log(NOUN_SUFFIXES);
                         //const table = createTable(keyword, pageContainer);//just copy english table logic??
-                        const wordclass = entry.type || '...';
                         //console.log(wordclass);
                         //fillTable(keyword, wordclass, table);
                         function newFillTable(row, word, declension, definition, forms, usage_notes, type) {
