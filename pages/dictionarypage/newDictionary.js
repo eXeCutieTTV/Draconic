@@ -372,6 +372,7 @@ function dictionaryPage() {
         else if (prefixes.length == 0 && ALL_WORDS[keyword]) {//type 1
             const searchHandler = search_word(keyword);
             console.log('searchHandler |', searchHandler);
+            const combinedGendersObject = combine_genders(searchHandler[0].genders) // Key-value pairs 
             searchHandler.forEach(entry => {
                 const word = entry.word
                 if (word === keyword) {
@@ -432,41 +433,72 @@ function dictionaryPage() {
                         // Create and fill the table
 
                         //const table = createTable(keyword, pageContainer);//just copy english table logic??
-                        const table = type1extraTableRow(
-                            entry.word || '...',
-                            entry.declension || '...',
-                            entry.forms || '...',
-                            entry.defintion || '...',
-                            entry.usage_notes || '...')
                         const wordclass = entry.type || '...';
                         console.log(wordclass);
                         //fillTable(keyword, wordclass, table);
-                        function newFillTable(table) {
-                            const cell0 = document.getElementById('cell0');
-                            const cell1 = document.getElementById('cell1');
-                            const cell2 = document.getElementById('cell2');
-                            const cell3 = document.getElementById('cell3');
-                            const cell4 = document.getElementById('cell4');
-                            const cell5 = document.getElementById('cell5');
+                        function newFillTable(row, word, declension, definition, forms, usage_notes, type) {
+                            if (!row) return;
 
-                            console.log(entry.definition)
-
-                            cell0.innerHTML = entry.word || '...';
-                            cell1.innerHTML = entry.declension || '...';
-                            cell2.innerHTML = entry.definition || '...';
-                            cell3.innerHTML = entry.forms || '...';
-                            cell4.innerHTML = entry.usage_notes || '...';
-                            cell5.innerHTML = entry.type || '...';
+                            const cells = row.querySelectorAll('td');
+                            const getCell = index => cells[index] || null;
 
                             switch (wordclass) {
                                 case 'n':
 
+
+                                    const ncell0 = getCell(0);
+                                    const ncell1 = getCell(1);
+                                    const ncell2 = getCell(2);
+                                    const ncell3 = getCell(3);
+                                    const ncell4 = getCell(4);
+                                    const ncell5 = getCell(5);
+
+                                    if (ncell0) ncell0.innerHTML = word || '...';
+                                    if (ncell1) ncell1.innerHTML = declension || '...';
+                                    if (ncell2) ncell2.innerHTML = definition || '...';
+                                    if (ncell3) ncell3.innerHTML = forms || '...';
+                                    if (ncell4) ncell4.innerHTML = usage_notes || '...';
+                                    if (ncell5) ncell5.innerHTML = type || '...';
+
                                     break;
-                                case 'v':
-                                    //case n and then default. or just if n, else.
+                                default://case n and then default. or just if n, else.
+                                    const vcell0 = getCell(0);
+                                    const vcell1 = getCell(1);
+                                    const vcell2 = getCell(2);
+                                    const vcell3 = getCell(3);
+                                    const vcell4 = getCell(4);
+                                    const vcell5 = getCell(5);
+
+                                    if (vcell0) vcell0.innerHTML = word || '...';
+                                    if (vcell1) vcell1.innerHTML = declension || '...';
+                                    if (vcell2) vcell2.innerHTML = definition || '...';
+                                    if (vcell3) vcell3.innerHTML = forms || '...';
+                                    if (vcell4) vcell4.innerHTML = usage_notes || '...';
+                                    if (vcell5) vcell5.innerHTML = type || '...';
+
                                     break;
                             }
-                        } newFillTable(table);
+                        }
+                        if (wordclass === 'n') {
+
+                            for (const [gender, def] of Object.entries(combinedGendersObject)) {
+                                const row = type1extraTableRow(
+                                    entry.word || '...',
+                                    entry.declension || '...',
+                                    gender || '...',
+                                    def || '...',
+                                    entry.usage_notes || '...')
+                                newFillTable(row, entry.word, entry.declension, def, gender, entry.usage_notes, entry.type);
+                            }
+                        } else {
+                            const row = type1extraTableRow(
+                                entry.word || '...',
+                                entry.declension || '...',
+                                entry.forms || '...',
+                                entry.definition || '...',
+                                entry.usage_notes || '...')
+                            newFillTable(row, entry.word, entry.declension, entry.definition, entry.forms, entry.usage_notes, entry.type);
+                        }
 
                         // Update keyword <p>s
                         const keywordp = document.getElementById("keywordp");
@@ -545,40 +577,52 @@ function dictionaryPage() {
     }
 
 
-    function type1extraTableRow(word, declension, forms, defintion, notes) {
+    function type1extraTableRow(word, declension, forms, definition, notes) {
         let table = document.getElementById('type1TopTable');
         if (!table) {
             table = document.createElement('table');
             table.id = 'type1TopTable';
-            const trh = document.createElement('tr');
-            trh.innerHTML = `
-                <th style="width:12%">Word</th>
-                <th style="width:7%">Wordclass</th>
-                <th style="width:7%">Forms</th>
-                <th style="width:30%">Definition</th>
-                <th style="width:30%">Notes</th>
-            `;
-            table.appendChild(trh);
+
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            const headers = ["Word", "Declension", "Definition", "Forms", "Usage Notes", "Word Class"];
+            headers.forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            table.appendChild(tbody);
         }
-        const Index = table.rows.length;
-        //td rows
-        const trd = document.createElement('tr');
-        trd.innerHTML = `
-            <td id="td1-${Index}">${word}</td>
-            <td id="td2-${Index}">${declension}</td>
-            <td id="td3-${Index}">${forms}</td>
-            <td id="td4-${Index}">${defintion}</td>
-            <td id="td5-${Index}">${notes}</td>
-            `;
 
-        trd.id = `trd-${Index}`;
+        const tbody = table.querySelector('tbody');
+        const row = document.createElement('tr');
+        for (let i = 0; i < 6; i++) {
+            const td = document.createElement('td');
+            td.textContent = '...';
+            row.appendChild(td);
+        }
+        if (tbody) {
+            tbody.appendChild(row);
+        }
 
-        table.appendChild(trd);
+        const cellValues = [word, declension, definition, forms, notes, '...'];
+        cellValues.forEach((value, index) => {
+            const td = row.children[index];
+            if (td) {
+                td.textContent = value || '...';
+            }
+        });
 
-        document.querySelector('.tablesContainer').appendChild(table);
+        const container = document.querySelector('.tablesContainer');
+        if (container && !container.contains(table)) {
+            container.appendChild(table);
+        }
 
-        console.log('index |', Index);
-
+        return row;
     }
     // table row gen.
     function extraTableRow(word, declension, forms, defintion, notes) {
