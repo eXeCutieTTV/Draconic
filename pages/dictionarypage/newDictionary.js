@@ -413,6 +413,7 @@ function dictionaryPage() {
                             <div class="pageSearch">
                                 <input type="text" id="unusedField" placeholder="Search..." />
                                 <button id="unusedBtn">Search</button>
+                                <button id="tableSearchBtn">Table is seachable</button>
                                 <div id="textBoxContainer"></div>
                             </div>
                         </div>
