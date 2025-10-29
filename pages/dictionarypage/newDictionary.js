@@ -372,12 +372,16 @@ function dictionaryPage() {
         else if (prefixes.length == 0 && ALL_WORDS[keyword]) {//type 1
             const searchHandler = search_word(keyword);
             console.log('searchHandler |', searchHandler);
-            const combinedGendersObject = combine_genders(searchHandler[0].genders) // Key-value pairs 
             searchHandler.forEach(entry => {
                 const word = entry.word
+                const wordclass = entry.type || '...';
+
+                let combinedGendersObject = '';
+                if (wordclass === 'n') {
+                    combinedGendersObject = combine_genders(searchHandler[0].genders) // Key-value pairs
+                }
                 if (word === keyword) {
                     console.log('clean match |', keyword);
-                    const wordclass = entry.type || '...';
 
                     let pagesWrap = document.querySelector('.pages');
                     if (!pagesWrap) {
