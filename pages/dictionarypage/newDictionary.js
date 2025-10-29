@@ -424,7 +424,7 @@ function dictionaryPage() {
                     </div>`;
 
                     pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
-
+                    const tableSearchable = document.getElementById('tableSearchBtn');
 
 
                     // Wait for the page content to load, then setup the table (header table)
@@ -577,6 +577,7 @@ function dictionaryPage() {
                                 //const recTable = document.getElementById('Noun-Table-Recessive');
                                 populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
 
+                                console.log(tableSearchable);//when press, pointer && eventhandler for each td in table.
 
                                 break;
                             case 'v':
