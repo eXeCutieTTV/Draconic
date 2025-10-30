@@ -368,6 +368,8 @@ function dictionaryPage() {
 
         if (prefixes.length > 0) {//type 2
             console.log('type2');
+            neoSuffixChecker(keyword, VERBS_SUFFIXES_MAP);
+            neoSuffixChecker(keyword, NOUNS_SUFFIXES_MAP);
         }
         else if (prefixes.length == 0 && ALL_WORDS[keyword]) {//type 1
             const searchHandler = search_word(keyword);
@@ -1014,27 +1016,30 @@ function dictionaryPage() {
                 console.log('only one', usedSuffix);
             }
         }
+        const suffixLength = usedSuffix.length;
+        const { slice1, slice2 } = sliceKeyword(keyword, suffixLength);
+        const stem = slice1;
 
         switch (type) {
             case 'n':
-                console.log(suffixes, array, gender, number, person);
-                //affixPage(gender, number, person);
-                //openPageOld('page96');
+                console.log('gender', gender, 'number', number, 'person', person, 'suffix', usedSuffix, 'stem', stem);
+                affixPage(gender, number, person, usedSuffix, stem);
+                openPageOld('page96');
                 break;
             case 'v':
-                console.log(suffixes, array, gender, number, person);
-                //affixPage(gender, number, person);
-                //openPageOld('page96');
+                console.log('gender', gender, 'number', number, 'person', person, 'suffix', usedSuffix, 'stem', stem);
+                affixPage(gender, number, person, usedSuffix, stem);
+                openPageOld('page96');
                 break;
             default: console.warn('invalid type');
         }
 
-    } neoSuffixChecker("æfallūl", VERBS_SUFFIXES_MAP);
-    function affixPage(gender, number, person) {
+    } neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
+    function affixPage(gender, number, person, suffix, stem) {
         const page = document.createElement('div');
         page.id = 'page96';
         const div = document.createElement('div');
-        div.innerHTML = `${gender} ${number} ${person}`;
+        div.innerHTML = `${gender} ${number} ${person} ${suffix} ${stem}`;
 
         pagesWrap = document.querySelector('.pages')
         pagesWrap.appendChild(page);
