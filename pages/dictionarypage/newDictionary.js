@@ -577,76 +577,15 @@ function dictionaryPage() {
                                 //const recTable = document.getElementById('Noun-Table-Recessive');
                                 populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
 
-                                function searchableTable(wordclass) {
-                                    switch (wordclass) {
-                                        case 'n':
-                                            const nounTable1 = document.getElementById('Noun-Table-Directive');
-                                            const nounTable2 = document.getElementById('Noun-Table-Recessive');
 
-                                            nounTable1.querySelectorAll('td').forEach(td => {
-                                                td.style = 'cursor: pointer';
-                                                const tdWord = td.textContent;
-                                                keyword = tdWord;
-                                                //console.log(keyword, td);
-                                                td.addEventListener('click', () => {
 
-                                                    //console.log(keyword);
-                                                    search(keyword);
-                                                });
-                                            });
-                                            nounTable2.querySelectorAll('td').forEach(td => {
-                                                td.style = 'cursor: pointer';
-                                                const tdWord = td.textContent;
-                                                keyword = tdWord;
-                                                //console.log(keyword, td);
-                                                td.addEventListener('click', () => {
-
-                                                    // console.log(keyword);
-                                                    search(keyword);
-                                                });
-                                            });
-                                            break;
-                                        case 'v':
-                                            const verbTable1 = document.getElementById('Verb-Table-Subject Prefix');
-                                            const verbTable2 = document.getElementById('Verb-Table-object Suffix');
-                                            console.log(verbTable1, verbTable2);
-
-                                            verbTable1.querySelectorAll('td').forEach(td => {
-                                                td.style = 'cursor: pointer';
-                                                const tdWord = td.textContent;
-                                                keyword = tdWord;
-                                                console.log(td, keyword);
-
-                                                td.addEventListener('click', () => {
-                                                    search(keyword);
-                                                });
-                                            });
-                                            verbTable2.querySelectorAll('td').forEach(td => {
-                                                td.style = 'cursor: pointer';
-                                                const tdWord = td.textContent;
-                                                keyword = tdWord;
-                                                console.log(td, keyword);
-
-                                                td.addEventListener('click', () => {
-                                                    search(keyword);
-                                                });
-                                            });
-                                            break;
-                                        default: console.warn('no wordclass');
-                                    }
-
-                                }
-                                tableSearchable.addEventListener('click', () => {
-                                    console.log(wordclass);
-                                    searchableTable(wordclass);
-                                });
                                 break;
                             case 'v':
                                 function neoVerbTables(affixState) {
 
                                     const affixStateMap = {
-                                        1: { 1: 'Subject Prefix', 2: VERB_SUBJECT_PREFIXES },
-                                        2: { 1: 'Object Suffix', 2: VERB_OBJECT_SUFFIXES }
+                                        1: { 1: 'Prefix', 2: VERB_SUBJECT_PREFIXES },
+                                        2: { 1: 'Suffix', 2: VERB_OBJECT_SUFFIXES }
                                     }
                                     console.log(affixStateMap[affixState][2]);
                                     const div = document.createElement('div');
@@ -764,9 +703,13 @@ function dictionaryPage() {
                                 neoVerbTables(1);
                                 neoVerbTables(2);
 
-                                populateSummaryTables(keyword, { 'Verb-Table-Subject Prefix': true, 'Verb-Table-Object Suffix': false });
+                                populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
                                 break
                         }
+                        tableSearchable.addEventListener('click', () => {
+                            console.log(wordclass);
+                            searchableTable(wordclass);
+                        });
                         // Update keyword <p>s
                         const keywordp = document.getElementById("keywordp");
                         if (keywordp) {
@@ -972,6 +915,65 @@ function dictionaryPage() {
     }
     // usage => for (let i = 0; i < rowAmount; i++) { extraTableRow(keyword or something custom); }
 
+    //on-page button toggler
+    function searchableTable(wordclass) {
+        switch (wordclass) {
+            case 'n':
+                const nounTable1 = document.getElementById('Noun-Table-Directive');
+                const nounTable2 = document.getElementById('Noun-Table-Recessive');
+
+                nounTable1.querySelectorAll('td').forEach(td => {
+                    td.style = 'cursor: pointer';
+                    const tdWord = td.textContent;
+                    keyword = tdWord;
+                    //console.log(keyword, td);
+                    td.addEventListener('click', () => {
+
+                        //console.log(keyword);
+                        search(keyword);
+                    });
+                });
+                nounTable2.querySelectorAll('td').forEach(td => {
+                    td.style = 'cursor: pointer';
+                    const tdWord = td.textContent;
+                    keyword = tdWord;
+                    //console.log(keyword, td);
+                    td.addEventListener('click', () => {
+
+                        // console.log(keyword);
+                        search(keyword);
+                    });
+                });
+                break;
+            case 'v':
+                const verbTable1 = document.getElementById('Verb-Table-Prefix');
+                const verbTable2 = document.getElementById('Verb-Table-Suffix');
+                console.log(verbTable1, verbTable2);
+
+                verbTable1.querySelectorAll('td').forEach(td => {
+                    td.style = 'cursor: pointer';
+                    const tdWord = td.textContent;
+                    keyword = tdWord;
+                    console.log(td, keyword);
+
+                    td.addEventListener('click', () => {
+                        search(keyword);
+                    });
+                });
+                verbTable2.querySelectorAll('td').forEach(td => {
+                    td.style = 'cursor: pointer';
+                    const tdWord = td.textContent;
+                    keyword = tdWord;
+                    console.log(td, keyword);
+
+                    td.addEventListener('click', () => {
+                        search(keyword);
+                    });
+                });
+                break;
+            default: console.warn('no wordclass');
+        }
+    }
 
     // clone <p> element with keyword data
     function cloneKeywordText() {
