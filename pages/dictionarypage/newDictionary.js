@@ -824,7 +824,10 @@ function dictionaryPage() {
         } //neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
 
         function affixPage(keyword, gender, number, person, suffix, stem, declension) {
-            const page = document.createElement('div');
+            let page = '';
+            page = document.getElementById('page96');
+            if (page != 'object') { page = document.createElement('div'); }
+
             page.id = 'page96';
             page.className = 'page';
             const div = document.createElement('div');
