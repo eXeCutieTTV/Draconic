@@ -42,9 +42,7 @@ function dictionaryPage() {
         let Suffixstem = '';
         let Suffixperson = '';
 
-        neoSuffixChecker(keyword, VERBS_SUFFIXES_MAP);
-        neoSuffixChecker(keyword, NOUNS_SUFFIXES_MAP);
-
+        
 
         const temporary1 = ALL_WORDS[keyword];
         console.log('Current keyword |', keyword, temporary1); // bro wtf is this variable naming xd. its temporary1. got it :b
@@ -378,16 +376,7 @@ function dictionaryPage() {
 
         console.log('baseEntry |', baseEntry);// pref/word
         console.log('prefixes |', prefixes, 'baseKey |', baseKey, 'chain |', chain);
-
-        if (prefixes.length > 0 || usedSuffix.length > 0) {//type 2
-            console.log('type2');
-            neoSuffixChecker(keyword, VERBS_SUFFIXES_MAP);
-            neoSuffixChecker(keyword, NOUNS_SUFFIXES_MAP);
-
-            affixPage(Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem);
-            openPageOld('page96');
-        }
-        else if (prefixes.length == 0 && ALL_WORDS[keyword]) {//type 1
+        if (prefixes.length == 0 && ALL_WORDS[keyword]) {//type 1
             const searchHandler = search_word(keyword);
             console.log('searchHandler |', searchHandler);
             searchHandler.forEach(entry => {
@@ -747,6 +736,13 @@ function dictionaryPage() {
                 openPageOld('page97')
             });
         }
+
+        else if ((prefixes.length > 0) || (neoSuffixChecker(keyword, VERBS_SUFFIXES_MAP) || neoSuffixChecker(keyword, NOUNS_SUFFIXES_MAP))) {//type 2
+            console.log('type2');
+            affixPage(Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem);
+
+            openPageOld('page96');
+        }
         else {//type 3
             const searchHandler = search_word_by_definition(keyword); // Array[]
             console.log('3', 'searchHandler |', searchHandler);
@@ -778,6 +774,59 @@ function dictionaryPage() {
                     extraTableRow(word, wordclassText, forms, definition, usage_notes);// <-- works not.
                 }
             });
+        }
+        function neoSuffixChecker(keyword, map) {
+            const array = matchSuffix(keyword, map);
+            const suffixes = array[0];
+            Suffixtype = array[2];
+            Suffixgender = array[4];
+            Suffixnumber = array[5];
+            Suffixperson = array[3];
+
+            if (!array) {
+                return;
+            }
+
+            const appliedSuffix = suffixes[0];
+            const unappliedSuffix = suffixes[1];
+
+            //which suffix is used? un- or applied?
+            if (appliedSuffix && unappliedSuffix) {
+                if (keyword.endsWith(appliedSuffix) && keyword.endsWith(unappliedSuffix)) {
+                    usedSuffix = appliedSuffix;
+                    console.log('both', usedSuffix);
+                } else if (keyword.endsWith(unappliedSuffix)) {
+                    usedSuffix = unappliedSuffix;
+                    console.log('only one', usedSuffix);
+                } else { return; }
+            }
+            const suffixLength = usedSuffix.length;
+            const { slice1, slice2 } = sliceKeyword(keyword, suffixLength);
+            Suffixstem = slice1;
+
+            switch (Suffixtype) {
+                case 'n':
+                    console.log('gender', Suffixgender, 'number', Suffixnumber, 'person', Suffixperson, 'suffix', usedSuffix, 'stem', Suffixstem);
+                    break;
+                case 'v':
+                    console.log('gender', Suffixgender, 'number', Suffixnumber, 'person', Suffixperson, 'suffix', usedSuffix, 'stem', Suffixstem);
+                    break;
+                default:
+                    console.warn('invalid type');
+                    return false;
+            }
+            return true;
+        } //neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
+
+        function affixPage(gender, number, person, suffix, stem) {
+            const page = document.createElement('div');
+            page.id = 'page96';
+            const div = document.createElement('div');
+            div.innerHTML = `${gender} ${number} ${person} ${suffix} ${stem}`;
+
+            pagesWrap = document.querySelector('.pages')
+            pagesWrap.appendChild(page);
+            page.appendChild(div);
         }
     }
 
@@ -1010,55 +1059,7 @@ function dictionaryPage() {
     //console.log(slice1); // Output: ækl
     //console.log(slice2); // Output: uu
 
-    function neoSuffixChecker(keyword, map) {
-        const array = matchSuffix(keyword, map);
-        const suffixes = array[0];
-        Suffixtype = array[2];
-        Suffixgender = array[4];
-        Suffixnumber = array[5];
-        Suffixperson = array[3];
 
-        const appliedSuffix = suffixes[0];
-        const unappliedSuffix = suffixes[1];
-
-        //which suffix is used? un- or applied?
-        if (appliedSuffix && unappliedSuffix) {
-            if (keyword.endsWith(appliedSuffix) && keyword.endsWith(unappliedSuffix)) {
-                usedSuffix = appliedSuffix;
-                console.log('both', usedSuffix);
-            } else if (keyword.endsWith(unappliedSuffix)) {
-                usedSuffix = unappliedSuffix;
-                console.log('only one', usedSuffix);
-            }
-        }
-        const suffixLength = usedSuffix.length;
-        const { slice1, slice2 } = sliceKeyword(keyword, suffixLength);
-        Suffixstem = slice1;
-
-        switch (Suffixtype) {
-            case 'n':
-                console.log('gender', Suffixgender, 'number', Suffixnumber, 'person', Suffixperson, 'suffix', usedSuffix, 'stem', Suffixstem);
-                break;
-            case 'v':
-                console.log('gender', Suffixgender, 'number', Suffixnumber, 'person', Suffixperson, 'suffix', usedSuffix, 'stem', Suffixstem);
-                break;
-            default:
-                console.warn('invalid type');
-                return false;
-        }
-        return true;
-    } //neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
-
-    function affixPage(gender, number, person, suffix, stem) {
-        const page = document.createElement('div');
-        page.id = 'page96';
-        const div = document.createElement('div');
-        div.innerHTML = `${gender} ${number} ${person} ${suffix} ${stem}`;
-
-        pagesWrap = document.querySelector('.pages')
-        pagesWrap.appendChild(page);
-        page.appendChild(div);
-    }
 
     // copied from legacy.vv
 
