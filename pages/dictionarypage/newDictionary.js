@@ -844,6 +844,7 @@ function dictionaryPage() {
             pagesWrap.appendChild(page);
             page.appendChild(div);
         }
+        reverseSearchIdsOnSearch();
     }
 
 
