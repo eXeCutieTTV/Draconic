@@ -1000,221 +1000,230 @@ function dictionaryPage() {
                     if (keyword.endsWith(suff)) {
                         const length = suff.length;
                         const { slice1: stem, slice2: suffix } = sliceKeyword(keyword, length);
-                        console.log('matchmatchmatch ' + suff, suff.length, stem, suffix);
+                        //console.log('matchmatchmatch ' + suff, suff.length, stem, suffix);
                     }
                 }
             }
         }
     } checkSuffixMatch('æfllul', VERB_OBJECT_SUFFIXES);
-/*
-    for (const key of Object.values(ALL_SUFFIX_STATES)) {
-        for (const asd of Object.values(key)) {
-            for (const qwe of Object.values(asd)) {
-                for (const awe of Object.values(qwe)) {
-                    if (typeof awe != 'object') {
-                        console.log(awe, 'awe');
-                    } else {
 
-                        for (const zxc of Object.values(awe)) {
-                            console.log(zxc, 'zxc')
+    function checkifwww(keyword) {
+        for (const key of Object.values(ALL_SUFFIX_STATES)) {
+            for (const asd of Object.values(key)) {
+                for (const qwe of Object.values(asd)) {
+                    for (const awe of Object.values(qwe)) {
+                        if (typeof awe != 'object') {
+                            if (keyword.endsWith(awe)) {
+                                const length = awe.length;
+                                const { slice1: stem, slice2: suffix } = sliceKeyword(keyword, length);
+                                console.log('matchmatchmatch ' + awe, awe.length, stem, suffix);
+                            }
+                        } else {
 
+                            for (const zxc of Object.values(awe)) {
+                                if (keyword.endsWith(zxc)) {
+                                    const length = zxc.length;
+                                    const { slice1: stem, slice2: suffix } = sliceKeyword(keyword, length);
+                                    console.log('matchmatchmatch ' + zxc, zxc.length, stem, suffix);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+    } checkifwww('æfllul')
+
+    /*
+    const ALL_SUFFIX_STATES = {
+        'NOUNS_APPLIED': {
+            [MOODS.D]: {
+                [GENDERS.E.NAME]: {
+                    [NUMBERS.S]: { 1: "ēn", 2: "æn", 3: "ēn", 4: "ħán" },
+                    [NUMBERS.D]: { 1: "ēχen", 2: "yχen", 3: "oχen", 4: "ħóχħon" },
+                    [NUMBERS.P]: { 1: "illyn", 2: "ān", 3: "ē'yn", 4: "q̇yn" }
+                },
+                [GENDERS.R.NAME]: {
+                    [NUMBERS.S]: { 1: "ēf", 2: "axef", 3: "lef", 4: "lef" },
+                    [NUMBERS.D]: { 1: "eχef", 2: "hyf", 3: "oχef", 4: "oχef" },
+                    [NUMBERS.P]: { 1: "yf", 2: "hyf", 3: "'yf", 4: "'yf" }
+                },
+                [GENDERS.MON.NAME]: {
+                    [NUMBERS.S]: { 1: "ô", 2: "ô", 3: "ô", 4: "ô" },
+                    [NUMBERS.D]: { 1: "yħq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
+                    [NUMBERS.P]: { 1: "oħô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
+                },
+                [GENDERS.I.NAME]: {
+                    [NUMBERS.S]: { 1: "llūl", 2: "cūl", 3: "cūl", 4: "cūl" },
+                    [NUMBERS.D]: { 1: "ællūl", 2: "'illūl", 3: "'illūl", 4: "'illūl" },
+                    [NUMBERS.P]: { 1: "ællūl", 2: "'illūl", 3: "'illūl", 4: "'illūl" } // /\(/o.o\)/\ - Spooky the spider
+                },
+                [GENDERS.MAG.NAME]: {
+                    [NUMBERS.S]: { 1: "ōχ", 2: "huχ", 3: "huχ", 4: "q̇ħúχ" },
+                    [NUMBERS.D]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "'ūχ" },
+                    [NUMBERS.P]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "'ūχ" }
+                },
+                [GENDERS.MUN.NAME]: {
+                    [NUMBERS.S]: { 1: "erk", 2: "tyk", 3: "tyk", 4: "árk" },
+                    [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "'urk" },
+                    [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "'urk" }
+                },
+                [GENDERS.A.NAME]: {
+                    [NUMBERS.S]: { 1: "yq̇", 2: "oq̇", 3: "oq̇", 4: "úħáq̇" },
+                    [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
+                    [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
+                }
+            },
+            [MOODS.R]: {
+                [GENDERS.E.NAME]: {
+                    [NUMBERS.S]: { 1: "oħân", 2: "ħân", 3: "ēqân", 4: "qân" },
+                    [NUMBERS.D]: { 1: "ħân", 2: "ōn", 3: "on", 4: "ħûn" },
+                    [NUMBERS.P]: { 1: "illyrn", 2: "ōrn", 3: "ē'yrn", 4: "q̇yrn" }
+                },
+                [GENDERS.R.NAME]: {
+                    [NUMBERS.S]: { 1: "oħâf", 2: "ħâf", 3: "oqâf", 4: "oqâf" },
+                    [NUMBERS.D]: { 1: "īllyf", 2: "'ūllef", 3: "yf", 4: "yf" },
+                    [NUMBERS.P]: { 1: "īllyf", 2: "'ūllef", 3: "ūlef", 4: "'ūlef" }
+                },
+                [GENDERS.MON.NAME]: {
+                    [NUMBERS.S]: { 1: "oħô", 2: "qâħó", 3: "qâħó", 4: "ô" },
+                    [NUMBERS.D]: { 1: "ūħó", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
+                    [NUMBERS.P]: { 1: "ōq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
+                },
+                [GENDERS.I.NAME]: {
+                    [NUMBERS.S]: { 1: "llūl", 2: "qâllūl", 3: "qâllūl", 4: "qâllūl" },
+                    [NUMBERS.D]: { 1: "yll'ūl", 2: "'llūl", 3: "'llūl", 4: "'llūl" },
+                    [NUMBERS.P]: { 1: "yll'ūl", 2: "'ūcūl", 3: "'ūcūl", 4: "'ūcūl" }
+                },
+                [GENDERS.MAG.NAME]: {
+                    [NUMBERS.S]: { 1: "ōħúχħ", 2: "yq̇ħôχ", 3: "yq̇ħôχ", 4: "q̇ħôχ" },
+                    [NUMBERS.D]: { 1: "alluχ", 2: "ylūrχ", 3: "ylūrχ", 4: "'ūrχ" },
+                    [NUMBERS.P]: { 1: "alluχ", 2: "ylūrχ", 3: "ylūrχ", 4: "'ūrχ" }
+                },
+                [GENDERS.MUN.NAME]: {
+                    [NUMBERS.S]: { 1: "oħárk	", 2: "ħárk	", 3: "ħárk	", 4: "q̇ħárk" },
+                    [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "'urk	" },
+                    [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "'urk	" }
+                },  // /\(/o.o\)/\ - Spooky the spider
+                [GENDERS.A.NAME]: {
+                    [NUMBERS.S]: { 1: "aħôq̇", 2: "yq̇ħôq̇", 3: "yq̇ħôq̇", 4: "áq̇ħôq̇" },
+                    [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
+                    [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
+                }
+            }
+        },
+        'NOUNS_UNAPPLIED': {
+            [MOODS.D]: {
+                [GENDERS.E.NAME]: {
+                    [NUMBERS.S]: { 1: "ēn", 2: "æn", 3: "ēn", 4: "ħán" },
+                    [NUMBERS.D]: { 1: "χen", 2: "χen", 3: "χen", 4: "ħóχħon" },
+                    [NUMBERS.P]: { 1: "illyn", 2: "ān", 3: "ē'yn", 4: "q̇yn" }
+                },
+                [GENDERS.R.NAME]: {
+                    [NUMBERS.S]: { 1: "ēf", 2: "xef", 3: "lef", 4: "lef" },
+                    [NUMBERS.D]: { 1: "eχef", 2: "hyf", 3: "χef", 4: "χef" },
+                    [NUMBERS.P]: { 1: "yf", 2: "hyf", 3: "'yf", 4: "'yf" }
+                },
+                [GENDERS.MON.NAME]: {
+                    [NUMBERS.S]: { 1: "ô", 2: "ô", 3: "ô", 4: "ô" },
+                    [NUMBERS.D]: { 1: "yħq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
+                    [NUMBERS.P]: { 1: "oħô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
+                },
+                [GENDERS.I.NAME]: {
+                    [NUMBERS.S]: { 1: "llūl", 2: "cūl", 3: "cūl", 4: "cūl" },
+                    [NUMBERS.D]: { 1: "llūl", 2: "illūl", 3: "illūl", 4: "illūl" },
+                    [NUMBERS.P]: { 1: "llūl", 2: "illūl", 3: "illūl", 4: "illūl" } // /\(/o.o\)/\ - Spooky the spider
+                },
+                [GENDERS.MAG.NAME]: {
+                    [NUMBERS.S]: { 1: "χ", 2: "huχ", 3: "huχ", 4: "q̇ħúχ" },
+                    [NUMBERS.D]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "ūχ" },
+                    [NUMBERS.P]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "ūχ" }
+                },
+                [GENDERS.MUN.NAME]: {
+                    [NUMBERS.S]: { 1: "rk", 2: "tyk", 3: "tyk", 4: "rk" },
+                    [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "urk" },
+                    [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "urk" }
+                },
+                [GENDERS.A.NAME]: {
+                    [NUMBERS.S]: { 1: "q̇", 2: "q̇", 3: "q̇", 4: "ħáq̇" },
+                    [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
+                    [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
+                }
+            },
+            [MOODS.R]: {
+                [GENDERS.E.NAME]: {
+                    [NUMBERS.S]: { 1: "oħân", 2: "ħân", 3: "ēqân", 4: "qân" },
+                    [NUMBERS.D]: { 1: "ħân", 2: "n", 3: "on", 4: "ħûn" },
+                    [NUMBERS.P]: { 1: "illyrn", 2: "rn", 3: "ē'yrn", 4: "q̇yrn" }
+                },
+                [GENDERS.R.NAME]: {
+                    [NUMBERS.S]: { 1: "oħâf", 2: "ħâf", 3: "qâf", 4: "qâf" },
+                    [NUMBERS.D]: { 1: "īllyf", 2: "ūllef", 3: "yf", 4: "yf" },
+                    [NUMBERS.P]: { 1: "īllyf", 2: "ūllef", 3: "ūlef", 4: "'ūlef" }
+                },
+                [GENDERS.MON.NAME]: {
+                    [NUMBERS.S]: { 1: "oħô", 2: "qâħó", 3: "qâħó", 4: "ô" },
+                    [NUMBERS.D]: { 1: "ūħó", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
+                    [NUMBERS.P]: { 1: "ōq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
+                },
+                [GENDERS.I.NAME]: {
+                    [NUMBERS.S]: { 1: "llūl", 2: "qâllūl", 3: "qâllūl", 4: "qâllūl" },
+                    [NUMBERS.D]: { 1: "ll'ūl", 2: "llūl", 3: "llūl", 4: "llūl" },
+                    [NUMBERS.P]: { 1: "ll'ūl", 2: "ūcūl", 3: "ūcūl", 4: "ūcūl" }
+                },
+                [GENDERS.MAG.NAME]: {
+                    [NUMBERS.S]: { 1: "ħúχħ", 2: "q̇ħôχ", 3: "q̇ħôχ", 4: "q̇ħôχ" },
+                    [NUMBERS.D]: { 1: "lluχ", 2: "lūrχ", 3: "lūrχ", 4: "ūrχ" },
+                    [NUMBERS.P]: { 1: "lluχ", 2: "lūrχ", 3: "lūrχ", 4: "ūrχ" }
+                },
+                [GENDERS.MUN.NAME]: {
+                    [NUMBERS.S]: { 1: "ħárk	", 2: "ħárk	", 3: "ħárk	", 4: "q̇ħárk" },
+                    [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "urk	" },
+                    [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "urk	" }
+                },  // /\(/o.o\)/\ - Spooky the spider
+                [GENDERS.A.NAME]: {
+                    [NUMBERS.S]: { 1: "aħôq̇", 2: "q̇ħôq̇", 3: "q̇ħôq̇", 4: "áq̇ħôq̇" },
+                    [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
+                    [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
+                }
+            }
+        },
+        'VERBS_APPLIED': {
+            1: {
+                [NUMBERS.S]: { [GENDERS.E.NAME]: "on", [GENDERS.R.NAME]: "yf", [GENDERS.MON.NAME]: "uħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "uχ", [GENDERS.MUN.NAME]: "ur", [GENDERS.A.NAME]: "yq̇" },
+                [NUMBERS.D]: { [GENDERS.E.NAME]: "'æ­n", [GENDERS.R.NAME]: "'æf", [GENDERS.MON.NAME]: "'ô", [GENDERS.I.NAME]: "'allūl", [GENDERS.MAG.NAME]: "'ōχ", [GENDERS.MUN.NAME]: "'ar", [GENDERS.A.NAME]: "yq̇" },
+                [NUMBERS.P]: { [GENDERS.E.NAME]: "'æ­n", [GENDERS.R.NAME]: "'æf", [GENDERS.MON.NAME]: "'ô", [GENDERS.I.NAME]: "'allūl", [GENDERS.MAG.NAME]: "'ōχ", [GENDERS.MUN.NAME]: "'ar", [GENDERS.A.NAME]: "yq̇" }
+            },
+            2: {
+                [NUMBERS.S]: { [GENDERS.E.NAME]: "un", [GENDERS.R.NAME]: "uf", [GENDERS.MON.NAME]: "uħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "uχ", [GENDERS.MUN.NAME]: "ur", [GENDERS.A.NAME]: "uq̇" },
+                [NUMBERS.D]: { [GENDERS.E.NAME]: "onēn", [GENDERS.R.NAME]: "nef", [GENDERS.MON.NAME]: "áħó", [GENDERS.I.NAME]: "állul", [GENDERS.MAG.NAME]: "ónōχ", [GENDERS.MUN.NAME]: "ár", [GENDERS.A.NAME]: "ħóq̇" },
+                [NUMBERS.P]: { [GENDERS.E.NAME]: "ħen", [GENDERS.R.NAME]: "ħáf", [GENDERS.MON.NAME]: "áħó", [GENDERS.I.NAME]: "állul", [GENDERS.MAG.NAME]: "ónōχ", [GENDERS.MUN.NAME]: "ár", [GENDERS.A.NAME]: "ħóq̇" }
+            },
+            3: {
+                [NUMBERS.S]: { [GENDERS.E.NAME]: "tón", [GENDERS.R.NAME]: "ħyf", [GENDERS.MON.NAME]: "oħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "ħuχ", [GENDERS.MUN.NAME]: "ur", [GENDERS.A.NAME]: "úq̇" },
+                [NUMBERS.D]: { [GENDERS.E.NAME]: "q̇ân", [GENDERS.R.NAME]: "yq̇ħáf", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "úcul", [GENDERS.MAG.NAME]: "ħúχ", [GENDERS.MUN.NAME]: "úr", [GENDERS.A.NAME]: "uq̇" },
+                [NUMBERS.P]: { [GENDERS.E.NAME]: "tun", [GENDERS.R.NAME]: "if", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "úcul", [GENDERS.MAG.NAME]: "ħúχ", [GENDERS.MUN.NAME]: "úr", [GENDERS.A.NAME]: "uq̇" }
+            }
+        },
+        'VERBS_UNAPPLIED': {
+            1: {
+                [NUMBERS.S]: { [GENDERS.E.NAME]: "n", [GENDERS.R.NAME]: "f", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "(u)χ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "q̇" },
+                [NUMBERS.D]: { [GENDERS.E.NAME]: "æ­n", [GENDERS.R.NAME]: "æf", [GENDERS.MON.NAME]: "ô", [GENDERS.I.NAME]: "allūl", [GENDERS.MAG.NAME]: "ōχ", [GENDERS.MUN.NAME]: "ar", [GENDERS.A.NAME]: "q̇" },
+                [NUMBERS.P]: { [GENDERS.E.NAME]: "æ­n", [GENDERS.R.NAME]: "æf", [GENDERS.MON.NAME]: "ô", [GENDERS.I.NAME]: "allūl", [GENDERS.MAG.NAME]: "ōχ", [GENDERS.MUN.NAME]: "ar", [GENDERS.A.NAME]: "q̇" }
+            },
+            2: {
+                [NUMBERS.S]: { [GENDERS.E.NAME]: "n", [GENDERS.R.NAME]: "f", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "χ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "q̇" },
+                [NUMBERS.D]: { [GENDERS.E.NAME]: "nēn", [GENDERS.R.NAME]: "nef", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "nōχ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "ħóq̇" },
+                [NUMBERS.P]: { [GENDERS.E.NAME]: "ħen", [GENDERS.R.NAME]: "ħáf", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "nōχ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "ħóq̇" }
+            },
+            3: {
+                [NUMBERS.S]: { [GENDERS.E.NAME]: "tón", [GENDERS.R.NAME]: "ħyf", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "ħuχ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "q̇" },
+                [NUMBERS.D]: { [GENDERS.E.NAME]: "ân", [GENDERS.R.NAME]: "q̇ħáf", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "cul", [GENDERS.MAG.NAME]: "ħúχ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "q̇" },
+                [NUMBERS.P]: { [GENDERS.E.NAME]: "tun", [GENDERS.R.NAME]: "if", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "cul", [GENDERS.MAG.NAME]: "ħúχ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "q̇" }
+            }
+        },
     }
-*/
-/*
-const ALL_SUFFIX_STATES = {
-    'NOUNS_APPLIED': {
-        [MOODS.D]: {
-            [GENDERS.E.NAME]: {
-                [NUMBERS.S]: { 1: "ēn", 2: "æn", 3: "ēn", 4: "ħán" },
-                [NUMBERS.D]: { 1: "ēχen", 2: "yχen", 3: "oχen", 4: "ħóχħon" },
-                [NUMBERS.P]: { 1: "illyn", 2: "ān", 3: "ē'yn", 4: "q̇yn" }
-            },
-            [GENDERS.R.NAME]: {
-                [NUMBERS.S]: { 1: "ēf", 2: "axef", 3: "lef", 4: "lef" },
-                [NUMBERS.D]: { 1: "eχef", 2: "hyf", 3: "oχef", 4: "oχef" },
-                [NUMBERS.P]: { 1: "yf", 2: "hyf", 3: "'yf", 4: "'yf" }
-            },
-            [GENDERS.MON.NAME]: {
-                [NUMBERS.S]: { 1: "ô", 2: "ô", 3: "ô", 4: "ô" },
-                [NUMBERS.D]: { 1: "yħq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
-                [NUMBERS.P]: { 1: "oħô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
-            },
-            [GENDERS.I.NAME]: {
-                [NUMBERS.S]: { 1: "llūl", 2: "cūl", 3: "cūl", 4: "cūl" },
-                [NUMBERS.D]: { 1: "ællūl", 2: "'illūl", 3: "'illūl", 4: "'illūl" },
-                [NUMBERS.P]: { 1: "ællūl", 2: "'illūl", 3: "'illūl", 4: "'illūl" } // /\(/o.o\)/\ - Spooky the spider
-            },
-            [GENDERS.MAG.NAME]: {
-                [NUMBERS.S]: { 1: "ōχ", 2: "huχ", 3: "huχ", 4: "q̇ħúχ" },
-                [NUMBERS.D]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "'ūχ" },
-                [NUMBERS.P]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "'ūχ" }
-            },
-            [GENDERS.MUN.NAME]: {
-                [NUMBERS.S]: { 1: "erk", 2: "tyk", 3: "tyk", 4: "árk" },
-                [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "'urk" },
-                [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "'urk" }
-            },
-            [GENDERS.A.NAME]: {
-                [NUMBERS.S]: { 1: "yq̇", 2: "oq̇", 3: "oq̇", 4: "úħáq̇" },
-                [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
-                [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
-            }
-        },
-        [MOODS.R]: {
-            [GENDERS.E.NAME]: {
-                [NUMBERS.S]: { 1: "oħân", 2: "ħân", 3: "ēqân", 4: "qân" },
-                [NUMBERS.D]: { 1: "ħân", 2: "ōn", 3: "on", 4: "ħûn" },
-                [NUMBERS.P]: { 1: "illyrn", 2: "ōrn", 3: "ē'yrn", 4: "q̇yrn" }
-            },
-            [GENDERS.R.NAME]: {
-                [NUMBERS.S]: { 1: "oħâf", 2: "ħâf", 3: "oqâf", 4: "oqâf" },
-                [NUMBERS.D]: { 1: "īllyf", 2: "'ūllef", 3: "yf", 4: "yf" },
-                [NUMBERS.P]: { 1: "īllyf", 2: "'ūllef", 3: "ūlef", 4: "'ūlef" }
-            },
-            [GENDERS.MON.NAME]: {
-                [NUMBERS.S]: { 1: "oħô", 2: "qâħó", 3: "qâħó", 4: "ô" },
-                [NUMBERS.D]: { 1: "ūħó", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
-                [NUMBERS.P]: { 1: "ōq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
-            },
-            [GENDERS.I.NAME]: {
-                [NUMBERS.S]: { 1: "llūl", 2: "qâllūl", 3: "qâllūl", 4: "qâllūl" },
-                [NUMBERS.D]: { 1: "yll'ūl", 2: "'llūl", 3: "'llūl", 4: "'llūl" },
-                [NUMBERS.P]: { 1: "yll'ūl", 2: "'ūcūl", 3: "'ūcūl", 4: "'ūcūl" }
-            },
-            [GENDERS.MAG.NAME]: {
-                [NUMBERS.S]: { 1: "ōħúχħ", 2: "yq̇ħôχ", 3: "yq̇ħôχ", 4: "q̇ħôχ" },
-                [NUMBERS.D]: { 1: "alluχ", 2: "ylūrχ", 3: "ylūrχ", 4: "'ūrχ" },
-                [NUMBERS.P]: { 1: "alluχ", 2: "ylūrχ", 3: "ylūrχ", 4: "'ūrχ" }
-            },
-            [GENDERS.MUN.NAME]: {
-                [NUMBERS.S]: { 1: "oħárk	", 2: "ħárk	", 3: "ħárk	", 4: "q̇ħárk" },
-                [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "'urk	" },
-                [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "'urk	" }
-            },  // /\(/o.o\)/\ - Spooky the spider
-            [GENDERS.A.NAME]: {
-                [NUMBERS.S]: { 1: "aħôq̇", 2: "yq̇ħôq̇", 3: "yq̇ħôq̇", 4: "áq̇ħôq̇" },
-                [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
-                [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
-            }
-        }
-    },
-    'NOUNS_UNAPPLIED': {
-        [MOODS.D]: {
-            [GENDERS.E.NAME]: {
-                [NUMBERS.S]: { 1: "ēn", 2: "æn", 3: "ēn", 4: "ħán" },
-                [NUMBERS.D]: { 1: "χen", 2: "χen", 3: "χen", 4: "ħóχħon" },
-                [NUMBERS.P]: { 1: "illyn", 2: "ān", 3: "ē'yn", 4: "q̇yn" }
-            },
-            [GENDERS.R.NAME]: {
-                [NUMBERS.S]: { 1: "ēf", 2: "xef", 3: "lef", 4: "lef" },
-                [NUMBERS.D]: { 1: "eχef", 2: "hyf", 3: "χef", 4: "χef" },
-                [NUMBERS.P]: { 1: "yf", 2: "hyf", 3: "'yf", 4: "'yf" }
-            },
-            [GENDERS.MON.NAME]: {
-                [NUMBERS.S]: { 1: "ô", 2: "ô", 3: "ô", 4: "ô" },
-                [NUMBERS.D]: { 1: "yħq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
-                [NUMBERS.P]: { 1: "oħô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
-            },
-            [GENDERS.I.NAME]: {
-                [NUMBERS.S]: { 1: "llūl", 2: "cūl", 3: "cūl", 4: "cūl" },
-                [NUMBERS.D]: { 1: "llūl", 2: "illūl", 3: "illūl", 4: "illūl" },
-                [NUMBERS.P]: { 1: "llūl", 2: "illūl", 3: "illūl", 4: "illūl" } // /\(/o.o\)/\ - Spooky the spider
-            },
-            [GENDERS.MAG.NAME]: {
-                [NUMBERS.S]: { 1: "χ", 2: "huχ", 3: "huχ", 4: "q̇ħúχ" },
-                [NUMBERS.D]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "ūχ" },
-                [NUMBERS.P]: { 1: "uχ", 2: "'ūχ", 3: "'ūχ", 4: "ūχ" }
-            },
-            [GENDERS.MUN.NAME]: {
-                [NUMBERS.S]: { 1: "rk", 2: "tyk", 3: "tyk", 4: "rk" },
-                [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "urk" },
-                [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "urk" }
-            },
-            [GENDERS.A.NAME]: {
-                [NUMBERS.S]: { 1: "q̇", 2: "q̇", 3: "q̇", 4: "ħáq̇" },
-                [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
-                [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
-            }
-        },
-        [MOODS.R]: {
-            [GENDERS.E.NAME]: {
-                [NUMBERS.S]: { 1: "oħân", 2: "ħân", 3: "ēqân", 4: "qân" },
-                [NUMBERS.D]: { 1: "ħân", 2: "n", 3: "on", 4: "ħûn" },
-                [NUMBERS.P]: { 1: "illyrn", 2: "rn", 3: "ē'yrn", 4: "q̇yrn" }
-            },
-            [GENDERS.R.NAME]: {
-                [NUMBERS.S]: { 1: "oħâf", 2: "ħâf", 3: "qâf", 4: "qâf" },
-                [NUMBERS.D]: { 1: "īllyf", 2: "ūllef", 3: "yf", 4: "yf" },
-                [NUMBERS.P]: { 1: "īllyf", 2: "ūllef", 3: "ūlef", 4: "'ūlef" }
-            },
-            [GENDERS.MON.NAME]: {
-                [NUMBERS.S]: { 1: "oħô", 2: "qâħó", 3: "qâħó", 4: "ô" },
-                [NUMBERS.D]: { 1: "ūħó", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" },
-                [NUMBERS.P]: { 1: "ōq̇ô", 2: "q̇ô", 3: "q̇ô", 4: "ûq̇ô" }
-            },
-            [GENDERS.I.NAME]: {
-                [NUMBERS.S]: { 1: "llūl", 2: "qâllūl", 3: "qâllūl", 4: "qâllūl" },
-                [NUMBERS.D]: { 1: "ll'ūl", 2: "llūl", 3: "llūl", 4: "llūl" },
-                [NUMBERS.P]: { 1: "ll'ūl", 2: "ūcūl", 3: "ūcūl", 4: "ūcūl" }
-            },
-            [GENDERS.MAG.NAME]: {
-                [NUMBERS.S]: { 1: "ħúχħ", 2: "q̇ħôχ", 3: "q̇ħôχ", 4: "q̇ħôχ" },
-                [NUMBERS.D]: { 1: "lluχ", 2: "lūrχ", 3: "lūrχ", 4: "ūrχ" },
-                [NUMBERS.P]: { 1: "lluχ", 2: "lūrχ", 3: "lūrχ", 4: "ūrχ" }
-            },
-            [GENDERS.MUN.NAME]: {
-                [NUMBERS.S]: { 1: "ħárk	", 2: "ħárk	", 3: "ħárk	", 4: "q̇ħárk" },
-                [NUMBERS.D]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "urk	" },
-                [NUMBERS.P]: { 1: "ōrk", 2: "ōrk", 3: "ōrk", 4: "urk	" }
-            },  // /\(/o.o\)/\ - Spooky the spider
-            [GENDERS.A.NAME]: {
-                [NUMBERS.S]: { 1: "aħôq̇", 2: "q̇ħôq̇", 3: "q̇ħôq̇", 4: "áq̇ħôq̇" },
-                [NUMBERS.D]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" },
-                [NUMBERS.P]: { 1: "āq̇", 2: "ōq̇", 3: "ōq̇", 4: "ūq̇" }
-            }
-        }
-    },
-    'VERBS_APPLIED': {
-        1: {
-            [NUMBERS.S]: { [GENDERS.E.NAME]: "on", [GENDERS.R.NAME]: "yf", [GENDERS.MON.NAME]: "uħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "uχ", [GENDERS.MUN.NAME]: "ur", [GENDERS.A.NAME]: "yq̇" },
-            [NUMBERS.D]: { [GENDERS.E.NAME]: "'æ­n", [GENDERS.R.NAME]: "'æf", [GENDERS.MON.NAME]: "'ô", [GENDERS.I.NAME]: "'allūl", [GENDERS.MAG.NAME]: "'ōχ", [GENDERS.MUN.NAME]: "'ar", [GENDERS.A.NAME]: "yq̇" },
-            [NUMBERS.P]: { [GENDERS.E.NAME]: "'æ­n", [GENDERS.R.NAME]: "'æf", [GENDERS.MON.NAME]: "'ô", [GENDERS.I.NAME]: "'allūl", [GENDERS.MAG.NAME]: "'ōχ", [GENDERS.MUN.NAME]: "'ar", [GENDERS.A.NAME]: "yq̇" }
-        },
-        2: {
-            [NUMBERS.S]: { [GENDERS.E.NAME]: "un", [GENDERS.R.NAME]: "uf", [GENDERS.MON.NAME]: "uħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "uχ", [GENDERS.MUN.NAME]: "ur", [GENDERS.A.NAME]: "uq̇" },
-            [NUMBERS.D]: { [GENDERS.E.NAME]: "onēn", [GENDERS.R.NAME]: "nef", [GENDERS.MON.NAME]: "áħó", [GENDERS.I.NAME]: "állul", [GENDERS.MAG.NAME]: "ónōχ", [GENDERS.MUN.NAME]: "ár", [GENDERS.A.NAME]: "ħóq̇" },
-            [NUMBERS.P]: { [GENDERS.E.NAME]: "ħen", [GENDERS.R.NAME]: "ħáf", [GENDERS.MON.NAME]: "áħó", [GENDERS.I.NAME]: "állul", [GENDERS.MAG.NAME]: "ónōχ", [GENDERS.MUN.NAME]: "ár", [GENDERS.A.NAME]: "ħóq̇" }
-        },
-        3: {
-            [NUMBERS.S]: { [GENDERS.E.NAME]: "tón", [GENDERS.R.NAME]: "ħyf", [GENDERS.MON.NAME]: "oħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "ħuχ", [GENDERS.MUN.NAME]: "ur", [GENDERS.A.NAME]: "úq̇" },
-            [NUMBERS.D]: { [GENDERS.E.NAME]: "q̇ân", [GENDERS.R.NAME]: "yq̇ħáf", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "úcul", [GENDERS.MAG.NAME]: "ħúχ", [GENDERS.MUN.NAME]: "úr", [GENDERS.A.NAME]: "uq̇" },
-            [NUMBERS.P]: { [GENDERS.E.NAME]: "tun", [GENDERS.R.NAME]: "if", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "úcul", [GENDERS.MAG.NAME]: "ħúχ", [GENDERS.MUN.NAME]: "úr", [GENDERS.A.NAME]: "uq̇" }
-        }
-    },
-    'VERBS_UNAPPLIED': {
-        1: {
-            [NUMBERS.S]: { [GENDERS.E.NAME]: "n", [GENDERS.R.NAME]: "f", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "(u)χ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "q̇" },
-            [NUMBERS.D]: { [GENDERS.E.NAME]: "æ­n", [GENDERS.R.NAME]: "æf", [GENDERS.MON.NAME]: "ô", [GENDERS.I.NAME]: "allūl", [GENDERS.MAG.NAME]: "ōχ", [GENDERS.MUN.NAME]: "ar", [GENDERS.A.NAME]: "q̇" },
-            [NUMBERS.P]: { [GENDERS.E.NAME]: "æ­n", [GENDERS.R.NAME]: "æf", [GENDERS.MON.NAME]: "ô", [GENDERS.I.NAME]: "allūl", [GENDERS.MAG.NAME]: "ōχ", [GENDERS.MUN.NAME]: "ar", [GENDERS.A.NAME]: "q̇" }
-        },
-        2: {
-            [NUMBERS.S]: { [GENDERS.E.NAME]: "n", [GENDERS.R.NAME]: "f", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "χ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "q̇" },
-            [NUMBERS.D]: { [GENDERS.E.NAME]: "nēn", [GENDERS.R.NAME]: "nef", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "nōχ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "ħóq̇" },
-            [NUMBERS.P]: { [GENDERS.E.NAME]: "ħen", [GENDERS.R.NAME]: "ħáf", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "nōχ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "ħóq̇" }
-        },
-        3: {
-            [NUMBERS.S]: { [GENDERS.E.NAME]: "tón", [GENDERS.R.NAME]: "ħyf", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "llul", [GENDERS.MAG.NAME]: "ħuχ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "q̇" },
-            [NUMBERS.D]: { [GENDERS.E.NAME]: "ân", [GENDERS.R.NAME]: "q̇ħáf", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "cul", [GENDERS.MAG.NAME]: "ħúχ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "q̇" },
-            [NUMBERS.P]: { [GENDERS.E.NAME]: "tun", [GENDERS.R.NAME]: "if", [GENDERS.MON.NAME]: "ħó", [GENDERS.I.NAME]: "cul", [GENDERS.MAG.NAME]: "ħúχ", [GENDERS.MUN.NAME]: "r", [GENDERS.A.NAME]: "q̇" }
-        }
-    },
-}
-*/
+    */
 
     // Example usage:
     //checkKeywordEnding(map, 'æfasd'); // Logs: Match found: "asd" is the ending of "æfasd"
