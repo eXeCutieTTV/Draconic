@@ -826,6 +826,7 @@ function dictionaryPage() {
         function affixPage(keyword, gender, number, person, suffix, stem, declension) {
             const page = document.createElement('div');
             page.id = 'page96';
+            page.className = 'page';
             const div = document.createElement('div');
 
             if (!declension) { declension = '' }
