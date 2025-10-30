@@ -923,7 +923,7 @@ function dictionaryPage() {
                 const nounTable2 = document.getElementById('Noun-Table-Recessive');
 
                 nounTable1.querySelectorAll('td').forEach(td => {
-                    td.style = 'cursor: pointer';
+                    td.style.cursor = 'pointer';
                     const tdWord = td.textContent;
                     keyword = tdWord;
                     //console.log(keyword, td);
@@ -934,7 +934,7 @@ function dictionaryPage() {
                     });
                 });
                 nounTable2.querySelectorAll('td').forEach(td => {
-                    td.style = 'cursor: pointer';
+                    td.style.cursor = 'pointer';
                     const tdWord = td.textContent;
                     keyword = tdWord;
                     //console.log(keyword, td);
@@ -948,23 +948,23 @@ function dictionaryPage() {
             case 'v':
                 const verbTable1 = document.getElementById('Verb-Table-Prefix');
                 const verbTable2 = document.getElementById('Verb-Table-Suffix');
-                console.log(verbTable1, verbTable2);
+                //console.log(verbTable1, verbTable2);
 
                 verbTable1.querySelectorAll('td').forEach(td => {
-                    td.style = 'cursor: pointer';
+                    td.style.cursor = 'pointer';
                     const tdWord = td.textContent;
                     keyword = tdWord;
-                    console.log(td, keyword);
+                    //console.log(td, keyword);
 
                     td.addEventListener('click', () => {
                         search(keyword);
                     });
                 });
                 verbTable2.querySelectorAll('td').forEach(td => {
-                    td.style = 'cursor: pointer';
+                    td.style.cursor = 'pointer';
                     const tdWord = td.textContent;
                     keyword = tdWord;
-                    console.log(td, keyword);
+                    //console.log(td, keyword);
 
                     td.addEventListener('click', () => {
                         search(keyword);
