@@ -739,7 +739,7 @@ function dictionaryPage() {
         else if ((prefixes.length > 0) || (neoSuffixChecker(keyword, VERBS_SUFFIXES_MAP) || neoSuffixChecker(keyword, NOUNS_SUFFIXES_MAP))) {//type 2
             console.log('type2');
 
-            if (Suffixdeclensions.length > 0) {
+            if (Suffixtype === 'n' || Suffixtype === 'adj') {
                 Suffixdeclensions.forEach(el => {
                     console.log(el);
                     affixPage(Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, el);
