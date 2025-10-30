@@ -33,8 +33,7 @@ function dictionaryPage() {
             typeOnePage.remove();
         }
 
-        //has suffixess applied?
-
+        // vars for suffix detection
         let usedSuffix = '';
         let Suffixtype = '';
         let Suffixgender = '';
@@ -42,7 +41,6 @@ function dictionaryPage() {
         let Suffixstem = '';
         let Suffixperson = '';
 
-        
 
         const temporary1 = ALL_WORDS[keyword];
         console.log('Current keyword |', keyword, temporary1); // bro wtf is this variable naming xd. its temporary1. got it :b
