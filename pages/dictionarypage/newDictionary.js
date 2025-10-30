@@ -775,18 +775,19 @@ function dictionaryPage() {
         }
         function neoSuffixChecker(keyword, map) {
             const array = matchSuffix(keyword, map);
-            const suffixes = array[0];
+            console.log(array);
+            if (!array) {
+                return;
+            }
+
+            const suffixes = array[0] || [];
             Suffixtype = array[2];
             Suffixgender = array[4];
             Suffixnumber = array[5];
             Suffixperson = array[3];
 
-            if (!array) {
-                return;
-            }
-
-            const appliedSuffix = suffixes[0];
-            const unappliedSuffix = suffixes[1];
+            const appliedSuffix = suffixes[0] || '';
+            const unappliedSuffix = suffixes[1] || '';
 
             //which suffix is used? un- or applied?
             if (appliedSuffix && unappliedSuffix) {
@@ -797,22 +798,21 @@ function dictionaryPage() {
                     usedSuffix = unappliedSuffix;
                     console.log('only one', usedSuffix);
                 } else { return; }
+            } else if (appliedSuffix) {
+                usedSuffix = appliedSuffix;
+            } else if (unappliedSuffix) {
+                usedSuffix = unappliedSuffix;
             }
+
+            if (!usedSuffix) {
+                return;
+            }
+
             const suffixLength = usedSuffix.length;
             const { slice1, slice2 } = sliceKeyword(keyword, suffixLength);
             Suffixstem = slice1;
+            console.log(Suffixstem, usedSuffix); // worked earlier - havent changed anything:q
 
-            switch (Suffixtype) {
-                case 'n':
-                    console.log('gender', Suffixgender, 'number', Suffixnumber, 'person', Suffixperson, 'suffix', usedSuffix, 'stem', Suffixstem);
-                    break;
-                case 'v':
-                    console.log('gender', Suffixgender, 'number', Suffixnumber, 'person', Suffixperson, 'suffix', usedSuffix, 'stem', Suffixstem);
-                    break;
-                default:
-                    console.warn('invalid type');
-                    return false;
-            }
             return true;
         } //neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
 
