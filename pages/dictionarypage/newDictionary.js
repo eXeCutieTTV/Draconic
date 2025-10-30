@@ -40,6 +40,7 @@ function dictionaryPage() {
         let Suffixnumber = '';
         let Suffixstem = '';
         let Suffixperson = '';
+        let Suffixdeclensions = '';
 
 
         const temporary1 = ALL_WORDS[keyword];
@@ -737,8 +738,13 @@ function dictionaryPage() {
 
         else if ((prefixes.length > 0) || (neoSuffixChecker(keyword, VERBS_SUFFIXES_MAP) || neoSuffixChecker(keyword, NOUNS_SUFFIXES_MAP))) {//type 2
             console.log('type2');
-            affixPage(Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem);
 
+            if (Suffixdeclensions.length > 0) {
+                Suffixdeclensions.forEach(el => {
+                    console.log(el);
+                    affixPage(Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, el);
+                });
+            } else { affixPage(Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, ''); }
             openPageOld('page96');
         }
         else {//type 3
@@ -785,7 +791,8 @@ function dictionaryPage() {
             Suffixgender = array[4];
             Suffixnumber = array[5];
             Suffixperson = array[3];
-
+            Suffixdeclensions = array[1] || [];
+            console.log(Suffixdeclensions);
             const appliedSuffix = suffixes[0] || '';
             const unappliedSuffix = suffixes[1] || '';
 
@@ -816,11 +823,14 @@ function dictionaryPage() {
             return true;
         } //neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
 
-        function affixPage(gender, number, person, suffix, stem) {
+        function affixPage(gender, number, person, suffix, stem, declension) {
             const page = document.createElement('div');
             page.id = 'page96';
             const div = document.createElement('div');
-            div.innerHTML = `${gender} ${number} ${person} ${suffix} ${stem}`;
+
+            if (!declension) { declension = '' }
+
+            div.innerHTML = `${gender} ${number} ${person} ${suffix} ${stem} ${declension}`;
 
             pagesWrap = document.querySelector('.pages')
             pagesWrap.appendChild(page);
