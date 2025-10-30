@@ -32,6 +32,10 @@ function dictionaryPage() {
         if (typeOnePage) {
             typeOnePage.remove();
         }
+        const typeTwoPage = document.getElementById('page96');
+        if (typeTwoPage) {
+            typeTwoPage.remove();
+        }
 
         // vars for suffix detection
         let usedSuffix = '';
