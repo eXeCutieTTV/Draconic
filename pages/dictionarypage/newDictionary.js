@@ -761,29 +761,6 @@ function dictionaryPage() {
                 }
             });
         }
-        /*
-            if (trace_definition(keyword)) {
-                const origin = trace_definition(keyword);
-                origin.forEach(entry => {
-                    console.log(entry);
-    
-                    const genders = entry.gender || '...';
-                    const word = entry.word || '...';
-                    const declension = entry.declension || ALL_WORDS[entry.key].declension || '';
-                    const forms = entry.forms || ALL_WORDS[entry.key].forms || genders || '...';
-                    const definition = entry.definition || '...';
-                    const notes = entry.usage_notes || ALL_WORDS[entry.key].usage_notes || '...';
-                    const wordclass = entry.type || '...';
-    
-                    let wordclassText = '';
-                    if (declension) {
-                        wordclassText = `${wordclass} ` + declension;
-                    } else (wordclassText = wordclass);
-                    const uniqueId = (word + '-' + wordclass + '-' + declension + '-' + genders);
-                    extraTableRow(word, wordclassText, forms, definition, notes, uniqueId);
-                });
-            }
-        */
     }
 
 
@@ -836,25 +813,6 @@ function dictionaryPage() {
     }
     // table row gen.
     function extraTableRow(word, declension, forms, defintion, notes) {
-        /*
-            const trd = document.createElement('tr');
-            trd.innerHTML = `
-            <td>${word}</td>
-            <td>${declension}</td>
-            <td>${forms}</td>
-            <td>${defintion}</td>
-            <td>${notes}</td>
-            <td style="cursor:pointer"><strong>search</strong></td>
-            `;
-
-            const td6 = trd.querySelector('td:last-child');
-            const td1 = trd.querySelector('td:first-child');
-            td6.addEventListener('click', () => search(td1.textContent));
-
-            table.appendChild(trd);
-            document.querySelector('#tableWrapper').appendChild(table);
-        */
-
 
         let table = document.getElementById('dictionaryTable');
         if (!table) {
@@ -894,24 +852,7 @@ function dictionaryPage() {
         document.querySelector('#tableWrapper').appendChild(table);
 
         console.log('index |', Index);
-        /* function fixTable() {//<--
-             // Find the nearest existing previous row (accounts for rows removed earlier) 
-             let prevIndex = Index - 1;
-             console.log('prevIndex |', prevIndex);
 
-             if (prevIndex > 0) {
-                 const definitionCellAbove = document.getElementById(`td4-${prevIndex}`);
-                 const trAbove = document.getElementById('trd-' + prevIndex);
-                 console.log('above |', trAbove, definitionCellAbove, td4Text); // null null works //worked earlier istg done xd???? we need it. why? 
-                 if (definitionCellAbove && trAbove) {
-                     const a = definitionCellAbove.textContent;
-                     const b = td4.textContent;
-                     if (a === b) {
-                         trAbove.remove();
-                     }
-                 }
-             }
-         } fixTable();*/
     }
     // usage => for (let i = 0; i < rowAmount; i++) { extraTableRow(keyword or something custom); }
 
@@ -1040,66 +981,28 @@ function dictionaryPage() {
             search();
         }
     });
-    /*
-    // search ids work when page doesnt exist from launch.
-    let searchListenersRetryHandle = null;
-    
-    function wireSearchListeners() {
-        const searchBTN = document.getElementById('search_button');
-        const searchFLD = document.getElementById('search_field');
-        if (searchBTN && searchFLD) {
-            if (searchListenersRetryHandle !== null) {
-                clearTimeout(searchListenersRetryHandle);
-                searchListenersRetryHandle = null;
-            }
-    
-            if (searchBTN.dataset.searchListenersBound === 'true' && searchFLD.dataset.searchListenersBound === 'true') {
-                return;
-            }
-    
-            // === Search button click ===
-            searchBTN.addEventListener('click', () => {
-                search(); // /\(/o.o\)/\ - Spooky the spider
-            });
-    
-            // === Trigger search on Enter key ===
-            searchFLD.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault(); // prevent form submission
-                    search();
+    function checkSuffixMatch(keyword, map) {
+        if (!map || typeof map !== 'object') return;
+        for (const person of Object.values(map)) {
+            for (const key of Object.values(person)) {
+                for (const suff of Object.values(key)) {
+                    if (keyword.endsWith(suff)) { console.log('matchmatchmatch ' + suff) }
                 }
-            });
-    
-            searchBTN.dataset.searchListenersBound = 'true';
-            searchFLD.dataset.searchListenersBound = 'true';
-            return;
+            }
         }
-    
-        if (searchListenersRetryHandle !== null) return;
-    
-        searchListenersRetryHandle = setTimeout(() => {
-            searchListenersRetryHandle = null;
-            wireSearchListeners();
-        }, 100);
-    }
-    
-    function startSearchListenerWiring() {
-        wireSearchListeners();
-    }
-    
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', startSearchListenerWiring);
-    } else {
-        startSearchListenerWiring();
-    }
-        */
+    } checkSuffixMatch('æfllul', VERB_OBJECT_SUFFIXES);
+
+
+    // Example usage:
+    //checkKeywordEnding(map, 'æfasd'); // Logs: Match found: "asd" is the ending of "æfasd"
+    //checkKeywordEnding(map, 'æfqwe'); // Logs: Match found: "qwe" is the ending of "æfqwe"
 
 
     function sliceKeyword(keyword, x) {
         const slice1 = keyword.slice(0, -x);
         const slice2 = keyword.slice(-x);
         return { slice1, slice2 };
-    } 
+    }
     // Example usage:
     //const { slice1, slice2 } = sliceKeyword("ækluu", 2);
     //console.log(slice1); // Output: ækl
@@ -1332,18 +1235,18 @@ function dictionaryPage() {
                         if (!DivId) {
                             return reject(new Error(`div by id ${DivId} not found`));
                         }
-    
+     
                         const genders = ["Exhalted", "Rational", "Monstrous", "Irrational", "Magical", "Mundane", "Abstract"];
                         const numbers = ["Singular", "Dual", "Plural"];
-    
+     
                         // internal builder that sets data-raw on each TD
                         function buildTable(id, label, containerId) {
                             const wrapper = document.createElement("div");
                             const table = document.createElement("table");
                             table.id = id;
-    
+     
                             const thead = document.createElement("thead");
-    
+     
                             // Merged header row
                             const mergedRow = document.createElement("tr");
                             const mergedCell = document.createElement("th");
@@ -1352,14 +1255,14 @@ function dictionaryPage() {
                             mergedCell.textContent = label;
                             mergedRow.appendChild(mergedCell);
                             thead.appendChild(mergedRow);
-    
+     
                             // Column header row
                             const headerRow = document.createElement("tr");
                             headerRow.innerHTML = `<th class="GenderTh";>Gender</th>` + numbers.map(n => `<th>${n}</th>`).join("");
                             thead.appendChild(headerRow);
-    
+     
                             table.appendChild(thead);
-    
+     
                             const tbody = document.createElement("tbody");
                             Object.values(GENDERS).forEach(gender => {
                                 const row = document.createElement("tr");
@@ -1368,18 +1271,18 @@ function dictionaryPage() {
                                 tbody.appendChild(row);
                             });
                             table.appendChild(tbody);
-    
+     
                             wrapper.appendChild(table);
-    
+     
                             const container = document.getElementById(containerId);
                             if (!container) return;
                             container.appendChild(wrapper);
                         }
-    
+     
                         // create wrapper divs with unique IDs if prefix provided
                         const dirsummarytablefinalwrapper = document.createElement("div");
                         const recsummarytablefinalwrapper = document.createElement("div");
-    
+     
                         if (uniquePrefix) {
                             dirsummarytablefinalwrapper.id = `${uniquePrefix}-dirTableDiv`;
                             recsummarytablefinalwrapper.id = `${uniquePrefix}-recTableDiv`;
@@ -1389,16 +1292,16 @@ function dictionaryPage() {
                             dirsummarytablefinalwrapper.id = "dirSummaryTablediv";
                             recsummarytablefinalwrapper.id = "recSummaryTablediv";
                         }
-    
+     
                         DivId.appendChild(dirsummarytablefinalwrapper);
                         DivId.appendChild(recsummarytablefinalwrapper);
-    
+     
                         const dirTableId = uniquePrefix ? `${uniquePrefix}-dirSummaryTable` : "dirSummaryTable";
                         const recTableId = uniquePrefix ? `${uniquePrefix}-recSummaryTable` : "recSummaryTable";
-    
+     
                         buildTable(dirTableId, "Directive", dirsummarytablefinalwrapper.id);
                         buildTable(recTableId, "Recessive", recsummarytablefinalwrapper.id);
-    
+     
                         // Allow a paint cycle so the DOM is actually available to queries/measurements
                         requestAnimationFrame(() => resolve());
                     });
