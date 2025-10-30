@@ -33,6 +33,19 @@ function dictionaryPage() {
             typeOnePage.remove();
         }
 
+        //has suffixess applied?
+
+        let usedSuffix = '';
+        let Suffixtype = '';
+        let Suffixgender = '';
+        let Suffixnumber = '';
+        let Suffixstem = '';
+        let Suffixperson = '';
+
+        neoSuffixChecker(keyword, VERBS_SUFFIXES_MAP);
+        neoSuffixChecker(keyword, NOUNS_SUFFIXES_MAP);
+
+
         const temporary1 = ALL_WORDS[keyword];
         console.log('Current keyword |', keyword, temporary1); // bro wtf is this variable naming xd. its temporary1. got it :b
 
@@ -366,10 +379,13 @@ function dictionaryPage() {
         console.log('baseEntry |', baseEntry);// pref/word
         console.log('prefixes |', prefixes, 'baseKey |', baseKey, 'chain |', chain);
 
-        if (prefixes.length > 0) {//type 2
+        if (prefixes.length > 0 || usedSuffix.length > 0) {//type 2
             console.log('type2');
             neoSuffixChecker(keyword, VERBS_SUFFIXES_MAP);
             neoSuffixChecker(keyword, NOUNS_SUFFIXES_MAP);
+
+            affixPage(Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem);
+            openPageOld('page96');
         }
         else if (prefixes.length == 0 && ALL_WORDS[keyword]) {//type 1
             const searchHandler = search_word(keyword);
@@ -997,14 +1013,13 @@ function dictionaryPage() {
     function neoSuffixChecker(keyword, map) {
         const array = matchSuffix(keyword, map);
         const suffixes = array[0];
-        const type = array[2];
-        const gender = array[4];
-        const number = array[5];
-        const person = array[3];
+        Suffixtype = array[2];
+        Suffixgender = array[4];
+        Suffixnumber = array[5];
+        Suffixperson = array[3];
 
         const appliedSuffix = suffixes[0];
         const unappliedSuffix = suffixes[1];
-        let usedSuffix = '';
 
         //which suffix is used? un- or applied?
         if (appliedSuffix && unappliedSuffix) {
@@ -1018,23 +1033,22 @@ function dictionaryPage() {
         }
         const suffixLength = usedSuffix.length;
         const { slice1, slice2 } = sliceKeyword(keyword, suffixLength);
-        const stem = slice1;
+        Suffixstem = slice1;
 
-        switch (type) {
+        switch (Suffixtype) {
             case 'n':
-                console.log('gender', gender, 'number', number, 'person', person, 'suffix', usedSuffix, 'stem', stem);
-                affixPage(gender, number, person, usedSuffix, stem);
-                openPageOld('page96');
+                console.log('gender', Suffixgender, 'number', Suffixnumber, 'person', Suffixperson, 'suffix', usedSuffix, 'stem', Suffixstem);
                 break;
             case 'v':
-                console.log('gender', gender, 'number', number, 'person', person, 'suffix', usedSuffix, 'stem', stem);
-                affixPage(gender, number, person, usedSuffix, stem);
-                openPageOld('page96');
+                console.log('gender', Suffixgender, 'number', Suffixnumber, 'person', Suffixperson, 'suffix', usedSuffix, 'stem', Suffixstem);
                 break;
-            default: console.warn('invalid type');
+            default:
+                console.warn('invalid type');
+                return false;
         }
+        return true;
+    } //neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
 
-    } neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
     function affixPage(gender, number, person, suffix, stem) {
         const page = document.createElement('div');
         page.id = 'page96';
