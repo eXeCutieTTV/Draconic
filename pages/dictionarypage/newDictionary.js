@@ -742,9 +742,9 @@ function dictionaryPage() {
             if (Suffixtype === 'n' || Suffixtype === 'adj') {
                 Suffixdeclensions.forEach(el => {
                     console.log(el);
-                    affixPage(Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, el);
+                    affixPage(keyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, el);
                 });
-            } else { affixPage(Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, ''); }
+            } else { affixPage(keyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, ''); }
             openPageOld('page96');
         }
         else {//type 3
@@ -823,14 +823,14 @@ function dictionaryPage() {
             return true;
         } //neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
 
-        function affixPage(gender, number, person, suffix, stem, declension) {
+        function affixPage(keyword, gender, number, person, suffix, stem, declension) {
             const page = document.createElement('div');
             page.id = 'page96';
             const div = document.createElement('div');
 
             if (!declension) { declension = '' }
 
-            div.innerHTML = `${gender} ${number} ${person} ${suffix} ${stem} ${declension}`;
+            div.innerHTML = `${gender} ${number} ${person} ${suffix} ${stem} ${declension} ${keyword}`;
 
             pagesWrap = document.querySelector('.pages')
             pagesWrap.appendChild(page);
