@@ -26,7 +26,7 @@ function dictionaryPage() {
 
     // main search function
     function search(word) {
-        const keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
+        let keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
         let matchType = 0;
         const typeOnePage = document.getElementById('page97');
         if (typeOnePage) {
@@ -577,8 +577,69 @@ function dictionaryPage() {
                                 //const recTable = document.getElementById('Noun-Table-Recessive');
                                 populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
 
-                                console.log(tableSearchable);//when press, pointer && eventhandler for each td in table.
+                                function searchableTable(wordclass) {
+                                    switch (wordclass) {
+                                        case 'n':
+                                            const nounTable1 = document.getElementById('Noun-Table-Directive');
+                                            const nounTable2 = document.getElementById('Noun-Table-Recessive');
 
+                                            nounTable1.querySelectorAll('td').forEach(td => {
+                                                td.style = 'cursor: pointer';
+                                                const tdWord = td.textContent;
+                                                keyword = tdWord;
+                                                //console.log(keyword, td);
+                                                td.addEventListener('click', () => {
+
+                                                    //console.log(keyword);
+                                                    search(keyword);
+                                                });
+                                            });
+                                            nounTable2.querySelectorAll('td').forEach(td => {
+                                                td.style = 'cursor: pointer';
+                                                const tdWord = td.textContent;
+                                                keyword = tdWord;
+                                                //console.log(keyword, td);
+                                                td.addEventListener('click', () => {
+
+                                                    // console.log(keyword);
+                                                    search(keyword);
+                                                });
+                                            });
+                                            break;
+                                        case 'v':
+                                            const verbTable1 = document.getElementById('Verb-Table-Subject Prefix');
+                                            const verbTable2 = document.getElementById('Verb-Table-object Suffix');
+                                            console.log(verbTable1, verbTable2);
+
+                                            verbTable1.querySelectorAll('td').forEach(td => {
+                                                td.style = 'cursor: pointer';
+                                                const tdWord = td.textContent;
+                                                keyword = tdWord;
+                                                console.log(td, keyword);
+
+                                                td.addEventListener('click', () => {
+                                                    search(keyword);
+                                                });
+                                            });
+                                            verbTable2.querySelectorAll('td').forEach(td => {
+                                                td.style = 'cursor: pointer';
+                                                const tdWord = td.textContent;
+                                                keyword = tdWord;
+                                                console.log(td, keyword);
+
+                                                td.addEventListener('click', () => {
+                                                    search(keyword);
+                                                });
+                                            });
+                                            break;
+                                        default: console.warn('no wordclass');
+                                    }
+
+                                }
+                                tableSearchable.addEventListener('click', () => {
+                                    console.log(wordclass);
+                                    searchableTable(wordclass);
+                                });
                                 break;
                             case 'v':
                                 function neoVerbTables(affixState) {
