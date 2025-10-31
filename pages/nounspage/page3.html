@@ -10,6 +10,7 @@
 
 
 <div>
+    <span id="val"></span>
     <h2>3. Nouns</h2>
     <p style="width: 80%;">
         The most important thing for understanding nouns in Draconic is understanding the <lilbold>gender system
@@ -206,4 +207,15 @@
         first in the sentence, placing the dragon in the Recessive indicates that the word has less agency than would be
         expected, so the man is presumed to be the subject instead. </p>
 
+    <script>
+        const val = document.getElementById('val');
+        setInterval(function() {
+            i = NOUNS.FLAT[Math.floor(Math.random() * NOUNS.FLAT.length)];
+            genders = Object.keys(i.genders)
+            gender = genders[Math.floor(Math.random() * genders.length)]
+            number = Object.values(IDS.NUMBERS)[Math.floor(Math.random() * 3)]
+            mood = Object.values(IDS.MOODS)[Math.floor(Math.random() * 2)]
+            val.innerHTML = `${CHARACTERS.entriesToText(WORD_UTILS.connectSuffix(i.word, NOUNS.SUFFIXES.MAP[mood][gender][number][i.declension]))} - ${mood} ${number} - ${i.genders[gender]}`;
+        }, 10000);
+    </script>
 </div>

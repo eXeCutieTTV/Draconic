@@ -9,14 +9,7 @@ function dictionaryPage() {
     // main search function
     function search(word) {
         let keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
-        const typeOnePage = document.getElementById('page97');
-        if (typeOnePage) {
-            typeOnePage.remove();
-        }
-        const typeTwoPage = document.getElementById('page96');
-        if (typeTwoPage) {
-            typeTwoPage.remove();
-        }
+
 
         // vars for suffix detection
         let usedSuffix = '';
@@ -26,6 +19,15 @@ function dictionaryPage() {
         let Suffixstem = '';
         let Suffixperson = '';
         let Suffixdeclensions = '';
+
+        // vars for prefix detection
+        let usedPrefix = '';
+        let Prefixtype = '';
+        let Prefixgender = '';
+        let Prefixnumber = '';
+        let Prefixstem = '';
+        let Prefixperson = '';
+        let Prefixdeclension = '';
 
 
         const temporary1 = ALL_WORDS[keyword];
@@ -97,8 +99,17 @@ function dictionaryPage() {
             searchFLD.blur();
         }
 
-        // clear english table
-        if (document.getElementById('dictionaryTable')) { document.getElementById('dictionaryTable').remove() }
+        function clearPageById(id) {
+            const page = document.getElementById(id);
+            if (!page) return
+            if (page) {
+                page.remove();
+                console.log('removed page by id: ' + id);
+            }
+        }
+        clearPageById('page97'); //type 1
+        clearPageById('page96'); //type 2
+        clearPageById('dictionaryTable');// clear english table
 
 
 
@@ -466,32 +477,126 @@ function dictionaryPage() {
             });
         }
 
-        else if (neoSuffixChecker(keyword, VERBS.SUFFIXES.FLAT_MATCHES) || neoSuffixChecker(keyword, NOUNS.SUFFIXES.FLAT_MATCHES)) {//type 2
+        else if (neoPrefixChecker(keyword, VERBS.PREFIXES.FLAT_MATCHES) || (neoSuffixChecker(keyword, VERBS.SUFFIXES.FLAT_MATCHES) || neoSuffixChecker(keyword, NOUNS.SUFFIXES.FLAT_MATCHES))) {//type 2
             console.log('type2');
 
-            if (prefixes.length > 0) {
-                const prefix = chain[0];
-                const prefixKeyword = chain[1];
-                console.log(prefix);
-                if (neoSuffixChecker(prefixKeyword, VERBS.SUFFIXES.FLAT_MATCHES) || neoSuffixChecker(prefixKeyword, NOUNS.SUFFIXES.FLAT_MATCHES)) {
+            if (usedPrefix.length > 0) {
+                if (usedSuffix.length > 0) {
+                    const prefixSettings = {
+                        gender: Prefixgender || '',
+                        number: Prefixnumber || '',
+                        person: Prefixperson || '',
+                        prefix: usedPrefix || '',
+                        stem: Prefixstem || '',
+                        declension: ((typeof Prefixdeclension !== 'undefined') ? Prefixdeclension : Prefixdeclensions) || ''
+                    };
+
+                    const buildSuffixSettings = (declensionValue) => ({
+                        gender: Suffixgender,
+                        number: Suffixnumber,
+                        person: Suffixperson,
+                        suffix: usedSuffix,
+                        stem: Suffixstem,
+                        declension: declensionValue || ''
+                    });
+                    console.log('prefix AND suffix');
+                }
+                if (usedSuffix.length === 0) {
+                    const prefixSettings = {
+                        gender: Prefixgender || '',
+                        number: Prefixnumber || '',
+                        person: Prefixperson || '',
+                        prefix: usedPrefix || '',
+                        stem: Prefixstem || '',
+                        declension: Prefixdeclension || ''
+                    };
+                    if (Prefixtype === 'n' || Prefixtype === 'adj') {
+                        affixPage(keyword, '', prefixSettings);
+                        //affixPage(keyword, { gender: Suffixgebder, number: Suffixnumber, person: Suffixperson, suffix: usedSuffix, stem: Suffixstem, declension: el }, '');
+
+                    } else {
+                        affixPage(keyword, '', prefixSettings);
+                        //console.log(affixPage(keyword, suffixSettings, ''));
+                    }
+                    console.log('ONLY prefix');
+                }
+            }
+            if (usedPrefix.length === 0) {
+                if (usedSuffix.length > 0) {
+                    const buildSuffixSettings = (declensionValue) => ({
+                        gender: Suffixgender,
+                        number: Suffixnumber,
+                        person: Suffixperson,
+                        suffix: usedSuffix,
+                        stem: Suffixstem,
+                        declension: declensionValue || ''
+                    });
                     if (Suffixtype === 'n' || Suffixtype === 'adj') {
                         Suffixdeclensions.forEach(el => {
                             console.log(el);
-                            affixPage(prefixKeyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, el, prefix);
+                            affixPage(keyword, buildSuffixSettings(el), '');
+                            //affixPage(keyword, { gender: Suffixgebder, number: Suffixnumber, person: Suffixperson, suffix: usedSuffix, stem: Suffixstem, declension: el }, '');
                         });
                     } else {
-                        affixPage(prefixKeyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, '', prefix);
-                        console.log(affixPage(prefixKeyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, '', prefix));
+                        const suffixSettings = buildSuffixSettings('');
+                        affixPage(keyword, suffixSettings, '');
+                        //console.log(affixPage(keyword, suffixSettings, ''));
                     }
+                    console.log('ONLY suffix');
                 }
-            } else {
-                if (Suffixtype === 'n' || Suffixtype === 'adj') {
-                    Suffixdeclensions.forEach(el => {
-                        console.log(el);
-                        affixPage(keyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, el, '');
-                    });
-                } else { affixPage(keyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, '', ''); }
             }
+            /*
+                        const buildSuffixSettings = (declensionValue) => ({
+                            gender: Suffixgender,
+                            number: Suffixnumber,
+                            person: Suffixperson,
+                            suffix: usedSuffix,
+                            stem: Suffixstem,
+                            declension: declensionValue || ''
+                        });
+            
+                        if (usedPrefix.length > 0) {
+                            console.log(prefix);
+                            if (neoSuffixChecker(prefixKeyword, VERBS.SUFFIXES.FLAT_MATCHES) || neoSuffixChecker(prefixKeyword, NOUNS.SUFFIXES.FLAT_MATCHES)) {
+                                const prefixSettings = {
+                                    gender: Prefixgender || '',
+                                    number: Prefixnumber || '',
+                                    person: Prefixperson || '',
+                                    prefix: usedPrefix || '',
+                                    stem: Prefixstem || '',
+                                    declension: ((typeof Prefixdeclension !== 'undefined') ? Prefixdeclension : Prefixdeclensions) || ''
+                                };
+                                if (Suffixtype === 'n' || Suffixtype === 'adj') {
+                                    Suffixdeclensions.forEach(el => {
+                                        console.log(el);
+                                        affixPage(prefixKeyword, buildSuffixSettings(el), prefixSettings);
+                                    });
+                                } else {
+                                    const suffixSettings = buildSuffixSettings('');
+                                    affixPage(prefixKeyword, suffixSettings, prefixSettings);
+                                    console.log(affixPage(prefixKeyword, suffixSettings, prefixSettings));
+                                }
+                            }
+                        } else {
+                            const prefixSettings = {
+                                prefix: '',
+                                gender: '',
+                                number: '',
+                                person: '',
+                                stem: '',
+                                declension: ''
+                            };
+                            if (Suffixtype === 'n' || Suffixtype === 'adj') {
+                                Suffixdeclensions.forEach(el => {
+                                    console.log(el);
+                                    affixPage(keyword, buildSuffixSettings(el), prefixSettings);
+                                });
+                            } else {
+                                const suffixSettings = buildSuffixSettings('');
+                                affixPage(keyword, suffixSettings, prefixSettings);
+                            }
+                        }
+                            */
             openPageOld('page96');
         }
         else {//type 3
@@ -543,6 +648,12 @@ function dictionaryPage() {
             const appliedSuffix = suffixes[0] || '';
             const unappliedSuffix = suffixes[1] || '';
 
+            console.log(
+                'Suffixtype | ', Suffixtype,
+                'Suffixperson | ', Suffixperson,
+                'Suffixgender | ', Suffixgender,
+                'Suffixnumber | ', Suffixnumber)
+
             //which suffix is used? un- or applied?
             if (appliedSuffix && unappliedSuffix) {
                 if (keyword.endsWith(appliedSuffix) && keyword.endsWith(unappliedSuffix)) {
@@ -570,22 +681,94 @@ function dictionaryPage() {
             return true;
         } //neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
 
-        function affixPage(keyword, gender, number, person, suffix, stem, declension, prefix) {
-            let page = '';
-            page = document.getElementById('page96');
-            if (page != 'object') { page = document.createElement('div'); }
 
-            page.id = 'page96';
-            page.className = 'page';
+        /*
+        function affixPage(keyword, gender, number, person, suffix, stem, declension, prefix) {
+                    let page = '';
+                    page = document.getElementById('page96');
+                    if (page != 'object') { page = document.createElement('div'); }
+        
+                    page.id = 'page96';
+                    page.className = 'page';
+                    const div = document.createElement('div');
+        
+                    if (!declension) { declension = '' }
+        
+                    div.innerHTML = `gender: ${gender}<br> number: ${number}<br> person: ${person}<br> suffix: ${suffix}<br> stem: ${stem}<br> declension: ${declension} <br> keyword: ${keyword}<br> prefix: ${prefix}`;
+        
+                    pagesWrap = document.querySelector('.pages');
+                    pagesWrap.appendChild(page);
+                    page.appendChild(div);
+                }
+        */
+
+        function affixPage(keyword, suffixSettings = {}, prefixSettings = {}) {
+            const normalize = (value) => {
+                if (Array.isArray(value)) {
+                    return value.join(', ');
+                }
+                return value ?? '';
+            };
+
+            const {
+                gender: Suffixgender = '',
+                number: Suffixnumber = '',
+                person: Suffixperson = '',
+                suffix: suffix = '',
+                stem: Suffixstem = '',
+                declension: Suffixdeclension = ''
+            } = suffixSettings;
+
+            const {
+                gender: prefixGender = '',
+                number: prefixNumber = '',
+                person: prefixPerson = '',
+                prefix: prefix = '',
+                stem: prefixStem = '',
+                declension: prefixDeclension = ''
+            } = prefixSettings;
+
+            const pageId = 'page96';
+            let page = document.getElementById(pageId);
+            if (!page) {
+                page = document.createElement('div');
+                page.id = pageId;
+                page.className = 'page';
+            }
+
             const div = document.createElement('div');
 
-            if (!declension) { declension = '' }
+            const prefixLines = [
+                `prefix: ${normalize(prefix)}`,
+                `prefix stem: ${normalize(prefixStem)}`,
+                `prefix declension: ${normalize(prefixDeclension)}`,
+                `prefix gender: ${normalize(prefixGender)}`,
+                `prefix number: ${normalize(prefixNumber)}`,
+                `prefix person: ${normalize(prefixPerson)}`
+            ];
 
-            div.innerHTML = `gender: ${gender}<br> number: ${number}<br> person: ${person}<br> suffix: ${suffix}<br> stem: ${stem}<br> declension: ${declension} <br> keyword: ${keyword}<br> prefix: ${prefix}`;
+            const suffixLines = [
+                `suffix: ${normalize(suffix)}`,
+                `suffix stem: ${normalize(Suffixstem)}`,
+                `suffix declension: ${normalize(Suffixdeclension)}`,
+                `suffix gender: ${normalize(Suffixgender)}`,
+                `suffix number: ${normalize(Suffixnumber)}`,
+                `suffix person: ${normalize(Suffixperson)}`
+            ];
 
-            pagesWrap = document.querySelector('.pages');
-            pagesWrap.appendChild(page);
-            page.appendChild(div);
+            const lines = [
+                `keyword: ${normalize(keyword)}`,
+                ...prefixLines,
+                ...suffixLines
+            ];
+
+            div.innerHTML = lines.join('<br> ');
+
+            const pagesWrap = document.querySelector('.pages');
+            if (pagesWrap) {
+                pagesWrap.appendChild(page);
+                page.appendChild(div);
+            }
         }
         reverseSearchIdsOnSearch();
     }
@@ -593,6 +776,36 @@ function dictionaryPage() {
     function neoPrefixChecker(keyword, map) {
         const array = WORD_UTILS.matchPrefix(keyword, map);
         console.log(array);
+        if (!array) {
+            return;
+        }
+        const prefix = array[0];
+        //Prefixtype = array[1];
+        Prefixperson = array[1];
+        Prefixgender = array[2];
+        Prefixnumber = array[3];
+        Prefixdeclension = array[1] || [];
+        console.log(Prefixdeclension);
+
+        console.log(
+            'Prefixperson | ', Prefixperson,
+            'Prefixgender | ', Prefixgender,
+            'Prefixnumber | ', Prefixnumber
+        )
+
+        usedPrefix = prefix; // no variants
+
+        if (!usedPrefix) {
+            return;
+        }
+
+        const prefixLength = usedPrefix.length;
+        const { slice1, slice2 } = sliceKeyword(keyword, prefixLength);
+        Prefixstem = slice1;
+        console.log(prefix, usedPrefix); // worked earlier - havent changed anything:q
+
+        return true;
+
     } //neoPrefixChecker('xenæf', VERBS.PREFIXES.FLAT_MATCHES);
 
 

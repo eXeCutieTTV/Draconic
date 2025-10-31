@@ -1,0 +1,68 @@
+<div>
+    <script>
+        const val = document.getElementById('val');
+        let i = 0
+        setInterval(function() {
+            i++;
+            val.innerHTML = `${i} - ${NUMBERS.numberToText(i)}`;
+        }, 500);
+    </script>
+    <div id="val">qem</div>
+    <h1>CAUTION! DANGER! UNCONFIRMED WIP INFORMATION!</h1>
+    <p>Draconic uses a base-8 number system.</p>
+    <table>
+        <th colspan="8">Main digits</th>
+        <tr>
+            <td>0 - q̇em</td><td>1 - χu</td><td>2 - eχ</td><td>3 - fo</td><td>4 - se</td><td>5 - aq</td><td>6 - qah</td><td>7 - hog</td>
+        </tr>
+
+        <tr>
+            <td>8 - xēχ</td><td>9 - χyz</td><td>10 - ez</td><td>11 - fyz</td><td>12 - selz</td><td>13 - agz</td><td>14 - qaz</td><td>15 - hyz</td>
+        </tr>
+        <th colspan="8">Multiples</th>
+        <tr>
+            <td>16 - sē</td><td>24 - fōrz</td><td>32 - sēlz</td><td>40 - qāz</td><td>48 - qōz</td><td>56 - hōz</td><td colspan="2">64 - lān</td>
+        </tr>
+        <th colspan="8">Powers</th>
+        <tr>
+            <td>512 - lāran</td><td>4096 - xeglārn</td><td>32768 - táħû</td><td colspan="5">262144 - torħû</td>
+        </tr>
+        <th colspan="8">Suffixes</th>
+        <tr>
+            <td>+1 - u</td><td>+2 - eχ</td><td>+3 - o</td><td>+4 - ys</td><td>+5 - aq</td><td>+6 - ga</td><td colspan="2">+7 - yg</td>
+        </tr>
+    </table>
+    <hr>
+    <p>Numbers form <n>0</n> to <n>16</n> are straight forward, they are literaly in the table ^^^<br><br>
+
+    Problems start from <n>17</n>, now we have to use suffixes. We do know that <dn>sē</dn> is multiple of <n>8</n>, so we can add suffixes to it.<br>
+    For example <n>17</n> be <dn>sē</dn> + <dn>u</dn>, e.g. (<n>16</n>) + (+<n>1</n>). So <n>17</n> = <dn>sēu</dn>, <n>18</n> = <dn>sēeχ</dn>, <n>19</n> = <dn>sēo</dn>, <n>20</n> = <dn>sēys</dn>, <n>21</n> = <dn>sēaq</dn>, <n>22</n> = <dn>sēga</dn>, <n>23</n> = <dn>sēyg</dn>.<br>
+    Oh no! We ran out of suffixes! Luckely we have another multiple of <n>8</n> - <dn>fōrz</dn>. So <n>24</n> = <dn>fōrz</dn>, <n>25</n> = <dn>fōrzu</dn>, you get the point. <br><br>
+
+    Now we are crossing the last multiple of <n>8</n>: <dn>lān</dn>, what comes after <n>71</n> = <dn>lānyg</dn>? We can't add more, right?.. Right?<br>
+    <dn>Si</dn>! That's what will help us! By using <dn>si</dn> we can add numbers to numbers! for example <n>72</n> = <dn>lān si xēχ</dn> (<n>64</n> + <n>8</n>), <n>73</n> = <dn>lān si χyz</dn> (<n>64</n> + <n>9</n>) and so on, untill <n>128</n>.<br><br>
+
+    While <n>127</n> is <dn>lān si hōzyg</dn>, <n>128</n> is NOT <span style="color: brown;">lān si lān</span>, instead we multiply numbers, because <dn>lān</dn> is multiple of <n>64</n>!<br>
+    So <n>128</n> = <dn>eχ lān</dn> (<n>2</n> * <n>64</n>), <n>129</n> = <dn>eχ lānu</dn> (<n>2</n> * <n>64</n> + <n>1</n>), and so on.<br><br>
+
+    Now we can start think about powers: after <n>511</n> (<dn>hog lān si hōzyg</dn>) comes <n>512</n> = <dn>lāran.</dn><br>
+    Do you know what goes next? Yes, you guessed it, <n>513</n> = <dn>lāranu</dn>, it goes on and on.<br><br>
+
+    If you feel confused, you can use this:</p>
+    <input type="number" id="numInput" max="2097151" min="0" placeholder="Write your number!" style="accent-color: var(--accent); width: 10%; color: var(--accent);" oninput="if (this.value > 2097151) {this.value = 2097151}; document.getElementById('result').textContent = NUMBERS.numberToText(this.value)">
+
+    <dn id="result">result</dn> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
