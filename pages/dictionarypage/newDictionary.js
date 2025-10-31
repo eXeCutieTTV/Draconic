@@ -207,7 +207,7 @@ function dictionaryPage() {
                         if (wordclass === 'n') {
 
                             for (const [gender, def] of Object.entries(combinedGendersObject)) {
-                                const row = type1extraTableRow(
+                                const row = helperFunctions.matchtype1.type1extraTableRow(
                                     entry.word || '...',
                                     entry.declension || '...',
                                     gender || '...',
@@ -216,7 +216,7 @@ function dictionaryPage() {
                                 newFillTable(row, entry.word, entry.declension, def, gender, entry.usage_notes, entry.type);
                             }
                         } else {
-                            const row = type1extraTableRow(
+                            const row = helperFunctions.matchtype1.type1extraTableRow(
                                 entry.word || '...',
                                 entry.declension || '...',
                                 entry.forms || '...',
@@ -542,7 +542,7 @@ function dictionaryPage() {
                 // check for type === "n" then do for () {} else do normal thingi?
                 if (entry.type === "n") {
                     for (const [gender, def] of Object.entries(WORD_UTILS.combineGenders(entry.genders))) {
-                        extraTableRow(entry.word, `n ${entry.declension}`, gender, def, entry.usage_notes || '...');
+                        helperFunctions.matchtype3.extraTableRow(entry.word, `n ${entry.declension}`, gender, def, entry.usage_notes || '...');
 
                     }
                 } else {
@@ -560,7 +560,7 @@ function dictionaryPage() {
                     } else (wordclassText = type);
 
                     //console.log(word, wordclassText, forms, definition, usage_notes);// <-- works.
-                    extraTableRow(word, wordclassText, forms, definition, usage_notes);
+                    helperFunctions.matchtype3.extraTableRow(word, wordclassText, forms, definition, usage_notes);
                 }
             });
         }
@@ -704,49 +704,7 @@ function dictionaryPage() {
 
         return row;
     }
-    // table row gen.
-    function extraTableRow(word, declension, forms, defintion, notes) {
-
-        let table = document.getElementById('dictionaryTable');
-        if (!table) {
-            table = document.createElement('table');
-            table.id = 'dictionaryTable';
-            const trh = document.createElement('tr');
-            trh.innerHTML = `
-                <th style="width:12%">Word</th>
-                <th style="width:7%">Wordclass</th>
-                <th style="width:7%">Forms</th>
-                <th style="width:30%">Definition</th>
-                <th style="width:30%">Notes</th>
-                <th style="width:7%">...</th>
-            `;
-            table.appendChild(trh);
-        }
-
-        const Index = table.rows.length;
-        //td rows
-        const trd = document.createElement('tr');
-        trd.innerHTML = `
-            <td id="td1-${Index}">${word}</td>
-            <td id="td2-${Index}">${declension}</td>
-            <td id="td3-${Index}">${forms}</td>
-            <td id="td4-${Index}">${defintion}</td>
-            <td id="td5-${Index}">${notes}</td>
-            <td id="td6-${Index}"; style="cursor:pointer"><strong>search</strong></td>
-            `;
-
-        trd.id = `trd-${Index}`;
-        const td6 = trd.querySelector('td:last-child');
-        const td1 = trd.querySelector('td:first-child');
-        td6.addEventListener('click', () => search(td1.textContent));
-
-        table.appendChild(trd);
-
-        document.querySelector('#tableWrapper').appendChild(table);
-
-        //console.log('index |', Index);
-
-    }
+    
     // usage => for (let i = 0; i < rowAmount; i++) { extraTableRow(keyword or something custom); }
 
     //on-page button toggler
