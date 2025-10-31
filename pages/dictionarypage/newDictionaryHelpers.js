@@ -88,6 +88,7 @@ const standard = {
 
 
 const neoSuffixChecker = function neoSuffixChecker(keyword, map, resultArray) {
+    resultArray.length = 0; // clear array first
     const array = WORD_UTILS.matchSuffix(keyword, map);
     if (!array) return null;
 
@@ -125,8 +126,7 @@ const neoSuffixChecker = function neoSuffixChecker(keyword, map, resultArray) {
         appliedSuffix,
         unappliedSuffix,
         usedSuffix,
-        Suffixstem,
-        slice2
+        Suffixstem
     };
 
     // push into provided array if it is a real array
@@ -136,6 +136,7 @@ const neoSuffixChecker = function neoSuffixChecker(keyword, map, resultArray) {
     return result;
 };
 const neoPrefixChecker = function neoPrefixChecker(keyword, map, resultArray) {
+    resultArray.length = 0; // clear array first
     const array = WORD_UTILS.matchPrefix(keyword, map);
     console.log(array);
     if (!array) {
@@ -173,8 +174,7 @@ const neoPrefixChecker = function neoPrefixChecker(keyword, map, resultArray) {
         Prefixnumber,
         Prefixdeclension,
         usedPrefix,
-        Prefixstem,
-        slice2
+        Prefixstem
     }
     // push into provided array if it is a real array
     if (Array.isArray(resultArray)) resultArray.push(result);
