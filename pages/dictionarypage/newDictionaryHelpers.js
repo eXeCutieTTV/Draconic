@@ -46,11 +46,35 @@ const createDivById = function createDivById(id, wrapper, html) {
 
     divwrapper.appendChild(div);
 }
-
 const sliceKeyword = function sliceKeyword(keyword, x) {
     const slice1 = keyword.slice(0, -x);
     const slice2 = keyword.slice(-x);
     return { slice1, slice2 };
+
+    // Example usage:
+    //const { slice1, slice2 } = sliceKeyword("ækluu", 2);
+    //console.log(slice1); // Output: ækl
+    //console.log(slice2); // Output: uu
+}
+const reverseSearchIdsOnSearch = function reverseSearchIdsOnSearch() {
+    function swapSearchIds(idA, idB) {
+        const a = document.getElementById(idA);
+        const b = document.getElementById(idB);
+        if (!a && !b) return;          // nothing to do
+        if (!a && b) { b.id = idA; return; }
+        if (a && !b) { a.id = idB; return; }
+
+        // use a temporary id unlikely to collide
+        const tmp = `__tmp_id_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        a.id = tmp;        // step 1: move A out of the way
+        b.id = idA;        // step 2: move B into A's original id
+        const movedA = document.getElementById(tmp);
+        if (movedA) movedA.id = idB; // step 3: restore A into B's original id
+    }
+    if (document.getElementById('search_button') && document.getElementById('unusedBtn')) {
+        swapSearchIds('search_button', 'unusedBtn');
+        swapSearchIds('search_field', 'unusedField');
+    }
 }
 
 const standard = {
@@ -58,7 +82,8 @@ const standard = {
     clearPageById,
     createPageById,
     createDivById,
-    sliceKeyword
+    sliceKeyword,
+    reverseSearchIdsOnSearch
 }
 
 const neoSuffixChecker = function neoSuffixChecker(keyword, map, resultArray) {
@@ -263,10 +288,65 @@ const matchtype1 = {
     type1extraTableRow
 }
 
+const populateSummaryTables = function populateSummaryTables(keyword, tables) {
+    Object.keys(tables).forEach(tableId => {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const tds = table.querySelectorAll("td");
+        tds.forEach(td => {
+            // prefer original stored raw suffix (data-raw) if present 
+            const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
+            //console.log(td.dataset.raw); // wtf is dataset.raw?
+            // console.log(td.innerHTML);
+
+            // process raw
+            let entries;
+            if (tables[tableId]) entries = WORD_UTILS.connectSplit(textInCell, keyword, "");
+            else entries = WORD_UTILS.connectSplit("", keyword, textInCell);
+            td.innerHTML = `<strong>${CHARACTERS.entriesToText(entries[0])}</strong>${CHARACTERS.entriesToText(entries[1])}<strong>${CHARACTERS.entriesToText(entries[2])}</strong>`;
+            // place keyword as prefix or suffix (you can change behavior per table)
+        });
+    });
+}
+const waitForElement = function waitForElement(selector, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+        const startTime = Date.now();
+
+        function check() {
+            const element = document.querySelector(selector);
+            if (element) {
+                resolve(element);
+            } else if (Date.now() - startTime > timeout) {
+                reject(new Error(`Element ${selector} not found within ${timeout}ms`));
+            } else {
+                setTimeout(check, 50);
+            }
+        }
+
+        check();
+    });
+}
+
+const tablegen = {
+    populateSummaryTables,
+    waitForElement
+}
+const keepDigitsOnly = function keepDigitsOnly(str) {
+    return String(str).replace(/\D+/g, "");
+}
+const removeParensSpacesAndDigits = function removeParensSpacesAndDigits(str) {
+    return String(str || "").replace(/[\d() \t\r\n]+/g, "");
+}
+const formatting = {
+    keepDigitsOnly,
+    removeParensSpacesAndDigits
+}
+
 const helperFunctions =
 {
     standard,
     affixHelpers,
     matchtype3,
-    matchtype1
+    matchtype1,
+    tablegen
 }

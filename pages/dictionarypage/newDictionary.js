@@ -155,7 +155,7 @@ function dictionaryPage() {
 
 
                     // Wait for the page content to load, then setup the table (header table)
-                    waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
+                    helperFunctions.tablegen.waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
                         // Create and fill the table
                         //console.log(NOUNS.SUFFIXES.MAP);
                         //const table = createTable(keyword, pageContainer);//just copy english table logic??
@@ -302,7 +302,7 @@ function dictionaryPage() {
 
                                 //const dirTable = document.getElementById('Noun-Table-Directive');
                                 //const recTable = document.getElementById('Noun-Table-Recessive');
-                                populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
+                                helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
 
 
 
@@ -427,7 +427,7 @@ function dictionaryPage() {
                                 neoVerbTables(1);
                                 neoVerbTables(2);
 
-                                populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
+                                helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
                                 break
                         }
                         tableSearchable.addEventListener('click', () => {
@@ -653,58 +653,9 @@ function dictionaryPage() {
                 page.appendChild(div);
             }
         }
-        reverseSearchIdsOnSearch();
+        helperFunctions.standard.reverseSearchIdsOnSearch();
     }
 
-
-    function type1extraTableRow(word, declension, forms, definition, notes) {
-        let table = document.getElementById('type1TopTable');
-        if (!table) {
-            table = document.createElement('table');
-            table.id = 'type1TopTable';
-
-            const thead = document.createElement('thead');
-            const headerRow = document.createElement('tr');
-            const headers = ["Word", "Declension", "Definition", "Forms", "Usage Notes", "Word Class"];
-            headers.forEach(text => {
-                const th = document.createElement('th');
-                th.textContent = text;
-                headerRow.appendChild(th);
-            });
-            thead.appendChild(headerRow);
-            table.appendChild(thead);
-
-            const tbody = document.createElement('tbody');
-            table.appendChild(tbody);
-        }
-
-        const tbody = table.querySelector('tbody');
-        const row = document.createElement('tr');
-        for (let i = 0; i < 6; i++) {
-            const td = document.createElement('td');
-            td.textContent = '...';
-            row.appendChild(td);
-        }
-        if (tbody) {
-            tbody.appendChild(row);
-        }
-
-        const cellValues = [word, declension, definition, forms, notes, '...'];
-        cellValues.forEach((value, index) => {
-            const td = row.children[index];
-            if (td) {
-                td.textContent = value || '...';
-            }
-        });
-
-        const container = document.querySelector('.tablesContainer');
-        if (container && !container.contains(table)) {
-            container.appendChild(table);
-        }
-
-        return row;
-    }
-    
     // usage => for (let i = 0; i < rowAmount; i++) { extraTableRow(keyword or something custom); }
 
     //on-page button toggler
@@ -767,59 +718,8 @@ function dictionaryPage() {
         }
     }
 
-    // clone <p> element with keyword data
-    function cloneKeywordText() {
-        const source = document.getElementById('keywordp');
-        if (!source) return;
 
-        const sourceText = source.textContent;
-
-        for (let i = 1; i <= 100; i++) { // Adjust 100 to your max expected number
-            const target = document.getElementById('keywordp' + i);
-            if (target) {
-                target.textContent = sourceText;
-            }
-        }
-    }
-
-    // clone <p> element with wordclass data
-    function cloneWordclassText() {
-        const source = document.getElementById('wordclassp');
-        if (!source) return;
-
-        const sourceText = source.textContent;
-
-        for (let i = 1; i <= 100; i++) { // Adjust 100 to your max expected number
-            const target = document.getElementById('wordclassp' + i);
-            if (target) {
-                target.textContent = sourceText;
-            }
-        }
-    }
-
-    // Safely swap two element IDs using a temporary third ID to avoid duplicates.
-    // Call this to swap the button IDs and the field IDs.
-    function reverseSearchIdsOnSearch() {
-        function swapSearchIds(idA, idB) {
-            const a = document.getElementById(idA);
-            const b = document.getElementById(idB);
-            if (!a && !b) return;          // nothing to do
-            if (!a && b) { b.id = idA; return; }
-            if (a && !b) { a.id = idB; return; }
-
-            // use a temporary id unlikely to collide
-            const tmp = `__tmp_id_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-            a.id = tmp;        // step 1: move A out of the way
-            b.id = idA;        // step 2: move B into A's original id
-            const movedA = document.getElementById(tmp);
-            if (movedA) movedA.id = idB; // step 3: restore A into B's original id
-        }
-        if (document.getElementById('search_button') && document.getElementById('unusedBtn')) {
-            swapSearchIds('search_button', 'unusedBtn');
-            swapSearchIds('search_field', 'unusedField');
-        }
-    }
-
+    //evenlisteners vv
     // === Search button click ===
     searchBTN.addEventListener('click', () => {
         search(); // /\(/o.o\)/\ - Spooky the spider
@@ -832,79 +732,7 @@ function dictionaryPage() {
             search();
         }
     });
-
-    function sliceKeyword(keyword, x) {
-        const slice1 = keyword.slice(0, -x);
-        const slice2 = keyword.slice(-x);
-        return { slice1, slice2 };
-    }
-    // Example usage:
-    //const { slice1, slice2 } = sliceKeyword("ækluu", 2);
-    //console.log(slice1); // Output: ækl
-    //console.log(slice2); // Output: uu
-
-
-
-    // copied from legacy.vv
-
-    // populateSummaryTables
-    function populateSummaryTables(keyword, tables) {
-        Object.keys(tables).forEach(tableId => {
-            const table = document.getElementById(tableId);
-            if (!table) return;
-            const tds = table.querySelectorAll("td");
-            tds.forEach(td => {
-                // prefer original stored raw suffix (data-raw) if present 
-                const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
-                //console.log(td.dataset.raw); // wtf is dataset.raw?
-                // console.log(td.innerHTML);
-
-                // process raw
-                let entries;
-                if (tables[tableId]) entries = WORD_UTILS.connectSplit(textInCell, keyword, "");
-                else entries = WORD_UTILS.connectSplit("", keyword, textInCell);
-                td.innerHTML = `<strong>${CHARACTERS.entriesToText(entries[0])}</strong>${CHARACTERS.entriesToText(entries[1])}<strong>${CHARACTERS.entriesToText(entries[2])}</strong>`;
-                // place keyword as prefix or suffix (you can change behavior per table)
-            });
-        });
-    }
-
-    // Helper function to wait for element to exist
-    function waitForElement(selector, timeout = 5000) {
-        return new Promise((resolve, reject) => {
-            const startTime = Date.now();
-
-            function check() {
-                const element = document.querySelector(selector);
-                if (element) {
-                    resolve(element);
-                } else if (Date.now() - startTime > timeout) {
-                    reject(new Error(`Element ${selector} not found within ${timeout}ms`));
-                } else {
-                    setTimeout(check, 50);
-                }
-            }
-
-            check();
-        });
-    }
-    // === Create table inside a given container ===
-
-
-    function keepDigitsOnly(str) {
-        return String(str).replace(/\D+/g, "");
-    }
-    function removeParensSpacesAndDigits(str) {
-        return String(str || "").replace(/[\d() \t\r\n]+/g, "");
-    }
-    // === Fill table from structured dictionary data ===
-
-
-}//if(entry.animates && entry.gender === 'e'){genders='animates'}; if(entry.gender === 'r','mon','i'){return;}?
-
-
-
-
+}
 dictionaryPage(); // so constants arent redefined.
 // this works as a wrapper function essentially^^
 
