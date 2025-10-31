@@ -20,6 +20,7 @@ function dictionaryPage() {
         let Suffixperson = '';
         let Suffixdeclensions = '';
 
+
         // vars for prefix detection
         let usedPrefix = '';
         let Prefixtype = '';
@@ -28,10 +29,6 @@ function dictionaryPage() {
         let Prefixstem = '';
         let Prefixperson = '';
         let Prefixdeclension = '';
-
-
-        const temporary1 = ALL_WORDS[keyword];
-        console.log('Current keyword |', keyword, temporary1); // bro wtf is this variable naming xd. its temporary1. got it :b
 
         function bkjlcdfkjbacsfksjbsdkabjc() {
             /*  
@@ -99,17 +96,9 @@ function dictionaryPage() {
             searchFLD.blur();
         }
 
-        function clearPageById(id) {
-            const page = document.getElementById(id);
-            if (!page) return
-            if (page) {
-                page.remove();
-                console.log('removed page by id: ' + id);
-            }
-        }
-        clearPageById('page97'); //type 1
-        clearPageById('page96'); //type 2
-        clearPageById('dictionaryTable');// clear english table
+        helperFunctions.standard.clearPageById('page97'); //type 1
+        helperFunctions.standard.clearPageById('page96'); //type 2
+        helperFunctions.standard.clearPageById('dictionaryTable');// clear english table
 
 
 
@@ -130,17 +119,7 @@ function dictionaryPage() {
                 if (word === keyword) {
                     console.log('clean match |', keyword);
 
-                    let pagesWrap = document.querySelector('.pages');
-                    if (!pagesWrap) {
-                        console.error("no div with class '.pages'");
-                        return;
-                    }
-
-                    // create pageDiv
-                    const pageDiv = document.createElement('div');
-                    pageDiv.id = 'page97';
-                    pageDiv.className = 'page';
-                    pageDiv.innerHTML = `
+                    const html = `
                     <div class="outerdiv">
                         <div id="leftdivdictionary" class="leftdivdictionary">
                             <div class="keyworddiv"></div>
@@ -169,8 +148,8 @@ function dictionaryPage() {
                             </div>
                         </div>
                     </div>`;
+                    helperFunctions.standard.createPageById('page97', html);
 
-                    pagesWrap.appendChild(pageDiv); // append pageDiv in pagesWrap
                     const tableSearchable = document.getElementById('tableSearchBtn');
 
 
@@ -330,14 +309,13 @@ function dictionaryPage() {
                             case 'v':
                                 function neoVerbTables(affixState) {
 
+                                    const wrapper = document.getElementById('leftleftdivdictionary');
                                     const affixStateMap = {
                                         1: { 1: 'Prefix', 2: VERBS.PREFIXES.MAP },
                                         2: { 1: 'Suffix', 2: VERBS.SUFFIXES.MAP }
                                     }
-                                    console.log(affixStateMap[affixState][2]);
-                                    const div = document.createElement('div');
-                                    div.innerHTML = `
-                                    <table id="Verb-Table-${affixStateMap[affixState][1]}">
+                                    const html = `
+                                    <table id="Verb-Table-${affixStateMap[affixState][1]}" style="margin-bottom: 10px;">
                                         <tr>
                                             <th colSpan = 2>${affixStateMap[affixState][1]}</th>
                                             <th>Exalted</th>
@@ -443,9 +421,7 @@ function dictionaryPage() {
                                         </tr>
                                     </table>
                                     `;
-                                    div.style = "margin-bottom: 10px"
-                                    const wrapper = document.getElementById('leftleftdivdictionary');
-                                    wrapper.appendChild(div);
+                                    helperFunctions.standard.createDivById('', wrapper, html);
                                 }
                                 neoVerbTables(1);
                                 neoVerbTables(2);
@@ -480,6 +456,28 @@ function dictionaryPage() {
         else if (neoPrefixChecker(keyword, VERBS.PREFIXES.FLAT_MATCHES) || (neoSuffixChecker(keyword, VERBS.SUFFIXES.FLAT_MATCHES) || neoSuffixChecker(keyword, NOUNS.SUFFIXES.FLAT_MATCHES))) {//type 2
             console.log('type2');
 
+
+            let hasPrefix = (neoPrefixChecker(keyword, VERBS.PREFIXES.FLAT_MATCHES) ? true : false);
+            let hasSuffix = ((neoSuffixChecker(keyword, VERBS.SUFFIXES.FLAT_MATCHES) || neoSuffixChecker(keyword, NOUNS.SUFFIXES.FLAT_MATCHES)) ? true : false);
+
+            if (hasPrefix) {
+                console.log("test"); // its finding the correct prefix data - you can see in console output from line 776.
+                console.log(//empty?? wtf. why empty :sob:vv
+
+                    Prefixgender,
+                    Prefixnumber,
+                    Prefixperson,
+                    usedPrefix,
+                    Prefixstem,
+                    Prefixdeclension, // where are you setting the variables ~~25
+                    // well, theyre empty, you arent editing them anywhere?
+
+                )
+            } console.log(hasPrefix, hasSuffix);
+            // so whats not workin. type 2 logic.
+            // logic to deduce if we have only prefix, only suffix, or both - and display data on affixpage.
+
+
             if (usedPrefix.length > 0) {
                 if (usedSuffix.length > 0) {
                     const prefixSettings = {
@@ -488,7 +486,7 @@ function dictionaryPage() {
                         person: Prefixperson || '',
                         prefix: usedPrefix || '',
                         stem: Prefixstem || '',
-                        declension: ((typeof Prefixdeclension !== 'undefined') ? Prefixdeclension : Prefixdeclensions) || ''
+                        declension: Prefixdeclension || ''
                     };
 
                     const buildSuffixSettings = (declensionValue) => ({
@@ -501,7 +499,7 @@ function dictionaryPage() {
                     });
                     console.log('prefix AND suffix');
                 }
-                if (usedSuffix.length === 0) {
+                if (usedSuffix.length === 0 && ALL_WORDS) {
                     const prefixSettings = {
                         gender: Prefixgender || '',
                         number: Prefixnumber || '',
@@ -545,58 +543,7 @@ function dictionaryPage() {
                     console.log('ONLY suffix');
                 }
             }
-            /*
-                        const buildSuffixSettings = (declensionValue) => ({
-                            gender: Suffixgender,
-                            number: Suffixnumber,
-                            person: Suffixperson,
-                            suffix: usedSuffix,
-                            stem: Suffixstem,
-                            declension: declensionValue || ''
-                        });
-            
-                        if (usedPrefix.length > 0) {
-                            console.log(prefix);
-                            if (neoSuffixChecker(prefixKeyword, VERBS.SUFFIXES.FLAT_MATCHES) || neoSuffixChecker(prefixKeyword, NOUNS.SUFFIXES.FLAT_MATCHES)) {
-                                const prefixSettings = {
-                                    gender: Prefixgender || '',
-                                    number: Prefixnumber || '',
-                                    person: Prefixperson || '',
-                                    prefix: usedPrefix || '',
-                                    stem: Prefixstem || '',
-                                    declension: ((typeof Prefixdeclension !== 'undefined') ? Prefixdeclension : Prefixdeclensions) || ''
-                                };
-                                if (Suffixtype === 'n' || Suffixtype === 'adj') {
-                                    Suffixdeclensions.forEach(el => {
-                                        console.log(el);
-                                        affixPage(prefixKeyword, buildSuffixSettings(el), prefixSettings);
-                                    });
-                                } else {
-                                    const suffixSettings = buildSuffixSettings('');
-                                    affixPage(prefixKeyword, suffixSettings, prefixSettings);
-                                    console.log(affixPage(prefixKeyword, suffixSettings, prefixSettings));
-                                }
-                            }
-                        } else {
-                            const prefixSettings = {
-                                prefix: '',
-                                gender: '',
-                                number: '',
-                                person: '',
-                                stem: '',
-                                declension: ''
-                            };
-                            if (Suffixtype === 'n' || Suffixtype === 'adj') {
-                                Suffixdeclensions.forEach(el => {
-                                    console.log(el);
-                                    affixPage(keyword, buildSuffixSettings(el), prefixSettings);
-                                });
-                            } else {
-                                const suffixSettings = buildSuffixSettings('');
-                                affixPage(keyword, suffixSettings, prefixSettings);
-                            }
-                        }
-                            */
+
             openPageOld('page96');
         }
         else {//type 3
