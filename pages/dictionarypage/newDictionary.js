@@ -743,12 +743,29 @@ function dictionaryPage() {
         else if ((prefixes.length > 0) || (neoSuffixChecker(keyword, VERBS_SUFFIXES_MAP) || neoSuffixChecker(keyword, NOUNS_SUFFIXES_MAP))) {//type 2
             console.log('type2');
 
-            if (Suffixtype === 'n' || Suffixtype === 'adj') {
-                Suffixdeclensions.forEach(el => {
-                    console.log(el);
-                    affixPage(keyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, el);
-                });
-            } else { affixPage(keyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, ''); }
+            if (prefixes.length > 0) {
+                const prefix = chain[0];
+                const prefixKeyword = chain[1];
+                console.log(prefix);
+                if (neoSuffixChecker(prefixKeyword, VERBS_SUFFIXES_MAP) || neoSuffixChecker(prefixKeyword, NOUNS_SUFFIXES_MAP)) {
+                    if (Suffixtype === 'n' || Suffixtype === 'adj') {
+                        Suffixdeclensions.forEach(el => {
+                            console.log(el);
+                            affixPage(prefixKeyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, el, prefix);
+                        });
+                    } else {
+                        affixPage(prefixKeyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, '', prefix);
+                        console.log(affixPage(prefixKeyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, '', prefix));
+                    }
+                }
+            } else {
+                if (Suffixtype === 'n' || Suffixtype === 'adj') {
+                    Suffixdeclensions.forEach(el => {
+                        console.log(el);
+                        affixPage(keyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, el, '');
+                    });
+                } else { affixPage(keyword, Suffixgender, Suffixnumber, Suffixperson, usedSuffix, Suffixstem, '', ''); }
+            }
             openPageOld('page96');
         }
         else {//type 3
@@ -827,7 +844,7 @@ function dictionaryPage() {
             return true;
         } //neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
 
-        function affixPage(keyword, gender, number, person, suffix, stem, declension) {
+        function affixPage(keyword, gender, number, person, suffix, stem, declension, prefix) {
             let page = '';
             page = document.getElementById('page96');
             if (page != 'object') { page = document.createElement('div'); }
@@ -838,7 +855,7 @@ function dictionaryPage() {
 
             if (!declension) { declension = '' }
 
-            div.innerHTML = `${gender} ${number} ${person} ${suffix} ${stem} ${declension} ${keyword}`;
+            div.innerHTML = `${gender} ${number} ${person} ${suffix} ${stem} ${declension} ${keyword} ${prefix}`;
 
             pagesWrap = document.querySelector('.pages')
             pagesWrap.appendChild(page);
