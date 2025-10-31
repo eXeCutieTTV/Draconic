@@ -356,5 +356,6 @@ const helperFunctions =
     affixHelpers,
     matchtype3,
     matchtype1,
-    tablegen
+    tablegen,
+    formatting
 }
