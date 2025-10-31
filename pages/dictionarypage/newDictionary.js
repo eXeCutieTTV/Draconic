@@ -19,7 +19,7 @@ function dictionaryPage() {
         let Suffixstem = '';
         let Suffixperson = '';
         let Suffixdeclensions = '';
-        let suffixData = [];
+        let suffixData = []; //<-- probably only need this now
 
         // vars for prefix detection
         let usedPrefix = '';
@@ -29,7 +29,7 @@ function dictionaryPage() {
         let Prefixstem = '';
         let Prefixperson = '';
         let Prefixdeclension = '';
-        let prefixData = [];
+        let prefixData = []; //<-- probably only need this now
 
         function bkjlcdfkjbacsfksjbsdkabjc() {
             /*  
@@ -99,7 +99,7 @@ function dictionaryPage() {
 
         helperFunctions.standard.clearPageById('page97'); //type 1
         helperFunctions.standard.clearPageById('page96'); //type 2
-        helperFunctions.standard.clearPageById('dictionaryTable');// clear english table
+        helperFunctions.standard.clearPageById('dictionaryTable'); //type 3
 
 
 
