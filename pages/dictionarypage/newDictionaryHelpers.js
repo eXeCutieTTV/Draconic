@@ -86,6 +86,7 @@ const standard = {
     reverseSearchIdsOnSearch
 }
 
+
 const neoSuffixChecker = function neoSuffixChecker(keyword, map, resultArray) {
     const array = WORD_UTILS.matchSuffix(keyword, map);
     if (!array) return null;
@@ -134,7 +135,6 @@ const neoSuffixChecker = function neoSuffixChecker(keyword, map, resultArray) {
     // also return the result so caller can use it immediately
     return result;
 };
-
 const neoPrefixChecker = function neoPrefixChecker(keyword, map, resultArray) {
     const array = WORD_UTILS.matchPrefix(keyword, map);
     console.log(array);
@@ -232,6 +232,7 @@ const extraTableRow = function extraTableRow(word, declension, forms, defintion,
 
     // usage => for (let i = 0; i < rowAmount; i++) { extraTableRow(keyword or something custom); }
 }
+
 const matchtype3 = {
     extraTableRow,
 }
@@ -284,9 +285,11 @@ const type1extraTableRow = function type1extraTableRow(word, declension, forms, 
 
     return row;
 }
+
 const matchtype1 = {
     type1extraTableRow
 }
+
 
 const populateSummaryTables = function populateSummaryTables(keyword, tables) {
     Object.keys(tables).forEach(tableId => {
@@ -331,16 +334,21 @@ const tablegen = {
     populateSummaryTables,
     waitForElement
 }
+
+
 const keepDigitsOnly = function keepDigitsOnly(str) {
     return String(str).replace(/\D+/g, "");
 }
 const removeParensSpacesAndDigits = function removeParensSpacesAndDigits(str) {
     return String(str || "").replace(/[\d() \t\r\n]+/g, "");
 }
+
 const formatting = {
     keepDigitsOnly,
     removeParensSpacesAndDigits
 }
+
+
 
 const helperFunctions =
 {
