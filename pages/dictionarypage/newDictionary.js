@@ -2,17 +2,6 @@ function dictionaryPage() {
 
     //yoo new dictionary xd
 
-    const ALL_WORDS = Object.fromEntries(
-        Object.entries({
-            ...NOUNS,
-            ...VERBS,
-            ...ADJECTIVES,
-            ...ADVERBS,
-            ...AUXILIARIES,
-            ...PREPOSITIONS,
-            ...PARTICLES
-        }).sort(([aKey], [bKey]) => aKey.localeCompare(bKey))
-    );
     /*
         function search_word(word, dec = "") {
             if (ALL_WORDS[word] !== undefined) return ALL_WORDS[word];
@@ -108,7 +97,7 @@ function dictionaryPage() {
                         
                 raw exact match
             */
-        }//HAHAHAHHAHAHAHAHHA. FUCK YOU COMMENT >:)
+        }//HAHAHAHHAHAHAHAHHA. FUCK YOU COMMENT >:) :q
 
         //clear searchFLD
         if (searchFLD && searchFLD.value.trim() !== '') {
@@ -141,7 +130,7 @@ function dictionaryPage() {
                 });
             } catch (err) {
                 if (label && !failedFormGenerators.has(label)) {
-                    console.warn(`trace_origin: failed to build ${label} forms`, err);
+                    console.warn(`traceOrigin: failed to build ${label} forms`, err);
                     failedFormGenerators.add(label);
                 }
             }
@@ -202,7 +191,7 @@ function dictionaryPage() {
             return suffixes
                 .map(suffix => {
                     try {
-                        return entries_to_text(connect_suffix(word, suffix));
+                        return CHARACTERS.entriesToText(WORD_UTILS.connectSuffix(word, suffix));
                     } catch {
                         return null;
                     }
@@ -337,7 +326,7 @@ function dictionaryPage() {
             return undefined;
         }
         //helper
-        function trace_origin(text) {
+        function traceOrigin(text) {
             if (!text) return undefined;
 
             const directKey = findDirectMatchKey(text);
@@ -365,7 +354,7 @@ function dictionaryPage() {
             return undefined;
         }
 
-        const chain = trace_origin(keyword);
+        const chain = traceOrigin(keyword);
         const baseKey = chain?.[chain.length - 1];
         const baseEntry = baseKey ? ALL_WORDS[baseKey] : undefined;
         const prefixes = (chain ?? []).slice(0, -1).map(key =>
@@ -380,7 +369,7 @@ function dictionaryPage() {
         console.log('baseEntry |', baseEntry);// pref/word
         console.log('prefixes |', prefixes, 'baseKey |', baseKey, 'chain |', chain);
         if (prefixes.length == 0 && ALL_WORDS[keyword]) {//type 1
-            const searchHandler = search_word(keyword);
+            const searchHandler = ALL_WORDS.fetch(keyword);
             console.log('searchHandler |', searchHandler);
             searchHandler.forEach(entry => {
                 const word = entry.word
@@ -740,14 +729,14 @@ function dictionaryPage() {
             });
         }
 
-        else if ((prefixes.length > 0) || (neoSuffixChecker(keyword, VERBS_SUFFIXES_MAP) || neoSuffixChecker(keyword, NOUNS_SUFFIXES_MAP))) {//type 2
+        else if ((prefixes.length > 0) || (neoSuffixChecker(keyword, VERBS.SUFFIXES.FLAT_MATCHES) || neoSuffixChecker(keyword, NOUNS.SUFFIXES.FLAT_MATCHES))) {//type 2
             console.log('type2');
 
             if (prefixes.length > 0) {
                 const prefix = chain[0];
                 const prefixKeyword = chain[1];
                 console.log(prefix);
-                if (neoSuffixChecker(prefixKeyword, VERBS_SUFFIXES_MAP) || neoSuffixChecker(prefixKeyword, NOUNS_SUFFIXES_MAP)) {
+                if (neoSuffixChecker(prefixKeyword, VERBS.SUFFIXES.FLAT_MATCHES) || neoSuffixChecker(prefixKeyword, NOUNS.SUFFIXES.FLAT_MATCHES)) {
                     if (Suffixtype === 'n' || Suffixtype === 'adj') {
                         Suffixdeclensions.forEach(el => {
                             console.log(el);
@@ -769,7 +758,7 @@ function dictionaryPage() {
             openPageOld('page96');
         }
         else {//type 3
-            const searchHandler = search_word_by_definition(keyword); // Array[]
+            const searchHandler = ALL_WORDS.fetch(keyword); // Array[]
             console.log('3', 'searchHandler |', searchHandler);
             const combinedGendersObject = combine_genders(searchHandler[0].genders) // Key-value pairs 
             console.log('combined |', combinedGendersObject)
@@ -801,7 +790,7 @@ function dictionaryPage() {
             });
         }
         function neoSuffixChecker(keyword, map) {
-            const array = matchSuffix(keyword, map);
+            const array = WORD_UTILS.matchSuffix(keyword, map);
             console.log(array);
             if (!array) {
                 return;
@@ -809,9 +798,9 @@ function dictionaryPage() {
 
             const suffixes = array[0] || [];
             Suffixtype = array[2];
+            Suffixperson = array[3];
             Suffixgender = array[4];
             Suffixnumber = array[5];
-            Suffixperson = array[3];
             Suffixdeclensions = array[1] || [];
             console.log(Suffixdeclensions);
             const appliedSuffix = suffixes[0] || '';
@@ -855,7 +844,7 @@ function dictionaryPage() {
 
             if (!declension) { declension = '' }
 
-            div.innerHTML = `${gender} ${number} ${person} ${suffix} ${stem} ${declension} ${keyword} ${prefix}`;
+            div.innerHTML = `gender: ${gender}<br> number: ${number}<br> person: ${person}<br> suffix: ${suffix}<br> stem: ${stem}<br> declension: ${declension} <br> keyword: ${keyword}<br> prefix: ${prefix}`;
 
             pagesWrap = document.querySelector('.pages')
             pagesWrap.appendChild(page);
@@ -1111,9 +1100,9 @@ function dictionaryPage() {
 
                 // process raw
                 let entries;
-                if (tables[tableId]) entries = connect_split(textInCell, keyword, "");
-                else entries = connect_split("", keyword, textInCell);
-                td.innerHTML = `<strong>${entries_to_text(entries[0])}</strong>${entries_to_text(entries[1])}<strong>${entries_to_text(entries[2])}</strong>`;
+                if (tables[tableId]) entries = WORD_UTILS.connectSplit(textInCell, keyword, "");
+                else entries = WORD_UTILS.connectSplit("", keyword, textInCell);
+                td.innerHTML = `<strong>${CHARACTERS.entriesToText(entries[0])}</strong>${CHARACTERS.entriesToText(entries[1])}<strong>${CHARACTERS.entriesToText(entries[2])}</strong>`;
                 // place keyword as prefix or suffix (you can change behavior per table)
             });
         });
