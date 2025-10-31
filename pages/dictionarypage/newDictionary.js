@@ -12,23 +12,9 @@ function dictionaryPage() {
 
 
         // vars for suffix detection
-        let usedSuffix = '';
-        let Suffixtype = '';
-        let Suffixgender = '';
-        let Suffixnumber = '';
-        let Suffixstem = '';
-        let Suffixperson = '';
-        let Suffixdeclensions = '';
         let suffixData = []; //<-- probably only need this now
 
         // vars for prefix detection
-        let usedPrefix = '';
-        let Prefixtype = '';
-        let Prefixgender = '';
-        let Prefixnumber = '';
-        let Prefixstem = '';
-        let Prefixperson = '';
-        let Prefixdeclension = '';
         let prefixData = []; //<-- probably only need this now
 
         function bkjlcdfkjbacsfksjbsdkabjc() {
