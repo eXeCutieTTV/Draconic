@@ -19,7 +19,7 @@ function dictionaryPage() {
         let Suffixstem = '';
         let Suffixperson = '';
         let Suffixdeclensions = '';
-
+        let suffixData = [];
 
         // vars for prefix detection
         let usedPrefix = '';
@@ -29,6 +29,7 @@ function dictionaryPage() {
         let Prefixstem = '';
         let Prefixperson = '';
         let Prefixdeclension = '';
+        let prefixData = [];
 
         function bkjlcdfkjbacsfksjbsdkabjc() {
             /*  
@@ -433,32 +434,18 @@ function dictionaryPage() {
                             console.log(wordclass);
                             searchableTable(wordclass);
                         });
-                        // Update keyword <p>s
-                        const keywordp = document.getElementById("keywordp");
-                        if (keywordp) {
-                            keywordp.innerHTML = keyword;
-                        }
-                        cloneKeywordText();
-
-                        // Update wordclass <p>s
-                        const wordclassp = document.getElementById("wordclassp");
-                        if (wordclassp) {
-                            wordclassp.innerHTML = wordclass;
-                        }
-                        cloneWordclassText();
-
                     });
                 }
                 openPageOld('page97')
             });
         }
 
-        else if (neoPrefixChecker(keyword, VERBS.PREFIXES.FLAT_MATCHES) || (neoSuffixChecker(keyword, VERBS.SUFFIXES.FLAT_MATCHES) || neoSuffixChecker(keyword, NOUNS.SUFFIXES.FLAT_MATCHES))) {//type 2
+        else if (helperFunctions.affixHelpers.neoPrefixChecker(keyword, VERBS.PREFIXES.FLAT_MATCHES, prefixData) || (helperFunctions.affixHelpers.neoSuffixChecker(keyword, VERBS.SUFFIXES.FLAT_MATCHES, suffixData) || helperFunctions.affixHelpers.neoSuffixChecker(keyword, NOUNS.SUFFIXES.FLAT_MATCHES, suffixData))) {//type 2
             console.log('type2');
 
 
-            let hasPrefix = (neoPrefixChecker(keyword, VERBS.PREFIXES.FLAT_MATCHES) ? true : false);
-            let hasSuffix = ((neoSuffixChecker(keyword, VERBS.SUFFIXES.FLAT_MATCHES) || neoSuffixChecker(keyword, NOUNS.SUFFIXES.FLAT_MATCHES)) ? true : false);
+            let hasPrefix = (helperFunctions.affixHelpers.neoPrefixChecker(keyword, VERBS.PREFIXES.FLAT_MATCHES, prefixData) ? true : false);
+            let hasSuffix = ((helperFunctions.affixHelpers.neoSuffixChecker(keyword, VERBS.SUFFIXES.FLAT_MATCHES, suffixData) || helperFunctions.affixHelpers.neoSuffixChecker(keyword, NOUNS.SUFFIXES.FLAT_MATCHES, suffixData)) ? true : false);
 
             if (hasPrefix) {
                 console.log("test"); // its finding the correct prefix data - you can see in console output from line 776.
@@ -472,8 +459,9 @@ function dictionaryPage() {
                     Prefixdeclension, // where are you setting the variables ~~25
                     // well, theyre empty, you arent editing them anywhere?
 
-                )
+                );
             } console.log(hasPrefix, hasSuffix);
+            console.log(suffixData);
             // so whats not workin. type 2 logic.
             // logic to deduce if we have only prefix, only suffix, or both - and display data on affixpage.
 
@@ -572,62 +560,10 @@ function dictionaryPage() {
                     } else (wordclassText = type);
 
                     //console.log(word, wordclassText, forms, definition, usage_notes);// <-- works.
-                    extraTableRow(word, wordclassText, forms, definition, usage_notes);// <-- works not.
+                    extraTableRow(word, wordclassText, forms, definition, usage_notes);
                 }
             });
         }
-
-
-        function neoSuffixChecker(keyword, map) {
-            const array = WORD_UTILS.matchSuffix(keyword, map);
-            console.log(array);
-            if (!array) {
-                return;
-            }
-
-            const suffixes = array[0] || [];
-            Suffixtype = array[2];
-            Suffixperson = array[3];
-            Suffixgender = array[4];
-            Suffixnumber = array[5];
-            Suffixdeclensions = array[1] || [];
-            console.log(Suffixdeclensions);
-            const appliedSuffix = suffixes[0] || '';
-            const unappliedSuffix = suffixes[1] || '';
-
-            console.log(
-                'Suffixtype | ', Suffixtype,
-                'Suffixperson | ', Suffixperson,
-                'Suffixgender | ', Suffixgender,
-                'Suffixnumber | ', Suffixnumber)
-
-            //which suffix is used? un- or applied?
-            if (appliedSuffix && unappliedSuffix) {
-                if (keyword.endsWith(appliedSuffix) && keyword.endsWith(unappliedSuffix)) {
-                    usedSuffix = appliedSuffix;
-                    console.log('both', usedSuffix);
-                } else if (keyword.endsWith(unappliedSuffix)) {
-                    usedSuffix = unappliedSuffix;
-                    console.log('only one', usedSuffix);
-                } else { return; }
-            } else if (appliedSuffix) {
-                usedSuffix = appliedSuffix;
-            } else if (unappliedSuffix) {
-                usedSuffix = unappliedSuffix;
-            }
-
-            if (!usedSuffix) {
-                return;
-            }
-
-            const suffixLength = usedSuffix.length;
-            const { slice1, slice2 } = sliceKeyword(keyword, suffixLength);
-            Suffixstem = slice1;
-            console.log(Suffixstem, usedSuffix); // worked earlier - havent changed anything:q
-
-            return true;
-        } //neoSuffixChecker('æklūrk', NOUNS_SUFFIXES_MAP);
-
 
         /*
         function affixPage(keyword, gender, number, person, suffix, stem, declension, prefix) {
@@ -719,41 +655,6 @@ function dictionaryPage() {
         }
         reverseSearchIdsOnSearch();
     }
-
-    function neoPrefixChecker(keyword, map) {
-        const array = WORD_UTILS.matchPrefix(keyword, map);
-        console.log(array);
-        if (!array) {
-            return;
-        }
-        const prefix = array[0];
-        //Prefixtype = array[1];
-        Prefixperson = array[1];
-        Prefixgender = array[2];
-        Prefixnumber = array[3];
-        Prefixdeclension = array[1] || [];
-        console.log(Prefixdeclension);
-
-        console.log(
-            'Prefixperson | ', Prefixperson,
-            'Prefixgender | ', Prefixgender,
-            'Prefixnumber | ', Prefixnumber
-        )
-
-        usedPrefix = prefix; // no variants
-
-        if (!usedPrefix) {
-            return;
-        }
-
-        const prefixLength = usedPrefix.length;
-        const { slice1, slice2 } = sliceKeyword(keyword, prefixLength);
-        Prefixstem = slice1;
-        console.log(prefix, usedPrefix); // worked earlier - havent changed anything:q
-
-        return true;
-
-    } //neoPrefixChecker('xenæf', VERBS.PREFIXES.FLAT_MATCHES);
 
 
     function type1extraTableRow(word, declension, forms, definition, notes) {
