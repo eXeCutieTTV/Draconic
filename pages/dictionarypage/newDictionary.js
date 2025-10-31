@@ -370,10 +370,10 @@ function dictionaryPage() {
         console.log('prefixes |', prefixes);
         console.log('baseKey |', baseKey);
         console.log('chain |', chain);
-        if (prefixes.length == 0 && ALL_WORDS.fetch(keyword)) {//type 1//now it enters. but breaks inside.
+        if (prefixes.length == 0 && ALL_WORDS.fetch(keyword) && ALL_WORDS.fetch(keyword).length > 0) {//type 1
             const searchHandler = ALL_WORDS.fetch(keyword);
             console.log('searchHandler |', searchHandler);
-            searchHandler.forEach(entry => { // what for is this search handler // works for nouns. verbs break at 588
+            searchHandler.forEach(entry => { // what for is this search handler 
                 const word = entry.word
                 const wordclass = entry.type || '...';
 
