@@ -145,10 +145,10 @@ function dictionaryPage() {
             if (typeof connect_suffix !== 'function' || typeof entries_to_text !== 'function') return [];
 
             let suffixes = [];
-            if (typeof FLAT_NOUN_SUFFIXES !== 'undefined') {
-                suffixes = FLAT_NOUN_SUFFIXES;
-            } else if (typeof NOUN_SUFFIXES !== 'undefined') {
-                suffixes = Object.values(NOUN_SUFFIXES || {})
+            if (typeof FLAT_NOUNS.SUFFIXES.MAP !== 'undefined') {
+                suffixes = FLAT_NOUNS.SUFFIXES.MAP;
+            } else if (typeof NOUNS.SUFFIXES.MAP !== 'undefined') {
+                suffixes = Object.values(NOUNS.SUFFIXES.MAP || {})
                     .flatMap(mask => Object.values(mask || {}))
                     .flatMap(genderMap => Object.values(genderMap || {}))
                     .flatMap(numberMap => Object.values(numberMap || {}))
@@ -367,17 +367,19 @@ function dictionaryPage() {
 
 
         console.log('baseEntry |', baseEntry);// pref/word
-        console.log('prefixes |', prefixes, 'baseKey |', baseKey, 'chain |', chain);
-        if (prefixes.length == 0 && ALL_WORDS[keyword]) {//type 1
+        console.log('prefixes |', prefixes);
+        console.log('baseKey |', baseKey);
+        console.log('chain |', chain);
+        if (prefixes.length == 0 && ALL_WORDS.fetch(keyword)) {//type 1//now it enters. but breaks inside.
             const searchHandler = ALL_WORDS.fetch(keyword);
             console.log('searchHandler |', searchHandler);
-            searchHandler.forEach(entry => {
+            searchHandler.forEach(entry => { // what for is this search handler // works for nouns. verbs break at 588
                 const word = entry.word
                 const wordclass = entry.type || '...';
 
                 let combinedGendersObject = '';
                 if (wordclass === 'n') {
-                    combinedGendersObject = combine_genders(searchHandler[0].genders) // Key-value pairs
+                    combinedGendersObject = WORD_UTILS.combineGenders(entry.genders) // Key-value pairs
                 }
                 if (word === keyword) {
                     console.log('clean match |', keyword);
@@ -429,7 +431,7 @@ function dictionaryPage() {
                     // Wait for the page content to load, then setup the table (header table)
                     waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
                         // Create and fill the table
-                        //console.log(NOUN_SUFFIXES);
+                        //console.log(NOUNS.SUFFIXES.MAP);
                         //const table = createTable(keyword, pageContainer);//just copy english table logic??
                         //console.log(wordclass);
                         //fillTable(keyword, wordclass, table);
@@ -546,7 +548,7 @@ function dictionaryPage() {
                                             }
                                             const mooooood = moodMap[mood];
                                             //inner
-                                            const entry = Object.entries(NOUN_SUFFIXES[mooooood]);
+                                            const entry = Object.entries(NOUNS.SUFFIXES.MAP[mooooood]);
                                             for (const [gndr, array] of entry) {
                                                 if (gndr === gender) {
                                                     const numberKey = map[i + 1];
@@ -583,8 +585,8 @@ function dictionaryPage() {
                                 function neoVerbTables(affixState) {
 
                                     const affixStateMap = {
-                                        1: { 1: 'Prefix', 2: VERB_SUBJECT_PREFIXES },
-                                        2: { 1: 'Suffix', 2: VERB_OBJECT_SUFFIXES }
+                                        1: { 1: 'Prefix', 2: VERBS.PREFIXES.MAP },
+                                        2: { 1: 'Suffix', 2: VERBS.SUFFIXES.MAP }
                                     }
                                     console.log(affixStateMap[affixState][2]);
                                     const div = document.createElement('div');
@@ -760,13 +762,11 @@ function dictionaryPage() {
         else {//type 3
             const searchHandler = ALL_WORDS.fetch(keyword); // Array[]
             console.log('3', 'searchHandler |', searchHandler);
-            const combinedGendersObject = combine_genders(searchHandler[0].genders) // Key-value pairs 
-            console.log('combined |', combinedGendersObject)
             searchHandler.forEach(entry => {
 
                 // check for type === "n" then do for () {} else do normal thingi?
                 if (entry.type === "n") {
-                    for (const [gender, def] of Object.entries(combinedGendersObject)) {
+                    for (const [gender, def] of Object.entries(WORD_UTILS.combineGenders(entry.genders))) {
                         extraTableRow(entry.word, `n ${entry.declension}`, gender, def, entry.usage_notes || '...');
 
                     }
@@ -788,6 +788,9 @@ function dictionaryPage() {
                     extraTableRow(word, wordclassText, forms, definition, usage_notes);// <-- works not.
                 }
             });
+        }
+        function neoPrefixChecker(keyword, map) {
+            const array = WORD_UTILS.matchPrefix(keyword, map);
         }
         function neoSuffixChecker(keyword, map) {
             const array = WORD_UTILS.matchSuffix(keyword, map);
