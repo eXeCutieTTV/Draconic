@@ -760,7 +760,7 @@ function dictionaryPage() {
             openPageOld('page96');
         }
         else {//type 3
-            const searchHandler = ALL_WORDS.fetch(keyword); // Array[]
+            const searchHandler = ALL_WORDS.fetchByDefinition(keyword); // Array[]
             console.log('3', 'searchHandler |', searchHandler);
             searchHandler.forEach(entry => {
 
@@ -789,9 +789,8 @@ function dictionaryPage() {
                 }
             });
         }
-        function neoPrefixChecker(keyword, map) {
-            const array = WORD_UTILS.matchPrefix(keyword, map);
-        }
+
+
         function neoSuffixChecker(keyword, map) {
             const array = WORD_UTILS.matchSuffix(keyword, map);
             console.log(array);
@@ -849,12 +848,17 @@ function dictionaryPage() {
 
             div.innerHTML = `gender: ${gender}<br> number: ${number}<br> person: ${person}<br> suffix: ${suffix}<br> stem: ${stem}<br> declension: ${declension} <br> keyword: ${keyword}<br> prefix: ${prefix}`;
 
-            pagesWrap = document.querySelector('.pages')
+            pagesWrap = document.querySelector('.pages');
             pagesWrap.appendChild(page);
             page.appendChild(div);
         }
         reverseSearchIdsOnSearch();
     }
+
+    function neoPrefixChecker(keyword, map) {
+        const array = WORD_UTILS.matchPrefix(keyword, map);
+        console.log(array);
+    } //neoPrefixChecker('xenæf', VERBS.PREFIXES.FLAT_MATCHES);
 
 
     function type1extraTableRow(word, declension, forms, definition, notes) {
