@@ -430,28 +430,65 @@ function dictionaryPage() {
             console.log('type2');
 
 
-            let hasPrefix = (helperFunctions.affixHelpers.neoPrefixChecker(keyword, VERBS.PREFIXES.FLAT_MATCHES, prefixData) ? true : false);
-            let hasSuffix = ((helperFunctions.affixHelpers.neoSuffixChecker(keyword, VERBS.SUFFIXES.FLAT_MATCHES, suffixData) || helperFunctions.affixHelpers.neoSuffixChecker(keyword, NOUNS.SUFFIXES.FLAT_MATCHES, suffixData)) ? true : false);
+
+
+            let hasPrefix = (prefixData.length > 0 ? true : false);
+            let hasSuffix = (suffixData.length > 0 ? true : false);
 
             if (hasPrefix) {
-                console.log("test"); // its finding the correct prefix data - you can see in console output from line 776.
+                const array = prefixData[0].Prefixdeclension;
+                const prefixGender = array[3];
+                const prefixNumber = array[2];
+                const prefixPerson = array[1];
+                const prefix = array[0];
+
                 console.log(//empty?? wtf. why empty :sob:vv
 
-                    Prefixgender,
-                    Prefixnumber,
-                    Prefixperson,
-                    usedPrefix,
-                    Prefixstem,
-                    Prefixdeclension, // where are you setting the variables ~~25
-                    // well, theyre empty, you arent editing them anywhere?
+                    prefixGender,
+                    prefixNumber,
+                    prefixPerson,
+                    prefix,
+                    array
 
                 );
-            } console.log(hasPrefix, hasSuffix);
-            console.log(suffixData);
+            }
+            if (hasSuffix) {
+                const array = suffixData[0];
+                const suffixDeclensions = array.Suffixdeclensions;
+                for (declension of Object.values(suffixDeclensions)) {
+                    const suffixDeclension = declension;
+                    const suffixGender = array.Suffixgender;
+                    const suffixNumber = array.Suffixnumber;
+                    const suffixPerson = array.Suffixperson;
+                    const suffixType = array.Suffixtype;
+                    const suffix = array.usedSuffix;
+
+                    console.log(
+                        suffixDeclension,
+                        suffixGender,
+                        suffixNumber,
+                        suffixPerson,
+                        suffixType,
+                        suffix);
+
+                    const html = `
+                        suffixDeclension, ${suffixDeclension} <br>
+                        suffixGender, ${suffixGender} <br>
+                        suffixNumber, ${suffixNumber} <br>
+                        suffixPerson, ${suffixPerson} <br>
+                        suffixType, ${suffixType} <br>
+                        suffix, ${suffix}`;
+
+                    helperFunctions.standard.createPageById('page96', html);
+
+                }
+                console.log(array);
+            }
+            console.log(hasPrefix, hasSuffix);
             // so whats not workin. type 2 logic.
             // logic to deduce if we have only prefix, only suffix, or both - and display data on affixpage.
 
-
+            /*
             if (usedPrefix.length > 0) {
                 if (usedSuffix.length > 0) {
                     const prefixSettings = {
@@ -516,7 +553,7 @@ function dictionaryPage() {
                     }
                     console.log('ONLY suffix');
                 }
-            }
+            }*/
 
             openPageOld('page96');
         }
