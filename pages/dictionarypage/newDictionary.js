@@ -469,7 +469,8 @@ function dictionaryPage() {
                         suffixNumber,
                         suffixPerson,
                         suffixType,
-                        suffix);
+                        suffix
+                    );
 
                     const html = `
                         suffixDeclension, ${suffixDeclension} <br>
