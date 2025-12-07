@@ -1192,8 +1192,6 @@ function dictionaryPage() {
                             } else {
                                 nounSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.NOUNS.SUFFIXES.MATCHES, false) || [];
                                 particleSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.PARTICLES.MAP, false) || [];
-                                console.log(nounSuffix, particleSuffix);
-                                console.log(nounSuffix.arrayLength > 0, particleSuffix.arrayLength > 0);
                                 let temp_stemArr21 = [];
                                 let temp_stemArr22 = [];
                                 if (nounSuffix.arrayLength > 0) {
@@ -1205,7 +1203,7 @@ function dictionaryPage() {
                                                     if (stemArr2.length > 0) {
                                                         for (const stem_result2 of stemArr2) {
                                                             const stem_resultMap2 = DICTIONARY.ALL_WORDS.MAP[stem_result2];
-                                                            if (stem_resultMap2 && stem_resultMap2.type === 'n' /*&& stem_resultMap2.declension === entry.path.declension*/) {
+                                                            if (stem_resultMap2 && stem_resultMap2.type === 'n' && stem_resultMap2.declension === entry2.path.declension) {
                                                                 entry.stem = entry2.stem;//fix stem
                                                                 if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                                                     checkerArr.push(entry2.short_path);
@@ -1613,7 +1611,6 @@ function dictionaryPage() {
                 }
 
                 const nounTable = document.getElementById('nounTable');
-                //console.log(nounTable);
                 for (const real_stem of affixTypesMap.nounSuffix.resultMap[0].stems_map) {
                     for (const result of affixTypesMap.nounSuffix.resultMap) {
                         console.log(result);
@@ -1933,11 +1930,6 @@ function dictionaryPage() {
                 helperFunctions.standard.clearPageById('page96');
 
 
-                const stem = affixTypesMap.nounSuffixANDpPrefix.resultMap.suffix[0][0].stem;
-                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
-                let definition = stemMap.definition || '...';
-                const notes = stemMap.usage_notes || '...';
-
                 let wordclass = '';
                 for (const key of Object.values(WORDCLASSES)) {
                     if (key.SHORT === 'n') { wordclass = key.NAME }
@@ -1960,15 +1952,7 @@ function dictionaryPage() {
                                     <th>Wordclass</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <th>Info</th>
-                                    <td>${stem}</td>
-                                    <td>${stemMap.declension}</td>
-                                    <td>${notes}</td>
-                                    <td>${wordclass}</td>
-                                </tr>
-                            </tbody>
+                            <tbody id="headerTbody"></tbody>
                         </table>
                     </div>
                     <div id="particleTableWrapper"></div>
@@ -1976,28 +1960,41 @@ function dictionaryPage() {
                 `;
                 helperFunctions.standard.createPageById('page96', html);
 
+                for (const entry of affixTypesMap.nounSuffixANDpPrefix.resultMap.suffix[0].stems_map) {
+                    const stemMap_local = DICTIONARY.ALL_WORDS.MAP[entry] || [];
+                    const html = `
+                        <tr>
+                            <th>Info</th>
+                            <td>${entry}</td>
+                            <td>${stemMap_local.declension}</td>
+                            <td>${stemMap_local.usage_notes || '...'}</td>
+                            <td>${wordclass}</td>
+                        </tr>
+                    `;
+                    helperFunctions.standard.betterTrInsert('headerTbody', html);
+                }
+
                 const particleTableWrapper = document.getElementById('particleTableWrapper');
                 for (const result of affixTypesMap.nounSuffixANDpPrefix.resultMap.particle) {
                     const particleMap = DICTIONARY.ALL_WORDS.MAP[result.prefix];
                     helperFunctions.standard.resultTables.particleTable(result.prefix, particleMap.definition, particleMap.usage_notes, particleTableWrapper);
                 }
                 const suffixTableWrapper = document.getElementById('suffixTableWrapper');
-                for (const results of affixTypesMap.nounSuffixANDpPrefix.resultMap.suffix) {
-                    for (const result of results) {
 
-                        function definition() {//<-- universalise this function?...
-                            const entry = DICTIONARY.ALL_WORDS.MAP[result.stem];
+                for (const real_stem of affixTypesMap.nounSuffixANDpPrefix.resultMap.suffix[0].stems_map) {
+                    for (const result of affixTypesMap.nounSuffixANDpPrefix.resultMap.suffix) {
+                        const path = result.path;
+                        function definition() {
+                            const entry = DICTIONARY.ALL_WORDS.MAP[real_stem];
                             for (const [gender, def] of Object.entries(entry.genders)) {
                                 if (gender === path.gender) {
                                     return def;
                                 }
                             }
                         }
-                        const path = result.path;
-                        helperFunctions.standard.resultTables.nounTable(result.suffix, path.declension, path.gender, path.number, path.case, definition(), suffixTableWrapper, 'suffix');
+                        helperFunctions.standard.resultTables.nounTable(result.suffix, path.declension, path.gender, path.number, path.case, definition(), suffixTableWrapper, 'suffix', real_stem);
                     }
                 }
-
                 helperFunctions.standard.openPageById('page96');
             }
             else if (affixTypesMap.nounSuffixANDpSuffix.state) {
