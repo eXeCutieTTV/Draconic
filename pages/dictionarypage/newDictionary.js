@@ -609,7 +609,7 @@ function dictionaryPage() {
                                         <td>${entry.type}</td>
                                     </tr>
                                     `;
-                                    helperFunctions.standard.insertTrIntoTableById('tbody', html);
+                                    helperFunctions.standard.betterTrInsert('tbody', html);
                                 }
 
                                 const Nwrapper = document.getElementById('leftleftdivdictionary');
@@ -854,7 +854,7 @@ function dictionaryPage() {
                         <td>${entry.path.case}</td>
                     </tr>
                 `;
-                helperFunctions.standard.insertTrIntoTableById('tbody', html);
+                helperFunctions.standard.betterTrInsert('tbody', html);
             });
             helperFunctions.standard.openPageById('page95');
         }
@@ -895,7 +895,7 @@ function dictionaryPage() {
                         <td>${entry.path.number}</td>
                     </tr>
                 `;
-                helperFunctions.standard.insertTrIntoTableById('tbody', html);
+                helperFunctions.standard.betterTrInsert('tbody', html);
             });
             helperFunctions.standard.openPageById('page95');
         }
@@ -935,7 +935,7 @@ function dictionaryPage() {
                         <td>${entry.path.case}</td>
                     </tr>
                 `;
-                helperFunctions.standard.insertTrIntoTableById('tbody', html);
+                helperFunctions.standard.betterTrInsert('tbody', html);
             });
             helperFunctions.standard.openPageById('page95');
         }
@@ -971,7 +971,7 @@ function dictionaryPage() {
                         <td>${entry.path.number}</td>
                     </tr>
                 `;
-                helperFunctions.standard.insertTrIntoTableById('tbody', html);
+                helperFunctions.standard.betterTrInsert('tbody', html);
             });
             helperFunctions.standard.openPageById('page95');
         }//maybe change to if, insead of else if? vv
@@ -1378,7 +1378,7 @@ function dictionaryPage() {
                         <div>
                             <table>
                                 <tr>
-                                    <th style="width:116px">...</th>
+                                    <th class="infoCollum">...</th>
                                     <th>Word</th>
                                     <th>Stem</th>
                                     <th>Wordclass</th>
@@ -1443,7 +1443,7 @@ function dictionaryPage() {
                         <div>
                             <table>
                                 <tr>
-                                    <th style="width:116px">...</th>
+                                    <th class="infoCollum">...</th>
                                     <th>Word</th>
                                     <th>Stem</th>
                                     <th>Wordclass</th>
@@ -1508,7 +1508,7 @@ function dictionaryPage() {
                         <div>
                             <table>
                                 <tr>
-                                    <th style="width:116px">...</th>
+                                    <th class="infoCollum">...</th>
                                     <th>Word</th>
                                     <th>Stem</th>
                                     <th>Wordclass</th>
@@ -1567,31 +1567,44 @@ function dictionaryPage() {
                 for (const key of Object.values(WORDCLASSES)) {
                     if (key.SHORT === 'n') { wordclass = key.NAME }
                 };
-
+                //make for of stems, and make notes and stem for each
                 const html = `
                     <div>
                         <table>
-                            <tr>
-                                <th style="width:116px">...</th>
-                                <th>Word</th>
-                                <th>Stem</th>
-                                <th>Wordclass</th>
-                                <th>Usage Notes</th>
-                            </tr>
-                            <tr>
-                                <th>Info</th>
-                                <td>${keyword}</td>
-                                <td id="stem">${stem}</td>
-                                <td>${wordclass}</td>
-                                <td>${notes}</td>
-                            </tr>
+                            <thead>
+                                <tr>
+                                    <th class="infoCollum">...</th>
+                                    <th>Word</th>
+                                    <th>Stem</th>
+                                    <th>Declension</th>
+                                    <th>Usage_Notes</th>
+                                    <th>Wordclass</th>
+                                </tr>
+                            </thead>
+                            <tbody id="headerTbody"></tbody>
                         </table>
                     </div>
                     <div id="nounTable"></div>
                 `;
                 helperFunctions.standard.createPageById('page96', html);
+
+                for (const entry of affixTypesMap.nounSuffix.resultMap[0].stems_map) {
+                    const stemMap_local = DICTIONARY.ALL_WORDS.MAP[entry] || [];
+                    const html = `
+                        <tr>
+                            <th>Info</th>
+                            <td>${keyword}</td>
+                            <td>${entry}</td>
+                            <td>${stemMap_local.declension}</td>
+                            <td>${stemMap_local.usage_notes || '...'}</td>
+                            <td>${wordclass}</td>
+                        </tr>
+                    `;
+                    helperFunctions.standard.betterTrInsert('headerTbody', html);
+                }
+
                 const nounTable = document.getElementById('nounTable');
-                console.log(nounTable);
+                //console.log(nounTable);
                 for (const real_stem of affixTypesMap.nounSuffix.resultMap[0].stems_map) {
                     for (const result of affixTypesMap.nounSuffix.resultMap) {
                         console.log(result);
@@ -1638,7 +1651,7 @@ function dictionaryPage() {
                     <div>
                         <table>
                             <tr>
-                                <th style="width:116px">...</th>
+                                <th class="infoCollum">...</th>
                                 <th>Word</th>
                                 <th>Stem</th>
                                 <th>Declension</th>
@@ -1697,7 +1710,7 @@ function dictionaryPage() {
                     <div>
                         <table>
                             <tr>
-                                <th style="width:116px">...</th>
+                                <th class="infoCollum">...</th>
                                 <th>Word</th>
                                 <th>Stem</th>
                                 <th>Wordclass</th>
@@ -1771,7 +1784,7 @@ function dictionaryPage() {
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>...</th>
+                                        <th class="infoCollum">...</th>
                                         <th>Stem</th>
                                         <th>Declension</th>
                                         <th>Definition</th>
@@ -1841,7 +1854,7 @@ function dictionaryPage() {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>...</th>
+                                    <th class="infoCollum">...</th>
                                     <th>Stem</th>
                                     <th>Declension</th>
                                     <th>Definition</th>
@@ -1921,7 +1934,7 @@ function dictionaryPage() {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>...</th>
+                                    <th class="infoCollum">...</th>
                                     <th>Stem</th>
                                     <th>Declension</th>
                                     <th>Usage_Notes</th>
@@ -1990,28 +2003,21 @@ function dictionaryPage() {
                     alert(msg);
                     return;
                 }
-
+                //vv add 'Word' to table vv
                 const html = `
                     <div>
                         <table>
                             <thead>
                                 <tr>
-                                    <th>...</th>
+                                    <th class="infoCollum">...</th>
+                                    <th>Word</th>
                                     <th>Stem</th>
                                     <th>Declension</th>
                                     <th>Usage_Notes</th>
                                     <th>Wordclass</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <th>Info</th>
-                                    <td>${stem}</td>
-                                    <td>${stemMap.declension}</td>
-                                    <td>${notes}</td>
-                                    <td>${wordclass}</td>
-                                </tr>
-                            </tbody>
+                            <tbody id="headerTbody"></tbody>
                         </table>
                     </div>
                     <div id="particleTableWrapper"></div>
@@ -2019,6 +2025,20 @@ function dictionaryPage() {
                 `;
                 helperFunctions.standard.createPageById('page96', html);
 
+                for (const entry of affixTypesMap.nounSuffixANDpSuffix.resultMap.suffix[0].stems_map) {
+                    const stemMap_local = DICTIONARY.ALL_WORDS.MAP[entry] || [];
+                    const html = `
+                        <tr>
+                            <th>Info</th>
+                            <td>${keyword}</td>
+                            <td>${entry}</td>
+                            <td>${stemMap_local.declension}</td>
+                            <td>${stemMap_local.usage_notes || '...'}</td>
+                            <td>${wordclass}</td>
+                        </tr>
+                    `;
+                    helperFunctions.standard.betterTrInsert('headerTbody', html);
+                }
 
                 const particleTableWrapper = document.getElementById('particleTableWrapper');
                 for (const result of affixTypesMap.nounSuffixANDpSuffix.resultMap.particle) {
@@ -2068,7 +2088,7 @@ function dictionaryPage() {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>...</th>
+                                    <th class="infoCollum">...</th>
                                     <th>Word</th>
                                     <th>Stem</th>
                                     <th>Definition</th>
@@ -2121,7 +2141,7 @@ function dictionaryPage() {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>...</th>
+                                    <th class="infoCollum">...</th>
                                     <th>Word</th>
                                     <th>Stem</th>
                                     <th>Definition</th>
@@ -2174,7 +2194,7 @@ function dictionaryPage() {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>...</th>
+                                    <th class="infoCollum">...</th>
                                     <th>Word</th>
                                     <th>Stem</th>
                                     <th>Definition</th>
@@ -2218,7 +2238,7 @@ function dictionaryPage() {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>...</th>
+                                    <th class="infoCollum">...</th>
                                     <th>Word</th>
                                     <th>Stem</th>
                                     <th>Definition</th>
@@ -2278,7 +2298,7 @@ function dictionaryPage() {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>...</th>
+                                    <th class="infoCollum">...</th>
                                     <th>Word</th>
                                     <th>Stem</th>
                                     <th>Usage Notes</th>

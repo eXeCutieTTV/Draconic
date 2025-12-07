@@ -151,15 +151,7 @@ const reverseSearchIdsOnSearch = function reverseSearchIdsOnSearch() {
         swapSearchIds('search_field', 'unusedField');
     }
 }
-const insertTrIntoTableById = function insertTrIntoTableById(id, html) {
-    let table = document.getElementById(id);
-    if (!table) {
-        console.warn(`no table by id ${id}`);
-    }
 
-    table.innerHTML = table.innerHTML + html;
-    return table;
-}
 const betterTrInsert = function betterTrInsert(id, html) {
     const tbody = document.getElementById(id);
     const tr = document.createElement('tr');
@@ -229,7 +221,7 @@ const nounTable = function nounTable(affix, declension, gender, number, Case, de
                 <table>
                     <tr>
                         <thead>
-                            <th style="width:116px">...</th>
+                            <th class="infoCollum">...</th>
                             <th>Suffix</th>
                             <th>Declension</th>
                             <th>Gender</th>
@@ -257,7 +249,7 @@ const nounTable = function nounTable(affix, declension, gender, number, Case, de
             <td>${real_stem}</td>
         </tr>
     `;
-    helperFunctions.standard.insertTrIntoTableById(`tbody-${affixState}`, html);
+    helperFunctions.standard.betterTrInsert(`tbody-${affixState}`, html);
 }
 
 const verbTable = function verbTable(affix, gender, number, person, wrapper, affixState) {
@@ -271,7 +263,7 @@ const verbTable = function verbTable(affix, gender, number, person, wrapper, aff
                 <table>
                     <thead>
                         <tr>
-                            <th style="width:116px">...</th>
+                            <th class="infoCollum">...</th>
                             <th>${affixState}</th>
                             <th>Gender</th>
                             <th>Number</th>
@@ -293,7 +285,7 @@ const verbTable = function verbTable(affix, gender, number, person, wrapper, aff
             <td>${person}</td>
         </tr>
     `;
-    helperFunctions.standard.insertTrIntoTableById(`tbody-${affixState}`, html);
+    helperFunctions.standard.betterTrInsert(`tbody-${affixState}`, html);
 }
 
 const prepositionTable = function prepositionTable(affix, definition, notes, wrapper) {
@@ -306,7 +298,7 @@ const prepositionTable = function prepositionTable(affix, definition, notes, wra
                 <table>
                     <thead>
                         <tr>
-                            <th style="width:116px">...</th>
+                            <th class="infoCollum">...</th>
                             <th>Preposition</th>
                             <th>Definition</th>
                             <th>Notes</th>
@@ -326,7 +318,7 @@ const prepositionTable = function prepositionTable(affix, definition, notes, wra
             <td>${notes}</td>
         </tr>
     `;
-    helperFunctions.standard.insertTrIntoTableById('tbody', html);
+    helperFunctions.standard.betterTrInsert('tbody', html);
 }
 
 const particleTable = function particleTable(affix, definition, notes, wrapper) {
@@ -339,7 +331,7 @@ const particleTable = function particleTable(affix, definition, notes, wrapper) 
                 <table>
                     <thead>
                         <tr>
-                            <th style="width:116px">...</th>
+                            <th class="infoCollum">...</th>
                             <th>Particle</th>
                             <th>Definition</th>
                             <th>Notes</th>
@@ -359,7 +351,7 @@ const particleTable = function particleTable(affix, definition, notes, wrapper) 
             <td>${notes}</td>
         </tr>
     `;
-    helperFunctions.standard.insertTrIntoTableById('tbody', html);
+    helperFunctions.standard.betterTrInsert('tbody', html);
 }
 
 const adjectiveTable = function adjectiveTable(affix, declension, gender, number, Case, wrapper, affixState) {
@@ -372,7 +364,7 @@ const adjectiveTable = function adjectiveTable(affix, declension, gender, number
                 <table>
                     <tr>
                         <thead>
-                            <th style="width:116px">...</th>
+                            <th class="infoCollum">...</th>
                             <th>Suffix</th>
                             <th>Declension</th>
                             <th>Gender</th>
@@ -396,7 +388,7 @@ const adjectiveTable = function adjectiveTable(affix, declension, gender, number
             <td>${Case}</td>
         </tr>
     `;
-    helperFunctions.standard.insertTrIntoTableById(`tbody-${affixState}`, html);
+    helperFunctions.standard.betterTrInsert(`tbody-${affixState}`, html);
 }
 
 const resultTables = {
@@ -416,7 +408,6 @@ const standard = {
     sliceKeywordNegative,
     sliceKeywordPositive,
     reverseSearchIdsOnSearch,
-    insertTrIntoTableById,
     searchableTable,
     betterTrInsert,
     resultTables
@@ -1529,7 +1520,7 @@ const displayForms = function displayForms(allMatchesArray) {
             });
         });//<-- change to for loop, instead of .forEach
         for (const el of tempArray.type2) {
-            console.log(el, el.affixState);
+            //console.log(el, el.affixState);
             const htmlEach = `
                 <td 
                     style="cursor:pointer"; 

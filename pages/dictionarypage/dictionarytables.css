@@ -26,7 +26,11 @@
 #tableWrapper td {
     text-align: center;
 }
+
 #dictionaryTable {
     display: inline;
     width: auto;
+}
+.infoCollum {
+    width: 116px;
 }
