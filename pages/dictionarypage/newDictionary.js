@@ -2269,6 +2269,7 @@ function dictionaryPage() {
                     </div>
                     <div id="prefixWrapper"></div>
                     <div id="suffixWrapper"></div>
+                        <div style="margin-top:50px" id="suffixTableWrapper"></div>
                 `;
                 let tempStr = '';
                 helperFunctions.standard.createPageById('page96', html);
@@ -2291,6 +2292,11 @@ function dictionaryPage() {
                 if (tempStr === 'inyl') {
                     document.getElementById('wordclassTd').textContent = 'Adverb';
                 }
+                const suffixTableWrapper = document.getElementById('suffixTableWrapper');
+                helperFunctions.matchtype1.neoNounTables(stemMap.declension, 1, suffixTableWrapper, stemMap.genders);
+                helperFunctions.matchtype1.neoNounTables(stemMap.declension, 2, suffixTableWrapper, stemMap.genders);
+                helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
+
 
                 helperFunctions.standard.openPageById('page96');
             }
