@@ -2304,9 +2304,6 @@ function dictionaryPage() {
                 matchType = 2;
                 helperFunctions.standard.clearPageById('page96');
 
-                const stem = affixTypesMap.pSuffixANDpPrefixANDnounSuffix.resultMap.suffix[0].stem;
-                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
-                const notes = stemMap.usage_notes || '...';
 
                 const html = `
                     <div>
@@ -2320,22 +2317,26 @@ function dictionaryPage() {
                                     <th>Wordclass</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <th>Info</th>
-                                    <td>${keyword}</td>
-                                    <td>${stem}</td>
-                                    <td>${notes}</td>
-                                    <td id="wordclassTd">${'Noun'}</td>
-                                </tr>
-                            </tbody>
+                            <tbody id="headerTbody"></tbody>
                         </table>
                     </div>
                     <div id="particleWrapper"></div>
                     <div id="suffixWrapper"></div>
                 `;
                 helperFunctions.standard.createPageById('page96', html);
-
+                for (const entry of affixTypesMap.pSuffixANDpPrefixANDnounSuffix.resultMap.suffix[0].stems_map) {
+                    const stemMap_local = DICTIONARY.ALL_WORDS.MAP[entry] || [];
+                    const html = `
+                        <tr>
+                            <th>Info</th>
+                            <td>${keyword}</td>
+                            <td>${entry}</td>
+                            <td>${stemMap_local.usage_notes || '...'}</td>
+                            <td id="wordclassTd">${'Noun'}</td>
+                        </tr>
+                    `;
+                    helperFunctions.standard.betterTrInsert('headerTbody', html);
+                }
                 let tempStr = '';
                 const particleWrapper = document.getElementById('particleWrapper');
                 for (const result of affixTypesMap.pSuffixANDpPrefixANDnounSuffix.resultMap.pPrefix) {
@@ -2343,29 +2344,30 @@ function dictionaryPage() {
                     helperFunctions.standard.resultTables.particleTable(result.prefix, particleMap.definition, particleMap.usage_notes || '...', particleWrapper);
                     tempStr += result.prefix;
                 }
-                for (const results of affixTypesMap.pSuffixANDpPrefixANDnounSuffix.resultMap.pSuffix) {
-                    for (const result of results) {
-                        const particleMap = DICTIONARY.ALL_WORDS.MAP[result.suffix];
-                        helperFunctions.standard.resultTables.particleTable(result.suffix, particleMap.definition, particleMap.usage_notes || '...', particleWrapper);
-                        tempStr += result.suffix;
-                    }
+                for (const result of affixTypesMap.pSuffixANDpPrefixANDnounSuffix.resultMap.pSuffix) {
+                    const particleMap = DICTIONARY.ALL_WORDS.MAP[result.suffix];
+                    helperFunctions.standard.resultTables.particleTable(result.suffix, particleMap.definition, particleMap.usage_notes || '...', particleWrapper);
+                    tempStr += result.suffix;
                 }
-                //console.log(tempStr);
                 if (tempStr === 'inyl') {
                     document.getElementById('wordclassTd').textContent = 'Adverb';
                 }
                 const suffixWrapper = document.getElementById('suffixWrapper');
-                for (const result of affixTypesMap.pSuffixANDpPrefixANDnounSuffix.resultMap.suffix) {
-                    const path = result.path;
-                    function definition() {//<-- universalise this function?...
-                        const entry = DICTIONARY.ALL_WORDS.MAP[result.stem];
-                        for (const [gender, def] of Object.entries(entry.genders)) {
-                            if (gender === path.gender) {
-                                return def;
+                for (const real_stem of affixTypesMap.pSuffixANDpPrefixANDnounSuffix.resultMap.suffix[0].stems_map) {
+                    for (const result of affixTypesMap.pSuffixANDpPrefixANDnounSuffix.resultMap.suffix) {
+                        console.log(result);
+                        const path = result.path;
+                        function definition() {
+                            const entry = DICTIONARY.ALL_WORDS.MAP[real_stem];
+                            console.log(entry);
+                            for (const [gender, def] of Object.entries(entry.genders)) {
+                                if (gender === path.gender) {
+                                    return def;
+                                }
                             }
                         }
+                        helperFunctions.standard.resultTables.nounTable(result.suffix, path.declension, path.gender, path.number, path.case, definition(), suffixWrapper, 'suffix', real_stem);
                     }
-                    helperFunctions.standard.resultTables.nounTable(result.suffix, path.declension, path.gender, path.number, path.case, definition(), suffixWrapper, 'suffix');
                 }
                 helperFunctions.standard.openPageById('page96');
             }//<-- this is where i got to:)
