@@ -1069,7 +1069,9 @@ function dictionaryPage() {
                             //console.log(stemArr);
                             for (const stem_result of stemArr) {
                                 //console.log(stem_result);
-                                if (DICTIONARY.ALL_WORDS.MAP[stem_result] && DICTIONARY.ALL_WORDS.MAP[stem_result].type === 'n') {
+                                const stem_resultMap = DICTIONARY.ALL_WORDS.MAP[stem_result];
+                                console.log(stem_resultMap, entry);
+                                if (stem_resultMap && stem_resultMap.type === 'n' && stem_resultMap.declension === entry.path.declension) {
                                     //entry.mapStem = stemMap.word;
 
                                     if (!checkerArr.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
@@ -1524,8 +1526,8 @@ function dictionaryPage() {
                 matchType = 2;
                 helperFunctions.standard.clearPageById('page96');
 
-
-                const stemMap = DICTIONARY.ALL_WORDS.MAP[affixTypesMap.nounSuffix.resultMap[0].stem] || [];
+                const stem = affixTypesMap.nounSuffix.resultMap[0].stem;
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
                 const notes = stemMap.usage_notes || '...';
 
                 let wordclass = '';
@@ -1546,7 +1548,7 @@ function dictionaryPage() {
                             <tr>
                                 <th>Info</th>
                                 <td>${keyword}</td>
-                                <td id="stem">${affixTypesMap.nounSuffix.resultMap[0].stem}</td>
+                                <td id="stem">${stem}</td>
                                 <td>${wordclass}</td>
                                 <td>${notes}</td>
                             </tr>
@@ -1556,24 +1558,29 @@ function dictionaryPage() {
                 `;
                 helperFunctions.standard.createPageById('page96', html);
                 const nounTable = document.getElementById('nounTable');
-                for (const result of affixTypesMap.nounSuffix.resultMap) {
-                    function definition() {
-                        const entry = DICTIONARY.ALL_WORDS.MAP[affixTypesMap.nounSuffix.resultMap[0].stem];
-                        for (const [gender, def] of Object.entries(entry.genders)) {
-                            if (gender === path.gender) {
-                                return def;
+                console.log(nounTable);
+                for (const real_stem of affixTypesMap.nounSuffix.resultMap[0].stems_map) {
+                    for (const result of affixTypesMap.nounSuffix.resultMap) {
+                        console.log(result);
+                        const path = result.path;
+                        function definition() {
+                            const entry = DICTIONARY.ALL_WORDS.MAP[real_stem];
+                            console.log(entry);
+                            for (const [gender, def] of Object.entries(entry.genders)) {
+                                if (gender === path.gender) {
+                                    return def;
+                                }
                             }
                         }
+                        helperFunctions.standard.resultTables.nounTable(result.suffix, path.declension, path.gender, path.number, path.case, definition(), nounTable, 'suffix', real_stem);
                     }
-                    const path = result.path;
-                    helperFunctions.standard.resultTables.nounTable(result.suffix, path.declension, path.gender, path.number, path.case, definition(), nounTable, 'suffix');
                 }
                 const stemTd = document.querySelector('#stem');
                 if (stemTd) {
                     stemTd.style.cursor = 'pointer';
                     stemTd.addEventListener('click', () => {
-                        keyword = affixTypesMap.nounSuffix.resultMap[0].affixStem;
-                        search(keyword);
+                        //keyword = affixTypesMap.nounSuffix.resultMap[0].affixStem;
+                        //search(keyword);
                     });
                 }
                 helperFunctions.standard.openPageById('page96');

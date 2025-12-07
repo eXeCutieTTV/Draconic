@@ -219,7 +219,7 @@ const searchableTable = function searchableTable(wordclass) {//turns the tables 
     }
 }
 
-const nounTable = function nounTable(affix, declension, gender, number, Case, definition, wrapper, affixState) {
+const nounTable = function nounTable(affix, declension, gender, number, Case, definition, wrapper, affixState, real_stem) {
     if (!affix || !declension || !gender || !number || !Case || !definition) return;
 
     const tbody = document.getElementById(`tbody-${affixState}`) || '';
@@ -236,6 +236,7 @@ const nounTable = function nounTable(affix, declension, gender, number, Case, de
                             <th>Number</th>
                             <th>Case</th>
                             <th>Definition</th>
+                            <th>Stem</th>
                         </thead>
                     </tr>
                     <tbody id="tbody-${affixState}"></tbody>
@@ -253,6 +254,7 @@ const nounTable = function nounTable(affix, declension, gender, number, Case, de
             <td>${number}</td>
             <td>${Case}</td>
             <td>${definition}</td>
+            <td>${real_stem}</td>
         </tr>
     `;
     helperFunctions.standard.insertTrIntoTableById(`tbody-${affixState}`, html);
