@@ -2300,7 +2300,7 @@ function dictionaryPage() {
 
                 helperFunctions.standard.openPageById('page96');
             }
-            else if (affixTypesMap.pSuffixANDpPrefixANDnounSuffix.state) {
+            else if (affixTypesMap.pSuffixANDpPrefixANDnounSuffix.state) {//fix wordclass if particle is 'i'
                 matchType = 2;
                 helperFunctions.standard.clearPageById('page96');
 
