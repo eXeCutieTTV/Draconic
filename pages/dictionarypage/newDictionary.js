@@ -2255,7 +2255,7 @@ function dictionaryPage() {
                                     <th>Wordclass</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="headerTbody">
                                 <tr>
                                     <th>Info</th>
                                     <td>${keyword}</td>
@@ -2272,6 +2272,8 @@ function dictionaryPage() {
                 `;
                 let tempStr = '';
                 helperFunctions.standard.createPageById('page96', html);
+
+
                 const prefixWrapper = document.getElementById('prefixWrapper');
                 for (const result of affixTypesMap.pSuffixANDpPrefix.resultMap.prefix) {
                     const particleMap = DICTIONARY.ALL_WORDS.MAP[result.prefix];
@@ -2280,12 +2282,10 @@ function dictionaryPage() {
                 }
 
                 const suffixWrapper = document.getElementById('suffixWrapper');
-                for (const results of affixTypesMap.pSuffixANDpPrefix.resultMap.suffix) {
-                    for (const result of results) {
-                        const particleMap = DICTIONARY.ALL_WORDS.MAP[result.suffix];
-                        helperFunctions.standard.resultTables.particleTable(result.suffix, particleMap.definition, particleMap.usage_notes || '...', suffixWrapper);
-                        tempStr += result.suffix;
-                    }
+                for (const result of affixTypesMap.pSuffixANDpPrefix.resultMap.suffix) {
+                    const particleMap = DICTIONARY.ALL_WORDS.MAP[result.suffix];
+                    helperFunctions.standard.resultTables.particleTable(result.suffix, particleMap.definition, particleMap.usage_notes || '...', suffixWrapper);
+                    tempStr += result.suffix;
                 }
                 //console.log(tempStr);
                 if (tempStr === 'inyl') {
