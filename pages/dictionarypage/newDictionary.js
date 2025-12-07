@@ -2269,7 +2269,7 @@ function dictionaryPage() {
                     </div>
                     <div id="prefixWrapper"></div>
                     <div id="suffixWrapper"></div>
-                        <div style="margin-top:50px" id="suffixTableWrapper"></div>
+                    <div style="margin-top:50px" id="suffixTableWrapper"></div>
                 `;
                 let tempStr = '';
                 helperFunctions.standard.createPageById('page96', html);
