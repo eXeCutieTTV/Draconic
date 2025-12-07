@@ -1194,20 +1194,17 @@ function dictionaryPage() {
                                 particleSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.PARTICLES.MAP, false) || [];
                                 console.log(nounSuffix, particleSuffix);
                                 console.log(nounSuffix.arrayLength > 0, particleSuffix.arrayLength > 0);
-                                let temp_stemArr2 = [];
+                                let temp_stemArr21 = [];
+                                let temp_stemArr22 = [];
                                 if (nounSuffix.arrayLength > 0) {
                                     for (const entries2 of Object.values(nounSuffix)) {
-                                        console.log(entries2);
                                         if (typeof (entries2) === 'object') {
                                             for (const entry2 of Object.values(entries2)) {
-                                                console.log(entry2);
                                                 if (typeof (entry2) === 'object') {
                                                     const stemArr2 = helperFunctions.matchtype2.findStemWhenShortstem(entry2.stem);
-                                                    console.log(stemArr2, entry2.stem);
                                                     if (stemArr2.length > 0) {
                                                         for (const stem_result2 of stemArr2) {
                                                             const stem_resultMap2 = DICTIONARY.ALL_WORDS.MAP[stem_result2];
-                                                            console.log(stem_resultMap2, stem_result2, stemArr2, entry);
                                                             if (stem_resultMap2 && stem_resultMap2.type === 'n' /*&& stem_resultMap2.declension === entry.path.declension*/) {
                                                                 entry.stem = entry2.stem;//fix stem
                                                                 if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
@@ -1215,24 +1212,20 @@ function dictionaryPage() {
                                                                     console.log('pushed for el with short_path:', entry2.short_path);
                                                                     affixTypesMap.nounSuffixANDpPrefix.resultMap.suffix.push(entry2);
                                                                 }
-                                                                temp_stemArr2 = stemArr2;
-                                                                entry2.stems_map = temp_stemArr2;
+                                                                temp_stemArr21 = stemArr2;
+                                                                entry2.stems_map = temp_stemArr21;
                                                                 affixTypesMap.nounSuffixANDpPrefix.state = true;
                                                             }
                                                         }
                                                     } else {
-                                                        console.log('hello world');
-                                                        particleSuffix = helperFunctions.matchtype2.neoAffixChecker(entry2.stem, DICTIONARY.PARTICLES.MAP, false) || [];
+                                                        particleSuffix2 = helperFunctions.matchtype2.neoAffixChecker(entry2.stem, DICTIONARY.PARTICLES.MAP, false) || [];
+                                                        console.log(particleSuffix2);
                                                         let temp_stemArr3 = [];
-                                                        console.log(particleSuffix);
-                                                        for (const entries3 of Object.values(particleSuffix)) {
-                                                            console.log(entries3);
+                                                        for (const entries3 of Object.values(particleSuffix2)) {
                                                             if (typeof (entries3) === 'object') {
                                                                 for (const entry3 of Object.values(entries3)) {
-                                                                    console.log(entry3);
                                                                     if (typeof (entry3) === 'object') {
                                                                         const stemArr3 = helperFunctions.matchtype2.findStemWhenShortstem(entry3.stem);
-                                                                        console.log(stemArr3, entry3.stem);
                                                                         if (stemArr3.length > 0) {
                                                                             for (const stem_result3 of stemArr3) {
                                                                                 const stem_resultMap3 = DICTIONARY.ALL_WORDS.MAP[stem_result3];
@@ -1270,7 +1263,7 @@ function dictionaryPage() {
                                                 }
                                             }
                                         }
-                                        if (temp_stemArr2.length > 0) {
+                                        if (temp_stemArr21.length > 0) {
                                             if (!checkerArr.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                                 checkerArr.push(entry.short_path);
                                                 console.log('pushed for el with short_path:', entry.short_path);
@@ -1278,91 +1271,45 @@ function dictionaryPage() {
                                             }
                                         }
                                     }
-
-                                } else if (particleSuffix.arrayLength > 0) {//<-- does this need to be an else if?? can it just be an if? or is this irrelevant even, tbh?
-                                    console.log('hello world');
-
                                 }
-                            }
-                        }
-                    }
-                }
-
-
-
-                /*
-                for (const entries of Object.values(affixTypesMap.pPrefix.rawMap)) {
-                    for (const entry of Object.values(entries)) {
-                        if (DICTIONARY.ALL_WORDS.MAP[entry.stem]) {
-                            affixTypesMap.pPrefix.resultMap.push(entry);
-                            affixTypesMap.pPrefix.state = true;
-                        } else {
-                            nounSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.NOUNS.SUFFIXES.MATCHES, false) || [];
-                            particleSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.PARTICLES.MAP, false) || [];
-                            if (nounSuffix.arrayLength > 0) {
-                                let pSuffixANDpPrefixANDnounSuffix_temp = false;
-                                let pSuffixANDpPrefixANDnounSuffix_stem = '';
-                                let push_nounSuffixANDpPrefix = true;
-                                for (const entry2 of Object.values(nounSuffix)) {
-                                    if (typeof (entry2) === 'object') {
-                                        for (const result of entry2) {
-                                            particleSuffix2 = helperFunctions.matchtype2.neoAffixChecker(result.stem, DICTIONARY.PARTICLES.MAP, false) || [];
-                                            if (particleSuffix2.arrayLength > 0) {
-                                                for (const entry3 of Object.values(particleSuffix2)) {
-                                                    if (typeof (entry3) === 'object') {
-                                                        for (const result2 of entry3) {
-                                                            if (!checkerArr.includes(result2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
-                                                                checkerArr.push(result2.short_path);
-                                                                console.log('pushed for el with short_path:', result2.short_path);
-                                                                affixTypesMap.pSuffixANDpPrefixANDnounSuffix.resultMap.pSuffix.push(entry3);
-                                                                pSuffixANDpPrefixANDnounSuffix_stem = result2.stem;
-                                                                affixTypesMap.pSuffixANDpPrefixANDnounSuffix.state = true;
-                                                                push_nounSuffixANDpPrefix = false;
+                                if (particleSuffix.arrayLength > 0) {
+                                    for (const entries2 of Object.values(particleSuffix)) {
+                                        if (typeof (entries2) === 'object') {
+                                            for (const entry2 of Object.values(entries2)) {
+                                                if (typeof (entry2) === 'object') {
+                                                    const stemArr2 = helperFunctions.matchtype2.findStemWhenShortstem(entry2.stem);
+                                                    if (stemArr2.length > 0) {
+                                                        for (const stem_result2 of stemArr2) {
+                                                            const stem_resultMap2 = DICTIONARY.ALL_WORDS.MAP[stem_result2];
+                                                            if (stem_resultMap2) {
+                                                                entry.stem = entry2.stem;//fix stem
+                                                                if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
+                                                                    checkerArr.push(entry2.short_path);
+                                                                    console.log('pushed for el with short_path:', entry2.short_path);
+                                                                    affixTypesMap.pSuffixANDpPrefix.resultMap.suffix.push(entry2);
+                                                                }
+                                                                temp_stemArr22 = stemArr2;
+                                                                entry2.stems_map = temp_stemArr22;
+                                                                affixTypesMap.pSuffixANDpPrefix.state = true;
                                                             }
-                                                            pSuffixANDpPrefixANDnounSuffix_temp = true;
                                                         }
                                                     }
                                                 }
-                                                if (pSuffixANDpPrefixANDnounSuffix_temp === true) {
-                                                    if (!checkerArr.includes(result.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
-                                                        checkerArr.push(result.short_path);
-                                                        console.log('pushed for el with short_path:', result.short_path);
-                                                        affixTypesMap.pSuffixANDpPrefixANDnounSuffix.resultMap.suffix.push(result);
-                                                        result.stem = pSuffixANDpPrefixANDnounSuffix_stem; //fix stem.
-                                                    }
+                                            }
+                                            if (temp_stemArr22.length > 0) {
+                                                if (!checkerArr.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
+                                                    checkerArr.push(entry.short_path);
+                                                    console.log('pushed for el with short_path:', entry.short_path);
+                                                    affixTypesMap.pSuffixANDpPrefix.resultMap.prefix.push(entry);
                                                 }
                                             }
-                                            entry.stem = entry2[0].stem; //fix stem.
-                                        }
-                                        if (push_nounSuffixANDpPrefix) {
-                                            entry.stem = entry2[0].stem; //fix stem.
-                                            affixTypesMap.nounSuffixANDpPrefix.resultMap.suffix.push(entry2);
                                         }
                                     }
                                 }
-                                if (pSuffixANDpPrefixANDnounSuffix_temp) {
-                                    affixTypesMap.pSuffixANDpPrefixANDnounSuffix.resultMap.pPrefix.push(entry);
-                                }
-                                if (push_nounSuffixANDpPrefix) {
-                                    affixTypesMap.nounSuffixANDpPrefix.resultMap.particle.push(entry);
-                                    affixTypesMap.nounSuffixANDpPrefix.state = true;
-                                }
-                            }
-                            else if (particleSuffix.arrayLength > 0) {
-                                for (const entry2 of Object.values(particleSuffix)) {
-                                    if (typeof (entry2) === 'object') {
-                                        entry.stem = entry2[0].stem; //fix stem.
-                                        console.log(entry, entry2);
-                                        affixTypesMap.pSuffixANDpPrefix.resultMap.suffix.push(entry2);
-                                    }
-                                }
-                                affixTypesMap.pSuffixANDpPrefix.resultMap.prefix.push(entry);
-                                affixTypesMap.pSuffixANDpPrefix.state = true;
                             }
                         }
                     }
                 }
-                */
             }
             if (affixTypesMap.pSuffix.rawMap.arrayLength) {//<-- surely wont work. need to have nounSuffixANDpSuffix logic inside nounsuffix logic. actually, double check the order of suffix/part as human mentioned it...
                 for (const entries of Object.values(affixTypesMap.pSuffix.rawMap)) {
