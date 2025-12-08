@@ -275,7 +275,6 @@ function dictionaryPage() {
         const pagesToClear = ['page97', 'page95', 'page96', 'dictionaryTable'];
         for (const page of pagesToClear) {
             helperFunctions.standard.clearPageById(page);
-            //console.log(`page by id ${page} has been cleared`);
         }
 
         if (//type 1
@@ -969,7 +968,7 @@ function dictionaryPage() {
                 helperFunctions.standard.betterTrInsert('tbody', html);
             });
             helperFunctions.standard.openPageById('page95');
-        }//maybe change to if, insead of else if? vv
+        }
         else if (//type 2
             type2AffixesMap.verbPrefix ||
             type2AffixesMap.ppPrefix ||
@@ -1114,16 +1113,11 @@ function dictionaryPage() {
                 const checkerArr = [];
                 const checkerArr2 = [];//<-- incase both det and noun with pp possible.
                 for (const entries of Object.values(affixTypesMap.ppPrefix.rawMap)) {
-                    //console.log('hello world');
                     for (const entry of Object.values(entries)) {
-                        //console.log('hello world');
                         if (typeof (entry) === 'object') {
                             const stemArr = helperFunctions.matchtype2.findStemWhenShortstem(entry.stem);
-                            //console.log('hello world');
                             if (stemArr.length > 0) {
-                                //console.log('hello world');
                                 for (const stem_result of stemArr) {
-                                    //console.log('hello world');
                                     const stem_resultMap = DICTIONARY.ALL_WORDS.MAP[stem_result];
                                     console.log(stem_resultMap, stem_result, stemArr, entry);
                                     if (stem_resultMap && stem_resultMap.type === 'n') {
@@ -1136,7 +1130,6 @@ function dictionaryPage() {
                                         affixTypesMap.ppPrefix.state = true;
                                     } else if (stem_resultMap && stem_resultMap.type === 'det') {
                                         console.log('hello world');
-                                        //detppPrefix
                                         if (!checkerArr2.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                             checkerArr2.push(entry.short_path);
                                             console.log('pushed for el with short_path:', entry.short_path);
@@ -1328,20 +1321,10 @@ function dictionaryPage() {
                         if (DICTIONARY.ALL_WORDS.MAP[entry.stem]) {
                             affixTypesMap.pSuffix.resultMap.push(entry);
                             affixTypesMap.pSuffix.state = true;
-                        } /*else {
-                            nounSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.NOUNS.SUFFIXES.MATCHES, false) || [];
-                            if (nounSuffix.arrayLength > 0) {
-                                affixTypesMap.nounSuffixANDpSuffix.resultMap.particle.push(entry);
-                                for (obj of Object.values(nounSuffix)) {
-                                    entry.stem = obj.stem; //fix stem.
-                                    affixTypesMap.nounSuffixANDpSuffix.resultMap.suffix.push(obj);
-                                }
-                                affixTypesMap.nounSuffixANDpSuffix.state = true;
-                            }
-                        }*/
+                        }
                     }
                 }
-            }
+            }//fix w multi-stems etc^^since noun.
             if (affixTypesMap.adjSuffix.rawMap.arrayLength) {
                 const checkerArr = [];
                 for (const entries of Object.values(affixTypesMap.adjSuffix.rawMap)) {
