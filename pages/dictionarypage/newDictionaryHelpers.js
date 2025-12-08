@@ -600,7 +600,7 @@ const neoAffixChecker = function neoAffixChecker(word, map, isPrefix = false) {
                     prefix: prefix,
                     affixState: 'prefix',
                     wordclass: 'pp',
-                    short_path: ''//no path for pps
+                    short_path: 'pp' + "." + prefix
                 }
                 tempArray[stem] ? null : tempArray[stem] = [];
                 tempArray[stem].push(result);

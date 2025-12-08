@@ -277,12 +277,7 @@ function dictionaryPage() {
             helperFunctions.standard.clearPageById(page);
             //console.log(`page by id ${page} has been cleared`);
         }
-        /*
-            helperFunctions.standard.clearPageById('page97'); //type 1
-            helperFunctions.standard.clearPageById('page95'); //type 1.1
-            helperFunctions.standard.clearPageById('page96'); //type 2
-            helperFunctions.standard.clearPageById('dictionaryTable'); //type 3
-        */
+
         if (//type 1
             DICTIONARY.ALL_WORDS.MAP[keyword] && DICTIONARY.ALL_WORDS.MAP[keyword].word.length > 0
         ) {
@@ -1005,6 +1000,7 @@ function dictionaryPage() {
                 adjSuffixANDpPrefix: { resultMap: { particle: [], suffix: [] }, state: false, affixAmount: 2 },
                 pSuffixANDpPrefix: { resultMap: { prefix: [], suffix: [] }, state: false, affixAmount: 2 },
                 pSuffixANDpPrefixANDnounSuffix: { resultMap: { pPrefix: [], pSuffix: [], suffix: [] }, state: false, affixAmount: 3 },
+                detppPrefix: { resultMap: [], state: false, affixAmount: 1 },
             }
             //console.log(affixTypesMap);
             allMatchesArray.type2 = affixTypesMap;
@@ -1116,14 +1112,21 @@ function dictionaryPage() {
             }
             if (affixTypesMap.ppPrefix.rawMap.arrayLength) {
                 const checkerArr = [];
+                const checkerArr2 = [];//<-- incase both det and noun with pp possible.
                 for (const entries of Object.values(affixTypesMap.ppPrefix.rawMap)) {
+                    //console.log('hello world');
                     for (const entry of Object.values(entries)) {
+                        //console.log('hello world');
                         if (typeof (entry) === 'object') {
                             const stemArr = helperFunctions.matchtype2.findStemWhenShortstem(entry.stem);
+                            //console.log('hello world');
                             if (stemArr.length > 0) {
+                                //console.log('hello world');
                                 for (const stem_result of stemArr) {
+                                    //console.log('hello world');
                                     const stem_resultMap = DICTIONARY.ALL_WORDS.MAP[stem_result];
-                                    if (stem_resultMap) {
+                                    console.log(stem_resultMap, stem_result, stemArr, entry);
+                                    if (stem_resultMap && stem_resultMap.type === 'n') {
                                         if (!checkerArr.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                             checkerArr.push(entry.short_path);
                                             console.log('pushed for el with short_path:', entry.short_path);
@@ -1131,6 +1134,16 @@ function dictionaryPage() {
                                             affixTypesMap.ppPrefix.resultMap.push(entry);
                                         }
                                         affixTypesMap.ppPrefix.state = true;
+                                    } else if (stem_resultMap && stem_resultMap.type === 'det') {
+                                        console.log('hello world');
+                                        //detppPrefix
+                                        if (!checkerArr2.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
+                                            checkerArr2.push(entry.short_path);
+                                            console.log('pushed for el with short_path:', entry.short_path);
+                                            entry.stems_map = stemArr;
+                                            affixTypesMap.detppPrefix.resultMap.push(entry);
+                                        }
+                                        affixTypesMap.detppPrefix.state = true;
                                     }
                                 }
                             } else {
@@ -2371,7 +2384,6 @@ function dictionaryPage() {
                 }
                 helperFunctions.standard.openPageById('page96');
             }//<-- this is where i got to:)
-            //adj with pps?
 
             //TODO add affix tables to the newly made sections.
             else {
