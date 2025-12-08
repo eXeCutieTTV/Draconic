@@ -2474,3 +2474,4 @@ dictionaryPage();
 //maybe add a 4th type? if number, then use lirioz' NUMBERS.numberToText.
 //5th type is a buttonpress that just loads the entire plain dictionary.
 //make 'short_path's //make every array, atleast inside allMatchesArray, have similar formatting - path{} etc.
+//make autocorrect/examples use DICTIONARY.ALL_WORDS.MAP instead of excel file...
