@@ -251,7 +251,6 @@ const nounTable = function nounTable(affix, declension, gender, number, Case, de
     `;
     helperFunctions.standard.betterTrInsert(`tbody-${affixState}`, html);
 }
-
 const verbTable = function verbTable(affix, gender, number, person, wrapper, affixState) {
     if (!affix || !gender || !number || !person || !wrapper) return;
 
@@ -287,11 +286,10 @@ const verbTable = function verbTable(affix, gender, number, person, wrapper, aff
     `;
     helperFunctions.standard.betterTrInsert(`tbody-${affixState}`, html);
 }
-
 const prepositionTable = function prepositionTable(affix, definition, notes, wrapper) {
     if (!affix || !definition || !notes) return;
 
-    const tbody = document.getElementById('tbody') || '';
+    const tbody = document.getElementById(`tbody-preposition`) || '';
     if (tbody === '') {
         const html = `
             <div style="margin-top:15px">
@@ -304,7 +302,7 @@ const prepositionTable = function prepositionTable(affix, definition, notes, wra
                             <th>Notes</th>
                         </tr>
                     </thead>
-                    <tbody id="tbody"></tbody>
+                    <tbody id="tbody-preposition"></tbody>
                 </table>
             </div>
         `;
@@ -318,13 +316,12 @@ const prepositionTable = function prepositionTable(affix, definition, notes, wra
             <td>${notes}</td>
         </tr>
     `;
-    helperFunctions.standard.betterTrInsert('tbody', html);
+    helperFunctions.standard.betterTrInsert('tbody-preposition', html);
 }
-
 const particleTable = function particleTable(affix, definition, notes, wrapper) {
     if (!affix || !definition || !notes) return;
 
-    const tbody = document.getElementById('tbody') || '';
+    const tbody = document.getElementById('tbody-particle') || '';
     if (tbody === '') {
         const html = `
             <div style="margin-top:15px">
@@ -337,7 +334,7 @@ const particleTable = function particleTable(affix, definition, notes, wrapper) 
                             <th>Notes</th>
                         </tr>
                     </thead>
-                    <tbody id="tbody"></tbody>
+                    <tbody id="tbody-particle"></tbody>
                 </table>
             </div>
         `;
@@ -351,9 +348,8 @@ const particleTable = function particleTable(affix, definition, notes, wrapper) 
             <td>${notes}</td>
         </tr>
     `;
-    helperFunctions.standard.betterTrInsert('tbody', html);
+    helperFunctions.standard.betterTrInsert('tbody-particle', html);
 }
-
 const adjectiveTable = function adjectiveTable(affix, declension, gender, number, Case, wrapper, affixState) {
     if (!affix || !declension || !gender || !number || !Case) return;
 
@@ -390,10 +386,9 @@ const adjectiveTable = function adjectiveTable(affix, declension, gender, number
     `;
     helperFunctions.standard.betterTrInsert(`tbody-${affixState}`, html);
 }
-
 const determinerTable = function determinerTable(affix, gender, wrapper) {
     if (!affix || !gender) return;
-    const tbody = document.getElementById('tbody') || '';
+    const tbody = document.getElementById('tbody-determiner') || '';
     if (tbody === '') {
         const html = `
             <div style="margin-top:15px">
@@ -405,7 +400,7 @@ const determinerTable = function determinerTable(affix, gender, wrapper) {
                             <th>Gender</th>
                         </tr>
                     </thead>
-                    <tbody id="tbody"></tbody>
+                    <tbody id="tbody-determiner"></tbody>
                 </table>
             </div>
         `;
@@ -418,7 +413,7 @@ const determinerTable = function determinerTable(affix, gender, wrapper) {
             <td>${gender}</td>
         </tr>   
     `;
-    helperFunctions.standard.betterTrInsert('tbody', html);
+    helperFunctions.standard.betterTrInsert('tbody-determiner', html);
 }
 
 const resultTables = {

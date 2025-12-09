@@ -2496,13 +2496,68 @@ function dictionaryPage() {
                 helperFunctions.standard.createPageById('page96', html);
                 const determinersTableWrapper = document.getElementById('determinersTableWrapper');
                 for (const result of affixTypesMap.detppPrefix.resultMap) {
-                    const particleMap = DICTIONARY.ALL_WORDS.MAP[result.prefix];
-                    helperFunctions.standard.resultTables.prepositionTable(result.prefix, particleMap.definition, particleMap.usage_notes || '...', determinersTableWrapper);
+                    const prepositionMap = DICTIONARY.ALL_WORDS.MAP[result.prefix];
+                    helperFunctions.standard.resultTables.prepositionTable(result.prefix, prepositionMap.definition, prepositionMap.usage_notes || '...', determinersTableWrapper);
                 }
                 const determinersSuffixTableWrapper = document.getElementById('determinersSuffixTableWrapper');
                 helperFunctions.matchtype1.neoDeterminerTables(determinersSuffixTableWrapper);
                 helperFunctions.tablegen.populateSummaryTables(stem, { 'Determiner-Table': false });
 
+                helperFunctions.standard.openPageById('page96');
+            }
+            else if (affixTypesMap.detppPrefixANDSuffix.state) {
+                matchType = 2;
+                helperFunctions.standard.clearPageById('page96');
+                console.log('--det pp prefix AND suffix--');
+
+
+                const stem = affixTypesMap.detppPrefixANDSuffix.resultMap.suffix[0].stem;
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                const definition = stemMap.definition || '...';
+                const notes = stemMap.usage_notes || '...';
+
+                const html = `
+                    <div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="infoCollum">...</th>
+                                    <th>Word</th>
+                                    <th>Stem</th>
+                                    <th>Definition</th>
+                                    <th>Usage Notes</th>
+                                    <th>Wordclass</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>Info</th>
+                                    <td>${keyword}</td>
+                                    <td>${stem}</td>
+                                    <td>${definition}</td>
+                                    <td>${notes}</td>
+                                    <td>${'Determiner'}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="detSuffixTableWrapper"></div>
+                    <div id="ppTableWrapper"></div>
+                `;
+                helperFunctions.standard.createPageById('page96', html);
+                const detSuffixTableWrapper = document.getElementById('detSuffixTableWrapper');
+                for (const result of affixTypesMap.detppPrefixANDSuffix.resultMap.suffix) {
+                    console.log(result);
+                    const path = result.path;
+                    helperFunctions.standard.resultTables.determinerTable(result.suffix, path.gender, detSuffixTableWrapper);
+                }
+                const ppTableWrapper = document.getElementById('ppTableWrapper');
+                for (const result of affixTypesMap.detppPrefixANDSuffix.resultMap.preposition) {
+                    console.log(result);
+                    const prepositionMap = DICTIONARY.ALL_WORDS.MAP[result.prefix];
+                    helperFunctions.standard.resultTables.prepositionTable(result.prefix, prepositionMap.definition, prepositionMap.usage_notes || '...', ppTableWrapper);
+
+                }
                 helperFunctions.standard.openPageById('page96');
             }//<-- this is where i got to:)
             //det w ppPrefixes & suffixes
