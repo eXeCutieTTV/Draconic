@@ -391,12 +391,43 @@ const adjectiveTable = function adjectiveTable(affix, declension, gender, number
     helperFunctions.standard.betterTrInsert(`tbody-${affixState}`, html);
 }
 
+const determinerTable = function determinerTable(affix, gender, wrapper) {
+    if (!affix || !gender) return;
+    const tbody = document.getElementById('tbody') || '';
+    if (tbody === '') {
+        const html = `
+            <div style="margin-top:15px">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="infoCollum">...</th>
+                            <th>Suffix</th>
+                            <th>Gender</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+        `;
+        helperFunctions.standard.createDivById('determinerTable', wrapper, html);
+    }
+    const html = `
+        <tr>
+            <th>Info</th>
+            <td>${affix}</td>
+            <td>${gender}</td>
+        </tr>   
+    `;
+    helperFunctions.standard.betterTrInsert('tbody', html);
+}
+
 const resultTables = {
     nounTable,
     verbTable,
     prepositionTable,
     particleTable,
-    adjectiveTable
+    adjectiveTable,
+    determinerTable
 }
 
 const standard = {

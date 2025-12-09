@@ -1319,7 +1319,7 @@ function dictionaryPage() {
             if (affixTypesMap.pSuffix.rawMap.arrayLength) {//<-- surely wont work. need to have nounSuffixANDpSuffix logic inside nounsuffix logic. actually, double check the order of suffix/part as human mentioned it...
                 for (const entries of Object.values(affixTypesMap.pSuffix.rawMap)) {
                     for (const entry of Object.values(entries)) {
-                        if (DICTIONARY.ALL_WORDS.MAP[entry.stem]) {
+                        if (DICTIONARY.ALL_WORDS.MAP[entry.stem] && DICTIONARY.ALL_WORDS.MAP[entry.stem].type === 'part') {
                             affixTypesMap.pSuffix.resultMap.push(entry);
                             affixTypesMap.pSuffix.state = true;
                         }
@@ -1364,7 +1364,16 @@ function dictionaryPage() {
                 }
             }
             if (affixTypesMap.detSuffix.rawMap.arrayLength) {
-                console.log('hello world');
+                for (const entries of Object.values(affixTypesMap.detSuffix.rawMap)) {
+                    console.log(entries);
+                    for (const entry of Object.values(entries)) {
+                        console.log(entry);
+                        if (DICTIONARY.ALL_WORDS.MAP[entry.stem] && DICTIONARY.ALL_WORDS.MAP[entry.stem].type === 'det') {
+                            affixTypesMap.detSuffix.resultMap.push(entry);
+                            affixTypesMap.detSuffix.state = true;
+                        }
+                    }
+                }
             }
             console.log(allMatchesArray);
 
@@ -2368,6 +2377,53 @@ function dictionaryPage() {
                         }
                         helperFunctions.standard.resultTables.nounTable(result.suffix, path.declension, path.gender, path.number, path.case, definition(), suffixWrapper, 'suffix', real_stem);
                     }
+                }
+                helperFunctions.standard.openPageById('page96');
+            }
+            else if (affixTypesMap.detSuffix.state) {
+                matchType = 2;
+                helperFunctions.standard.clearPageById('page96');
+                console.log('--det suffix--');
+
+
+                const stem = affixTypesMap.detSuffix.resultMap[0].stem;
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                const definition = stemMap.definition || '...';
+                const notes = stemMap.usage_notes || '...';
+
+
+                const html = `
+                    <div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="infoCollum">...</th>
+                                    <th>Word</th>
+                                    <th>Stem</th>
+                                    <th>Definition</th>
+                                    <th>Usage Notes</th>
+                                    <th>Wordclass</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>Info</th>
+                                    <td>${keyword}</td>
+                                    <td>${stem}</td>
+                                    <td>${definition}</td>
+                                    <td>${notes}</td>
+                                    <td>${'Determiner'}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="determinersTableWrapper"></div>
+                `;
+                helperFunctions.standard.createPageById('page96', html);
+                const determinersTableWrapper = document.getElementById('determinersTableWrapper');
+                for (const result of affixTypesMap.detSuffix.resultMap) {
+                    const path = result.path;
+                    helperFunctions.standard.resultTables.determinerTable(result.suffix, path.gender, determinersTableWrapper);
                 }
                 helperFunctions.standard.openPageById('page96');
             }//<-- this is where i got to:)
