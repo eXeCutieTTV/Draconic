@@ -1001,6 +1001,7 @@ function dictionaryPage() {
                 pSuffixANDpPrefix: { resultMap: { prefix: [], suffix: [] }, state: false, affixAmount: 2 },
                 pSuffixANDpPrefixANDnounSuffix: { resultMap: { pPrefix: [], pSuffix: [], suffix: [] }, state: false, affixAmount: 3 },
                 detppPrefix: { resultMap: [], state: false, affixAmount: 1 },
+                detppPrefixANDSuffix: { resultMap: { preposition: [], suffix: [] }, state: false, affixAmount: 2 },
             }
             //console.log(affixTypesMap);
             allMatchesArray.type2 = affixTypesMap;
@@ -1120,7 +1121,7 @@ function dictionaryPage() {
                             if (stemArr.length > 0) {
                                 for (const stem_result of stemArr) {
                                     const stem_resultMap = DICTIONARY.ALL_WORDS.MAP[stem_result];
-                                    console.log(stem_resultMap, stem_result, stemArr, entry);
+                                    //console.log(stem_resultMap, stem_result, stemArr, entry);
                                     if (stem_resultMap && stem_resultMap.type === 'n') {
                                         if (!checkerArr.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                             checkerArr.push(entry.short_path);
@@ -1130,7 +1131,7 @@ function dictionaryPage() {
                                         }
                                         affixTypesMap.ppPrefix.state = true;
                                     } else if (stem_resultMap && stem_resultMap.type === 'det') {
-                                        console.log('hello world');
+                                        //console.log('hello world');
                                         if (!checkerArr2.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                             checkerArr2.push(entry.short_path);
                                             console.log('pushed for el with short_path:', entry.short_path);
@@ -1142,17 +1143,15 @@ function dictionaryPage() {
                                 }
                             } else {
                                 nounSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.NOUNS.SUFFIXES.MATCHES, false) || [];
-                                console.log(nounSuffix, nounSuffix.arrayLength > 0);
+                                detSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.DETERMINERS.SUFFIXES.MATCHES, false) || [];
                                 let temp_stemArr2 = [];
                                 if (nounSuffix.arrayLength > 0) {
                                     for (const entries2 of Object.values(nounSuffix)) {
                                         for (const entry2 of Object.values(entries2)) {
-                                            console.log(entry2, typeof (entry2));
                                             if (typeof (entry2) === 'object') {
                                                 const stemArr2 = helperFunctions.matchtype2.findStemWhenShortstem(entry2.stem);
                                                 for (const stem_result2 of stemArr2) {
                                                     const stem_resultMap2 = DICTIONARY.ALL_WORDS.MAP[stem_result2];
-                                                    console.log(stem_resultMap2, stem_result2, stemArr2, entry);
                                                     if (stem_resultMap2 && stem_resultMap2.type === 'n'/* && stem_resultMap2.declension === entry.path.declension*/) {
                                                         entry.stem = entry2.stem;//fix affixStem for prefix.
                                                         if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
@@ -1170,6 +1169,36 @@ function dictionaryPage() {
                                     }
                                     if (temp_stemArr2.length > 0) {
                                         affixTypesMap.nounSuffixANDppPrefix.resultMap.preposition.push(entry);
+                                    }
+                                }
+                                if (detSuffix.arrayLength > 0) {
+                                    console.log('hello world');
+                                    console.log(detSuffix);
+                                    for (const entries2 of Object.values(detSuffix)) {
+                                        for (const entry2 of Object.values(entries2)) {
+                                            if (typeof (entry2) === 'object') {
+                                                const stemArr2 = helperFunctions.matchtype2.findStemWhenShortstem(entry2.stem);
+                                                console.log(entry2, stemArr2);
+                                                for (const stem_result2 of stemArr2) {
+                                                    const stem_resultMap2 = DICTIONARY.ALL_WORDS.MAP[stem_result2];
+                                                    console.log(stem_resultMap2);
+                                                    if (stem_resultMap2 && stem_resultMap2.type === 'det') {
+                                                        if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
+                                                            checkerArr.push(entry2.short_path);
+                                                            console.log('pushed for el with short_path:', entry2.short_path);
+                                                            affixTypesMap.detppPrefixANDSuffix.resultMap.suffix.push(entry2);
+                                                            entry.stem = entry2.stem; //<-- fix stem
+                                                        }
+                                                        temp_stemArr2 = stemArr2;
+                                                        entry2.stems_map = temp_stemArr2;
+                                                        affixTypesMap.detppPrefixANDSuffix.state = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (temp_stemArr2.length > 0) {
+                                        affixTypesMap.detppPrefixANDSuffix.resultMap.preposition.push(entry);
                                     }
                                 }
                             }
