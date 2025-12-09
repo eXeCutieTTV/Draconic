@@ -267,7 +267,7 @@ function dictionaryPage() {
             pPrefix: helperFunctions.matchtype2.neoAffixChecker(keyword, DICTIONARY.PARTICLES.MAP, true) || [],
             pSuffix: helperFunctions.matchtype2.neoAffixChecker(keyword, DICTIONARY.PARTICLES.MAP, false) || [],
             auxPrefix: helperFunctions.matchtype2.neoAffixChecker(keyword, DICTIONARY.VERBS.PREFIXES.MATCHES, true) || [],
-            detSuffix: [], //<---
+            detSuffix: helperFunctions.matchtype2.neoAffixChecker(keyword, DICTIONARY.DETERMINERS.SUFFIXES.MATCHES, false) || [],
         }
         console.log(type2AffixesMap);
 
@@ -977,7 +977,8 @@ function dictionaryPage() {
             type2AffixesMap.adjSuffix ||
             type2AffixesMap.pPrefix ||
             type2AffixesMap.pSuffix ||
-            type2AffixesMap.auxPrefix
+            type2AffixesMap.auxPrefix ||
+            type2AffixesMap.detSuffix
         ) {
             console.log('-----type2-----');
 
@@ -1361,6 +1362,9 @@ function dictionaryPage() {
                         }
                     }
                 }
+            }
+            if (affixTypesMap.detSuffix.rawMap.arrayLength) {
+                console.log('hello world');
             }
             console.log(allMatchesArray);
 

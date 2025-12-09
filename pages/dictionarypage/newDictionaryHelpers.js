@@ -639,6 +639,28 @@ const neoAffixChecker = function neoAffixChecker(word, map, isPrefix = false) {
                 }
             }
             break;
+        case 'det':
+            for (const entries of Object.values(arraySuffixes)) {
+                const suffix = entries.affix;
+                const paths = entries.paths;
+                console.log(entries, suffix);
+                const { slice1: stem, slice2: usedSuffix } = helperFunctions.standard.sliceKeywordNegative(word, suffix.length);
+                for (const path of paths) {
+                    const result = {
+                        stem: stem,
+                        path: {
+                            gender: path[0]
+                        },
+                        suffix: suffix,
+                        affixState: 'suffix',
+                        wordclass: 'det',
+                        short_path: helperFunctions.formatting.shorten_path('det', { gender: path[0] }),
+                    }
+                    tempArray[stem] ? null : tempArray[stem] = [];
+                    tempArray[stem].push(result);
+                }
+            }
+            break;
         default: console.warn(`${wordclass} is not a valid wordclass`);
     }
     let count = 0;
@@ -1236,6 +1258,16 @@ const shorten_path = function shorten_path(wordclass, {
                 }
             }
             result = `${declension}.${tempArray[0]}.${tempArray[2]}.${tempArray[1]}`;//declension.case.gender.number
+            break;
+        case 'det':
+            for (entry of Object.values(GENDERS.MAP)) {
+                if (entry.NAME === gender) {
+                    tempArray.push(entry.SHORT);
+                }
+            }
+            result = `${tempArray[0]}`;//gender
+            break;
+        default: console.warn(`shorten_path: ${wordclass} is not a valid wordclass`);
             break;
     }
 
