@@ -904,7 +904,7 @@ const neoVerbTables = function neoVerbTables(isPrefix, word, wrapper) {
         }
 
         return string;
-    } // show me
+    }
 
 
     function affixHandler(isPrefix, word, person, number, gender) {// ⟅(^‿^)⟆ - Shelf the elf
@@ -1143,6 +1143,52 @@ const neoAdverbTables = function neoAdverbTables(wrapper, word, definition, elat
 
     wrapper.appendChild(table);
 }
+const neoDeterminerTables = function neoDeterminerTables(wrapper) {
+    const map = DICTIONARY.DETERMINERS.SUFFIXES.MAP;
+    const html = `
+        <div style="margin-top:30px">
+            <table id="Determiner-Table">
+                <thead>
+                    <tr>
+                        <th class="infoCollum">Genders</th>
+                        <th>Forms</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Exalted</th>
+                        <td>${map.Exalted}</td>
+                    </tr>
+                    <tr>
+                        <th>Rational</th>
+                        <td>${map.Rational}</td>
+                    </tr>
+                    <tr>
+                        <th>Monstrous</th>
+                        <td>${map.Monstrous}</td>
+                    </tr>
+                    <tr>
+                        <th>Irrational</th>
+                        <td style="border-bottom: black solid 1px">${map.Irrational}</td>
+                    </tr>
+                    <tr>
+                        <th>Magical</th>
+                        <td>${map.Magical}</td>
+                    </tr>
+                    <tr>
+                        <th>Mundane</th>
+                        <td>${map.Mundane}</td>
+                    </tr>
+                    <tr>
+                        <th>Abstract</th>
+                        <td>${map.Abstract}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    `;
+    helperFunctions.standard.createDivById('', wrapper, html);
+}
 
 const matchtype1 = {
     type1extraTableRow,
@@ -1150,6 +1196,7 @@ const matchtype1 = {
     neoNounTables,
     neoAdjectiveTables,
     neoAdverbTables,
+    neoDeterminerTables,
     page97Base
 }
 
@@ -1162,8 +1209,6 @@ const populateSummaryTables = function populateSummaryTables(keyword, tables) {
         tds.forEach(td => {
             // prefer original stored raw suffix (data-raw) if present 
             const textInCell = (td.dataset.raw && td.dataset.raw.trim()) ? td.dataset.raw : td.textContent.trim();
-            //console.log(td.dataset.raw); // wtf is dataset.raw?
-            // console.log(td.innerHTML);
 
             // process raw
             let entries;
