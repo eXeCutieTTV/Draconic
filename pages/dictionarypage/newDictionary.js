@@ -197,7 +197,7 @@ function dictionaryPage() {
         const correlativeMatch = isCorrelative(keyword);
 
         // for type1.4
-        function IsLur(word) {
+        function isLur(word) {
             const matches = [];
             for (const [aspectKey, aspectMap] of Object.entries(LUR.MAP)) {
                 for (const [tenseKey, tenseMap] of Object.entries(aspectMap)) {
@@ -255,7 +255,7 @@ function dictionaryPage() {
             }
             return matches;
         }
-        const lurMatch = IsLur(keyword);
+        const lurMatch = isLur(keyword);
 
         // for type2
         const type2AffixesMap = {
@@ -1001,7 +1001,9 @@ function dictionaryPage() {
                 pSuffixANDpPrefix: { resultMap: { prefix: [], suffix: [] }, state: false, affixAmount: 2 },
                 pSuffixANDpPrefixANDnounSuffix: { resultMap: { pPrefix: [], pSuffix: [], suffix: [] }, state: false, affixAmount: 3 },
                 detppPrefix: { resultMap: [], state: false, affixAmount: 1 },
+                detppPrefix_irr: { resultMap: [], state: false, affixAmount: 1 },
                 detppPrefixANDSuffix: { resultMap: { preposition: [], suffix: [] }, state: false, affixAmount: 2 },
+                detppPrefixANDSuffix_irr: { resultMap: { preposition: [], suffix: [] }, state: false, affixAmount: 2 },
             }
             //console.log(affixTypesMap);
             allMatchesArray.type2 = affixTypesMap;
@@ -1116,8 +1118,19 @@ function dictionaryPage() {
                 const checkerArr2 = [];//<-- incase both det and noun with pp possible.
                 for (const entries of Object.values(affixTypesMap.ppPrefix.rawMap)) {
                     for (const entry of Object.values(entries)) {
+                        console.log(entries, entry);
                         if (typeof (entry) === 'object') {
                             const stemArr = helperFunctions.matchtype2.findStemWhenShortstem(entry.stem);
+                            const det_irr = isDeterminer(entry.stem);
+                            console.log(det_irr, det_irr.length);
+                            console.log(stemArr);
+                            if (det_irr && det_irr.length > 0) {
+                                for (const entry2 of Object.values(det_irr)) {
+                                    console.log(entry2);
+                                    affixTypesMap.detppPrefix_irr.state = true;
+                                    affixTypesMap.detppPrefix_irr.resultMap.push(entry2);
+                                }
+                            }
                             if (stemArr.length > 0) {
                                 for (const stem_result of stemArr) {
                                     const stem_resultMap = DICTIONARY.ALL_WORDS.MAP[stem_result];
