@@ -1117,15 +1117,11 @@ function dictionaryPage() {
                 const checkerArr2 = [];//<-- incase both det and noun with pp possible.
                 for (const entries of Object.values(affixTypesMap.ppPrefix.rawMap)) {
                     for (const entry of Object.values(entries)) {
-                        //console.log(entries, entry);
                         if (typeof (entry) === 'object') {
                             const stemArr = helperFunctions.matchtype2.findStemWhenShortstem(entry.stem);
                             const det_irr = isDeterminer(entry.stem);
-                            //console.log(det_irr, det_irr.length);
-                            //console.log(stemArr);
                             if (det_irr && det_irr.length > 0) {
                                 for (const entry2 of Object.values(det_irr)) {
-                                    //console.log(entry2);
                                     affixTypesMap.detppPrefix_irr.state = true;
                                     affixTypesMap.detppPrefix_irr.resultMap.push(entry2);
                                 }
@@ -1133,7 +1129,6 @@ function dictionaryPage() {
                             if (stemArr.length > 0) {
                                 for (const stem_result of stemArr) {
                                     const stem_resultMap = DICTIONARY.ALL_WORDS.MAP[stem_result];
-                                    //console.log(stem_resultMap, stem_result, stemArr, entry);
                                     if (stem_resultMap && stem_resultMap.type === 'n') {
                                         if (!checkerArr.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                             checkerArr.push(entry.short_path);
@@ -1143,7 +1138,6 @@ function dictionaryPage() {
                                         }
                                         affixTypesMap.ppPrefix.state = true;
                                     } else if (stem_resultMap && stem_resultMap.type === 'det') {
-                                        //console.log('hello world');
                                         if (!checkerArr2.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                             checkerArr2.push(entry.short_path);
                                             console.log('pushed for el with short_path:', entry.short_path);
