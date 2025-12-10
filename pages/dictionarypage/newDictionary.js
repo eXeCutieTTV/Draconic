@@ -1003,7 +1003,6 @@ function dictionaryPage() {
                 detppPrefix: { resultMap: [], state: false, affixAmount: 1 },
                 detppPrefix_irr: { resultMap: [], state: false, affixAmount: 1 },
                 detppPrefixANDSuffix: { resultMap: { preposition: [], suffix: [] }, state: false, affixAmount: 2 },
-                detppPrefixANDSuffix_irr: { resultMap: { preposition: [], suffix: [] }, state: false, affixAmount: 2 },
             }
             //console.log(affixTypesMap);
             allMatchesArray.type2 = affixTypesMap;
@@ -1118,15 +1117,15 @@ function dictionaryPage() {
                 const checkerArr2 = [];//<-- incase both det and noun with pp possible.
                 for (const entries of Object.values(affixTypesMap.ppPrefix.rawMap)) {
                     for (const entry of Object.values(entries)) {
-                        console.log(entries, entry);
+                        //console.log(entries, entry);
                         if (typeof (entry) === 'object') {
                             const stemArr = helperFunctions.matchtype2.findStemWhenShortstem(entry.stem);
                             const det_irr = isDeterminer(entry.stem);
-                            console.log(det_irr, det_irr.length);
-                            console.log(stemArr);
+                            //console.log(det_irr, det_irr.length);
+                            //console.log(stemArr);
                             if (det_irr && det_irr.length > 0) {
                                 for (const entry2 of Object.values(det_irr)) {
-                                    console.log(entry2);
+                                    //console.log(entry2);
                                     affixTypesMap.detppPrefix_irr.state = true;
                                     affixTypesMap.detppPrefix_irr.resultMap.push(entry2);
                                 }
