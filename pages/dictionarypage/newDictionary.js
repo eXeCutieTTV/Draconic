@@ -1860,7 +1860,7 @@ function dictionaryPage() {
                                         <th>Info</th>
                                         <td>${stem}</td>
                                         <td>${stemMap.declension}</td>
-                                        <td id="definition">${'placeholder'}</td>
+                                        <td>${helperFunctions.formatting.defsToSingleString(stemMap.genders)}</td>
                                         <td>${notes}</td>
                                         <td>${wordclass}</td>
                                     </tr>
@@ -1871,9 +1871,6 @@ function dictionaryPage() {
                         <div style="margin-top:50px" id="suffixTableWrapper"></div>
                     `;
                     helperFunctions.standard.createPageById('page96', html);
-
-                    const deftd = document.getElementById('definition');
-                    deftd.innerHTML = helperFunctions.formatting.defsToSingleString(stemMap.genders);
 
 
                     const particleTableWrapper = document.getElementById('particleTableWrapper');

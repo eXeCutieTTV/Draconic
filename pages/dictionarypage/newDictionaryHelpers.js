@@ -1736,9 +1736,9 @@ const displayForms = function displayForms(allMatchesArray) {
                                 break;
 
                             case 'pp':
-                                const stem = el.stem;
-                                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
-                                const notes = stemMap.usage_notes || '...';
+                                stem = el.stem;
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                notes = stemMap.usage_notes || '...';
                                 pageHtml = `
                                     <div>
                                         <div>
@@ -1781,6 +1781,54 @@ const displayForms = function displayForms(allMatchesArray) {
 
                                 helperFunctions.matchtype1.neoNounTables(stemMap.declension, 1, suffixesWrapper, stemMap.genders);
                                 helperFunctions.matchtype1.neoNounTables(stemMap.declension, 2, suffixesWrapper, stemMap.genders);
+                                helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
+                                break;
+                            case 'part':
+
+                                stem = el.stem;
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                notes = stemMap.usage_notes || '...';
+
+
+                                pageHtml = `
+                                    <div>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th class="infoCollum">...</th>
+                                                    <th>Stem</th>
+                                                    <th>Declension</th>
+                                                    <th>Definition</th>
+                                                    <th>Usage_Notes</th>
+                                                    <th>Wordclass</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th>Info</th>
+                                                    <td>${stem}</td>
+                                                    <td>${stemMap.declension}</td>
+                                                    <td>${helperFunctions.formatting.defsToSingleString(stemMap.genders)}</td>
+                                                    <td>${notes}</td>
+                                                    <td>${'Noun'}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="particleTableWrapper"></div>
+                                    <div style="margin-top:50px" id="suffixTableWrapper"></div>
+                                `;
+                                helperFunctions.standard.createPageById('page94', pageHtml);
+
+
+                                const particleTableWrapper = document.getElementById('particleTableWrapper');
+                                const particleMap = DICTIONARY.ALL_WORDS.MAP[el.prefix];
+                                helperFunctions.standard.resultTables.particleTable(el.prefix, particleMap.definition, particleMap.usage_notes, particleTableWrapper);
+
+
+                                const suffixTableWrapper = document.getElementById('suffixTableWrapper');
+                                helperFunctions.matchtype1.neoNounTables(stemMap.declension, 1, suffixTableWrapper, stemMap.genders);
+                                helperFunctions.matchtype1.neoNounTables(stemMap.declension, 2, suffixTableWrapper, stemMap.genders);
                                 helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
                                 break;
                             default: console.warn(`${td.dataset.wordclass} is an invalid wordclass`);
