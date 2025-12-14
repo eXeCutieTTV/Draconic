@@ -1365,7 +1365,8 @@ function dictionaryPage() {
                 const checkerArr = [];
                 for (const entries of Object.values(affixTypesMap.adjSuffix.rawMap)) {
                     for (const entry of Object.values(entries)) {
-                        if (DICTIONARY.ALL_WORDS.MAP[entry.stem]) {
+                        stemMap = DICTIONARY.ALL_WORDS.MAP[entry.stem]
+                        if (stemMap && stemMap.type === 'adj') {
                             affixTypesMap.adjSuffix.resultMap.push(entry);
                             affixTypesMap.adjSuffix.state = true;
                         } else {

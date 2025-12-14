@@ -1365,7 +1365,11 @@ const displayForms = function displayForms(allMatchesArray) {
 
     const tempArray = {
         type1: [],
-        type2: []
+        type2: {
+            one: [],
+            two: [],
+            three: []
+        }
     };
     for (const [key, map] of Object.entries(allMatchesArray.type1)) {
         //console.log(key, map);
@@ -1400,7 +1404,7 @@ const displayForms = function displayForms(allMatchesArray) {
             if (map.affixAmount === 1) {
                 for (const affix of Object.values(map.resultMap)) {
                     console.log(affix);
-                    tempArray.type2.push(affix);
+                    tempArray.type2.one.push(affix);
                 }
 
             } else if (map.affixAmount === 2) {
@@ -1621,91 +1625,137 @@ const displayForms = function displayForms(allMatchesArray) {
                 } else return;
             });
         }
-        for (const el of tempArray.type2) {
-            console.log(el, el.affixState);
-            const htmlEach = `
-                <td 
-                    style="cursor:pointer"; 
-                    data-wordclass="${el.wordclass}"; 
-                    data-path="${el.short_path || '...'}"; 
-                    data-pausestate="false";
-                >${el.wordclass}.${el.short_path || '..'}</td>
-            `;
-            helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
+        for (const [state, entry] of Object.entries(tempArray.type2)) {
+            if (state === 'one') {
+                for (const el of entry) {
+                    const htmlEach = `
+                        <td 
+                            style="cursor:pointer"; 
+                            data-wordclass="${el.wordclass}"; 
+                            data-path="${el.short_path || '...'}"; 
+                            data-pausestate="false";
+                        >${el.wordclass}.${el.short_path || '..'}</td>
+                    `;
+                    helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
 
-            const td = document.querySelector('#listTbody tr:last-child td:last-child');
+                    const td = document.querySelector('#listTbody tr:last-child td:last-child');
 
-            function search() {
-                console.log(el);
-                let pageHtml = '';
-                const keyword = allMatchesArray.keyword;
-                switch (td.dataset.wordclass) {
-                    case 'v':
-                        const stem = el.stem;
-                        const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
-                        const definition = stemMap.definition || '...';
-                        const notes = stemMap.usage_notes || '...';
-
-
-
-                        pageHtml = `
-                            <div>
-                                <div>
-                                    <table>
-                                        <tr>
-                                            <th class="infoCollum">...</th>
-                                            <th>Word</th>
-                                            <th>Stem</th>
-                                            <th>Wordclass</th>
-                                            <th>Definition</th>
-                                            <th>Usage Notes</th>
-                                        </tr>
-                                        <tr>
-                                            <th>Info</th>
-                                            <td>${keyword}</td>
-                                            <td id="stem">${stem}</td>
-                                            <td>${'Verb'}</td>
-                                            <td>${definition}</td>
-                                            <td>${notes}</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <div id="verbTableWrapper" style="margin-top:10px"></div>
-                                <div id="suffixtable" style="margin-top:50px"></div>
-                            </div>
-                        `;
-                        helperFunctions.standard.createPageById('page94', pageHtml);
-                        const verbTableWrapper = document.getElementById('verbTableWrapper');
-                        helperFunctions.standard.resultTables.verbTable(el.prefix || el.suffix, el.path.gender, el.path.number, el.path.person, verbTableWrapper, el.affixState);
+                    function search() {
+                        let pageHtml = '';
+                        const keyword = allMatchesArray.keyword;
+                        switch (td.dataset.wordclass) {
+                            case 'v':
+                                stem = el.stem;
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                definition = stemMap.definition || '...';
+                                notes = stemMap.usage_notes || '...';
 
 
-                        const suffixtable = document.getElementById('suffixtable');
-                        el.affixState === 'prefix'
-                            ? helperFunctions.matchtype1.neoVerbTables(false, keyword, suffixtable)
-                            : helperFunctions.matchtype1.neoVerbTables(true, keyword, suffixtable);
+                                pageHtml = `
+                                    <div>
+                                        <div>
+                                            <table>
+                                                <tr>
+                                                    <th class="infoCollum">...</th>
+                                                    <th>Word</th>
+                                                    <th>Stem</th>
+                                                    <th>Wordclass</th>
+                                                    <th>Definition</th>
+                                                    <th>Usage Notes</th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Info</th>
+                                                    <td>${keyword}</td>
+                                                    <td>${stem}</td>
+                                                    <td>${'Verb'}</td>
+                                                    <td>${definition}</td>
+                                                    <td>${notes}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div id="verbTableWrapper" style="margin-top:10px"></div>
+                                        <div id="suffixtable" style="margin-top:50px"></div>
+                                    </div>
+                                `;
+                                helperFunctions.standard.createPageById('page94', pageHtml);
+                                const verbTableWrapper = document.getElementById('verbTableWrapper');
+                                helperFunctions.standard.resultTables.verbTable(el.prefix || el.suffix, el.path.gender, el.path.number, el.path.person, verbTableWrapper, el.affixState);
 
-                        helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
 
-                        break;
+                                const suffixtable = document.getElementById('suffixtable');
+                                el.affixState === 'prefix'
+                                    ? helperFunctions.matchtype1.neoVerbTables(false, keyword, suffixtable)
+                                    : helperFunctions.matchtype1.neoVerbTables(true, keyword, suffixtable);
+
+                                helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
+                                break;
+                            case 'n':
+                                stem = el.stem;
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                notes = stemMap.usage_notes || '...';
+                                pageHtml = `
+                                    <div>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th class="infoCollum">...</th>
+                                                    <th>Word</th>
+                                                    <th>Stem</th>
+                                                    <th>Declension</th>
+                                                    <th>Usage_Notes</th>
+                                                    <th>Wordclass</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="headerTbody">
+                                                <tr>
+                                                    <th>Info</th>
+                                                    <td>${keyword}</td>
+                                                    <td>${stem}</td>
+                                                    <td>${stemMap.declension}</td>
+                                                    <td>${notes}</td>
+                                                    <td>${'Noun'}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="nounTable"></div>
+                                `;
+                                helperFunctions.standard.createPageById('page94', pageHtml);
+                                const nounTable = document.getElementById('nounTable');
+                                for (const result of el.stems_map) {
+                                    function definition() {
+                                        const entry = DICTIONARY.ALL_WORDS.MAP[result];
+                                        for (const [gender, def] of Object.entries(entry.genders)) {
+                                            if (gender === el.path.gender) {
+                                                return def;
+                                            }
+                                        }
+                                    }
+                                    helperFunctions.standard.resultTables.nounTable(el.suffix, el.path.declension, el.path.gender, el.path.number, el.path.case, definition(), nounTable, 'suffix', result);
+                                }
+                                break;
+                            default: console.warn(`${td.dataset.wordclass} is an invalid wordclass`);
+                                break;
+                        }
+                        helperFunctions.standard.openPageById('page94');
+                    }
+
+                    td.addEventListener('click', () => {
+                        if (td.dataset.pausestate === "false") {
+                            helperFunctions.standard.clearPageById('page97'); //type 1
+                            helperFunctions.standard.clearPageById('page95'); //type 1.1
+                            helperFunctions.standard.clearPageById('page96'); //type 2
+                            helperFunctions.standard.clearPageById('page94'); //type 
+                            search();
+
+                            //moves the 'were you lf' table to result page.vv
+                            let newDiv = document.getElementById('listDiv');
+                            //console.log(div, newDiv);
+                            newDiv.appendChild(div);
+                        } else return;
+                    });
                 }
-                helperFunctions.standard.openPageById('page94');
             }
-
-            td.addEventListener('click', () => {
-                if (td.dataset.pausestate === "false") {
-                    helperFunctions.standard.clearPageById('page97'); //type 1
-                    helperFunctions.standard.clearPageById('page95'); //type 1.1
-                    helperFunctions.standard.clearPageById('page96'); //type 2
-                    helperFunctions.standard.clearPageById('page94'); //type 
-                    search();
-
-                    //moves the 'were you lf' table to result page.vv
-                    let newDiv = document.getElementById('listDiv');
-                    //console.log(div, newDiv);
-                    newDiv.appendChild(div);
-                } else return;
-            });
-
         }
     }
     fixTable();
