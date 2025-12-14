@@ -1689,10 +1689,9 @@ function dictionaryPage() {
                 matchType = 2;
                 helperFunctions.standard.clearPageById('page96');
 
-
-                const stemMap = DICTIONARY.ALL_WORDS.MAP[affixTypesMap.ppPrefix.resultMap[0].stem] || [];
-                const notes = stemMap.usage_notes || '...';
                 const stem = affixTypesMap.ppPrefix.resultMap[0].stem;
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                const notes = stemMap.usage_notes || '...';
 
                 let wordclass = '';
                 for (const key of Object.values(WORDCLASSES)) {
@@ -1701,33 +1700,35 @@ function dictionaryPage() {
 
                 const html = `
                     <div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th class="infoCollum">...</th>
-                                    <th>Word</th>
-                                    <th>Stem</th>
-                                    <th>Declension</th>
-                                    <th>Wordclass</th>
-                                    <th>Definition</th>
-                                    <th>Usage Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <th>Info</th>
-                                    <td>${keyword}</td>
-                                    <td id="stem">${stem}</td>
-                                    <td>${DICTIONARY.ALL_WORDS.MAP[stem].declension}</td>
-                                    <td>${wordclass}</td>
-                                    <td>${helperFunctions.formatting.defsToSingleString(stemMap.genders)}</td>
-                                    <td>${notes}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="infoCollum">...</th>
+                                        <th>Word</th>
+                                        <th>Stem</th>
+                                        <th>Declension</th>
+                                        <th>Wordclass</th>
+                                        <th>Definition</th>
+                                        <th>Usage Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th>Info</th>
+                                        <td>${keyword}</td>
+                                        <td id="stem">${stem}</td>
+                                        <td>${DICTIONARY.ALL_WORDS.MAP[stem].declension}</td>
+                                        <td>${wordclass}</td>
+                                        <td>${helperFunctions.formatting.defsToSingleString(stemMap.genders)}</td>
+                                        <td>${notes}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="prepositionTableWrapper" style="margin-bottom:25px"></div>
+                        <div id="prepositionTableSuffixes"></div>
                     </div>
-                    <div id="prepositionTableWrapper" style="margin-bottom:25px"></div>
-                    <div id="prepositionTableSuffixes"></div>
                 `;
                 helperFunctions.standard.createPageById('page96', html);
 
