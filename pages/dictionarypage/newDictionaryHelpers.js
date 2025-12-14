@@ -1736,8 +1736,57 @@ const displayForms = function displayForms(allMatchesArray) {
                                 stem = el.stem;
                                 stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
                                 notes = stemMap.usage_notes || '...';
-                                pageHtml = `
-                                    <div>
+                                if (stemMap.type === 'n') {
+                                    pageHtml = `
+                                        <div>
+                                            <div>
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="infoCollum">...</th>
+                                                            <th>Word</th>
+                                                            <th>Stem</th>
+                                                            <th>Declension</th>
+                                                            <th>Wordclass</th>
+                                                            <th>Definition</th>
+                                                            <th>Usage Notes</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <th>Info</th>
+                                                            <td>${keyword}</td>
+                                                            <td>${stem}</td>
+                                                            <td>${stemMap.declension}</td>
+                                                            <td>${'Noun'}</td>
+                                                            <td>${helperFunctions.formatting.defsToSingleString(stemMap.genders)}</td>
+                                                            <td>${notes}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div id="prepositionTableWrapper" style="margin-bottom:25px"></div>
+                                            <div id="prepositionTableSuffixes"></div>
+                                        </div>
+                                    `;
+                                    helperFunctions.standard.createPageById('page94', pageHtml);
+                                    const prepositionTableWrapper = document.getElementById('prepositionTableWrapper');
+
+                                    const ppResultMap = DICTIONARY.ALL_WORDS.MAP[el.prefix];
+                                    helperFunctions.standard.resultTables.prepositionTable(el.prefix, ppResultMap.definition, ppResultMap.usage_notes || '...', prepositionTableWrapper);
+
+                                    const suffixesWrapper = document.getElementById('prepositionTableSuffixes');
+
+                                    helperFunctions.matchtype1.neoNounTables(stemMap.declension, 1, suffixesWrapper, stemMap.genders);
+                                    helperFunctions.matchtype1.neoNounTables(stemMap.declension, 2, suffixesWrapper, stemMap.genders);
+                                    helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
+                                } else if (stemMap.type === 'det') {
+                                    stem = el.stem;
+                                    stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                    definition = stemMap.definition || '...';
+                                    notes = stemMap.usage_notes || '...';
+
+                                    pageHtml = `
                                         <div>
                                             <table>
                                                 <thead>
@@ -1745,10 +1794,9 @@ const displayForms = function displayForms(allMatchesArray) {
                                                         <th class="infoCollum">...</th>
                                                         <th>Word</th>
                                                         <th>Stem</th>
-                                                        <th>Declension</th>
-                                                        <th>Wordclass</th>
                                                         <th>Definition</th>
                                                         <th>Usage Notes</th>
+                                                        <th>Wordclass</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -1756,29 +1804,25 @@ const displayForms = function displayForms(allMatchesArray) {
                                                         <th>Info</th>
                                                         <td>${keyword}</td>
                                                         <td>${stem}</td>
-                                                        <td>${stemMap.declension}</td>
-                                                        <td>${'Noun'}</td>
-                                                        <td>${helperFunctions.formatting.defsToSingleString(stemMap.genders)}</td>
+                                                        <td>${definition}</td>
                                                         <td>${notes}</td>
+                                                        <td>${'Determiner'}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div id="prepositionTableWrapper" style="margin-bottom:25px"></div>
-                                        <div id="prepositionTableSuffixes"></div>
-                                    </div>
-                                `;
-                                helperFunctions.standard.createPageById('page94', pageHtml);
-                                const prepositionTableWrapper = document.getElementById('prepositionTableWrapper');
+                                        <div id="determinersTableWrapper"></div>
+                                        <div id="determinersSuffixTableWrapper"></div>
+                                    `;
+                                    helperFunctions.standard.createPageById('page94', pageHtml);
+                                    const determinersTableWrapper = document.getElementById('determinersTableWrapper');
+                                    const prepositionMap = DICTIONARY.ALL_WORDS.MAP[el.prefix];
+                                    helperFunctions.standard.resultTables.prepositionTable(el.prefix, prepositionMap.definition, prepositionMap.usage_notes || '...', determinersTableWrapper);
 
-                                const ppResultMap = DICTIONARY.ALL_WORDS.MAP[el.prefix];
-                                helperFunctions.standard.resultTables.prepositionTable(el.prefix, ppResultMap.definition, ppResultMap.usage_notes || '...', prepositionTableWrapper);
-
-                                const suffixesWrapper = document.getElementById('prepositionTableSuffixes');
-
-                                helperFunctions.matchtype1.neoNounTables(stemMap.declension, 1, suffixesWrapper, stemMap.genders);
-                                helperFunctions.matchtype1.neoNounTables(stemMap.declension, 2, suffixesWrapper, stemMap.genders);
-                                helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
+                                    const determinersSuffixTableWrapper = document.getElementById('determinersSuffixTableWrapper');
+                                    helperFunctions.matchtype1.neoDeterminerTables(determinersSuffixTableWrapper);
+                                    helperFunctions.tablegen.populateSummaryTables(stem, { 'Determiner-Table': false });
+                                }
                                 break;
                             case 'part':
 

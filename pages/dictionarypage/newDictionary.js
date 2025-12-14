@@ -2514,6 +2514,51 @@ function dictionaryPage() {
 
                 helperFunctions.standard.openPageById('page96');
             }
+            else if (affixTypesMap.detppPrefix_irr) {
+                const stem = affixTypesMap.detppPrefix_irr.resultMap[0].word;
+                const definition = affixTypesMap.detppPrefix_irr.resultMap[0].type || '...';
+                const notes = '...';
+
+                const html = `
+                    <div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="infoCollum">...</th>
+                                    <th>Word</th>
+                                    <th>Stem</th>
+                                    <th>Definition</th>
+                                    <th>Usage Notes</th>
+                                    <th>Wordclass</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>Info</th>
+                                    <td>${keyword}</td>
+                                    <td>${stem}</td>
+                                    <td>${definition}</td>
+                                    <td>${notes}</td>
+                                    <td>${'Determiner'}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="determinersTableWrapper"></div>
+                    <div id="determinersSuffixTableWrapper"></div>
+                `;
+                helperFunctions.standard.createPageById('page96', html);
+                const determinersTableWrapper = document.getElementById('determinersTableWrapper');
+                for (const result of affixTypesMap.detppPrefix.resultMap) {
+                    const prepositionMap = DICTIONARY.ALL_WORDS.MAP[result.prefix];
+                    helperFunctions.standard.resultTables.prepositionTable(result.prefix, prepositionMap.definition, prepositionMap.usage_notes || '...', determinersTableWrapper);
+                }
+                const determinersSuffixTableWrapper = document.getElementById('determinersSuffixTableWrapper');
+                helperFunctions.matchtype1.neoDeterminerTables(determinersSuffixTableWrapper);
+                helperFunctions.tablegen.populateSummaryTables(stem, { 'Determiner-Table': false });
+
+                helperFunctions.standard.openPageById('page96');
+            }
             else if (affixTypesMap.detppPrefixANDSuffix.state) {
                 matchType = 2;
                 helperFunctions.standard.clearPageById('page96');
