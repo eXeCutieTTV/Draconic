@@ -95,11 +95,12 @@ function dictionaryPage() {
         const pronounMatch = isPronoun(keyword);
 
         // for type1.2
-        function isDeterminer(word) {
+        function isDeterminer(word, push = true) {
             const matches = [];
             for (const [genderKey, genderMap] of Object.entries(DICTIONARY.DETERMINERS.IRREGULARS.MAP)) {
                 for (const [typeKey, typeMap] of Object.entries(genderMap)) {
                     for (const [numberKey, numberValue] of Object.entries(typeMap)) {
+
                         if (numberValue === word) {
                             matchType = 1.2;
                             function shortpath() {
@@ -136,7 +137,9 @@ function dictionaryPage() {
                                 short_path: shortpath() || '',
                             }
                             matches.push(result);
-                            allMatchesArray.type1.det.push(result);
+                            push === true
+                                ? allMatchesArray.type1.det.push(result)
+                                : null;
                         }
                     }
                 }
@@ -1119,10 +1122,13 @@ function dictionaryPage() {
                     for (const entry of Object.values(entries)) {
                         if (typeof (entry) === 'object') {
                             const stemArr = helperFunctions.matchtype2.findStemWhenShortstem(entry.stem);
-                            const det_irr = isDeterminer(entry.stem);
+                            const det_irr = isDeterminer(entry.stem, false);
                             if (det_irr && det_irr.length > 0) {
                                 for (const entry2 of Object.values(det_irr)) {
                                     affixTypesMap.detppPrefix_irr.state = true;
+                                    entry2.isRegular = false;
+                                    entry2.pp = entry;
+                                    entry2.wordclass = 'det';
                                     affixTypesMap.detppPrefix_irr.resultMap.push(entry2);
                                 }
                             }
@@ -1142,6 +1148,7 @@ function dictionaryPage() {
                                             checkerArr2.push(entry.short_path);
                                             console.log('pushed for el with short_path:', entry.short_path);
                                             entry.stems_map = stemArr;
+                                            entry.isRegular = true;
                                             affixTypesMap.detppPrefix.resultMap.push(entry);
                                         }
                                         affixTypesMap.detppPrefix.state = true;
@@ -2515,9 +2522,12 @@ function dictionaryPage() {
                 helperFunctions.standard.openPageById('page96');
             }
             else if (affixTypesMap.detppPrefix_irr) {
+                matchType = 2;
+                console.log('irr det');
+
                 const stem = affixTypesMap.detppPrefix_irr.resultMap[0].word;
                 const definition = affixTypesMap.detppPrefix_irr.resultMap[0].type || '...';
-                const notes = '...';
+                const notes = 'Is irregular';
 
                 const html = `
                     <div>
@@ -2527,6 +2537,8 @@ function dictionaryPage() {
                                     <th class="infoCollum">...</th>
                                     <th>Word</th>
                                     <th>Stem</th>
+                                    <th>Gender</th>
+                                    <th>Number</th>
                                     <th>Definition</th>
                                     <th>Usage Notes</th>
                                     <th>Wordclass</th>
@@ -2537,6 +2549,8 @@ function dictionaryPage() {
                                     <th>Info</th>
                                     <td>${keyword}</td>
                                     <td>${stem}</td>
+                                    <td>${affixTypesMap.detppPrefix_irr.resultMap[0].path.gender}</td>
+                                    <td>${affixTypesMap.detppPrefix_irr.resultMap[0].path.number}</td>
                                     <td>${definition}</td>
                                     <td>${notes}</td>
                                     <td>${'Determiner'}</td>
@@ -2549,9 +2563,9 @@ function dictionaryPage() {
                 `;
                 helperFunctions.standard.createPageById('page96', html);
                 const determinersTableWrapper = document.getElementById('determinersTableWrapper');
-                for (const result of affixTypesMap.detppPrefix.resultMap) {
-                    const prepositionMap = DICTIONARY.ALL_WORDS.MAP[result.prefix];
-                    helperFunctions.standard.resultTables.prepositionTable(result.prefix, prepositionMap.definition, prepositionMap.usage_notes || '...', determinersTableWrapper);
+                for (const result of affixTypesMap.detppPrefix_irr.resultMap) {
+                    const prepositionMap = DICTIONARY.ALL_WORDS.MAP[result.pp.prefix];
+                    helperFunctions.standard.resultTables.prepositionTable(result.pp.prefix, prepositionMap.definition, prepositionMap.usage_notes || '...', determinersTableWrapper);
                 }
                 const determinersSuffixTableWrapper = document.getElementById('determinersSuffixTableWrapper');
                 helperFunctions.matchtype1.neoDeterminerTables(determinersSuffixTableWrapper);

@@ -1628,6 +1628,7 @@ const displayForms = function displayForms(allMatchesArray) {
         for (const [state, entry] of Object.entries(tempArray.type2)) {
             if (state === 'one') {
                 for (const el of entry) {
+                    console.log(el);
                     const htmlEach = `
                         <td 
                             style="cursor:pointer"; 
@@ -1781,6 +1782,8 @@ const displayForms = function displayForms(allMatchesArray) {
                                     helperFunctions.matchtype1.neoNounTables(stemMap.declension, 2, suffixesWrapper, stemMap.genders);
                                     helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
                                 } else if (stemMap.type === 'det') {
+                                    console.log(el.isRegular);
+
                                     stem = el.stem;
                                     stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
                                     definition = stemMap.definition || '...';
@@ -1951,43 +1954,90 @@ const displayForms = function displayForms(allMatchesArray) {
 
                                 break;
                             case 'det':
+                                if (el.isRegular === false) {
+                                    stem = el.word;
+                                    definition = el.type;
+                                    notes = 'Is irregular';
+                                    pageHtml = `
+                                        <div>
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th class="infoCollum">...</th>
+                                                        <th>Word</th>
+                                                        <th>Stem</th>
+                                                        <th>Gender</th>
+                                                        <th>Number</th>
+                                                        <th>Definition</th>
+                                                        <th>Usage Notes</th>
+                                                        <th>Wordclass</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th>Info</th>
+                                                        <td>${keyword}</td>
+                                                        <td>${stem}</td>
+                                                        <td>${el.path.gender}</td>
+                                                        <td>${el.path.number}</td>
+                                                        <td>${definition}</td>
+                                                        <td>${notes}</td>
+                                                        <td>${'Determiner'}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div id="determinersTableWrapper"></div>
+                                        <div id="determinersSuffixTableWrapper"></div>
+                                    `;
+                                    helperFunctions.standard.createPageById('page94', pageHtml);
 
-                                stem = el.stem;
-                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
-                                definition = stemMap.definition || '...';
-                                notes = stemMap.usage_notes || '...';
+                                    const determinersTableWrapper = document.getElementById('determinersTableWrapper');
+                                    const prepositionMap = DICTIONARY.ALL_WORDS.MAP[el.pp.prefix];
+                                    helperFunctions.standard.resultTables.prepositionTable(el.pp.prefix, prepositionMap.definition, prepositionMap.usage_notes || '...', determinersTableWrapper);
 
-                                pageHtml = `
-                                    <div>
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th class="infoCollum">...</th>
-                                                    <th>Word</th>
-                                                    <th>Stem</th>
-                                                    <th>Definition</th>
-                                                    <th>Usage Notes</th>
-                                                    <th>Wordclass</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <th>Info</th>
-                                                    <td>${keyword}</td>
-                                                    <td>${stem}</td>
-                                                    <td>${definition}</td>
-                                                    <td>${notes}</td>
-                                                    <td>${'Determiner'}</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div id="determinersTableWrapper"></div>
-                                `;
-                                helperFunctions.standard.createPageById('page94', pageHtml);
+                                    const determinersSuffixTableWrapper = document.getElementById('determinersSuffixTableWrapper');
+                                    helperFunctions.matchtype1.neoDeterminerTables(determinersSuffixTableWrapper);
+                                    helperFunctions.tablegen.populateSummaryTables(stem, { 'Determiner-Table': false });
+                                } else {
 
-                                const determinersTableWrapper = document.getElementById('determinersTableWrapper');
-                                helperFunctions.standard.resultTables.determinerTable(el.suffix, el.path.gender, determinersTableWrapper);
+                                    stem = el.stem;
+                                    stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                    definition = stemMap.definition || '...';
+                                    notes = stemMap.usage_notes || '...';
+
+                                    pageHtml = `
+                                        <div>
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th class="infoCollum">...</th>
+                                                        <th>Word</th>
+                                                        <th>Stem</th>
+                                                        <th>Definition</th>
+                                                        <th>Usage Notes</th>
+                                                        <th>Wordclass</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th>Info</th>
+                                                        <td>${keyword}</td>
+                                                        <td>${stem}</td>
+                                                        <td>${definition}</td>
+                                                        <td>${notes}</td>
+                                                        <td>${'Determiner'}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div id="determinersTableWrapper"></div>
+                                    `;
+                                    helperFunctions.standard.createPageById('page94', pageHtml);
+
+                                    const determinersTableWrapper = document.getElementById('determinersTableWrapper');
+                                    helperFunctions.standard.resultTables.determinerTable(el.suffix, el.path.gender, determinersTableWrapper);
+                                }
                                 break;
                             default: console.warn(`${td.dataset.wordclass} is an invalid wordclass`);
                                 break;
