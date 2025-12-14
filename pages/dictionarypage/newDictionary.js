@@ -1351,10 +1351,12 @@ function dictionaryPage() {
                     }
                 }
             }
-            if (affixTypesMap.pSuffix.rawMap.arrayLength) {//<-- surely wont work. need to have nounSuffixANDpSuffix logic inside nounsuffix logic. actually, double check the order of suffix/part as human mentioned it...
+            if (affixTypesMap.pSuffix.rawMap.arrayLength) {
                 for (const entries of Object.values(affixTypesMap.pSuffix.rawMap)) {
                     for (const entry of Object.values(entries)) {
-                        if (DICTIONARY.ALL_WORDS.MAP[entry.stem] && DICTIONARY.ALL_WORDS.MAP[entry.stem].type === 'part') {
+                        const stemMap = DICTIONARY.ALL_WORDS.MAP[entry.stem];
+                        console.log(entry, stemMap);
+                        if (stemMap && stemMap.type === 'n') {
                             affixTypesMap.pSuffix.resultMap.push(entry);
                             affixTypesMap.pSuffix.state = true;
                         }
@@ -1894,15 +1896,16 @@ function dictionaryPage() {
                 helperFunctions.standard.clearPageById('page96');
 
                 const suffix = affixTypesMap.pSuffix.resultMap[0].suffix;
-                if (suffix != 'ān' || suffix != 'ōn' || suffix != 'ūn' || suffix != 'ûl' || suffix != 'nyl') { //<--
-                    const msg = `${suffix} is not available as a noun prefix`;
+                const checkArr = ['ān', 'ōn', 'ūn', 'ûl', 'nyl'];
+                if (!checkArr.includes(suffix)) { //<--
+                    const msg = `${suffix} is not available as a noun suffix`;
                     console.warn(msg);
                     alert(msg);
                     return;
                 }
                 let wordclass = '';
                 for (const key of Object.values(WORDCLASSES)) {
-                    if (key.SHORT === 'n' || key.SHORT === 'adj') { wordclass = key.NAME }
+                    if (key.SHORT === 'n') { wordclass = key.NAME }
                 };
                 const stem = affixTypesMap.pSuffix.resultMap[0].stem;
                 const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];

@@ -1822,8 +1822,8 @@ const displayForms = function displayForms(allMatchesArray) {
 
 
                                 const particleTableWrapper = document.getElementById('particleTableWrapper');
-                                const particleMap = DICTIONARY.ALL_WORDS.MAP[el.prefix];
-                                helperFunctions.standard.resultTables.particleTable(el.prefix, particleMap.definition, particleMap.usage_notes, particleTableWrapper);
+                                const particleMap = DICTIONARY.ALL_WORDS.MAP[el.suffix];
+                                helperFunctions.standard.resultTables.particleTable(el.suffix, particleMap.definition, particleMap.usage_notes, particleTableWrapper);
 
 
                                 const suffixTableWrapper = document.getElementById('suffixTableWrapper');
