@@ -1408,28 +1408,17 @@ const displayForms = function displayForms(allMatchesArray) {
                 }
 
             } else if (map.affixAmount === 2) {
-                for (const [prefix, suffix] of Object.entries(map.resultMap)) {
-                    console.log(prefix, suffix);
-                    for (const result of Object.values(prefix)) {
-                        if (typeof (result) === 'object') {
-                            tempArray.type2.push(result);
-                        }
-                    }
-                    for (const result of Object.values(suffix)) {
-                        if (typeof (result) === 'object') {
-                            tempArray.type2.push(result);
-                        }
+                const prefixes = Object.values(map.resultMap)[0];
+                const suffixes = Object.values(map.resultMap)[1];
+
+                for (const p of prefixes) {
+                    for (const s of suffixes) {
+                        tempArray.type2.two.push({ prefix: p, suffix: s });
                     }
                 }
+
             }
-        }/*
-        return;
-        if (map.state) {
-            for (el of map.resultMap) {
-                el['key'] = key;
-                tempArray.type2.push(el);
-            }
-        }*/
+        }
     }
     console.log(tempArray);
 
@@ -2042,6 +2031,47 @@ const displayForms = function displayForms(allMatchesArray) {
                             default: console.warn(`${td.dataset.wordclass} is an invalid wordclass`);
                                 break;
                         }
+                        helperFunctions.standard.openPageById('page94');
+                    }
+
+                    td.addEventListener('click', () => {
+                        if (td.dataset.pausestate === "false") {
+                            helperFunctions.standard.clearPageById('page97'); //type 1
+                            helperFunctions.standard.clearPageById('page95'); //type 1.1
+                            helperFunctions.standard.clearPageById('page96'); //type 2
+                            helperFunctions.standard.clearPageById('page94'); //type 
+                            search();
+
+                            //moves the 'were you lf' table to result page.vv
+                            let newDiv = document.getElementById('listDiv');
+                            //console.log(div, newDiv);
+                            newDiv.appendChild(div);
+                        } else return;
+                    });
+                }
+            } else if (state === 'two') {
+                for (const el of entry) {
+                    console.log(el);
+                    const prefix = el.prefix;
+                    const suffix = el.suffix;
+
+                    const htmlEach = `
+                        <td 
+                            style="cursor:pointer"; 
+                            data-wordclass="${prefix.wordclass}"; 
+                            data-prefix_path="${prefix.short_path || '...'}"; 
+                            data-suffix_path="${suffix.short_path || '...'}"; 
+                            data-pausestate="false";
+                        >${prefix.wordclass}.${prefix.short_path || '..'}<br>${suffix.wordclass}.${suffix.short_path}</td>
+                    `;
+                    helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
+
+                    const td = document.querySelector('#listTbody tr:last-child td:last-child');
+
+                    function search() {
+                        let pageHtml = '';
+                        const keyword = allMatchesArray.keyword;
+
                         helperFunctions.standard.openPageById('page94');
                     }
 
