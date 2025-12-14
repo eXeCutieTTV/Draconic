@@ -1734,7 +1734,6 @@ const displayForms = function displayForms(allMatchesArray) {
                                     helperFunctions.standard.resultTables.nounTable(el.suffix, el.path.declension, el.path.gender, el.path.number, el.path.case, definition(), nounTable, 'suffix', result);
                                 }
                                 break;
-
                             case 'pp':
                                 stem = el.stem;
                                 stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
@@ -1830,6 +1829,46 @@ const displayForms = function displayForms(allMatchesArray) {
                                 helperFunctions.matchtype1.neoNounTables(stemMap.declension, 1, suffixTableWrapper, stemMap.genders);
                                 helperFunctions.matchtype1.neoNounTables(stemMap.declension, 2, suffixTableWrapper, stemMap.genders);
                                 helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
+                                break;
+                            case 'adj':
+
+                                stem = el.stem;
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                definition = stemMap.definition || '...';
+                                notes = stemMap.usage_notes || '...';
+
+                                pageHtml = `
+                                    <div>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th class="infoCollum">...</th>
+                                                    <th>Word</th>
+                                                    <th>Stem</th>
+                                                    <th>Definition</th>
+                                                    <th>Usage Notes</th>
+                                                    <th>Wordclass</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th>Info</th>
+                                                    <td>${keyword}</td>
+                                                    <td>${stem}</td>
+                                                    <td>${definition}</td>
+                                                    <td>${notes || '...'}</td>
+                                                    <td>${'Adjective'}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="adjectiveTableWrapper"></div>
+                                `;
+                                helperFunctions.standard.createPageById('page94', pageHtml);
+                                const adjectiveTableWrapper = document.getElementById('adjectiveTableWrapper');
+                                helperFunctions.standard.resultTables.adjectiveTable(el.suffix, el.path.declension, el.path.gender, el.path.number, el.path.case, adjectiveTableWrapper, 'suffix');
+
+
                                 break;
                             default: console.warn(`${td.dataset.wordclass} is an invalid wordclass`);
                                 break;
