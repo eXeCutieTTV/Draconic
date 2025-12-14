@@ -2566,8 +2566,6 @@ function dictionaryPage() {
                 }
                 helperFunctions.standard.openPageById('page96');
             }//<-- this is where i got to:)
-            //det w ppPrefixes & suffixes
-            //irregular & regular^^
 
             //TODO add affix tables to the newly made sections.
             else {
