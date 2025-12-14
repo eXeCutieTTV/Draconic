@@ -1394,9 +1394,11 @@ function dictionaryPage() {
             if (affixTypesMap.auxPrefix.rawMap.arrayLength) {
                 for (const entries of Object.values(affixTypesMap.auxPrefix.rawMap)) {
                     for (const entry of Object.values(entries)) {
-                        if (DICTIONARY.ALL_WORDS.MAP[entry.stem] && DICTIONARY.ALL_WORDS.MAP[entry.stem].type === 'aux') {
+                        const stemMap = DICTIONARY.ALL_WORDS.MAP[entry.stem];
+                        if (stemMap && stemMap.type === 'aux') {
+                            entry.wordclass = 'aux';
                             affixTypesMap.auxPrefix.resultMap.push(entry);
-                            affixTypesMap.auxPrefix.state = true;
+                            affixTypesMap.auxPrefix.state = true;//make wordclass aux for result
                         }
                     }
                 }
@@ -2265,7 +2267,7 @@ function dictionaryPage() {
                                     <td>${stem}</td>
                                     <td>${definition}</td>
                                     <td>${notes}</td>
-                                    <td>${'Auxilary'}</td>
+                                    <td>${'Auxiliary'}</td>
                                 </tr>
                             </tbody>
                         </table>
