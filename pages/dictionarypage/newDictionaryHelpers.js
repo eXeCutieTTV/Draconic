@@ -1906,7 +1906,45 @@ const displayForms = function displayForms(allMatchesArray) {
                                 helperFunctions.standard.resultTables.verbTable(el.prefix, el.path.gender, el.path.number, el.path.person, auxilaryPrefixTableWrapper, 'Prefix');
 
                                 break;
+                            case 'det':
 
+                                stem = el.stem;
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                definition = stemMap.definition || '...';
+                                notes = stemMap.usage_notes || '...';
+
+                                pageHtml = `
+                                    <div>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th class="infoCollum">...</th>
+                                                    <th>Word</th>
+                                                    <th>Stem</th>
+                                                    <th>Definition</th>
+                                                    <th>Usage Notes</th>
+                                                    <th>Wordclass</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th>Info</th>
+                                                    <td>${keyword}</td>
+                                                    <td>${stem}</td>
+                                                    <td>${definition}</td>
+                                                    <td>${notes}</td>
+                                                    <td>${'Determiner'}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="determinersTableWrapper"></div>
+                                `;
+                                helperFunctions.standard.createPageById('page94', pageHtml);
+
+                                const determinersTableWrapper = document.getElementById('determinersTableWrapper');
+                                helperFunctions.standard.resultTables.determinerTable(el.suffix, el.path.gender, determinersTableWrapper);
+                                break;
                             default: console.warn(`${td.dataset.wordclass} is an invalid wordclass`);
                                 break;
                         }

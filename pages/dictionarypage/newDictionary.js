@@ -1405,9 +1405,7 @@ function dictionaryPage() {
             }
             if (affixTypesMap.detSuffix.rawMap.arrayLength) {
                 for (const entries of Object.values(affixTypesMap.detSuffix.rawMap)) {
-                    console.log(entries);
                     for (const entry of Object.values(entries)) {
-                        console.log(entry);
                         if (DICTIONARY.ALL_WORDS.MAP[entry.stem] && DICTIONARY.ALL_WORDS.MAP[entry.stem].type === 'det') {
                             affixTypesMap.detSuffix.resultMap.push(entry);
                             affixTypesMap.detSuffix.state = true;
