@@ -1395,24 +1395,24 @@ const displayForms = function displayForms(allMatchesArray) {
         }
     }
     for (const [key, map] of Object.entries(allMatchesArray.type2)) {
-
+        //console.log(map);
         if (map.state) {
-            //console.log('hello world', map.state, map.affixAmount);
-            //console.log(key, map);
             if (map.affixAmount === 1) {
+                for (const affix of Object.values(map.resultMap)) {
+                    console.log(affix);
+                    tempArray.type2.push(affix);
+                }
 
             } else if (map.affixAmount === 2) {
                 for (const [prefix, suffix] of Object.entries(map.resultMap)) {
-                    //console.log(prefix, suffix);
+                    console.log(prefix, suffix);
                     for (const result of Object.values(prefix)) {
                         if (typeof (result) === 'object') {
-                            //console.log(result);
                             tempArray.type2.push(result);
                         }
                     }
                     for (const result of Object.values(suffix)) {
                         if (typeof (result) === 'object') {
-                            //console.log(result);
                             tempArray.type2.push(result);
                         }
                     }
@@ -1444,8 +1444,8 @@ const displayForms = function displayForms(allMatchesArray) {
     let tableTextState = 0;
     function fixTable() {
         tableTextState = 1;
+        for (const el of tempArray.type1) {
 
-        tempArray.type1.forEach(el => {
             const htmlEach = `
                 <td 
                     style="cursor:pointer"; 
@@ -1617,13 +1617,12 @@ const displayForms = function displayForms(allMatchesArray) {
 
                     //moves the 'were you lf' table to result page.vv
                     let newDiv = document.getElementById('listDiv');
-                    //console.log(div, newDiv);
                     newDiv.appendChild(div);
                 } else return;
             });
-        });//<-- change to for loop, instead of .forEach
+        }
         for (const el of tempArray.type2) {
-            //console.log(el, el.affixState);
+            console.log(el, el.affixState);
             const htmlEach = `
                 <td 
                     style="cursor:pointer"; 
@@ -1635,12 +1634,62 @@ const displayForms = function displayForms(allMatchesArray) {
             helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
 
             const td = document.querySelector('#listTbody tr:last-child td:last-child');
+
             function search() {
-                console.log('hello world');
-                helperFunctions.standard.createPageById('page94', 'pageHtml');
+                console.log(el);
+                let pageHtml = '';
+                const keyword = allMatchesArray.keyword;
+                switch (td.dataset.wordclass) {
+                    case 'v':
+                        const stem = el.stem;
+                        const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                        const definition = stemMap.definition || '...';
+                        const notes = stemMap.usage_notes || '...';
+
+
+
+                        pageHtml = `
+                            <div>
+                                <div>
+                                    <table>
+                                        <tr>
+                                            <th class="infoCollum">...</th>
+                                            <th>Word</th>
+                                            <th>Stem</th>
+                                            <th>Wordclass</th>
+                                            <th>Definition</th>
+                                            <th>Usage Notes</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Info</th>
+                                            <td>${keyword}</td>
+                                            <td id="stem">${stem}</td>
+                                            <td>${'Verb'}</td>
+                                            <td>${definition}</td>
+                                            <td>${notes}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div id="verbTableWrapper" style="margin-top:10px"></div>
+                                <div id="suffixtable" style="margin-top:50px"></div>
+                            </div>
+                        `;
+                        helperFunctions.standard.createPageById('page94', pageHtml);
+                        const verbTableWrapper = document.getElementById('verbTableWrapper');
+                        helperFunctions.standard.resultTables.verbTable(el.prefix || el.suffix, el.path.gender, el.path.number, el.path.person, verbTableWrapper, el.affixState);
+
+
+                        const suffixtable = document.getElementById('suffixtable');
+                        el.affixState === 'prefix'
+                            ? helperFunctions.matchtype1.neoVerbTables(false, keyword, suffixtable)
+                            : helperFunctions.matchtype1.neoVerbTables(true, keyword, suffixtable);
+
+                        helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
+
+                        break;
+                }
                 helperFunctions.standard.openPageById('page94');
             }
-
 
             td.addEventListener('click', () => {
                 if (td.dataset.pausestate === "false") {

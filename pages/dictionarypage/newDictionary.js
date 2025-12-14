@@ -1418,7 +1418,8 @@ function dictionaryPage() {
                 matchType = 2;
                 helperFunctions.standard.clearPageById('page96');
 
-                const stemMap = DICTIONARY.ALL_WORDS.MAP[affixTypesMap.verbPrefix.resultMap[0].stem] || [];
+                const stem = affixTypesMap.verbPrefix.resultMap[0].stem;
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
                 const definition = stemMap.definition || '...';
                 const notes = stemMap.usage_notes || '...';
 
@@ -1442,7 +1443,7 @@ function dictionaryPage() {
                                 <tr>
                                     <th>Info</th>
                                     <td>${keyword}</td>
-                                    <td id="stem">${affixTypesMap.verbPrefix.resultMap[0].stem}</td>
+                                    <td id="stem">${stem}</td>
                                     <td>${wordclass}</td>
                                     <td>${definition}</td>
                                     <td>${notes || '...'}</td>
@@ -2608,6 +2609,7 @@ function dictionaryPage() {
         console.log('all matches |', allMatchesArray);
 
         helperFunctions.tablegen.waitForElement(".page #listDiv", 99999).then(listDiv => {
+            allMatchesArray.keyword = keyword;
             helperFunctions.final.displayForms(allMatchesArray);
             //console.log('done', listDiv);
         });
