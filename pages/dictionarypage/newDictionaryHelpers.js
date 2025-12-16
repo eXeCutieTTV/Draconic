@@ -1483,6 +1483,9 @@ const displayForms = function displayForms(allMatchesArray) {
                 // ⟅(^‿^)⟆ - Shelf the elf
 
                 switch (td.dataset.wordclass) {
+                    case 'n':
+                    
+                        break;
                     case 'v':
                         if (el.verbType === 'lur') {
                             console.log('is lur type');

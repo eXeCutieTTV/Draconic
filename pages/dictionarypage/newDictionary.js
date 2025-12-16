@@ -617,10 +617,10 @@ function dictionaryPage() {
                                 //const recTable = document.getElementById('Noun-Table-Recessive');
                                 helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
 
-                                tableSearchable.addEventListener('click', () => {
-                                    console.log(wordclass);
-                                    helperFunctions.standard.searchableTable(wordclass);
-                                });
+                                //tableSearchable.addEventListener('click', () => {
+                                //    console.log(wordclass);
+                                //    helperFunctions.standard.searchableTable(wordclass);
+                                //});
                             });
                         }
                         break;
@@ -2824,3 +2824,4 @@ dictionaryPage();
 //5th type is a buttonpress that just loads the entire plain dictionary.
 //make 'short_path's //make every array, atleast inside allMatchesArray, have similar formatting - path{} etc.
 //make autocorrect/examples use DICTIONARY.ALL_WORDS.MAP instead of excel file...
+//fix type1 - both actual type1, and LF-table.
