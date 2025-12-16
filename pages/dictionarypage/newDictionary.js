@@ -2648,8 +2648,8 @@ function dictionaryPage() {
                             </tbody>
                         </table>
                     </div>
-                    <div id="detSuffixTableWrapper"></div>
                     <div id="ppTableWrapper"></div>
+                    <div id="detSuffixTableWrapper"></div>
                 `;
                 helperFunctions.standard.createPageById('page96', html);
                 const detSuffixTableWrapper = document.getElementById('detSuffixTableWrapper');

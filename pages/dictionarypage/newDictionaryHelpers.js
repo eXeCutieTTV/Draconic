@@ -1403,11 +1403,12 @@ const displayForms = function displayForms(allMatchesArray) {
         if (map.state) {
             if (map.affixAmount === 1) {
                 for (const affix of Object.values(map.resultMap)) {
-                    console.log(affix);
+                    //console.log(affix);
                     tempArray.type2.one.push(affix);
                 }
 
-            } else if (map.affixAmount === 2) {
+            }
+            if (map.affixAmount === 2) {
                 const prefixes = Object.values(map.resultMap)[0];
                 const suffixes = Object.values(map.resultMap)[1];
 
@@ -1415,15 +1416,32 @@ const displayForms = function displayForms(allMatchesArray) {
                     p.key = key;
                     for (const s of suffixes) {
                         s.key = key;
-                        tempArray.type2.two.push(
-                            {
-                                prefix: p,
-                                suffix: s
-                            }
-                        );
+                        tempArray.type2.two.push({
+                            prefix: p,
+                            suffix: s
+                        });
                     }
                 }
 
+            }
+            if (map.affixAmount === 3) {
+                const part_pre = Object.values(map.resultMap)[0];
+                const part_suf = Object.values(map.resultMap)[1];
+                const suffix = Object.values(map.resultMap)[2];
+                for (const p of part_pre) {
+                    p.key = key;
+                    for (const s of part_suf) {
+                        s.key = key;
+                        for (const ss of suffix) {
+                            ss.key = key;
+                            tempArray.type2.three.push({
+                                particle_prefix: p,
+                                particle_suffix: s,
+                                suffix: ss
+                            });
+                        }
+                    }
+                }
             }
         }
     }
@@ -2057,7 +2075,8 @@ const displayForms = function displayForms(allMatchesArray) {
                         } else return;
                     });
                 }
-            } else if (state === 'two') {
+            }//if or elseif?vv
+            if (state === 'two') {
                 for (const el of entry) {
                     console.log(el);
                     const prefix = el.prefix;
@@ -2326,6 +2345,50 @@ const displayForms = function displayForms(allMatchesArray) {
                                 helperFunctions.matchtype1.neoNounTables(stemMap_prefix.declension, 2, nounTableWrapper, stemMap_prefix.genders);
                                 helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
                                 break;
+                            case 'det':
+                                stem = suffix.stem;
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                definition = stemMap.definition || '...';
+                                notes = stemMap.usage_notes || '...';
+
+                                pageHtml = `
+                                    <div>
+                                        <div>
+                                            <table>
+                                                <tr>
+                                                    <th class="infoCollum">...</th>
+                                                    <th>Word</th>
+                                                    <th>Stem</th>
+                                                    <th>Definition</th>
+                                                    <th>Wordclass</th>
+                                                    <th>Usage Notes</th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Info</th>
+                                                    <td>${keyword}</td>
+                                                    <td>${stem}</td>
+                                                    <td>${definition}</td>
+                                                    <td>${'Determiner'}</td>
+                                                    <td>${notes}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div id="prepositionTableWrapper" style="margin-top:10px"></div>
+                                        <div id="determinerTableWrapper" style="margin-top:10px"></div>
+                                    </div>
+                                `;
+                                helperFunctions.standard.createPageById('page94', pageHtml);
+
+                                prepositionTableWrapper = document.getElementById('prepositionTableWrapper');
+                                preposition = prefix.prefix;
+                                prepositionMap = DICTIONARY.ALL_WORDS.MAP[preposition];
+                                helperFunctions.standard.resultTables.prepositionTable(preposition, prepositionMap.definition || '...', prepositionMap.usage_notes || '...', prepositionTableWrapper);
+
+                                determinerTableWrapper = document.getElementById('determinerTableWrapper');
+                                det_suffix = suffix.suffix;
+                                helperFunctions.standard.resultTables.determinerTable(det_suffix, suffix.path.gender, determinerTableWrapper);
+                                break;
+                            default: console.warn(`${td.dataset.suffix_wordclass} is an invalid wordclass`);
                         }
                         helperFunctions.standard.openPageById('page94');
                     }
@@ -2340,7 +2403,116 @@ const displayForms = function displayForms(allMatchesArray) {
 
                             //moves the 'were you lf' table to result page.vv
                             let newDiv = document.getElementById('listDiv');
-                            //console.log(div, newDiv);
+                            newDiv.appendChild(div);
+                        } else return;
+                    });
+                }
+            }
+            if (state === 'three') {
+                for (const el of entry) {
+                    console.log(el);
+                    const particle_prefix = el.particle_prefix;
+                    const particle_suffix = el.particle_suffix;
+                    const suffix = el.suffix;
+
+                    const htmlEach = `
+                        <td 
+                            style="cursor:pointer; border-bottom: solid 1px black;"; 
+                            data-particle_suffix_wordclass="${particle_suffix.wordclass}"; 
+                            data-particle_suffix_path="${particle_suffix.short_path || '...'}"; 
+                            data-particle_prefix_wordclass="${particle_prefix.wordclass}"; 
+                            data-particle_prefix_path="${particle_prefix.short_path || '...'}"; 
+                            data-suffix_wordclass="${suffix.wordclass}"; 
+                            data-suffix_path="${suffix.short_path || '...'}"; 
+                            data-pausestate="false";
+                            data-affix_amount="3";
+                        >${particle_prefix.wordclass}.${particle_prefix.short_path || '..'}<br>
+                        ${particle_suffix.wordclass}.${particle_suffix.short_path}<br>
+                        ${suffix.wordclass}.${suffix.short_path}</td>
+                    `;
+                    helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
+
+                    const td = document.querySelector('#listTbody tr:last-child td:last-child');
+
+
+                    function search() {
+                        let pageHtml = '';
+                        const keyword = allMatchesArray.keyword;
+                        switch (td.dataset.suffix_wordclass) {
+                            case 'n':
+                                stem = suffix.stems_map[0];
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem];
+                                //console.log(stemMap);
+
+
+                                pageHtml = `
+                                    <div>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th class="infoCollum">...</th>
+                                                    <th>Word</th>
+                                                    <th>Stem</th>
+                                                    <th>Usage Notes</th>
+                                                    <th>Wordclass</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th>Info</th>
+                                                    <td>${keyword}</td>
+                                                    <td>${stem}</td>
+                                                    <td>${'...'}</td>
+                                                    <td id="wordclassTd">${'Noun'}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="particleWrapper" style="margin-top:10px;"></div>
+                                    <div id="suffixWrapper" style="margin-top:10px;"></div>
+                                `;
+                                helperFunctions.standard.createPageById('page94', pageHtml);
+
+                                particleWrapper = document.getElementById('particleWrapper');
+                                part_pref = particle_prefix.prefix;
+                                part_pref_map = DICTIONARY.ALL_WORDS.MAP[part_pref];
+
+                                part_suff = particle_suffix.suffix;
+                                part_suff_map = DICTIONARY.ALL_WORDS.MAP[part_suff];
+
+                                helperFunctions.standard.resultTables.prepositionTable(part_pref, part_pref_map.definition, part_pref_map.usage_notes || '...', particleWrapper);
+                                helperFunctions.standard.resultTables.prepositionTable(part_suff, part_suff_map.definition, part_suff_map.usage_notes || '...', particleWrapper);
+
+
+                                suffixWrapper = document.getElementById('suffixWrapper');
+                                path = suffix.path;
+                                for (const result of el.suffix.stems_map) {
+                                    function definition() {
+                                        const entry = DICTIONARY.ALL_WORDS.MAP[result];
+                                        for (const [gender, def] of Object.entries(entry.genders)) {
+                                            if (gender === path.gender) {
+                                                return def;
+                                            }
+                                        }
+                                    }
+                                    helperFunctions.standard.resultTables.nounTable(suffix.suffix, path.declension, path.gender, path.number, path.case, definition(), suffixWrapper, 'suffix', result);
+                                }
+                                break;
+                            default: console.warn(`${td.dataset.suffix_wordclass} is an invalid wordclass`);
+                        }
+                        helperFunctions.standard.openPageById('page94');
+                    }
+
+                    td.addEventListener('click', () => {
+                        if (td.dataset.pausestate === "false") {
+                            helperFunctions.standard.clearPageById('page97'); //type 1
+                            helperFunctions.standard.clearPageById('page95'); //type 1.1
+                            helperFunctions.standard.clearPageById('page96'); //type 2
+                            helperFunctions.standard.clearPageById('page94'); //type 
+                            search();
+
+                            //moves the 'were you lf' table to result page.vv
+                            let newDiv = document.getElementById('listDiv');
                             newDiv.appendChild(div);
                         } else return;
                     });
