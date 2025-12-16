@@ -1620,10 +1620,11 @@ const displayForms = function displayForms(allMatchesArray) {
                     console.log(el);
                     const htmlEach = `
                         <td 
-                            style="cursor:pointer"; 
+                            style="cursor:pointer; border-bottom: solid 1px black;"; 
                             data-wordclass="${el.wordclass}"; 
                             data-path="${el.short_path || '...'}"; 
                             data-pausestate="false";
+                            data-affix_amount="1";
                         >${el.wordclass}.${el.short_path || '..'}</td>
                     `;
                     helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
@@ -2057,11 +2058,12 @@ const displayForms = function displayForms(allMatchesArray) {
 
                     const htmlEach = `
                         <td 
-                            style="cursor:pointer"; 
-                            data-wordclass="${prefix.wordclass}"; 
+                            style="cursor:pointer; border-bottom: solid 1px black;"; 
+                            data-wordclass="${suffix.wordclass}"; 
                             data-prefix_path="${prefix.short_path || '...'}"; 
                             data-suffix_path="${suffix.short_path || '...'}"; 
                             data-pausestate="false";
+                            data-affix_amount="2";
                         >${prefix.wordclass}.${prefix.short_path || '..'}<br>${suffix.wordclass}.${suffix.short_path}</td>
                     `;
                     helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
@@ -2071,7 +2073,200 @@ const displayForms = function displayForms(allMatchesArray) {
                     function search() {
                         let pageHtml = '';
                         const keyword = allMatchesArray.keyword;
+                        switch (td.dataset.wordclass) {
+                            case 'v':
+                                stem = suffix.stem;
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                definition = stemMap.definition || '...';
+                                notes = stemMap.usage_notes || '...';
 
+
+                                pageHtml = `
+                                    <div>
+                                        <div>
+                                            <table>
+                                                <tr>
+                                                    <th class="infoCollum">...</th>
+                                                    <th>Word</th>
+                                                    <th>Stem</th>
+                                                    <th>Wordclass</th>
+                                                    <th>Definition</th>
+                                                    <th>Usage Notes</th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Info</th>
+                                                    <td>${keyword}</td>
+                                                    <td>${stem}</td>
+                                                    <td>${'Verb'}</td>
+                                                    <td>${definition}</td>
+                                                    <td>${notes}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div id="verbTableWrapper-pref" style="margin-top:10px"></div>
+                                        <div id="verbTableWrapper-suff" style="margin-top:10px"></div>
+                                    </div>
+                                `;
+                                helperFunctions.standard.createPageById('page94', pageHtml);
+
+                                const verbTableWrapper_pref = document.getElementById('verbTableWrapper-pref');
+                                helperFunctions.standard.resultTables.verbTable(prefix.prefix, prefix.path.gender, prefix.path.number, prefix.path.person, verbTableWrapper_pref, prefix.affixState);
+
+                                const verbTableWrapper_suff = document.getElementById('verbTableWrapper-suff');
+                                helperFunctions.standard.resultTables.verbTable(suffix.suffix, suffix.path.gender, suffix.path.number, suffix.path.person, verbTableWrapper_suff, suffix.affixState);
+                                break;
+                            case 'n':
+                                if (prefix.wordclass === 'pp') {
+                                    stem = suffix.stems_map[0] || suffix.stem;
+                                    stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                    notes = stemMap.usage_notes || '...';
+
+                                    preposition = prefix.prefix;
+                                    preposition_map = DICTIONARY.ALL_WORDS.MAP[preposition] || [];
+                                    preposition_definition = preposition_map.definition || '...';
+                                    preposition_notes = preposition_map.usage_notes || '...';
+
+                                    pageHtml = `
+                                        <div>
+                                            <div>
+                                                <table>
+                                                    <tr>
+                                                        <th class="infoCollum">...</th>
+                                                        <th>Word</th>
+                                                        <th>Stem</th>
+                                                        <th>Wordclass</th>
+                                                        <th>Usage Notes</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Info</th>
+                                                        <td>${keyword}</td>
+                                                        <td>${stem}</td>
+                                                        <td>${'Noun'}</td>
+                                                        <td>${notes}</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div id="prepositionTableWrapper" style="margin-top:10px"></div>
+                                            <div id="nounTableWrapper" style="margin-top:10px"></div>
+                                        </div>
+                                    `;
+                                    helperFunctions.standard.createPageById('page94', pageHtml);
+
+                                    const nounTableWrapper = document.getElementById('nounTableWrapper');
+                                    path = suffix.path;
+                                    for (const result of el.suffix.stems_map) {
+                                        function definition() {
+                                            const entry = DICTIONARY.ALL_WORDS.MAP[result];
+                                            for (const [gender, def] of Object.entries(entry.genders)) {
+                                                if (gender === path.gender) {
+                                                    return def;
+                                                }
+                                            }
+                                        }
+                                        helperFunctions.standard.resultTables.nounTable(suffix.suffix, path.declension, path.gender, path.number, path.case, definition(), nounTableWrapper, 'suffix', result);
+                                    }
+                                    const prepositionTableWrapper = document.getElementById('prepositionTableWrapper');
+                                    helperFunctions.standard.resultTables.prepositionTable(preposition, preposition_definition, preposition_notes, prepositionTableWrapper);
+                                } else if (prefix.wordclass === 'part') {
+                                    stem = suffix.stem;
+                                    stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                    notes = stemMap.usage_notes || '...';
+
+                                    particle = prefix.suffix;
+                                    particle_map = DICTIONARY.ALL_WORDS.MAP[particle] || [];
+                                    particle_definition = particle_map.definition || '...';
+                                    particle_notes = particle_map.usage_notes || '...';
+
+
+                                    pageHtml = `
+                                        <div>
+                                            <div>
+                                                <table>
+                                                    <tr>
+                                                        <th class="infoCollum">...</th>
+                                                        <th>Word</th>
+                                                        <th>Stem</th>
+                                                        <th>Wordclass</th>
+                                                        <th>Usage Notes</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Info</th>
+                                                        <td>${keyword}</td>
+                                                        <td>${stem}</td>
+                                                        <td>${'Noun'}</td>
+                                                        <td>${notes}</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div id="particleTableWrapper" style="margin-top:10px"></div>
+                                            <div id="nounTableWrapper" style="margin-top:10px"></div>
+                                        </div>
+                                    `;
+                                    helperFunctions.standard.createPageById('page94', pageHtml);
+
+                                    const nounTableWrapper = document.getElementById('nounTableWrapper');
+                                    path = suffix.path;
+                                    for (const result of el.suffix.stems_map) {
+                                        function definition() {
+                                            const entry = DICTIONARY.ALL_WORDS.MAP[result];
+                                            for (const [gender, def] of Object.entries(entry.genders)) {
+                                                if (gender === path.gender) {
+                                                    return def;
+                                                }
+                                            }
+                                        }
+                                        helperFunctions.standard.resultTables.nounTable(suffix.suffix, path.declension, path.gender, path.number, path.case, definition(), nounTableWrapper, 'suffix', result);
+                                    }
+                                    const particleTableWrapper = document.getElementById('particleTableWrapper');
+                                    helperFunctions.standard.resultTables.particleTable(particle, particle_definition, particle_notes, particleTableWrapper);
+                                }
+                                break;
+                            case 'adj':
+                                stem = suffix.stem;
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                definition = stemMap.definition || '...';
+                                notes = stemMap.usage_notes || '...';
+
+                                particle = prefix.suffix;
+                                particle_map = DICTIONARY.ALL_WORDS.MAP[particle] || [];
+                                particle_definition = particle_map.definition || '...';
+                                particle_notes = particle_map.usage_notes || '...';
+
+                                pageHtml = `
+                                    <div>
+                                        <div>
+                                            <table>
+                                                <tr>
+                                                    <th class="infoCollum">...</th>
+                                                    <th>Word</th>
+                                                    <th>Stem</th>
+                                                    <th>Wordclass</th>
+                                                    <th>Usage Notes</th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Info</th>
+                                                    <td>${keyword}</td>
+                                                    <td>${stem}</td>
+                                                    <td>${'Noun'}</td>
+                                                    <td>${notes}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div id="particleTableWrapper" style="margin-top:10px"></div>
+                                        <div id="adjectiveTableWrapper" style="margin-top:10px"></div>
+                                    </div>
+                                `;
+                                helperFunctions.standard.createPageById('page94', pageHtml);
+
+                                const adjectiveTableWrapper = document.getElementById('adjectiveTableWrapper');
+                                path = suffix.path;
+                                helperFunctions.standard.resultTables.adjectiveTable(suffix.suffix, path.declension, path.declension, path.number, path.case, adjectiveTableWrapper, 'suffix');
+
+                                const particleTableWrapper = document.getElementById('particleTableWrapper');
+                                helperFunctions.standard.resultTables.particleTable(particle, particle_definition, particle_notes, particleTableWrapper);
+                                break;
+
+                        }
                         helperFunctions.standard.openPageById('page94');
                     }
 

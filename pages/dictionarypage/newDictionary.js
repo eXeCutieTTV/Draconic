@@ -1066,6 +1066,7 @@ function dictionaryPage() {
                     for (const entry of Object.values(entries)) {
                         if (typeof (entry) === 'object') {
                             const stemArr = helperFunctions.matchtype2.findStemWhenShortstem(entry.stem);
+                            //console.log(stemArr);
                             if (stemArr.length > 0) {
                                 for (const stem_result of stemArr) {
                                     const stem_resultMap = DICTIONARY.ALL_WORDS.MAP[stem_result];
@@ -1120,6 +1121,7 @@ function dictionaryPage() {
                 const checkerArr2 = [];//<-- incase both det and noun with pp possible.
                 for (const entries of Object.values(affixTypesMap.ppPrefix.rawMap)) {
                     for (const entry of Object.values(entries)) {
+                        console.log(entry);
                         if (typeof (entry) === 'object') {
                             const stemArr = helperFunctions.matchtype2.findStemWhenShortstem(entry.stem);
                             const det_irr = isDeterminer(entry.stem, false);
@@ -1241,6 +1243,7 @@ function dictionaryPage() {
                             } else {
                                 nounSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.NOUNS.SUFFIXES.MATCHES, false) || [];
                                 particleSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.PARTICLES.MAP, false) || [];
+                                adjectiveSuffix = helperFunctions.matchtype2.neoAffixChecker(keyword, DICTIONARY.ADJECTIVES.SUFFIXES.MATCHES, false) || [];
                                 let temp_stemArr21 = [];
                                 let temp_stemArr22 = [];
                                 if (nounSuffix.arrayLength > 0) {
@@ -1349,6 +1352,40 @@ function dictionaryPage() {
                                                     console.log('pushed for el with short_path:', entry.short_path);
                                                     affixTypesMap.pSuffixANDpPrefix.resultMap.prefix.push(entry);
                                                 }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (adjectiveSuffix.arrayLength > 0) {
+                                    for (const entries2 of Object.values(nounSuffix)) {
+                                        if (typeof (entries2) === 'object') {
+                                            for (const entry2 of Object.values(entries2)) {
+                                                if (typeof (entry2) === 'object') {
+                                                    const stemArr2 = helperFunctions.matchtype2.findStemWhenShortstem(entry2.stem);
+                                                    if (stemArr2.length > 0) {
+                                                        for (const stem_result2 of stemArr2) {
+                                                            const stem_resultMap2 = DICTIONARY.ALL_WORDS.MAP[stem_result2];
+                                                            if (stem_resultMap2 && stem_resultMap2.type === 'adj' && stem_resultMap2.declension === entry2.path.declension) {
+                                                                entry.stem = entry2.stem;//fix stem
+                                                                if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
+                                                                    checkerArr.push(entry2.short_path);
+                                                                    console.log('pushed for el with short_path:', entry2.short_path);
+                                                                    affixTypesMap.adjSuffixANDpPrefix.resultMap.suffix.push(entry2);
+                                                                }
+                                                                temp_stemArr21 = stemArr2;
+                                                                entry2.stems_map = temp_stemArr21;
+                                                                affixTypesMap.adjSuffixANDpPrefix.state = true;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (temp_stemArr21.length > 0) {
+                                            if (!checkerArr.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
+                                                checkerArr.push(entry.short_path);
+                                                console.log('pushed for el with short_path:', entry.short_path);
+                                                affixTypesMap.adjSuffixANDpPrefix.resultMap.particle.push(entry);
                                             }
                                         }
                                     }
@@ -2224,8 +2261,8 @@ function dictionaryPage() {
                             </tbody>
                         </table>
                     </div>
-                    <div id="suffixTableWrapper"></div>
                     <div id="particleTableWrapper"></div>
+                    <div id="suffixTableWrapper"></div>
                 `;
                 helperFunctions.standard.createPageById('page96', html);
 
@@ -2238,7 +2275,7 @@ function dictionaryPage() {
                 const particleTableWrapper = document.getElementById('particleTableWrapper');
                 for (const result of affixTypesMap.adjSuffixANDpSuffix.resultMap.particle) {
                     const particleMap = DICTIONARY.ALL_WORDS.MAP[result.suffix];
-                    helperFunctions.standard.resultTables.particleTable(result.suffix, particleMap.definition, particleMap.notes || '...', particleTableWrapper);
+                    helperFunctions.standard.resultTables.particleTable(result.suffix, particleMap.definition, particleMap.usage_notes || '...', particleTableWrapper);
                 }
                 helperFunctions.standard.openPageById('page96');
             }
@@ -2521,7 +2558,7 @@ function dictionaryPage() {
 
                 helperFunctions.standard.openPageById('page96');
             }
-            else if (affixTypesMap.detppPrefix_irr) {
+            else if (affixTypesMap.detppPrefix_irr.state) {
                 matchType = 2;
                 console.log('irr det');
 
@@ -2627,6 +2664,9 @@ function dictionaryPage() {
 
                 }
                 helperFunctions.standard.openPageById('page96');
+            }
+            else if (adjSuffixANDpPrefix.state) {
+                
             }//<-- this is where i got to:)
 
             //TODO add affix tables to the newly made sections.
