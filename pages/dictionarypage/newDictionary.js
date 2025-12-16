@@ -2353,7 +2353,7 @@ function dictionaryPage() {
                                     <th>Info</th>
                                     <td>${keyword}</td>
                                     <td>${stem}</td>
-                                    <td>${definition}</td>
+                                    <td>${helperFunctions.formatting.defsToSingleString(stemMap.genders)}</td>
                                     <td>${notes}</td>
                                     <td id="wordclassTd">${'Noun'}</td>
                                 </tr>

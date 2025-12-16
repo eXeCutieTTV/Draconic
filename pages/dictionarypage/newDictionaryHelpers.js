@@ -2117,10 +2117,10 @@ const displayForms = function displayForms(allMatchesArray) {
                                 `;
                                 helperFunctions.standard.createPageById('page94', pageHtml);
 
-                                const verbTableWrapper_pref = document.getElementById('verbTableWrapper-pref');
+                                verbTableWrapper_pref = document.getElementById('verbTableWrapper-pref');
                                 helperFunctions.standard.resultTables.verbTable(prefix.prefix, prefix.path.gender, prefix.path.number, prefix.path.person, verbTableWrapper_pref, prefix.affixState);
 
-                                const verbTableWrapper_suff = document.getElementById('verbTableWrapper-suff');
+                                verbTableWrapper_suff = document.getElementById('verbTableWrapper-suff');
                                 helperFunctions.standard.resultTables.verbTable(suffix.suffix, suffix.path.gender, suffix.path.number, suffix.path.person, verbTableWrapper_suff, suffix.affixState);
                                 break;
                             case 'n':
@@ -2160,7 +2160,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                     `;
                                     helperFunctions.standard.createPageById('page94', pageHtml);
 
-                                    const nounTableWrapper = document.getElementById('nounTableWrapper');
+                                    nounTableWrapper = document.getElementById('nounTableWrapper');
                                     path = suffix.path;
                                     for (const result of el.suffix.stems_map) {
                                         function definition() {
@@ -2173,7 +2173,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                         }
                                         helperFunctions.standard.resultTables.nounTable(suffix.suffix, path.declension, path.gender, path.number, path.case, definition(), nounTableWrapper, 'suffix', result);
                                     }
-                                    const prepositionTableWrapper = document.getElementById('prepositionTableWrapper');
+                                    prepositionTableWrapper = document.getElementById('prepositionTableWrapper');
                                     helperFunctions.standard.resultTables.prepositionTable(preposition, preposition_definition, preposition_notes, prepositionTableWrapper);
                                 } else if (td.dataset.prefix_wordclass === 'part') {
                                     stem = suffix.stem;
@@ -2212,7 +2212,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                     `;
                                     helperFunctions.standard.createPageById('page94', pageHtml);
 
-                                    const nounTableWrapper = document.getElementById('nounTableWrapper');
+                                    nounTableWrapper = document.getElementById('nounTableWrapper');
                                     path = suffix.path;
                                     for (const result of el.suffix.stems_map) {
                                         function definition() {
@@ -2225,7 +2225,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                         }
                                         helperFunctions.standard.resultTables.nounTable(suffix.suffix, path.declension, path.gender, path.number, path.case, definition(), nounTableWrapper, 'suffix', result);
                                     }
-                                    const particleTableWrapper = document.getElementById('particleTableWrapper');
+                                    particleTableWrapper = document.getElementById('particleTableWrapper');
                                     helperFunctions.standard.resultTables.particleTable(particle, particle_definition, particle_notes, particleTableWrapper);
                                 }
                                 break;
@@ -2265,14 +2265,67 @@ const displayForms = function displayForms(allMatchesArray) {
                                 `;
                                 helperFunctions.standard.createPageById('page94', pageHtml);
 
-                                const adjectiveTableWrapper = document.getElementById('adjectiveTableWrapper');
+                                adjectiveTableWrapper = document.getElementById('adjectiveTableWrapper');
                                 path = suffix.path;
                                 helperFunctions.standard.resultTables.adjectiveTable(suffix.suffix, path.declension, path.declension, path.number, path.case, adjectiveTableWrapper, 'suffix');
 
-                                const particleTableWrapper = document.getElementById('particleTableWrapper');
+                                particleTableWrapper = document.getElementById('particleTableWrapper');
                                 helperFunctions.standard.resultTables.particleTable(particle, particle_definition, particle_notes, particleTableWrapper);
                                 break;
+                            case 'part':
+                                stem_prefix = prefix.stem;
+                                stemMap_prefix = DICTIONARY.ALL_WORDS.MAP[stem_prefix] || [];
+                                definition_prefix = stemMap_prefix.definition || '...';
+                                notes_prefix = stemMap_prefix.usage_notes || '...';
 
+                                stem_suffix = suffix.stem;
+                                stemMap_suffix = DICTIONARY.ALL_WORDS.MAP[stem_suffix] || [];
+                                definition_suffix = stemMap_suffix.definition || '...';
+                                notes_suffix = stemMap_suffix.usage_notes || '...';
+
+                                pageHtml = `
+                                    <div>
+                                        <div>
+                                            <table>
+                                                <tr>
+                                                    <th class="infoCollum">...</th>
+                                                    <th>Word</th>
+                                                    <th>Stem</th>
+                                                    <th>Definition</th>
+                                                    <th>Wordclass</th>
+                                                    <th>Usage Notes</th>
+                                                </tr>
+                                                <tr>
+                                                    <th>Info</th>
+                                                    <td>${keyword}</td>
+                                                    <td>${stem_prefix}</td>
+                                                    <td>${helperFunctions.formatting.defsToSingleString(stemMap_prefix.genders)}</td>
+                                                    <td>${'Noun'}</td>
+                                                    <td>${notes_prefix}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div id="particleTableWrapper" style="margin-top:10px"></div>
+                                        <div id="nounTableWrapper" style="margin-top:50px"></div>
+                                    </div>
+                                `;
+                                helperFunctions.standard.createPageById('page94', pageHtml);
+
+                                particleTableWrapper = document.getElementById('particleTableWrapper');
+                                particle_prefix = prefix.prefix;
+                                particleMap_prefix = DICTIONARY.ALL_WORDS.MAP[particle_prefix];
+                                helperFunctions.standard.resultTables.particleTable(particle_prefix, particleMap_prefix.definition || '...', particleMap_prefix.usage_notes || '...', particleTableWrapper);
+
+                                particle_suffix = suffix.suffix;
+                                particleMap_suffix = DICTIONARY.ALL_WORDS.MAP[particle_suffix];
+                                helperFunctions.standard.resultTables.particleTable(particle_suffix, particleMap_suffix.definition || '...', particleMap_suffix.usage_notes || '...', particleTableWrapper);
+
+                                nounTableWrapper = document.getElementById('nounTableWrapper');
+
+                                helperFunctions.matchtype1.neoNounTables(stemMap_prefix.declension, 1, nounTableWrapper, stemMap_prefix.genders);
+                                helperFunctions.matchtype1.neoNounTables(stemMap_prefix.declension, 2, nounTableWrapper, stemMap_prefix.genders);
+                                helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
+                                break;
                         }
                         helperFunctions.standard.openPageById('page94');
                     }
