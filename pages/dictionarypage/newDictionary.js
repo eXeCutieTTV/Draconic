@@ -2668,6 +2668,7 @@ function dictionaryPage() {
                 helperFunctions.standard.openPageById('page96');
             }
             else if (affixTypesMap.adjSuffixANDpPrefix.state) {
+                matchType = 2;
                 const stem = affixTypesMap.adjSuffixANDpPrefix.resultMap.suffix[0].stem;
                 const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
                 const definition = stemMap.definition || '...';
@@ -2718,11 +2719,8 @@ function dictionaryPage() {
                 }
                 helperFunctions.standard.openPageById('page96');
             }//<-- this is where i got to:)
-
-            //TODO add affix tables to the newly made sections.
             else {
                 console.warn('type not found');
-                return;
             }
         }
         if (matchType === 3) {//type 3
