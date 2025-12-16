@@ -1246,6 +1246,7 @@ function dictionaryPage() {
                                 adjectiveSuffix = helperFunctions.matchtype2.neoAffixChecker(keyword, DICTIONARY.ADJECTIVES.SUFFIXES.MATCHES, false) || [];
                                 let temp_stemArr21 = [];
                                 let temp_stemArr22 = [];
+                                let temp_stemArr23 = [];
                                 if (nounSuffix.arrayLength > 0) {
                                     for (const entries2 of Object.values(nounSuffix)) {
                                         if (typeof (entries2) === 'object') {
@@ -1370,10 +1371,11 @@ function dictionaryPage() {
                                                                 if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                                                     checkerArr.push(entry2.short_path);
                                                                     console.log('pushed for el with short_path:', entry2.short_path);
+                                                                    entry2.wordclass = 'adj';//idk why this is needed - but it fixes...
                                                                     affixTypesMap.adjSuffixANDpPrefix.resultMap.suffix.push(entry2);
                                                                 }
-                                                                temp_stemArr21 = stemArr2;
-                                                                entry2.stems_map = temp_stemArr21;
+                                                                temp_stemArr23 = stemArr2;
+                                                                entry2.stems_map = temp_stemArr23;
                                                                 affixTypesMap.adjSuffixANDpPrefix.state = true;
                                                             }
                                                         }
@@ -1381,7 +1383,7 @@ function dictionaryPage() {
                                                 }
                                             }
                                         }
-                                        if (temp_stemArr21.length > 0) {
+                                        if (temp_stemArr23.length > 0) {
                                             if (!checkerArr.includes(entry.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                                 checkerArr.push(entry.short_path);
                                                 console.log('pushed for el with short_path:', entry.short_path);
@@ -2666,7 +2668,55 @@ function dictionaryPage() {
                 helperFunctions.standard.openPageById('page96');
             }
             else if (affixTypesMap.adjSuffixANDpPrefix.state) {
-                
+                const stem = affixTypesMap.adjSuffixANDpPrefix.resultMap.suffix[0].stem;
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                const definition = stemMap.definition || '...';
+                const notes = stemMap.usage_notes || '...';
+
+                const html = `
+                    <div>
+                        <div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="infoCollum">...</th>
+                                        <th>Word</th>
+                                        <th>Stem</th>
+                                        <th>Definition</th>
+                                        <th>Usage Notes</th>
+                                        <th>Wordclass</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th>Info</th>
+                                        <td>${keyword}</td>
+                                        <td>${stem}</td>
+                                        <td>${definition}</td>
+                                        <td>${notes}</td>
+                                        <td>${'Adjective'}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="particleTableWrapper"></div>
+                        <div id="suffixTableWrapper"></div>
+                    </div>
+                `;
+                helperFunctions.standard.createPageById('page96', html);
+
+                const suffixTableWrapper = document.getElementById('suffixTableWrapper');
+                for (const result of affixTypesMap.adjSuffixANDpPrefix.resultMap.suffix) {
+                    const path = result.path;
+                    helperFunctions.standard.resultTables.adjectiveTable(result.suffix, path.declension, path.gender, path.number, path.case, suffixTableWrapper, 'suffix');
+                }
+
+                const particleTableWrapper = document.getElementById('particleTableWrapper');
+                for (const result of affixTypesMap.adjSuffixANDpPrefix.resultMap.particle) {
+                    const particleMap = DICTIONARY.ALL_WORDS.MAP[result.prefix];
+                    helperFunctions.standard.resultTables.particleTable(result.prefix, particleMap.definition, particleMap.usage_notes || '...', particleTableWrapper);
+                }
+                helperFunctions.standard.openPageById('page96');
             }//<-- this is where i got to:)
 
             //TODO add affix tables to the newly made sections.

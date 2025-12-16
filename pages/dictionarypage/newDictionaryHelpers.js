@@ -1412,8 +1412,15 @@ const displayForms = function displayForms(allMatchesArray) {
                 const suffixes = Object.values(map.resultMap)[1];
 
                 for (const p of prefixes) {
+                    p.key = key;
                     for (const s of suffixes) {
-                        tempArray.type2.two.push({ prefix: p, suffix: s });
+                        s.key = key;
+                        tempArray.type2.two.push(
+                            {
+                                prefix: p,
+                                suffix: s
+                            }
+                        );
                     }
                 }
 
@@ -2059,7 +2066,8 @@ const displayForms = function displayForms(allMatchesArray) {
                     const htmlEach = `
                         <td 
                             style="cursor:pointer; border-bottom: solid 1px black;"; 
-                            data-wordclass="${suffix.wordclass}"; 
+                            data-suffix_wordclass="${suffix.wordclass}"; 
+                            data-prefix_wordclass="${prefix.wordclass}"; 
                             data-prefix_path="${prefix.short_path || '...'}"; 
                             data-suffix_path="${suffix.short_path || '...'}"; 
                             data-pausestate="false";
@@ -2073,7 +2081,7 @@ const displayForms = function displayForms(allMatchesArray) {
                     function search() {
                         let pageHtml = '';
                         const keyword = allMatchesArray.keyword;
-                        switch (td.dataset.wordclass) {
+                        switch (td.dataset.suffix_wordclass) {
                             case 'v':
                                 stem = suffix.stem;
                                 stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
@@ -2116,7 +2124,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                 helperFunctions.standard.resultTables.verbTable(suffix.suffix, suffix.path.gender, suffix.path.number, suffix.path.person, verbTableWrapper_suff, suffix.affixState);
                                 break;
                             case 'n':
-                                if (prefix.wordclass === 'pp') {
+                                if (td.dataset.prefix_wordclass === 'pp') {
                                     stem = suffix.stems_map[0] || suffix.stem;
                                     stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
                                     notes = stemMap.usage_notes || '...';
@@ -2167,7 +2175,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                     }
                                     const prepositionTableWrapper = document.getElementById('prepositionTableWrapper');
                                     helperFunctions.standard.resultTables.prepositionTable(preposition, preposition_definition, preposition_notes, prepositionTableWrapper);
-                                } else if (prefix.wordclass === 'part') {
+                                } else if (td.dataset.prefix_wordclass === 'part') {
                                     stem = suffix.stem;
                                     stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
                                     notes = stemMap.usage_notes || '...';
@@ -2227,11 +2235,10 @@ const displayForms = function displayForms(allMatchesArray) {
                                 definition = stemMap.definition || '...';
                                 notes = stemMap.usage_notes || '...';
 
-                                particle = prefix.suffix;
+                                particle = prefix.suffix || prefix.prefix;
                                 particle_map = DICTIONARY.ALL_WORDS.MAP[particle] || [];
                                 particle_definition = particle_map.definition || '...';
                                 particle_notes = particle_map.usage_notes || '...';
-
                                 pageHtml = `
                                     <div>
                                         <div>
