@@ -2798,30 +2798,7 @@ function dictionaryPage() {
 }
 dictionaryPage();
 
-/*
-// Wait until page99's controls exist before wiring up the dictionary logic.
-(function bootstrapDictionaryPage() {
-    if (window.__dictionaryPageInitPromise) return;
-
-    const waitForSearchControls = () => Promise.all([
-        helperFunctions.tablegen.waitForElement('#page99 #search_button', 604800000), //a week <--
-        helperFunctions.tablegen.waitForElement('#page99 #search_field', 604800000),
-    ]);
-
-    window.__dictionaryPageInitPromise = waitForSearchControls()
-        .then(() => {
-            if (window.__dictionaryPageInitialized) return;
-            dictionaryPage();
-            window.__dictionaryPageInitialized = true;
-        })
-        .catch((error) => {
-            console.warn('dictionaryPage bootstrap failed:', error);
-            window.__dictionaryPageInitPromise = null;
-        });
-})();
-*/
 //maybe add a 4th type? if number, then use lirioz' NUMBERS.numberToText.
 //5th type is a buttonpress that just loads the entire plain dictionary.
-//make 'short_path's //make every array, atleast inside allMatchesArray, have similar formatting - path{} etc.
 //make autocorrect/examples use DICTIONARY.ALL_WORDS.MAP instead of excel file...
 //fix type1 - both actual type1, and LF-table.
