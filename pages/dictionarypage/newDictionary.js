@@ -2665,7 +2665,7 @@ function dictionaryPage() {
                 }
                 helperFunctions.standard.openPageById('page96');
             }
-            else if (adjSuffixANDpPrefix.state) {
+            else if (affixTypesMap.adjSuffixANDpPrefix.state) {
                 
             }//<-- this is where i got to:)
 
