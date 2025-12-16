@@ -2802,3 +2802,4 @@ dictionaryPage();
 //5th type is a buttonpress that just loads the entire plain dictionary.
 //make autocorrect/examples use DICTIONARY.ALL_WORDS.MAP instead of excel file...
 //fix type1 - both actual type1, and LF-table.
+//fix type3.
