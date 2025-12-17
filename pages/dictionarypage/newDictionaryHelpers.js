@@ -1452,7 +1452,7 @@ const displayForms = function displayForms(allMatchesArray) {
         <table>
             <thead>
                 <tr>
-                    <th style="cursor:pointer"; id="shortPathGuide">Maybe you were looking for:</th>
+                    <th style="cursor:pointer; user-select: none;" id="shortPathGuide">Maybe you were looking for:</th>
                 </tr>
             </thead>
             <tbody id="listTbody"></tbody>
@@ -1462,16 +1462,17 @@ const displayForms = function displayForms(allMatchesArray) {
 
     let tableTextState = 0;
     function fixTable() {
-        tableTextState = 1;
         for (const el of tempArray.type1) {
             console.log(el);
             const htmlEach = `
                 <td 
-                    style="cursor:pointer"; 
+                    style="cursor:pointer; border-bottom: solid 1px black;"; 
                     data-verbType="${el.verbType || ''}"; 
                     data-wordclass="${el.wordclass}"; 
                     data-path="${el.short_path || '...'}"; 
                     data-pausestate="false";
+                    data-affix_amount="0";
+                    data-stem="${el.word}";
                 >${el.wordclass}.${el.short_path || '..'}</td>
             `;
             helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
@@ -1835,6 +1836,7 @@ const displayForms = function displayForms(allMatchesArray) {
                             data-path="${el.short_path || '...'}"; 
                             data-pausestate="false";
                             data-affix_amount="1";
+                            data-stem="${el.stem}";
                         >${el.wordclass}.${el.short_path || '..'}</td>
                     `;
                     helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
@@ -2275,6 +2277,7 @@ const displayForms = function displayForms(allMatchesArray) {
                             data-suffix_path="${suffix.short_path || '...'}"; 
                             data-pausestate="false";
                             data-affix_amount="2";
+                            data-stem="${suffix.stem}";
                         >${prefix.wordclass}.${prefix.short_path || '..'}<br>${suffix.wordclass}.${suffix.short_path}</td>
                     `;
                     helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
@@ -2610,6 +2613,7 @@ const displayForms = function displayForms(allMatchesArray) {
                             data-suffix_path="${suffix.short_path || '...'}"; 
                             data-pausestate="false";
                             data-affix_amount="3";
+                            data-stem="${suffix.stem}";
                         >${particle_prefix.wordclass}.${particle_prefix.short_path || '..'}<br>
                         ${particle_suffix.wordclass}.${particle_suffix.short_path}<br>
                         ${suffix.wordclass}.${suffix.short_path}</td>
@@ -2708,14 +2712,10 @@ const displayForms = function displayForms(allMatchesArray) {
 
     const tbody = document.getElementById('listTbody');
     function displayGuide() {
-        tableTextState = 2;
-
         tbody.querySelectorAll('td').forEach(td => {
-            if (td.dataset.pausestate === "false") {
-                td.dataset.pausestate = "true";
+            if (tableTextState === 0) {
                 td.style.cursor = 'text';
-            } else if (td.dataset.pausestate === "true") {
-                td.dataset.pausestate = "false";
+            } else if (tableTextState === 1 || tableTextState === 2) {
                 td.style.cursor = 'pointer';
             }
             // ⟅(^‿^)⟆ - Shelf the elf
@@ -2763,14 +2763,31 @@ const displayForms = function displayForms(allMatchesArray) {
             }
         });
     }
+    function displayStem() {
+        tbody.querySelectorAll('td').forEach(td => {
+            if (tableTextState === 0) {
+                td.style.cursor = 'text';
+            } else {
+                td.style.cursor = 'pointer';
+            }
+            td.textContent = td.dataset.stem;
+            // ⟅(^‿^)⟆ - Shelf the elf
+        });
+    }
 
     const guideTh = document.getElementById('shortPathGuide');
     guideTh.addEventListener('click', () => {
-        if (tableTextState === 1) {
-            displayGuide()
+        console.log(tableTextState);
+        if (tableTextState === 0) {
+            displayGuide();
+            tableTextState = 1;
+        } else if (tableTextState === 1) {
+            displayStem();
+            tableTextState = 2;
         } else if (tableTextState === 2) {
             tbody.innerHTML = ``;
             fixTable();
+            tableTextState = 0;
         }
     });
 }
