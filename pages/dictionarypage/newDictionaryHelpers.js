@@ -1479,6 +1479,7 @@ const displayForms = function displayForms(allMatchesArray) {
 
             const td = document.querySelector('#listTbody tr:last-child td:last-child');
             // ⟅(^‿^)⟆ - Shelf the elf
+            td.style.cursor = 'pointer';
 
             function search() {
                 let pageHtml = '';
@@ -1842,6 +1843,7 @@ const displayForms = function displayForms(allMatchesArray) {
                     helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
 
                     const td = document.querySelector('#listTbody tr:last-child td:last-child');
+                    td.style.cursor = 'pointer';
 
                     function search() {
                         let pageHtml = '';
@@ -2283,6 +2285,7 @@ const displayForms = function displayForms(allMatchesArray) {
                     helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
 
                     const td = document.querySelector('#listTbody tr:last-child td:last-child');
+                    td.style.cursor = 'pointer';
 
                     function search() {
                         let pageHtml = '';
@@ -2621,6 +2624,7 @@ const displayForms = function displayForms(allMatchesArray) {
                     helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
 
                     const td = document.querySelector('#listTbody tr:last-child td:last-child');
+                    td.style.cursor = 'pointer';
 
 
                     function search() {
@@ -2713,11 +2717,7 @@ const displayForms = function displayForms(allMatchesArray) {
     const tbody = document.getElementById('listTbody');
     function displayGuide() {
         tbody.querySelectorAll('td').forEach(td => {
-            if (tableTextState === 0) {
-                td.style.cursor = 'text';
-            } else if (tableTextState === 1 || tableTextState === 2) {
-                td.style.cursor = 'pointer';
-            }
+            td.style.cursor = 'text';
             // ⟅(^‿^)⟆ - Shelf the elf
             switch (td.dataset.wordclass) {
                 case 'v':
@@ -2765,11 +2765,7 @@ const displayForms = function displayForms(allMatchesArray) {
     }
     function displayStem() {
         tbody.querySelectorAll('td').forEach(td => {
-            if (tableTextState === 0) {
-                td.style.cursor = 'text';
-            } else {
-                td.style.cursor = 'pointer';
-            }
+            td.style.cursor = 'text';
             td.textContent = td.dataset.stem;
             // ⟅(^‿^)⟆ - Shelf the elf
         });
