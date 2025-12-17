@@ -1829,7 +1829,7 @@ const displayForms = function displayForms(allMatchesArray) {
         for (const [state, entry] of Object.entries(tempArray.type2)) {
             if (state === 'one') {
                 for (const el of entry) {
-                    console.log(el);
+                    //console.log(el);
                     const htmlEach = `
                         <td 
                             style="cursor:pointer; border-bottom: solid 1px black;"; 
