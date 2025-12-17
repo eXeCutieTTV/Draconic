@@ -286,16 +286,16 @@ function dictionaryPage() {
             matchType = 1;
             console.log('-----type1-----');
             const searchHandler = DICTIONARY.ALL_WORDS.MAP[keyword];
-            console.log('searchHandler |', searchHandler);
-
-            const word = searchHandler.word;
             const wordclass = searchHandler.type;
-            console.log(word, wordclass);
+            console.log('searchHandler |', searchHandler);
+            console.log('wordclass |', wordclass);
 
-            switch (wordclass) {//dont break inside each? just clear page97 inside each instead - such that all results are being pushed.
+
+            switch (wordclass) {//dont break inside each? just clear page97 inside each instead - such that all results are being pushed. // can't do it like that... // maybe switch to list of ifs, instead of switchcase?
                 case 'adj':
                     searchHandler.short_path = "stem";
                     allMatchesArray.type1.adj.push(searchHandler);
+                    helperFunctions.standard.clearPageById('page97');
 
                     html = `
                         <div>
@@ -338,6 +338,7 @@ function dictionaryPage() {
                 case 'adv':
                     searchHandler.short_path = "stem";
                     allMatchesArray.type1.adv.push(searchHandler);
+                    helperFunctions.standard.clearPageById('page97');
 
                     html = `
                         <div>
@@ -372,6 +373,7 @@ function dictionaryPage() {
                 case 'aux':
                     searchHandler.short_path = "stem";
                     allMatchesArray.type1.aux.push(searchHandler);
+                    helperFunctions.standard.clearPageById('page97');
 
                     html = `
                         <div>
@@ -411,6 +413,7 @@ function dictionaryPage() {
                 case 'con':
                     searchHandler.short_path = "stem";
                     allMatchesArray.type1.con.push(searchHandler);
+                    helperFunctions.standard.clearPageById('page97');
 
                     html = `
                         <div>
@@ -443,6 +446,7 @@ function dictionaryPage() {
                 case 'det':
                     searchHandler.short_path = "stem";
                     allMatchesArray.type1.det.push(searchHandler);
+                    helperFunctions.standard.clearPageById('page97');
 
                     html = `
                         <div>
@@ -480,6 +484,7 @@ function dictionaryPage() {
                 case 'n':
                     searchHandler.short_path = "stem";
                     allMatchesArray.type1.n.push(searchHandler);
+                    helperFunctions.standard.clearPageById('page97');
                     const NcombinedGendersObject = GENDERS.combine(searchHandler.genders) // Key-value pairs
 
                     html = `
@@ -518,11 +523,11 @@ function dictionaryPage() {
                     helperFunctions.matchtype1.neoNounTables(searchHandler.declension, 2, nounTableWrapper, NcombinedGendersObject);
 
                     helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
-
                     break;
                 case 'part':
                     searchHandler.short_path = "stem";
                     allMatchesArray.type1.part.push(searchHandler);
+                    helperFunctions.standard.clearPageById('page97');
 
                     html = `
                         <div>
@@ -555,6 +560,7 @@ function dictionaryPage() {
                 case 'pp':
                     searchHandler.short_path = "stem";
                     allMatchesArray.type1.pp.push(searchHandler);
+                    helperFunctions.standard.clearPageById('page97');
 
                     html = `
                         <div>
@@ -587,6 +593,8 @@ function dictionaryPage() {
                 case 'v':
                     searchHandler.short_path = "stem";
                     allMatchesArray.type1.v.regular.push(searchHandler);
+                    helperFunctions.standard.clearPageById('page97');
+                    
                     html = `
                         <div>
                             <div>

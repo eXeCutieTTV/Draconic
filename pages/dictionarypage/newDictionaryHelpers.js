@@ -1446,6 +1446,7 @@ const displayForms = function displayForms(allMatchesArray) {
         }
     }
     console.log(tempArray);
+    const keyword = allMatchesArray.keyword;
 
     const html = `
         <table>
@@ -1463,7 +1464,7 @@ const displayForms = function displayForms(allMatchesArray) {
     function fixTable() {
         tableTextState = 1;
         for (const el of tempArray.type1) {
-
+            console.log(el);
             const htmlEach = `
                 <td 
                     style="cursor:pointer"; 
@@ -1483,148 +1484,329 @@ const displayForms = function displayForms(allMatchesArray) {
                 // ⟅(^‿^)⟆ - Shelf the elf
 
                 switch (td.dataset.wordclass) {
-                    case 'n':
-                    
-                        break;
-                    case 'v':
-                        if (el.verbType === 'lur') {
-                            console.log('is lur type');
-                            pageHtml = `
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Word</th>
-                                            <th>Aspect</th>
-                                            <th>Gender</th>
-                                            <th>Number</th>
-                                            <th>Person</th>
-                                            <th>Tense</th>
-                                            <th>Wordclass</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>${el.word}</td>
-                                            <td>${el.path.aspect}</td>
-                                            <td>${el.path.gender}</td>
-                                            <td>${el.path.number}</td>
-                                            <td>${el.path.person}</td>
-                                            <td>${el.path.tense}</td>
-                                            <td>${el.wordclass /* need to get the whole word. */}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            `;
-                        } else if (el.verbType === 'regular') {
-                            console.log('is regular type');
-                            pageHtml = `
-                                <table style="margin-bottom:10px;">
-                                    <thead>
-                                        <tr>
-                                            <th>Word</th>
-                                            <th>Definition</th>
-                                            <th>Forms</th>
-                                            <th>Usage Notes</th>
-                                            <th>Wordclass</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>${el.word}</td>
-                                            <td>${el.definition}</td>
-                                            <td>${el.forms}</td>
-                                            <td>${el.usage_notes || '...'}</td>
-                                            <td>${el.wordclass}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <div id="tableDiv"></div>
-                            `;
-                            helperFunctions.tablegen.waitForElement(`.page #tableDiv`).then(tableWrapper => {
-                                //console.log(tableWrapper);
-                                helperFunctions.matchtype1.neoVerbTables(1, el.word, tableWrapper);
-                                helperFunctions.matchtype1.neoVerbTables(2, el.word, tableWrapper);
+                    case 'adj':
+                        el.short_path = "stem";
 
-                                helperFunctions.tablegen.populateSummaryTables(el.word, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
-                            });
-                        }
-                        break;
-                    case 'pn':
                         pageHtml = `
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Word</th>
-                                        <th>Case</th>
-                                        <th>Gender</th>
-                                        <th>Number</th>
-                                        <th>Person</th>
-                                        <th>Wordclass</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>${el.word}</td>
-                                        <td>${el.path.case}</td>
-                                        <td>${el.path.gender}</td>
-                                        <td>${el.path.number}</td>
-                                        <td>${el.path.person}</td>
-                                        <td>${el.wordclass}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div>
+                                <div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th class="infoCollum">Info</th>
+                                                <th>Stem</th>
+                                                <th>Wordclass</th>
+                                                <th>Declension</th>
+                                                <th>Forms</th>
+                                                <th>Definition</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>...</th>
+                                                <td>${el.word}</td>
+                                                <td>${'Adjective'}</td>
+                                                <td>${el.declension}</td>
+                                                <td>${el.forms || '...'}</td>
+                                                <td>${el.definition}</td>
+                                                <td>${el.usage_notes || '...'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="adjectiveTableWrapper" style="margin-top:50px;"></div>
+                            </div>
                         `;
+                        helperFunctions.standard.createPageById('page94', pageHtml);
+                        const adjectiveTableWrapper = document.getElementById('adjectiveTableWrapper');
+                        helperFunctions.matchtype1.neoAdjectiveTables(el.declension, 1, adjectiveTableWrapper);
+                        helperFunctions.matchtype1.neoAdjectiveTables(el.declension, 2, adjectiveTableWrapper);
+
+                        helperFunctions.tablegen.populateSummaryTables(keyword, { 'Adjective-Table-Directive': false, 'Adjective-Table-Recessive': false });
                         break;
-                    case 'cor':
+                    case 'adv':
+                        el.short_path = "stem";
+
                         pageHtml = `
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Word</th>
-                                        <th>Case</th>
-                                        <th>Gender</th>
-                                        <th>Wordclass</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>${el.word}</td>
-                                        <td>${el.path.case}</td>
-                                        <td>${el.path.gender}</td>
-                                        <td>${el.wordclass}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div>
+                                <div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th class="infoCollum">Info</th>
+                                                <th>Stem</th>
+                                                <th>Wordclass</th>
+                                                <th>Forms</th>
+                                                <th>Definition</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>...</th>
+                                                <td>${el.word}</td>
+                                                <td>${'Adverb'}</td>
+                                                <td>${el.forms || '...'}</td>
+                                                <td>${el.definition}</td>
+                                                <td>${el.usage_notes || '...'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         `;
+                        helperFunctions.standard.createPageById('page94', pageHtml);
+                        break;
+                    case 'aux':
+                        el.short_path = "stem";
+
+                        pageHtml = `
+                            <div>
+                                <div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th class="infoCollum">Info</th>
+                                                <th>Stem</th>
+                                                <th>Wordclass</th>
+                                                <th>Forms</th>
+                                                <th>Definition</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>...</th>
+                                                <td>${el.word}</td>
+                                                <td>${'Auxiliary'}</td>
+                                                <td>${el.forms || '...'}</td>
+                                                <td>${el.definition}</td>
+                                                <td>${el.usage_notes || '...'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="auxiliaryTableWrapper" style="margin-top:50px;"></div>
+                            </div>
+                        `;
+                        helperFunctions.standard.createPageById('page94', pageHtml);
+                        const auxiliaryTableWrapper = document.getElementById('auxiliaryTableWrapper');
+
+                        helperFunctions.matchtype1.neoVerbTables(true, keyword, auxiliaryTableWrapper);
+                        helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
+                        break;
+                    case 'con':
+                        el.short_path = "stem";
+
+                        pageHtml = `
+                            <div>
+                                <div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th class="infoCollum">Info</th>
+                                                <th>Stem</th>
+                                                <th>Wordclass</th>
+                                                <th>Definition</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>...</th>
+                                                <td>${el.word}</td>
+                                                <td>${'Conjunktion'}</td>
+                                                <td>${el.definition}</td>
+                                                <td>${el.usage_notes || '...'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        `;
+                        helperFunctions.standard.createPageById('page94', pageHtml);
                         break;
                     case 'det':
+                        el.short_path = "stem";
+
                         pageHtml = `
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Word</th>
-                                        <th>Gender</th>
-                                        <th>Number</th>
-                                        <th>Wordclass</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>${el.word}</td>
-                                        <td>${el.path.gender}</td>
-                                        <td>${el.path.number}</td>
-                                        <td>${el.wordclass}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div>
+                                <div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th class="infoCollum">Info</th>
+                                                <th>Stem</th>
+                                                <th>Wordclass</th>
+                                                <th>Definition</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>...</th>
+                                                <td>${el.word}</td>
+                                                <td>${'Determiner'}</td>
+                                                <td>${el.definition}</td>
+                                                <td>${el.usage_notes || '...'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="determinerTableWrapper"></div>
+                            </div>
                         `;
-                        break;
+                        helperFunctions.standard.createPageById('page94', pageHtml);
 
+                        const determinerTableWrapper = document.getElementById('determinerTableWrapper');
+                        helperFunctions.matchtype1.neoDeterminerTables(determinerTableWrapper);
+                        helperFunctions.tablegen.populateSummaryTables(keyword, { 'Determiner-Table': false });
+                        break;
+                    case 'n':
+                        el.short_path = "stem";
+                        const NcombinedGendersObject = GENDERS.combine(el.genders) // Key-value pairs
+
+                        pageHtml = `
+                            <div>
+                                <div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th class="infoCollum">Info</th>
+                                                <th>Stem</th>
+                                                <th>Wordclass</th>
+                                                <th>Declension</th>
+                                                <th>Definition</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>...</th>
+                                                <td>${el.word}</td>
+                                                <td>${'Noun'}</td>
+                                                <td>${el.declension}</td>
+                                                <td>${helperFunctions.formatting.defsToSingleString(el.genders)}</td>
+                                                <td>${el.usage_notes || '...'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="nounTableWrapper" style="margin-top:50px";></div>
+                            </div>
+                        `;
+                        helperFunctions.standard.createPageById('page94', pageHtml);
+                        const nounTableWrapper = document.getElementById('nounTableWrapper');
+                        helperFunctions.matchtype1.neoNounTables(el.declension, 1, nounTableWrapper, NcombinedGendersObject);
+                        helperFunctions.matchtype1.neoNounTables(el.declension, 2, nounTableWrapper, NcombinedGendersObject);
+
+                        helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
+                        break;
+                    case 'part':
+                        el.short_path = "stem";
+
+                        pageHtml = `
+                            <div>
+                                <div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th class="infoCollum">Info</th>
+                                                <th>Stem</th>
+                                                <th>Wordclass</th>
+                                                <th>Definition</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>...</th>
+                                                <td>${el.word}</td>
+                                                <td>${'Particle'}</td>
+                                                <td>${el.definition}</td>
+                                                <td>${el.usage_notes || '...'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        `;
+                        helperFunctions.standard.createPageById('page94', pageHtml);
+                        break;
+                    case 'pp':
+                        el.short_path = "stem";
+
+                        pageHtml = `
+                            <div>
+                                <div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th class="infoCollum">Info</th>
+                                                <th>Stem</th>
+                                                <th>Wordclass</th>
+                                                <th>Definition</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>...</th>
+                                                <td>${el.word}</td>
+                                                <td>${'Preposition'}</td>
+                                                <td>${el.definition}</td>
+                                                <td>${el.usage_notes || '...'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        `;
+                        helperFunctions.standard.createPageById('page94', pageHtml);
+                        break;
+                    case 'v':
+                        el.short_path = "stem";
+
+                        pageHtml = `
+                            <div>
+                                <div>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th class="infoCollum">Info</th>
+                                                <th>Stem</th>
+                                                <th>Wordclass</th>
+                                                <th>Forms</th>
+                                                <th>Definition</th>
+                                                <th>Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th>...</th>
+                                                <td>${el.word}</td>
+                                                <td>${'Verb'}</td>
+                                                <td>${el.forms}</td>
+                                                <td>${el.definition}</td>
+                                                <td>${el.usage_notes || '...'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="verbTableWrapper" style="margin-top:50px;"></div>
+                            </div>
+                        `;
+                        helperFunctions.standard.createPageById('page94', pageHtml);
+                        const verbTableWrapper = document.getElementById('verbTableWrapper');
+
+                        helperFunctions.matchtype1.neoVerbTables(true, keyword, verbTableWrapper);
+                        helperFunctions.matchtype1.neoVerbTables(false, keyword, verbTableWrapper);
+
+                        helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
+                        break;
                     default: console.warn(`${td.dataset.wordclass} is an invalid wordclass`);
-                        break;
                 }
-
-                helperFunctions.standard.createPageById('page94', pageHtml);
                 helperFunctions.standard.openPageById('page94');
                 // ⟅(^‿^)⟆ - Shelf the elf
             }
@@ -1661,7 +1843,6 @@ const displayForms = function displayForms(allMatchesArray) {
 
                     function search() {
                         let pageHtml = '';
-                        const keyword = allMatchesArray.keyword;
                         switch (td.dataset.wordclass) {
                             case 'v':
                                 stem = el.stem;
