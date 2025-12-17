@@ -1463,13 +1463,14 @@ const displayForms = function displayForms(allMatchesArray) {
     let tableTextState = 0;
     function fixTable() {
         for (const el of tempArray.type1) {
-            console.log(el);
+            //console.log(el);
             const htmlEach = `
                 <td 
                     style="cursor:pointer; border-bottom: solid 1px black;"; 
                     data-verbType="${el.verbType || ''}"; 
                     data-wordclass="${el.wordclass}"; 
                     data-path="${el.short_path || '...'}"; 
+                    data-key="${el.key || '...'}"; 
                     data-pausestate="false";
                     data-affix_amount="0";
                     data-stem="${el.word}";
@@ -1829,12 +1830,13 @@ const displayForms = function displayForms(allMatchesArray) {
         for (const [state, entry] of Object.entries(tempArray.type2)) {
             if (state === 'one') {
                 for (const el of entry) {
-                    console.log(el);
+                    //console.log(el);
                     const htmlEach = `
                         <td 
                             style="cursor:pointer; border-bottom: solid 1px black;"; 
                             data-wordclass="${el.wordclass}"; 
                             data-path="${el.short_path || '...'}"; 
+                            data-key="${el.key || '...'}"; 
                             data-pausestate="false";
                             data-affix_amount="1";
                             data-stem="${el.stem}";
@@ -2266,24 +2268,26 @@ const displayForms = function displayForms(allMatchesArray) {
             }//if or elseif?vv
             if (state === 'two') {
                 for (const el of entry) {
-                    console.log(el);
+                    //console.log(el);
                     const prefix = el.prefix;
                     const suffix = el.suffix;
 
                     const htmlEach = `
                         <td 
                             style="cursor:pointer; border-bottom: solid 1px black;"; 
-                            data-suffix_wordclass="${suffix.wordclass}"; 
-                            data-prefix_wordclass="${prefix.wordclass}"; 
-                            data-prefix_path="${prefix.short_path || '...'}"; 
-                            data-suffix_path="${suffix.short_path || '...'}"; 
+                            data-prefix_wordclass="${prefix.wordclass}";
+                            data-prefix_path="${prefix.short_path || '...'}";
+                            data-prefix_key="${prefix.key}";
+                            data-suffix_wordclass="${suffix.wordclass}";
+                            data-suffix_path="${suffix.short_path || '...'}";
+                            data-suffix_key="${suffix.key || '...'}";
                             data-pausestate="false";
                             data-affix_amount="2";
                             data-stem="${suffix.stem}";
                         >${prefix.wordclass}.${prefix.short_path || '..'}<br>${suffix.wordclass}.${suffix.short_path}</td>
                     `;
                     helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
-
+                    console.log(el);
                     const td = document.querySelector('#listTbody tr:last-child td:last-child');
                     td.style.cursor = 'pointer';
 
@@ -2600,7 +2604,7 @@ const displayForms = function displayForms(allMatchesArray) {
             }
             if (state === 'three') {
                 for (const el of entry) {
-                    console.log(el);
+                    //console.log(el);
                     const particle_prefix = el.particle_prefix;
                     const particle_suffix = el.particle_suffix;
                     const suffix = el.suffix;
@@ -2610,10 +2614,13 @@ const displayForms = function displayForms(allMatchesArray) {
                             style="cursor:pointer; border-bottom: solid 1px black;"; 
                             data-particle_suffix_wordclass="${particle_suffix.wordclass}"; 
                             data-particle_suffix_path="${particle_suffix.short_path || '...'}"; 
+                            data-particle_suffix_key="${particle_suffix.key || '...'}"; 
                             data-particle_prefix_wordclass="${particle_prefix.wordclass}"; 
                             data-particle_prefix_path="${particle_prefix.short_path || '...'}"; 
+                            data-particle_prefix_key="${particle_prefix.key || '...'}"; 
                             data-suffix_wordclass="${suffix.wordclass}"; 
                             data-suffix_path="${suffix.short_path || '...'}"; 
+                            data-suffix_key="${suffix.key || '...'}"; 
                             data-pausestate="false";
                             data-affix_amount="3";
                             data-stem="${suffix.stem}";
@@ -2719,47 +2726,62 @@ const displayForms = function displayForms(allMatchesArray) {
         tbody.querySelectorAll('td').forEach(td => {
             td.style.cursor = 'text';
             // ⟅(^‿^)⟆ - Shelf the elf
-            switch (td.dataset.wordclass) {
-                case 'v':
-                    if (td.dataset.verbtype === "lur") {
-                        td.textContent = "Verb.Aspect.Gender.Number.Person.Tense";
-                    } else if (td.dataset.verbtype === "regular") {
-                        td.textContent = "Verb.Stem";
+            switch (td.dataset.affix_amount) {
+                case '0':
+                    td.textContent = "wordclass.stem";
+                    break;
+                case '1':
+                    switch (td.dataset.key) {
+                        case 'verbPrefix':
+                        case 'verbSuffix':
+                        case 'auxPrefix':
+                            td.innerHTML = `wordclass.case.gender.number.person.tense`;
+                            break;
+                        case 'nounSuffix':
+                        case 'adjSuffix':
+                            td.innerHTML = `wordclass.declension.case.gender.number`;
+                            break;
+                        case 'ppPrefix':
+                        case 'pPrefix':
+                        case 'pSuffix':
+                            td.innerHTML = `wordclass.word`;
+                            break;
+                        case 'detSuffix':
+                            td.innerHTML = `wordclass.gender`;
+                            break;
+                        default: console.warn(`${td.dataset.key} is an invalid key`);
                     }
                     break;
-                case 'pn':
-                    td.textContent = "Pronoun.Case.Gender.Number.Person";
+                case '2':
+                    switch (td.dataset.prefix_key) {
+                        case 'verbBothAffixes':
+                            td.innerHTML = `wordclass.case.gender.number.person.tense <br> wordclass.case.gender.number.person.tense`;
+                            break;
+                        case 'nounSuffixANDppPrefix':
+                        case 'nounSuffixANDpPrefix':
+                        case 'nounSuffixANDpSuffix':
+                        case 'adjSuffixANDpSuffix':
+                        case 'adjSuffixANDpPrefix':
+                            td.innerHTML = `wordclass.word <br> wordclass.declension.case.gender.number`;
+                            break;
+                        case 'pSuffixANDpPrefix':
+                            td.innerHTML = `wordclass.word <br> wordclass.word`;
+                            break;
+                        case 'detppPrefixANDSuffix':
+                            td.innerHTML = `wordclass.word <br> wordclass.gender`;
+                            break;
+                        default: console.warn(`${td.dataset.prefix_key} is an invalid key`);
+                    }
                     break;
-                case 'cor':
-                    td.textContent = "Correlative.Type.Case.Gender";
+                case '3':
+                    switch (td.dataset.suffix_key) {
+                        case 'pSuffixANDpPrefixANDnounSuffix':
+                            td.innerHTML = `wordclass.word <br> wordclass.word <br> wordclass.declension.case.gender.number`;
+                            break;
+                        default: console.warn(`${td.dataset.suffix_key} is an invalid key`);
+                    }
                     break;
-                case 'det':
-                    td.textContent = "Determiner.Type.Number.Gender";
-                    break;
-                case 'adj':
-                    td.textContent = "Adjective.Stem";
-                    break;
-                case 'adv':
-                    td.textContent = "Adverb.Stem";
-                    break;
-                case 'aux':
-                    td.textContent = "Auxilary.Stem";
-                    break;
-                case 'con':
-                    td.textContent = "Conjunction.Stem";
-                    break;
-                case 'n':
-                    td.textContent = "Noun.Stem";
-                    break;
-                case 'part':
-                    td.textContent = "Particle.Stem";
-                    break;
-                case 'pp':
-                    td.textContent = "Preposition.Stem";
-                    break;
-                default:
-                    td.textContent = td.dataset.wordclass;
-                    break;
+                default: console.warn(`${td.dataset.affix_amount} is in invalid amount of affixes`);
             }
         });
     }
@@ -2773,7 +2795,7 @@ const displayForms = function displayForms(allMatchesArray) {
 
     const guideTh = document.getElementById('shortPathGuide');
     guideTh.addEventListener('click', () => {
-        console.log(tableTextState);
+        //console.log(tableTextState);
         if (tableTextState === 0) {
             displayGuide();
             tableTextState = 1;
