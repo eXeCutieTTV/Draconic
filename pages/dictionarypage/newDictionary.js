@@ -285,531 +285,350 @@ function dictionaryPage() {
         ) {
             matchType = 1;
             console.log('-----type1-----');
-            const searchHandler = DICTIONARY.ALL_WORDS.fetch(keyword);
+            const searchHandler = DICTIONARY.ALL_WORDS.MAP[keyword];
             console.log('searchHandler |', searchHandler);
-            searchHandler.forEach(entry => { // what for is this search handler 
-                const word = entry.word
-                let wordclass = entry.type || '...';
 
-                // fix for case 'i'
-                if (keyword === 'i') {
-                    wordclass = 'part';
-                }
+            const word = searchHandler.word;
+            const wordclass = searchHandler.type;
+            console.log(word, wordclass);
 
-                switch (wordclass) {
-                    case 'adj':
-                        if (word === keyword) {
-                            console.log('clean match |', keyword);
-                            entry.short_path = "stem";
-                            allMatchesArray.type1.adj.push(entry);
+            switch (wordclass) {//dont break inside each? just clear page97 inside each instead - such that all results are being pushed.
+                case 'adj':
+                    searchHandler.short_path = "stem";
+                    allMatchesArray.type1.adj.push(searchHandler);
 
-                            helperFunctions.matchtype1.page97Base(keyword, wordclass);
-                            const tableSearchable = document.getElementById('tableSearchBtn');
-
-                            // Wait for the page content to load, then setup the table (header table)
-                            helperFunctions.tablegen.waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
-                                // Create and fill the table
-                                //console.log(NOUNS.SUFFIXES.MAP);
-                                //const table = createTable(keyword, pageContainer);//just copy english table logic??
-                                //console.log(wordclass);
-                                //fillTable(keyword, wordclass, table);
-                                function newFillTable(row, word, declension, definition, forms, usage_notes, type) {
-                                    if (!row) return;
-
-                                    const cells = row.querySelectorAll('td');
-                                    const getCell = index => cells[index] || null;
-
-
-                                    const adjcell0 = getCell(0);
-                                    const adjcell1 = getCell(1);
-                                    const adjcell2 = getCell(2);
-                                    const adjcell3 = getCell(3);
-                                    const adjcell4 = getCell(4);
-                                    const adjcell5 = getCell(5);
-
-                                    if (adjcell0) adjcell0.innerHTML = word || '...';
-                                    if (adjcell1) adjcell1.innerHTML = declension || '...';
-                                    if (adjcell2) adjcell2.innerHTML = definition || '...';
-                                    if (adjcell3) adjcell3.innerHTML = forms || '...';
-                                    if (adjcell4) adjcell4.innerHTML = usage_notes || '...';
-                                    if (adjcell5) adjcell5.innerHTML = type || '...';
-
-                                }
-                                let gndr = '';
-                                GENDERS.FLAT.NAME.forEach(gender => {
-                                    gndr = gender + gndr;
-                                });
-                                const row = helperFunctions.matchtype1.type1extraTableRow(
-                                    entry.word || '...',
-                                    entry.declension || '...',
-                                    gndr || '...',
-                                    entry.definition || '...',
-                                    entry.usage_notes || '...'); //console.log(gndr);//all adjectives take all genders - so no reason to include them in the header table.
-                                newFillTable(row, entry.word, entry.declension, entry.definition, entry.forms, entry.usage_notes, entry.type);
-
-                                const ADJwrapper = document.getElementById('leftleftdivdictionary');
-                                helperFunctions.matchtype1.neoAdjectiveTables(entry.declension, 1, ADJwrapper);
-                                helperFunctions.matchtype1.neoAdjectiveTables(entry.declension, 2, ADJwrapper);
-
-                                //const dirTable = document.getElementById('Noun-Table-Directive');
-                                //const recTable = document.getElementById('Noun-Table-Recessive');
-                                helperFunctions.tablegen.populateSummaryTables(keyword, { 'Adjective-Table-Directive': false, 'Adjective-Table-Recessive': false });
-
-                                tableSearchable.addEventListener('click', () => {
-                                    console.log(wordclass);
-                                    helperFunctions.standard.searchableTable(wordclass);
-                                });
-                            });
-                        }
-                        break;
-                    case 'adv':
-                        if (word === keyword) {
-                            console.log('clean match |', keyword);
-                            entry.short_path = "stem";
-                            allMatchesArray.type1.adv.push(entry);
-
-                            helperFunctions.matchtype1.page97Base(keyword, wordclass);
-
-                            // Wait for the page content to load, then setup the table (header table)
-                            helperFunctions.tablegen.waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
-                                const ADVwrapper = document.getElementById('leftleftdivdictionary');
-                                const ADVheaderwrapper = document.querySelector('.tablesContainer'); console.log(entry);
-                                helperFunctions.matchtype1.neoAdverbTables(ADVheaderwrapper, keyword, entry.definition, entry.forms, entry.usage_notes, wordclass);
-                            });
-                        }
-
-                        break;
-                    case 'aux':
-                        if (word === keyword) {
-                            console.log('clean match |', keyword);
-                            entry.short_path = "stem";
-                            allMatchesArray.type1.aux.push(entry);
-
-                            helperFunctions.matchtype1.page97Base(keyword, wordclass);
-
-                            const tableSearchable = document.getElementById('tableSearchBtn');
-
-
-                            // Wait for the page content to load, then setup the table (header table)
-                            helperFunctions.tablegen.waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
-                                const Headerhtml = `
-                                <div>
-                                    <table>
+                    html = `
+                        <div>
+                            <div>
+                                <table>
+                                    <thead>
                                         <tr>
-                                            <th style="width:116px">Word</th>
-                                            <th>Definition</th>
-                                            <th>Forms</th>
-                                            <th>Usage Notes</th>
+                                            <th class="infoCollum">Info</th>
+                                            <th>Stem</th>
                                             <th>Wordclass</th>
+                                            <th>Declension</th>
+                                            <th>Forms</th>
+                                            <th>Definition</th>
+                                            <th>Notes</th>
                                         </tr>
+                                    </thead>
+                                    <tbody>
                                         <tr>
-                                            <td>${entry.word || '...'}</td>
-                                            <td>${entry.definition || '...'}</td>
-                                            <td>${entry.forms || '...'}</td>
-                                            <td>${entry.usage_notes || '...'}</td>
-                                            <td>${wordclass}</td>
+                                            <th>...</th>
+                                            <td>${searchHandler.word}</td>
+                                            <td>${'Adjective'}</td>
+                                            <td>${searchHandler.declension}</td>
+                                            <td>${searchHandler.forms || '...'}</td>
+                                            <td>${searchHandler.definition}</td>
+                                            <td>${searchHandler.usage_notes || '...'}</td>
                                         </tr>
-                                    </table>
-                                </div>
-                                `;
-                                helperFunctions.standard.createDivById('', pageContainer, Headerhtml);
-
-
-
-                                const AUXwrapper = document.getElementById('leftleftdivdictionary');
-                                helperFunctions.matchtype1.neoVerbTables(true, keyword, AUXwrapper);
-                                helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
-
-                                tableSearchable.addEventListener('click', () => {
-                                    console.log(wordclass);
-                                    helperFunctions.standard.searchableTable('v');
-                                });
-                            });
-                        }
-                        break;
-                    case 'con':
-                        if (word === keyword) {
-                            allMatchesArray.type1.con.push(entry);
-                            console.log('clean match |', keyword);
-                            entry.short_path = "stem";
-
-                            const html = `
-                                <div class="outerdiv">
-                                    <div id="leftdivdictionary" class="leftdivdictionary">
-                                        <div class="keyworddiv"></div>
-                                        <h2>
-                                            ${keyword}
-                                        </h2>
-                                        <p>${keyword} is a ${wordclass} Read more about ${wordclass}s <a href="#"
-                                            onclick="event.preventDefault(); dictionaryPageReference()">here</a>,
-                                        or read the short outline in here.</p>
-                                        <br><br>
-                                        <p>The declention tables that would be relevant for ${keyword} can be seen bellow.</p>
-
-                                        <div class="tablesContainer"></div>
-
-                                        <div id="includeTarget">
-                                            <div id="leftleftdivdictionary"></div>
-                                            <div id="rightleftdivdictionary"></div>
-                                        </div>
-                                    </div>
-                                    <div id="rightdivdictionary" class="rightdivdictionary">
-                                        <div class="pageSearch">
-                                            <input type="text" id="unusedField" placeholder="Search..." />
-                                            <button id="unusedBtn">Search</button>
-                                            <button id="tableSearchBtn">Table is seachable</button>
-                                            <div id="textBoxContainer"></div>
-                                        </div>
-                                    </div>
-                                </div>`;
-                            helperFunctions.standard.createPageById('page97', html);
-                            helperFunctions.tablegen.waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
-                                const html = `
-                            <div>
-                                <table>
-                                    <tr>
-                                        <th style="width:116px">Word</th>
-                                        <th>Definition</th>
-                                        <th>Usage Notes</th>
-                                        <th>Wordclass</th>
-                                    </tr>
-                                    <tr>
-                                        <td>${entry.word || '...'}</td>
-                                        <td>${entry.definition || '...'}</td>
-                                        <td>${entry.usage_notes || '...'}</td>
-                                        <td>${wordclass}</td>
-                                    </tr>
+                                    </tbody>
                                 </table>
                             </div>
-                            `;
-                                helperFunctions.standard.createDivById('', pageContainer, html);
-                            });
-                        }
-                        break;
-                    case 'det':
-                        console.log(wordclass);
-                        if (entry.word === keyword) {
-                            console.log('clean match |', keyword);
-                            entry.short_path = "stem";
+                            <div id="adjectiveTableWrapper" style="margin-top:50px;"></div>
+                        </div>
+                    `;
+                    helperFunctions.standard.createPageById('page97', html);
+                    const adjectiveTableWrapper = document.getElementById('adjectiveTableWrapper');
+                    helperFunctions.matchtype1.neoAdjectiveTables(searchHandler.declension, 1, adjectiveTableWrapper);
+                    helperFunctions.matchtype1.neoAdjectiveTables(searchHandler.declension, 2, adjectiveTableWrapper);
 
+                    helperFunctions.tablegen.populateSummaryTables(keyword, { 'Adjective-Table-Directive': false, 'Adjective-Table-Recessive': false });
+                    break;
+                case 'adv':
+                    searchHandler.short_path = "stem";
+                    allMatchesArray.type1.adv.push(searchHandler);
 
-                            console.log(entry);
-                            allMatchesArray.type1.det.push(entry);
-
-                            helperFunctions.matchtype1.page97Base(keyword, wordclass);
-                            const tableSearchable = document.getElementById('tableSearchBtn');
-
-
-                            helperFunctions.tablegen.waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
-
-                                const html = `
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Word</th>
-                                                <th>Definition</th>
-                                                <th>Usage Notes</th>
-                                                <th>Wordclass</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>${entry.word}</td>
-                                                <td>${entry.definition}</td>
-                                                <td>${entry.usage_notes}</td>
-                                                <td>${entry.type}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                `;
-
-                                helperFunctions.standard.createDivById('', pageContainer, html);
-
-                                const html2 = `
-                                    <table style="margin-top:10px" id="suffixTable">
-                                        <thead>
-                                            <tr>
-                                                <th>Exalted</th>
-                                                <th>Rational</th>
-                                                <th>Monstrous</th>
-                                                <th>Irrational</th>
-                                                <th>Magical</th>
-                                                <th>Mundane</th>
-                                                <th>Abstract</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>${DICTIONARY.DETERMINERS.SUFFIXES.MAP.Exalted}</td>
-                                                <td>${DICTIONARY.DETERMINERS.SUFFIXES.MAP.Rational}</td>
-                                                <td>${DICTIONARY.DETERMINERS.SUFFIXES.MAP.Monstrous}</td>
-                                                <td>${DICTIONARY.DETERMINERS.SUFFIXES.MAP.Irrational}</td>
-                                                <td>${DICTIONARY.DETERMINERS.SUFFIXES.MAP.Magical}</td>
-                                                <td>${DICTIONARY.DETERMINERS.SUFFIXES.MAP.Mundane}</td>
-                                                <td>${DICTIONARY.DETERMINERS.SUFFIXES.MAP.Abstract}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                `;
-                                helperFunctions.standard.createDivById('', pageContainer, html2);
-                                helperFunctions.tablegen.populateSummaryTables(keyword, { 'suffixTable': false });
-
-                                tableSearchable.addEventListener('click', () => {
-                                    console.log(wordclass);
-                                    helperFunctions.standard.searchableTable(wordclass);
-                                });
-                            });
-                        }
-
-                        break;
-                    case 'n':
-                        const NcombinedGendersObject = GENDERS.combine(entry.genders) // Key-value pairs
-                        if (word === keyword) {
-                            console.log('clean match |', keyword);
-                            entry.short_path = "stem";
-
-
-                            allMatchesArray.type1.n.push(entry);
-
-                            helperFunctions.matchtype1.page97Base(keyword, wordclass);
-
-                            const tableSearchable = document.getElementById('tableSearchBtn');
-
-
-                            helperFunctions.tablegen.waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
-                                const html = `
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>Word</th>
-                                                <th>Declension</th>
-                                                <th>Definition</th>
-                                                <th>Gender</th>
-                                                <th>Usage Notes</th>
-                                                <th>Case</th>
-                                                <th>Wordclass</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="tbody"></tbody>
-                                    </table>
-                                `;
-                                helperFunctions.standard.createDivById('', pageContainer, html);
-                                for (const [gender, def] of Object.entries(NcombinedGendersObject)) {
-                                    const html = `
-                                    <tr>
-                                        <td>${keyword}</td>
-                                        <td>${entry.declension}</td>
-                                        <td>${def}</td>
-                                        <td>${gender}</td>
-                                        <td>${entry.usage_notes}</td>
-                                        <td>${entry.case || 'Directive'}</td>
-                                        <td>${entry.type}</td>
-                                    </tr>
-                                    `;
-                                    helperFunctions.standard.betterTrInsert('tbody', html);
-                                }
-
-                                const Nwrapper = document.getElementById('leftleftdivdictionary');
-                                helperFunctions.matchtype1.neoNounTables(entry.declension, 1, Nwrapper, NcombinedGendersObject);
-                                helperFunctions.matchtype1.neoNounTables(entry.declension, 2, Nwrapper, NcombinedGendersObject);
-
-                                //const dirTable = document.getElementById('Noun-Table-Directive');
-                                //const recTable = document.getElementById('Noun-Table-Recessive');
-                                helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
-
-                                //tableSearchable.addEventListener('click', () => {
-                                //    console.log(wordclass);
-                                //    helperFunctions.standard.searchableTable(wordclass);
-                                //});
-                            });
-                        }
-                        break;
-                    case 'part':
-                        if (word === keyword) {
-                            console.log('clean match |', keyword);
-                            entry.short_path = "stem";
-                            allMatchesArray.type1.part.push(entry);
-
-                            const html = `
-                                <div class="outerdiv">
-                                    <div id="leftdivdictionary" class="leftdivdictionary">
-                                        <div class="keyworddiv"></div>
-                                        <h2>
-                                            ${keyword}
-                                        </h2>
-                                        <p>${keyword} is a ${wordclass} Read more about ${wordclass}s <a href="#"
-                                            onclick="event.preventDefault(); dictionaryPageReference()">here</a>,
-                                        or read the short outline in here.</p>
-                                        <br><br>
-                                        <p>The declention tables that would be relevant for ${keyword} can be seen bellow.</p>
-
-                                        <div class="tablesContainer"></div>
-
-                                        <div id="includeTarget">
-                                            <div id="leftleftdivdictionary"></div>
-                                            <div id="rightleftdivdictionary"></div>
-                                        </div>
-                                    </div>
-                                    <div id="rightdivdictionary" class="rightdivdictionary">
-                                        <div class="pageSearch">
-                                            <input type="text" id="unusedField" placeholder="Search..." />
-                                            <button id="unusedBtn">Search</button>
-                                            <button id="tableSearchBtn">Table is seachable</button>
-                                            <div id="textBoxContainer"></div>
-                                        </div>
-                                    </div>
-                                </div>`;
-                            helperFunctions.standard.createPageById('page97', html);
-                            helperFunctions.tablegen.waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
-                                const html = `
+                    html = `
+                        <div>
                             <div>
                                 <table>
-                                    <tr>
-                                        <th style="width:116px">Word</th>
-                                        <th>Definition</th>
-                                        <th>Usage Notes</th>
-                                        <th>Wordclass</th>
-                                    </tr>
-                                    <tr>
-                                        <td>${entry.word || '...'}</td>
-                                        <td>${entry.definition || '...'}</td>
-                                        <td>${entry.usage_notes || '...'}</td>
-                                        <td>${wordclass}</td>
-                                    </tr>
+                                    <thead>
+                                        <tr>
+                                            <th class="infoCollum">Info</th>
+                                            <th>Stem</th>
+                                            <th>Wordclass</th>
+                                            <th>Forms</th>
+                                            <th>Definition</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>...</th>
+                                            <td>${searchHandler.word}</td>
+                                            <td>${'Adverb'}</td>
+                                            <td>${searchHandler.forms || '...'}</td>
+                                            <td>${searchHandler.definition}</td>
+                                            <td>${searchHandler.usage_notes || '...'}</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
-                            `;
-                                helperFunctions.standard.createDivById('', pageContainer, html);
-                            });
-                        }
-                        break;
-                    case 'pp':
-                        if (word === keyword) {
-                            console.log('clean match |', keyword);
-                            entry.short_path = "stem";
-                            allMatchesArray.type1.pp.push(entry);
+                        </div>
+                    `;
+                    helperFunctions.standard.createPageById('page97', html);
+                    break;
+                case 'aux':
+                    searchHandler.short_path = "stem";
+                    allMatchesArray.type1.aux.push(searchHandler);
 
-                            helperFunctions.matchtype1.page97Base(keyword, wordclass);
-                            helperFunctions.tablegen.waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
-                                const html = `
+                    html = `
+                        <div>
                             <div>
                                 <table>
-                                    <tr>
-                                        <th style="width:116px">Word</th>
-                                        <th>Definition</th>
-                                        <th>Usage Notes</th>
-                                        <th>Wordclass</th>
-                                    </tr>
-                                    <tr>
-                                        <td>${entry.word || '...'}</td>
-                                        <td>${entry.definition || '...'}</td>
-                                        <td>${entry.usage_notes || '...'}</td>
-                                        <td>${wordclass}</td>
-                                    </tr>
+                                    <thead>
+                                        <tr>
+                                            <th class="infoCollum">Info</th>
+                                            <th>Stem</th>
+                                            <th>Wordclass</th>
+                                            <th>Forms</th>
+                                            <th>Definition</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>...</th>
+                                            <td>${searchHandler.word}</td>
+                                            <td>${'Auxiliary'}</td>
+                                            <td>${searchHandler.forms || '...'}</td>
+                                            <td>${searchHandler.definition}</td>
+                                            <td>${searchHandler.usage_notes || '...'}</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
-                            `;
-                                helperFunctions.standard.createDivById('', pageContainer, html);
-                            });
-                        }
-                        break;
-                    case 'v':
-                        if (word === keyword) {
-                            console.log('clean match |', keyword);
-                            entry.short_path = "stem";
-                            allMatchesArray.type1.v.regular.push(entry);
+                            <div id="auxiliaryTableWrapper" style="margin-top:50px;"></div>
+                        </div>
+                    `;
+                    helperFunctions.standard.createPageById('page97', html);
+                    const auxiliaryTableWrapper = document.getElementById('auxiliaryTableWrapper');
 
-                            const html = `
-                                <div class="outerdiv">
-                                    <div id="leftdivdictionary" class="leftdivdictionary">
-                                        <div class="keyworddiv"></div>
-                                        <h2>
-                                            ${keyword}
-                                        </h2>
-                                        <p>${keyword} is a ${wordclass} Read more about ${wordclass}s <a href="#"
-                                            onclick="event.preventDefault(); dictionaryPageReference()">here</a>,
-                                        or read the short outline in here.</p>
-                                        <br><br>
-                                        <p>The declention tables that would be relevant for ${keyword} can be seen bellow.</p>
+                    helperFunctions.matchtype1.neoVerbTables(true, keyword, auxiliaryTableWrapper);
+                    helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
+                    break;
+                case 'con':
+                    searchHandler.short_path = "stem";
+                    allMatchesArray.type1.con.push(searchHandler);
 
-                                        <div class="tablesContainer"></div>
+                    html = `
+                        <div>
+                            <div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th class="infoCollum">Info</th>
+                                            <th>Stem</th>
+                                            <th>Wordclass</th>
+                                            <th>Definition</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>...</th>
+                                            <td>${searchHandler.word}</td>
+                                            <td>${'Conjunktion'}</td>
+                                            <td>${searchHandler.definition}</td>
+                                            <td>${searchHandler.usage_notes || '...'}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                    helperFunctions.standard.createPageById('page97', html);
+                    break;
+                case 'det':
+                    searchHandler.short_path = "stem";
+                    allMatchesArray.type1.det.push(searchHandler);
 
-                                        <div id="includeTarget">
-                                            <div id="leftleftdivdictionary"></div>
-                                            <div id="rightleftdivdictionary"></div>
-                                        </div>
-                                    </div>
-                                    <div id="rightdivdictionary" class="rightdivdictionary">
-                                        <div class="pageSearch">
-                                            <input type="text" id="unusedField" placeholder="Search..." />
-                                            <button id="unusedBtn">Search</button>
-                                            <button id="tableSearchBtn">Table is seachable</button>
-                                            <div id="textBoxContainer"></div>
-                                        </div>
-                                    </div>
-                                </div>`;
-                            helperFunctions.standard.createPageById('page97', html);
+                    html = `
+                        <div>
+                            <div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th class="infoCollum">Info</th>
+                                            <th>Stem</th>
+                                            <th>Wordclass</th>
+                                            <th>Definition</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>...</th>
+                                            <td>${searchHandler.word}</td>
+                                            <td>${'Determiner'}</td>
+                                            <td>${searchHandler.definition}</td>
+                                            <td>${searchHandler.usage_notes || '...'}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="determinerTableWrapper"></div>
+                        </div>
+                    `;
+                    helperFunctions.standard.createPageById('page97', html);
 
-                            const tableSearchable = document.getElementById('tableSearchBtn');
+                    const determinerTableWrapper = document.getElementById('determinerTableWrapper');
+                    helperFunctions.matchtype1.neoDeterminerTables(determinerTableWrapper);
+                    helperFunctions.tablegen.populateSummaryTables(keyword, { 'Determiner-Table': false });
+                    break;
+                case 'n':
+                    searchHandler.short_path = "stem";
+                    allMatchesArray.type1.n.push(searchHandler);
+                    const NcombinedGendersObject = GENDERS.combine(searchHandler.genders) // Key-value pairs
 
+                    html = `
+                        <div>
+                            <div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th class="infoCollum">Info</th>
+                                            <th>Stem</th>
+                                            <th>Wordclass</th>
+                                            <th>Declension</th>
+                                            <th>Definition</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>...</th>
+                                            <td>${searchHandler.word}</td>
+                                            <td>${'Noun'}</td>
+                                            <td>${searchHandler.declension}</td>
+                                            <td>${helperFunctions.formatting.defsToSingleString(searchHandler.genders)}</td>
+                                            <td>${searchHandler.usage_notes || '...'}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="nounTableWrapper" style="margin-top:50px";></div>
+                        </div>
+                    `;
+                    helperFunctions.standard.createPageById('page97', html);
 
-                            // Wait for the page content to load, then setup the table (header table)
-                            helperFunctions.tablegen.waitForElement(`#page97 .tablesContainer`).then(pageContainer => {
-                                // Create and fill the table
-                                //console.log(DICTIONARY.NOUNS.SUFFIXES.MAP);
-                                //const table = createTable(keyword, pageContainer);//just copy english table logic??
-                                //console.log(wordclass);
-                                //fillTable(keyword, wordclass, table);
-                                function newFillTable(row, word, declension, definition, forms, usage_notes, type) {
-                                    if (!row) return;
+                    const nounTableWrapper = document.getElementById('nounTableWrapper');
+                    helperFunctions.matchtype1.neoNounTables(searchHandler.declension, 1, nounTableWrapper, NcombinedGendersObject);
+                    helperFunctions.matchtype1.neoNounTables(searchHandler.declension, 2, nounTableWrapper, NcombinedGendersObject);
 
-                                    const cells = row.querySelectorAll('td');
-                                    const getCell = index => cells[index] || null;
+                    helperFunctions.tablegen.populateSummaryTables(keyword, { 'Noun-Table-Directive': false, 'Noun-Table-Recessive': false });
 
+                    break;
+                case 'part':
+                    searchHandler.short_path = "stem";
+                    allMatchesArray.type1.part.push(searchHandler);
 
-                                    const vcell0 = getCell(0);
-                                    const vcell1 = getCell(1);
-                                    const vcell2 = getCell(2);
-                                    const vcell3 = getCell(3);
-                                    const vcell4 = getCell(4);
-                                    const vcell5 = getCell(5);
+                    html = `
+                        <div>
+                            <div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th class="infoCollum">Info</th>
+                                            <th>Stem</th>
+                                            <th>Wordclass</th>
+                                            <th>Definition</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>...</th>
+                                            <td>${searchHandler.word}</td>
+                                            <td>${'Particle'}</td>
+                                            <td>${searchHandler.definition}</td>
+                                            <td>${searchHandler.usage_notes || '...'}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                    helperFunctions.standard.createPageById('page97', html);
+                    break;
+                case 'pp':
+                    searchHandler.short_path = "stem";
+                    allMatchesArray.type1.pp.push(searchHandler);
 
-                                    if (vcell0) vcell0.innerHTML = word || '...';
-                                    if (vcell1) vcell1.innerHTML = declension || '...';
-                                    if (vcell2) vcell2.innerHTML = definition || '...';
-                                    if (vcell3) vcell3.innerHTML = forms || '...';
-                                    if (vcell4) vcell4.innerHTML = usage_notes || '...';
-                                    if (vcell5) vcell5.innerHTML = type || '...';
-                                }
+                    html = `
+                        <div>
+                            <div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th class="infoCollum">Info</th>
+                                            <th>Stem</th>
+                                            <th>Wordclass</th>
+                                            <th>Definition</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>...</th>
+                                            <td>${searchHandler.word}</td>
+                                            <td>${'Preposition'}</td>
+                                            <td>${searchHandler.definition}</td>
+                                            <td>${searchHandler.usage_notes || '...'}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                    helperFunctions.standard.createPageById('page97', html);
+                    break;
+                case 'v':
+                    searchHandler.short_path = "stem";
+                    allMatchesArray.type1.v.regular.push(searchHandler);
+                    html = `
+                        <div>
+                            <div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th class="infoCollum">Info</th>
+                                            <th>Stem</th>
+                                            <th>Wordclass</th>
+                                            <th>Forms</th>
+                                            <th>Definition</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>...</th>
+                                            <td>${searchHandler.word}</td>
+                                            <td>${'Verb'}</td>
+                                            <td>${searchHandler.forms}</td>
+                                            <td>${searchHandler.definition}</td>
+                                            <td>${searchHandler.usage_notes || '...'}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="verbTableWrapper" style="margin-top:50px;"></div>
+                        </div>
+                    `;
+                    helperFunctions.standard.createPageById('page97', html);
+                    const verbTableWrapper = document.getElementById('verbTableWrapper');
 
-                                const row = helperFunctions.matchtype1.type1extraTableRow(
-                                    entry.word || '...',
-                                    entry.declension || '...',
-                                    entry.forms || '...',
-                                    entry.definition || '...',
-                                    entry.usage_notes || '...')
-                                newFillTable(row, entry.word, entry.declension, entry.definition, entry.forms, entry.usage_notes, entry.type);
-                                const Vwrapper = document.getElementById('leftleftdivdictionary');
-                                helperFunctions.matchtype1.neoVerbTables(true, keyword, Vwrapper);
-                                helperFunctions.matchtype1.neoVerbTables(false, keyword, Vwrapper);
+                    helperFunctions.matchtype1.neoVerbTables(true, keyword, verbTableWrapper);
+                    helperFunctions.matchtype1.neoVerbTables(false, keyword, verbTableWrapper);
 
-                                helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
-
-                                tableSearchable.addEventListener('click', () => {
-                                    console.log(wordclass);
-                                    helperFunctions.standard.searchableTable(wordclass);
-                                });
-                            });
-                        }
-                        break;
-                    default: console.warn(`${wordclass} is an invalid wordclass`);
-                        break;
-                }
-                if (document.getElementById('page97')) {
-                    //console.log(wordclass);
-                    helperFunctions.standard.openPageById('page97');
-                } else { return; }
-            });
+                    helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
+                    break;
+                default: console.warn(`${wordclass} is an invalid wordclass`);
+            }
+            if (document.getElementById('page97')) {
+                helperFunctions.standard.openPageById('page97');
+            } else { return; }
         }
         else if (matchType === 1.1) {//type 1.1
             console.log('-----type1.1-----');
