@@ -906,7 +906,12 @@ function dictionaryPage() {
             if (affixTypesMap.verbSuffix.rawMap.arrayLength) {
                 for (const entries of Object.values(affixTypesMap.verbSuffix.rawMap)) {
                     for (const entry of Object.values(entries)) {
-                        if (DICTIONARY.ALL_WORDS.MAP[entry.stem].type === 'v') {
+                        let keyword_local = 'temp';
+                        const form_local = find(entry.stem);
+                        form_local != undefined
+                            ? keyword_local = form_local[2]
+                            : null;
+                        if (DICTIONARY.ALL_WORDS.MAP[keyword_local] && DICTIONARY.ALL_WORDS.MAP[keyword_local].type === 'v') {
                             affixTypesMap.verbSuffix.resultMap.push(entry);
                             affixTypesMap.verbSuffix.state = true;
                         }
