@@ -862,40 +862,44 @@ function dictionaryPage() {
                             form_local != undefined
                                 ? keyword_local = form_local[2]
                                 : null;
-                            //console.log(form_local, entry);
 
                             if (DICTIONARY.ALL_WORDS.MAP[keyword_local] && DICTIONARY.ALL_WORDS.MAP[keyword_local].type === 'v') {
-                                //console.log('hello world');
+                                entry.form = morph(form_local[0]);
+                                entry.dic_stem = form_local[2];
                                 affixTypesMap.verbPrefix.resultMap.push(entry);
                                 affixTypesMap.verbPrefix.state = true;
                             } else {
                                 verbSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.VERBS.SUFFIXES.MATCHES, false) || [];
-                                //console.log('hello world',verbSuffix);
+                                dic_stem_temp = '';
+                                form_temp = [];
                                 if (verbSuffix.arrayLength > 0) {
                                     for (const entries2 of Object.values(verbSuffix)) {
                                         for (const entry2 of Object.values(entries2)) {
-                                            //console.log(entry2);
                                             let keyword_local2 = 'temp';
                                             const form_local2 = find(entry2.stem);
                                             form_local2 != undefined
                                                 ? keyword_local2 = form_local2[2]
                                                 : null;
-                                            //console.log(form_local2, entry2);
-                                            //console.log(keyword_local2 != 'temp' && form_local2 != undefined && DICTIONARY.ALL_WORDS.MAP[keyword_local2] && DICTIONARY.ALL_WORDS.MAP[keyword_local2].type === 'v');
                                             if (keyword_local2 != 'temp' && form_local2 != undefined && DICTIONARY.ALL_WORDS.MAP[keyword_local2] && DICTIONARY.ALL_WORDS.MAP[keyword_local2].type === 'v') {
 
-                                                entry.stem = keyword_local2;//fix affixStem for prefix.
+                                                entry.stem = entry2.stem;//fix affixStem for prefix.
 
                                                 if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                                     checkerArr.push(entry2.short_path);
                                                     console.log('pushed for el with short_path:', entry2.short_path);
+                                                    entry2.form = morph(form_local2[0]);
+                                                    entry2.dic_stem = form_local2[2];
                                                     affixTypesMap.verbBothAffixes.resultMap.suffix.push(entry2);
                                                 }
+                                                form_temp = morph(form_local2[0]);
+                                                dic_stem_temp = form_local2[2];
 
                                                 affixTypesMap.verbBothAffixes.state = true;
                                             }
                                         }
                                     }
+                                    entry.form = form_temp;
+                                    entry.dic_stem = dic_stem_temp;
                                     affixTypesMap.verbBothAffixes.resultMap.prefix.push(entry); //push prefix result outside of loop
                                 }
                             }
@@ -912,6 +916,8 @@ function dictionaryPage() {
                             ? keyword_local = form_local[2]
                             : null;
                         if (DICTIONARY.ALL_WORDS.MAP[keyword_local] && DICTIONARY.ALL_WORDS.MAP[keyword_local].type === 'v') {
+                            entry.form = morph(form_local[0]);
+                            entry.dic_stem = form_local[2];
                             affixTypesMap.verbSuffix.resultMap.push(entry);
                             affixTypesMap.verbSuffix.state = true;
                         }
