@@ -35,8 +35,6 @@ function dictionaryPage() {
         let matchType = 3 //asume its type3, if its not then we change it - type3 detection is if(matchType === 3).
         let keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
         console.log('keyword |', keyword);
-        //const form = find(keyword);
-        //console.log('form |', form);
 
         //clear searchFLD
         if (searchFLD && searchFLD.value.trim() !== '') {
@@ -288,13 +286,14 @@ function dictionaryPage() {
         const form = find(keyword);
         console.log(form);
         if (//type 1
-            (DICTIONARY.ALL_WORDS.MAP[keyword] && DICTIONARY.ALL_WORDS.MAP[keyword].word.length > 0) ||
-            form != undefined
+            (DICTIONARY.ALL_WORDS.MAP[keyword] && DICTIONARY.ALL_WORDS.MAP[keyword].word.length > 0) || form != undefined
         ) {
             matchType = 1;
             console.log('-----type1-----');
-            keyword = form[2];
-            keyword_true = form[1];
+            if (form) {
+                keyword = form[2];
+                keyword_true = form[1];
+            }
             const searchHandler = DICTIONARY.ALL_WORDS.MAP[keyword];
             const wordclass = searchHandler.type;
             console.log('searchHandler |', searchHandler);
