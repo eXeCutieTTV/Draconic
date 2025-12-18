@@ -2825,3 +2825,51 @@ const helperFunctions =
     formatting,
     final
 }
+
+function fix(word) {
+    const entry = DICTIONARY.ALL_WORDS.MAP[word];
+    const forms_raw = entry.forms;
+    if (forms_raw === 'defective' || forms_raw === undefined || Array.isArray(forms_raw) || typeof (forms_raw) === 'object') return;
+    function temp() {
+
+        const temp_array = forms_raw
+            .split(/\s*,\s*/)
+            .map(s => s.trim())
+            .filter(s => s.length);
+
+        return temp_array;
+    }
+    const arr = temp();
+    const result = {
+        [`${IDS.ASPECT['E']}_${IDS.TENSE['NP']}`]: entry.word,
+        [`${IDS.ASPECT['E']}_${IDS.TENSE['P']}`]: arr[0],
+        [`${IDS.ASPECT['G']}_${IDS.TENSE['NP']}`]: arr[1],
+        [`${IDS.ASPECT['G']}_${IDS.TENSE['P']}`]: arr[2]
+    }
+    entry.forms = result;
+}
+function find(wrd) {
+    const entry = DICTIONARY.ALL_WORDS.MAP;
+    for (const a of Object.values(entry)) {
+        switch (a.type) {
+            case 'v':
+                for (const [form, word] of Object.entries(a.forms)) {
+                    if (word === wrd) {
+                        return [form, word, a.word];
+                    }
+                }
+        }
+    }
+}
+function tostring(forms_arr) {
+    const str = `${forms_arr[`${IDS.ASPECT['E']}_${IDS.TENSE['NP']}`]}, ${forms_arr[`${IDS.ASPECT['E']}_${IDS.TENSE['P']}`]}, ${forms_arr[`${IDS.ASPECT['G']}_${IDS.TENSE['NP']}`]}, ${forms_arr[`${IDS.ASPECT['G']}_${IDS.TENSE['P']}`]}`;
+    return str;
+}
+function morph(form) {
+    switch (form) {
+        case `${[`${IDS.ASPECT['E']}_${IDS.TENSE['NP']}`]}`: return { aspect: IDS.ASPECT['E'], tense: IDS.TENSE['NP'] };
+        case `${[`${IDS.ASPECT['E']}_${IDS.TENSE['P']}`]}`: return { aspect: IDS.ASPECT['E'], tense: IDS.TENSE['P'] };
+        case `${[`${IDS.ASPECT['G']}_${IDS.TENSE['NP']}`]}`: return { aspect: IDS.ASPECT['G'], tense: IDS.TENSE['NP'] };
+        case `${[`${IDS.ASPECT['G']}_${IDS.TENSE['P']}`]}`: return { aspect: IDS.ASPECT['G'], tense: IDS.TENSE['P'] };
+    }
+}

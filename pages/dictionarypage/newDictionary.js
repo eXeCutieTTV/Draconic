@@ -3,6 +3,9 @@ function dictionaryPage() {
     let searchBTN = document.getElementById('search_button');
     let searchFLD = document.getElementById('search_field');
 
+    for (const a of Object.values(DICTIONARY.VERBS.MAP)) {
+        fix(a.word);
+    }
     // main search function
     function search(word) {
         if (searchFLD.value.length === 0) { return; }//doesnt search if searchFLD is empty
@@ -32,6 +35,8 @@ function dictionaryPage() {
         let matchType = 3 //asume its type3, if its not then we change it - type3 detection is if(matchType === 3).
         let keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
         console.log('keyword |', keyword);
+        //const form = find(keyword);
+        //console.log('form |', form);
 
         //clear searchFLD
         if (searchFLD && searchFLD.value.trim() !== '') {
@@ -280,11 +285,16 @@ function dictionaryPage() {
             helperFunctions.standard.clearPageById(page);
         }
 
+        const form = find(keyword);
+        console.log(form);
         if (//type 1
-            DICTIONARY.ALL_WORDS.MAP[keyword] && DICTIONARY.ALL_WORDS.MAP[keyword].word.length > 0
+            (DICTIONARY.ALL_WORDS.MAP[keyword] && DICTIONARY.ALL_WORDS.MAP[keyword].word.length > 0) ||
+            form != undefined
         ) {
             matchType = 1;
             console.log('-----type1-----');
+            keyword = form[2];
+            keyword_true = form[1];
             const searchHandler = DICTIONARY.ALL_WORDS.MAP[keyword];
             const wordclass = searchHandler.type;
             console.log('searchHandler |', searchHandler);
@@ -594,7 +604,8 @@ function dictionaryPage() {
                     searchHandler.short_path = "stem";
                     allMatchesArray.type1.v.regular.push(searchHandler);
                     helperFunctions.standard.clearPageById('page97');
-                    
+                    const form_arr = morph(form[0]);
+
                     html = `
                         <div>
                             <div>
@@ -605,6 +616,8 @@ function dictionaryPage() {
                                             <th>Stem</th>
                                             <th>Wordclass</th>
                                             <th>Forms</th>
+                                            <th>Aspect</th>
+                                            <th>Tense</th>
                                             <th>Definition</th>
                                             <th>Notes</th>
                                         </tr>
@@ -612,9 +625,11 @@ function dictionaryPage() {
                                     <tbody>
                                         <tr>
                                             <th>...</th>
-                                            <td>${searchHandler.word}</td>
+                                            <td>${keyword_true}</td>
                                             <td>${'Verb'}</td>
-                                            <td>${searchHandler.forms}</td>
+                                            <td>${tostring(searchHandler.forms)}</td>
+                                            <td>${form_arr.aspect}</td>
+                                            <td>${form_arr.tense}</td>
                                             <td>${searchHandler.definition}</td>
                                             <td>${searchHandler.usage_notes || '...'}</td>
                                         </tr>
@@ -627,10 +642,10 @@ function dictionaryPage() {
                     helperFunctions.standard.createPageById('page97', html);
                     const verbTableWrapper = document.getElementById('verbTableWrapper');
 
-                    helperFunctions.matchtype1.neoVerbTables(true, keyword, verbTableWrapper);
-                    helperFunctions.matchtype1.neoVerbTables(false, keyword, verbTableWrapper);
+                    helperFunctions.matchtype1.neoVerbTables(true, keyword_true, verbTableWrapper);
+                    helperFunctions.matchtype1.neoVerbTables(false, keyword_true, verbTableWrapper);
 
-                    helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
+                    helperFunctions.tablegen.populateSummaryTables(keyword_true, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
                     break;
                 default: console.warn(`${wordclass} is an invalid wordclass`);
             }
