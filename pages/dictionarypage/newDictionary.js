@@ -35,6 +35,12 @@ function dictionaryPage() {
         let matchType = 3 //asume its type3, if its not then we change it - type3 detection is if(matchType === 3).
         let keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
         console.log('keyword |', keyword);
+        const form = find(keyword);
+        console.log(form);
+        if (form) {
+            keyword = form[2];
+            keyword_true = form[1];
+        }
 
         //clear searchFLD
         if (searchFLD && searchFLD.value.trim() !== '') {
@@ -283,17 +289,11 @@ function dictionaryPage() {
             helperFunctions.standard.clearPageById(page);
         }
 
-        const form = find(keyword);
-        console.log(form);
         if (//type 1
             (DICTIONARY.ALL_WORDS.MAP[keyword] && DICTIONARY.ALL_WORDS.MAP[keyword].word.length > 0) || form != undefined
         ) {
             matchType = 1;
             console.log('-----type1-----');
-            if (form) {
-                keyword = form[2];
-                keyword_true = form[1];
-            }
             const searchHandler = DICTIONARY.ALL_WORDS.MAP[keyword];
             const wordclass = searchHandler.type;
             console.log('searchHandler |', searchHandler);
@@ -855,24 +855,36 @@ function dictionaryPage() {
             if (affixTypesMap.verbPrefix.rawMap.arrayLength) {
                 const checkerArr = [];
                 for (const entries of Object.values(affixTypesMap.verbPrefix.rawMap)) {
-                    //console.log(entries);
                     for (const entry of Object.values(entries)) {
                         if (typeof (entry) === 'object') {
-                            //    console.log(entry);
+                            let keyword_local = 'temp';
+                            const form_local = find(entry.stem);
+                            form_local != undefined
+                                ? keyword_local = form_local[2]
+                                : null;
+                            //console.log(form_local, entry);
 
-                            if (DICTIONARY.ALL_WORDS.MAP[entry.stem] && DICTIONARY.ALL_WORDS.MAP[entry.stem].type === 'v') {
-                                //     console.log(entry);
+                            if (DICTIONARY.ALL_WORDS.MAP[keyword_local] && DICTIONARY.ALL_WORDS.MAP[keyword_local].type === 'v') {
+                                //console.log('hello world');
                                 affixTypesMap.verbPrefix.resultMap.push(entry);
                                 affixTypesMap.verbPrefix.state = true;
                             } else {
                                 verbSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.VERBS.SUFFIXES.MATCHES, false) || [];
+                                //console.log('hello world',verbSuffix);
                                 if (verbSuffix.arrayLength > 0) {
                                     for (const entries2 of Object.values(verbSuffix)) {
                                         for (const entry2 of Object.values(entries2)) {
-                                            //console.log(entry);
-                                            if (DICTIONARY.ALL_WORDS.MAP[entry2.stem].type === 'v') {
+                                            //console.log(entry2);
+                                            let keyword_local2 = 'temp';
+                                            const form_local2 = find(entry2.stem);
+                                            form_local2 != undefined
+                                                ? keyword_local2 = form_local2[2]
+                                                : null;
+                                            //console.log(form_local2, entry2);
+                                            //console.log(keyword_local2 != 'temp' && form_local2 != undefined && DICTIONARY.ALL_WORDS.MAP[keyword_local2] && DICTIONARY.ALL_WORDS.MAP[keyword_local2].type === 'v');
+                                            if (keyword_local2 != 'temp' && form_local2 != undefined && DICTIONARY.ALL_WORDS.MAP[keyword_local2] && DICTIONARY.ALL_WORDS.MAP[keyword_local2].type === 'v') {
 
-                                                entry.stem = entry2.stem;//fix affixStem for prefix.
+                                                entry.stem = keyword_local2;//fix affixStem for prefix.
 
                                                 if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                                     checkerArr.push(entry2.short_path);

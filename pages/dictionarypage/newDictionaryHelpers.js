@@ -542,24 +542,22 @@ const neoAffixChecker = function neoAffixChecker(word, map, isPrefix = false) {
                     const suffix = appliedOrUnapplied(entries.variants[0], entries.variants[1] || "doesn't distinguish", 'suffix');
                     const { slice1: stem, slice2: usedSuffix } = helperFunctions.standard.sliceKeywordNegative(word, suffix.length);
 
-                    if (DICTIONARY.ALL_WORDS.MAP[stem] && suffix === usedSuffix) {
-                        for (const path of paths) {
-                            //console.log('path |', path);
-                            const result = {
-                                path: {
-                                    person: path[0],
-                                    number: path[1],
-                                    gender: path[2],
-                                },
-                                stem: stem,
-                                suffix: suffix,
-                                affixState: 'suffix',
-                                wordclass: 'v',
-                                short_path: helperFunctions.formatting.shorten_path('v', { number: path[1], person: path[0], gender: path[2] })
-                            }
-                            tempArray[stem] ? null : tempArray[stem] = [];
-                            tempArray[stem].push(result);
+                    for (const path of paths) {
+                        //console.log('path |', path);
+                        const result = {
+                            path: {
+                                person: path[0],
+                                number: path[1],
+                                gender: path[2],
+                            },
+                            stem: stem,
+                            suffix: suffix,
+                            affixState: 'suffix',
+                            wordclass: 'v',
+                            short_path: helperFunctions.formatting.shorten_path('v', { number: path[1], person: path[0], gender: path[2] })
                         }
+                        tempArray[stem] ? null : tempArray[stem] = [];
+                        tempArray[stem].push(result);
                     }
                 }
             }
