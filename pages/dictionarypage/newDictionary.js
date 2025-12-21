@@ -36,7 +36,7 @@ function dictionaryPage() {
         let keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
         console.log('keyword |', keyword);
         const form = find(keyword);
-        console.log(form);
+        console.log('form |', form);
         if (form) {
             keyword = form[2];
             keyword_true = form[1];
@@ -862,10 +862,10 @@ function dictionaryPage() {
                             form_local != undefined
                                 ? keyword_local = form_local[2]
                                 : null;
-
                             if (DICTIONARY.ALL_WORDS.MAP[keyword_local] && DICTIONARY.ALL_WORDS.MAP[keyword_local].type === 'v') {
                                 entry.form = morph(form_local[0]);
                                 entry.dic_stem = form_local[2];
+                                entry.short_path = helperFunctions.formatting.shorten_path('v', { number: entry.path.number, person: entry.path.person, gender: entry.path.gender, aspect: entry.form.aspect, tense: entry.form.tense });
                                 affixTypesMap.verbPrefix.resultMap.push(entry);
                                 affixTypesMap.verbPrefix.state = true;
                             } else {
@@ -889,6 +889,7 @@ function dictionaryPage() {
                                                     console.log('pushed for el with short_path:', entry2.short_path);
                                                     entry2.form = morph(form_local2[0]);
                                                     entry2.dic_stem = form_local2[2];
+                                                    entry2.short_path = helperFunctions.formatting.shorten_path('v', { number: entry2.path.number, person: entry2.path.person, gender: entry2.path.gender, aspect: entry2.form.aspect, tense: entry2.form.tense });
                                                     affixTypesMap.verbBothAffixes.resultMap.suffix.push(entry2);
                                                 }
                                                 form_temp = morph(form_local2[0]);
@@ -900,6 +901,7 @@ function dictionaryPage() {
                                     }
                                     entry.form = form_temp;
                                     entry.dic_stem = dic_stem_temp;
+                                    entry.short_path = helperFunctions.formatting.shorten_path('v', { number: entry.path.number, person: entry.path.person, gender: entry.path.gender, aspect: entry.form.aspect, tense: entry.form.tense });
                                     affixTypesMap.verbBothAffixes.resultMap.prefix.push(entry); //push prefix result outside of loop
                                 }
                             }
@@ -1331,8 +1333,8 @@ function dictionaryPage() {
                 matchType = 2;
                 helperFunctions.standard.clearPageById('page96');
 
-                const stem = affixTypesMap.verbPrefix.resultMap[0].stem;
-                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                const result = affixTypesMap.verbPrefix.resultMap[0];
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[result.dic_stem] || [];
                 const definition = stemMap.definition || '...';
                 const notes = stemMap.usage_notes || '...';
 
@@ -1350,14 +1352,20 @@ function dictionaryPage() {
                                     <th>Word</th>
                                     <th>Stem</th>
                                     <th>Wordclass</th>
+                                    <th>Forms</th>
+                                    <th>Aspect</th>
+                                    <th>Tense</th>
                                     <th>Definition</th>
                                     <th>Usage Notes</th>
                                 </tr>
                                 <tr>
                                     <th>Info</th>
                                     <td>${keyword}</td>
-                                    <td id="stem">${stem}</td>
+                                    <td>${result.stem}</td>
                                     <td>${wordclass}</td>
+                                    <td>${tostring(stemMap.forms)}</td>
+                                    <td>${result.form.aspect}</td>
+                                    <td>${result.form.tense}</td>
                                     <td>${definition}</td>
                                     <td>${notes || '...'}</td>
                                 </tr>
@@ -1397,7 +1405,8 @@ function dictionaryPage() {
                 matchType = 2;
                 helperFunctions.standard.clearPageById('page96');
 
-                const stemMap = DICTIONARY.ALL_WORDS.MAP[affixTypesMap.verbSuffix.resultMap[0].stem] || [];
+                const result = affixTypesMap.verbSuffix.resultMap[0];
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[result.dic_stem] || [];
                 const definition = stemMap.definition || '...';
                 const notes = stemMap.usage_notes || '...';
 
@@ -1415,14 +1424,20 @@ function dictionaryPage() {
                                     <th>Word</th>
                                     <th>Stem</th>
                                     <th>Wordclass</th>
+                                    <th>Forms</th>
+                                    <th>Aspect</th>
+                                    <th>Tense</th>
                                     <th>Definition</th>
                                     <th>Usage Notes</th>
                                 </tr>
                                 <tr>
                                     <th>Info</th>
                                     <td>${keyword}</td>
-                                    <td id="stem">${affixTypesMap.verbSuffix.resultMap[0].stem}</td>
+                                    <td>${result.stem}</td>
                                     <td>${wordclass}</td>
+                                    <td>${tostring(stemMap.forms)}</td>
+                                    <td>${result.form.aspect}</td>
+                                    <td>${result.form.tense}</td>
                                     <td>${definition}</td>
                                     <td>${notes || '...'}</td>
                                 </tr>
@@ -1461,8 +1476,8 @@ function dictionaryPage() {
                 matchType = 2;
                 helperFunctions.standard.clearPageById('page96');
 
-
-                const stemMap = DICTIONARY.ALL_WORDS.MAP[affixTypesMap.verbBothAffixes.resultMap.prefix[0].stem] || [];
+                const result = affixTypesMap.verbBothAffixes.resultMap.prefix[0];
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[result.dic_stem] || [];
                 const definition = stemMap.definition || '...';
                 const notes = stemMap.usage_notes || '...';
 
@@ -1480,14 +1495,20 @@ function dictionaryPage() {
                                     <th>Word</th>
                                     <th>Stem</th>
                                     <th>Wordclass</th>
+                                    <th>Forms</th>
+                                    <th>Aspect</th>
+                                    <th>Tense</th>
                                     <th>Definition</th>
                                     <th>Usage Notes</th>
                                 </tr>
                                 <tr>
                                     <th>Info</th>
                                     <td>${keyword}</td>
-                                    <td id="stem">${affixTypesMap.verbBothAffixes.resultMap.prefix[0].stem}</td>
+                                    <td>${result.stem}</td>
                                     <td>${wordclass}</td>
+                                    <td>${tostring(stemMap.forms)}</td>
+                                    <td>${result.form.aspect}</td>
+                                    <td>${result.form.tense}</td>
                                     <td>${definition}</td>
                                     <td>${notes || '...'}</td>
                                 </tr>
@@ -2582,10 +2603,10 @@ function dictionaryPage() {
                     helperFunctions.standard.resultTables.particleTable(result.prefix, particleMap.definition, particleMap.usage_notes || '...', particleTableWrapper);
                 }
                 helperFunctions.standard.openPageById('page96');
-            }//<-- this is where i got to:)
+            }
             else {
                 console.warn('type not found');
-            }
+            }//<-- this is where i got to:)
         }
         if (matchType === 3) {//type 3
             console.log('-----type3-----');
@@ -2663,6 +2684,5 @@ dictionaryPage();
 //maybe add a 4th type? if number, then use lirioz' NUMBERS.numberToText.
 //5th type is a buttonpress that just loads the entire plain dictionary.
 //make autocorrect/examples use DICTIONARY.ALL_WORDS.MAP instead of excel file...
-//fix type1 - both actual type1, and LF-table.
 //fix type3.
 //new verb form checker should be added to affixchecker instead of inside each checker?
