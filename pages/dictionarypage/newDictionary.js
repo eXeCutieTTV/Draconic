@@ -600,10 +600,12 @@ function dictionaryPage() {
                     helperFunctions.standard.createPageById('page97', html);
                     break;
                 case 'v':
-                    searchHandler.short_path = "stem";
+                    const form_arr = morph(form[0]);
+                    searchHandler.form = form_arr;
+                    searchHandler.dic_stem = keyword_true;
+                    searchHandler.short_path = helperFunctions.formatting.shorten_path('v', { aspect: form_arr.aspect, tense: form_arr.tense });
                     allMatchesArray.type1.v.regular.push(searchHandler);
                     helperFunctions.standard.clearPageById('page97');
-                    const form_arr = morph(form[0]);
 
                     html = `
                         <div>

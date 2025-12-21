@@ -1340,7 +1340,8 @@ const shorten_path = function shorten_path(wordclass, {
             break;
     }
 
-    return result;
+    const str = result.replace(/(?:\.undefined|\.null)/g, '');
+    return str;
 }
 const isVowel_regex = /^[iīeēæyuūoōaāúûóôáâIĪEĒÆYUŪOŌAĀÚÛÓÔÁÂ]$/;
 const isConsonant_regex = /^[tkqq̇'cfdszgχhlrɾmnŋTKQQ̇'CFDSZGΧHLRɾMNŊ]$/;
@@ -1460,7 +1461,8 @@ const displayForms = function displayForms(allMatchesArray) {
     let tableTextState = 0;
     function fixTable() {
         for (const el of tempArray.type1) {
-            //console.log(el);
+            console.log(el);
+            const datastem = el.dic_stem || el.word;
             const htmlEach = `
                 <td 
                     style="cursor:pointer; border-bottom: solid 1px black;"; 
@@ -1470,7 +1472,7 @@ const displayForms = function displayForms(allMatchesArray) {
                     data-key="${el.key || '...'}"; 
                     data-pausestate="false";
                     data-affix_amount="0";
-                    data-stem="${el.word}";
+                    data-stem="${datastem}";
                 >${el.wordclass}.${el.short_path || '..'}</td>
             `;
             helperFunctions.standard.betterTrInsert("listTbody", htmlEach);
@@ -1767,7 +1769,6 @@ const displayForms = function displayForms(allMatchesArray) {
                         break;
                     case 'v':
                         el.short_path = "stem";
-
                         pageHtml = `
                             <div>
                                 <div>
@@ -1778,6 +1779,8 @@ const displayForms = function displayForms(allMatchesArray) {
                                                 <th>Stem</th>
                                                 <th>Wordclass</th>
                                                 <th>Forms</th>
+                                                <th>Aspect</th>
+                                                <th>Tense</th>
                                                 <th>Definition</th>
                                                 <th>Notes</th>
                                             </tr>
@@ -1785,9 +1788,11 @@ const displayForms = function displayForms(allMatchesArray) {
                                         <tbody>
                                             <tr>
                                                 <th>...</th>
-                                                <td>${el.word}</td>
+                                                <td>${el.dic_stem}</td>
                                                 <td>${'Verb'}</td>
-                                                <td>${el.forms}</td>
+                                                <td>${tostring(el.forms)}</td>
+                                                <td>${el.form.aspect}</td>
+                                                <td>${el.form.tense}</td>
                                                 <td>${el.definition}</td>
                                                 <td>${el.usage_notes || '...'}</td>
                                             </tr>
@@ -1800,10 +1805,10 @@ const displayForms = function displayForms(allMatchesArray) {
                         helperFunctions.standard.createPageById('page94', pageHtml);
                         const verbTableWrapper = document.getElementById('verbTableWrapper');
 
-                        helperFunctions.matchtype1.neoVerbTables(true, keyword, verbTableWrapper);
-                        helperFunctions.matchtype1.neoVerbTables(false, keyword, verbTableWrapper);
+                        helperFunctions.matchtype1.neoVerbTables(true, el.dic_stem, verbTableWrapper);
+                        helperFunctions.matchtype1.neoVerbTables(false, el.dic_stem, verbTableWrapper);
 
-                        helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
+                        helperFunctions.tablegen.populateSummaryTables(el.dic_stem, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
                         break;
                     default: console.warn(`${td.dataset.wordclass} is an invalid wordclass`);
                 }
@@ -1848,10 +1853,10 @@ const displayForms = function displayForms(allMatchesArray) {
                         let pageHtml = '';
                         switch (td.dataset.wordclass) {
                             case 'v':
-                                stem = el.stem;
-                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[el.dic_stem] || [];
                                 definition = stemMap.definition || '...';
                                 notes = stemMap.usage_notes || '...';
+                                console.log(el)
                                 pageHtml = `
                                     <div>
                                         <div>
@@ -1861,14 +1866,20 @@ const displayForms = function displayForms(allMatchesArray) {
                                                     <th>Word</th>
                                                     <th>Stem</th>
                                                     <th>Wordclass</th>
+                                                    <th>Forms</th>
+                                                    <th>Aspect</th>
+                                                    <th>Tense</th>
                                                     <th>Definition</th>
                                                     <th>Usage Notes</th>
                                                 </tr>
                                                 <tr>
                                                     <th>Info</th>
                                                     <td>${keyword}</td>
-                                                    <td>${stem}</td>
+                                                    <td>${el.stem}</td>
                                                     <td>${'Verb'}</td>
+                                                    <td>${tostring(stemMap.forms)}</td>
+                                                    <td>${el.form.aspect}</td>
+                                                    <td>${el.form.tense}</td>
                                                     <td>${definition}</td>
                                                     <td>${notes}</td>
                                                 </tr>
@@ -1880,13 +1891,13 @@ const displayForms = function displayForms(allMatchesArray) {
                                 `;
                                 helperFunctions.standard.createPageById('page94', pageHtml);
                                 const verbTableWrapper = document.getElementById('verbTableWrapper');
-                                helperFunctions.standard.resultTables.verbTable(el.prefix || el.suffix, el.path.gender, el.path.number, el.path.person, verbTableWrapper, el.affixState);
+                                //helperFunctions.standard.resultTables.verbTable(el.prefix || el.suffix, el.path.gender, el.path.number, el.path.person, verbTableWrapper, el.affixState);
 
 
                                 const suffixtable = document.getElementById('suffixtable');
                                 el.affixState === 'prefix'
-                                    ? helperFunctions.matchtype1.neoVerbTables(false, keyword, suffixtable)
-                                    : helperFunctions.matchtype1.neoVerbTables(true, keyword, suffixtable);
+                                    ? (helperFunctions.standard.resultTables.verbTable(el.prefix, el.path.gender, el.path.number, el.path.person, verbTableWrapper, 'Prefix'), helperFunctions.matchtype1.neoVerbTables(false, keyword, suffixtable))
+                                    : (helperFunctions.standard.resultTables.verbTable(el.suffix, el.path.gender, el.path.number, el.path.person, verbTableWrapper, 'Suffix'), helperFunctions.matchtype1.neoVerbTables(true, keyword, suffixtable));
 
                                 helperFunctions.tablegen.populateSummaryTables(keyword, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
                                 break;
@@ -2294,7 +2305,8 @@ const displayForms = function displayForms(allMatchesArray) {
                         switch (td.dataset.suffix_wordclass) {
                             case 'v':
                                 stem = suffix.stem;
-                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                console.log(suffix)
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[suffix.dic_stem] || [];
                                 definition = stemMap.definition || '...';
                                 notes = stemMap.usage_notes || '...';
 
@@ -2308,14 +2320,20 @@ const displayForms = function displayForms(allMatchesArray) {
                                                     <th>Word</th>
                                                     <th>Stem</th>
                                                     <th>Wordclass</th>
+                                                    <th>Forms</th>
+                                                    <th>Aspect</th>
+                                                    <th>Tense</th>
                                                     <th>Definition</th>
                                                     <th>Usage Notes</th>
                                                 </tr>
                                                 <tr>
                                                     <th>Info</th>
                                                     <td>${keyword}</td>
-                                                    <td>${stem}</td>
+                                                    <td>${suffix.stem}</td>
                                                     <td>${'Verb'}</td>
+                                                    <td>${tostring(stemMap.forms)}</td>
+                                                    <td>${suffix.form.aspect}</td>
+                                                    <td>${suffix.form.tense}</td>
                                                     <td>${definition}</td>
                                                     <td>${notes}</td>
                                                 </tr>
@@ -2328,10 +2346,10 @@ const displayForms = function displayForms(allMatchesArray) {
                                 helperFunctions.standard.createPageById('page94', pageHtml);
 
                                 verbTableWrapper_pref = document.getElementById('verbTableWrapper-pref');
-                                helperFunctions.standard.resultTables.verbTable(prefix.prefix, prefix.path.gender, prefix.path.number, prefix.path.person, verbTableWrapper_pref, prefix.affixState);
+                                helperFunctions.standard.resultTables.verbTable(prefix.prefix, prefix.path.gender, prefix.path.number, prefix.path.person, verbTableWrapper_pref, 'Prefix');
 
                                 verbTableWrapper_suff = document.getElementById('verbTableWrapper-suff');
-                                helperFunctions.standard.resultTables.verbTable(suffix.suffix, suffix.path.gender, suffix.path.number, suffix.path.person, verbTableWrapper_suff, suffix.affixState);
+                                helperFunctions.standard.resultTables.verbTable(suffix.suffix, suffix.path.gender, suffix.path.number, suffix.path.person, verbTableWrapper_suff, 'Suffix');
                                 break;
                             case 'n':
                                 if (td.dataset.prefix_wordclass === 'pp') {
@@ -2725,7 +2743,7 @@ const displayForms = function displayForms(allMatchesArray) {
             // ⟅(^‿^)⟆ - Shelf the elf
             switch (td.dataset.affix_amount) {
                 case '0':
-                    td.textContent = "wordclass.stem";
+                    td.textContent = "wordclass.aspect.tense";
                     break;
                 case '1':
                     switch (td.dataset.key) {
