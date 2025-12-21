@@ -697,13 +697,67 @@ const neoAffixChecker = function neoAffixChecker(word, map, isPrefix = false) {
 const findStemWhenShortstem = function findStemWhenShortstem(short_stem) {
     const tempArray = [];
     const matches = DICTIONARY.ALL_WORDS.fetch(short_stem);
-    for (const result of matches) {
+    for (const result of Object.values(DICTIONARY.ALL_WORDS.MAP)) {
         //console.log(result);
+        //console.log(result, result instanceof Word)
+        if (result instanceof Word) {
+            if (result.forms === undefined) {
+                if (result.word.length === short_stem.length + 1
+                    && helperFunctions.formatting.isVowel_regex.test(result.word.slice(-1))
+                    && result.word.slice(0, short_stem.length) === short_stem) {
+                    tempArray.push(result.word);
+                    console.log('hello world');
+                } else if (result.word === short_stem) {
+                    tempArray.push(result.word);
+                    console.log('hello world');
+                }
+            } else if (typeof result.forms === 'object') {
+                for (const form of Object.values(result.forms)) {
+                    //console.log(form);
+                    //console.log(form.length === short_stem.length + 1, form.slice(0, short_stem.length), short_stem, short_stem.length, form.slice(0, short_stem.length) === short_stem);
+                    if (form.length === short_stem.length + 1
+                        && helperFunctions.formatting.isVowel_regex.test(form.slice(-1))
+                        && form.slice(0, short_stem.length) === short_stem) {
+                        tempArray.push(form);
+                        console.log('hello world');
+                    } else if (form === short_stem) {
+                        tempArray.push(form);
+                        console.log('hello world');
+                    }
+                }
+            }
+        } else {
+            for (const obj of Object.values(result)) {
+                console.log(obj);
+                if (obj.forms === undefined) {
+                    if (obj.word.length === short_stem.length + 1
+                        && helperFunctions.formatting.isVowel_regex.test(obj.word.slice(-1))
+                        && obj.word.slice(0, short_stem.length) === short_stem) {
+                        tempArray.push(obj.word);
+                    } else if (obj.word === short_stem) {
+                        tempArray.push(obj.word);
+                    }
+                } else if (typeof obj === 'object') {
+                    for (const form of obj.forms) {
+                        if (form.word.length === short_stem.length + 1
+                            && helperFunctions.formatting.isVowel_regex.test(form.word.slice(-1))
+                            && form.slice(0, short_stem.length) === short_stem) {
+                            tempArray.push(form.word);
+                        } else if (form.word === short_stem) {
+                            tempArray.push(form.word);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        /*
         if (result.word.length === short_stem.length + 1 && helperFunctions.formatting.isVowel_regex.test(result.word.slice(-1))) {
             tempArray.push(result.word);
         } else if (result.word === short_stem) {
             tempArray.push(result.word);
-        }
+        }*/
     }
     return tempArray;
 }
@@ -1319,6 +1373,7 @@ const shorten_path = function shorten_path(wordclass, {
             for (entry of Object.values(GENDERS.MAP)) {
                 if (entry.NAME === gender) tempArray.push(entry.SHORT);
             }
+            if (tempArray[3] === undefined) tempArray[3] = 'defective';
             result = `${declension}.${tempArray[0]}.${tempArray[2]}.${tempArray[1]}.${tempArray[3]}`;//declension.case.gender.number
             break;
         case 'adv':
@@ -1329,6 +1384,7 @@ const shorten_path = function shorten_path(wordclass, {
                     if (form === long) tempArray.push(short);
                 }
             }
+            if (tempArray[0] === undefined) tempArray[0] = 'defective';
             result = `${tempArray[0]}`;
             break;
         case 'n':
@@ -1503,6 +1559,11 @@ const displayForms = function displayForms(allMatchesArray) {
                 switch (td.dataset.wordclass) {
                     case 'adj':
 
+                        function forms() {
+                            let forms = tostring(el.forms, 'elative');
+                            if (forms === 'undefined, undefined') return 'defective';
+                            else return forms;
+                        }
                         pageHtml = `
                             <div>
                                 <div>
@@ -1525,7 +1586,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                                 <td>${el.word}</td>
                                                 <td>${'Adjective'}</td>
                                                 <td>${el.declension}</td>
-                                                <td>${tostring(el.forms, 'elative')}</td>
+                                                <td>${forms()}</td>
                                                 <td>${el.form}</td>
                                                 <td>${el.definition}</td>
                                                 <td>${el.usage_notes || '...'}</td>
@@ -1546,6 +1607,11 @@ const displayForms = function displayForms(allMatchesArray) {
                     case 'adv':
                         el.short_path = "stem";
 
+                        function forms() {
+                            let forms = tostring(el.forms, 'elative');
+                            if (forms === 'undefined, undefined') return 'defective';
+                            else return forms;
+                        }
                         pageHtml = `
                             <div>
                                 <div>
@@ -1566,7 +1632,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                                 <th>...</th>
                                                 <td>${el.word}</td>
                                                 <td>${'Adverb'}</td>
-                                                <td>${tostring(el.forms, 'elative')}</td>
+                                                <td>${forms()}</td>
                                                 <td>${el.form}</td>
                                                 <td>${el.definition}</td>
                                                 <td>${el.usage_notes || '...'}</td>
@@ -2802,12 +2868,15 @@ const displayForms = function displayForms(allMatchesArray) {
                     switch (td.dataset.wordclass) {
                         case 'v':
                             td.textContent = "wordclass.aspect.tense";
-                            console.log('v')
                             break;
                         case 'adj':
+                            td.textContent = "wordclass.declension.form";
+                            break;
+                        case 'adv':
+                            td.textContent = "wordclass.form";
+                            break;
                         case 'n':
                             td.textContent = "wordclass.declension";
-                            console.log('n')
                             break;
                         default:
                             td.textContent = "wordclass.stem";
@@ -2998,15 +3067,21 @@ function tostring(forms_arr, type = 'aspect') {
     }
     return str;
 }
-function morph(form) {
-    switch (form) {
-        case `${[`${IDS.ASPECT['E']}_${IDS.TENSE['NP']}`]}`: return { aspect: IDS.ASPECT['E'], tense: IDS.TENSE['NP'] };
-        case `${[`${IDS.ASPECT['E']}_${IDS.TENSE['P']}`]}`: return { aspect: IDS.ASPECT['E'], tense: IDS.TENSE['P'] };
-        case `${[`${IDS.ASPECT['G']}_${IDS.TENSE['NP']}`]}`: return { aspect: IDS.ASPECT['G'], tense: IDS.TENSE['NP'] };
-        case `${[`${IDS.ASPECT['G']}_${IDS.TENSE['P']}`]}`: return { aspect: IDS.ASPECT['G'], tense: IDS.TENSE['P'] };
+function morph(form, wordclass = 'v') {
+    switch (wordclass) {
+        case 'v':
+            switch (form) {
+                case `${[`${IDS.ASPECT['E']}_${IDS.TENSE['NP']}`]}`: return { aspect: IDS.ASPECT['E'], tense: IDS.TENSE['NP'] };
+                case `${[`${IDS.ASPECT['E']}_${IDS.TENSE['P']}`]}`: return { aspect: IDS.ASPECT['E'], tense: IDS.TENSE['P'] };
+                case `${[`${IDS.ASPECT['G']}_${IDS.TENSE['NP']}`]}`: return { aspect: IDS.ASPECT['G'], tense: IDS.TENSE['NP'] };
+                case `${[`${IDS.ASPECT['G']}_${IDS.TENSE['P']}`]}`: return { aspect: IDS.ASPECT['G'], tense: IDS.TENSE['P'] };
+            }
+            break;
+        case 'adj':
+        case 'adv':
+            return { form: form }
     }
 }
-
 function findallwordclasses(wrd) {
     const temp = [];
     const result = [];

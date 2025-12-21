@@ -41,13 +41,13 @@ function dictionaryPage() {
         let matchType = 3 //asume its type3, if its not then we change it - type3 detection is if(matchType === 3).
         let keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
         console.log('keyword |', keyword);
-        const form = find(keyword);
+        let form = find(keyword);
         console.log('form |', form);
-        if (form) {
+        if (typeof (form) === 'object') {
             keyword = form[2];
             keyword_true = form[1];
         }
-
+        else form = ['defective'];
         //clear searchFLD
         if (searchFLD && searchFLD.value.trim() !== '') {
             searchFLD.value = '';
@@ -298,7 +298,7 @@ function dictionaryPage() {
         }
 
         if (//type 1
-            (DICTIONARY.ALL_WORDS.MAP[keyword] && DICTIONARY.ALL_WORDS.MAP[keyword].word.length > 0) || form != undefined
+            (DICTIONARY.ALL_WORDS.MAP[keyword] && DICTIONARY.ALL_WORDS.MAP[keyword].word.length > 0) || form[1]
         ) {
             matchType = 1;
             console.log('-----type1-----');
@@ -311,9 +311,16 @@ function dictionaryPage() {
             switch (wordclass) {//dont break inside each? just clear page97 inside each instead - such that all results are being pushed. // can't do it like that... // maybe switch to list of ifs, instead of switchcase?
                 case 'adj':
                     searchHandler.short_path = helperFunctions.formatting.shorten_path('adj', { declension: searchHandler.declension, form: form[0] });
+                    searchHandler.real_stem = form[1]
                     searchHandler.form = form[0];
                     allMatchesArray.type1.adj.push(searchHandler);
                     helperFunctions.standard.clearPageById('page97');
+
+                    function forms() {
+                        let forms = tostring(searchHandler.forms, 'elative');
+                        if (forms === 'undefined, undefined') return 'defective';
+                        else return forms;
+                    }
 
                     html = `
                         <div>
@@ -334,10 +341,10 @@ function dictionaryPage() {
                                     <tbody>
                                         <tr>
                                             <th>...</th>
-                                            <td>${searchHandler.word}</td>
+                                            <td>${keyword_true}</td>
                                             <td>${'Adjective'}</td>
                                             <td>${searchHandler.declension}</td>
-                                            <td>${tostring(searchHandler.forms, 'elative')}</td>
+                                            <td>${forms()}</td>
                                             <td>${form[0]}</td>
                                             <td>${searchHandler.definition}</td>
                                             <td>${searchHandler.usage_notes || '...'}</td>
@@ -353,13 +360,19 @@ function dictionaryPage() {
                     helperFunctions.matchtype1.neoAdjectiveTables(searchHandler.declension, 1, adjectiveTableWrapper);
                     helperFunctions.matchtype1.neoAdjectiveTables(searchHandler.declension, 2, adjectiveTableWrapper);
 
-                    helperFunctions.tablegen.populateSummaryTables(keyword, { 'Adjective-Table-Directive': false, 'Adjective-Table-Recessive': false });
+                    helperFunctions.tablegen.populateSummaryTables(keyword_true, { 'Adjective-Table-Directive': false, 'Adjective-Table-Recessive': false });
                     break;
                 case 'adv':
                     searchHandler.short_path = helperFunctions.formatting.shorten_path('adv', { form: form[0] });
                     searchHandler.form = form[0];
                     allMatchesArray.type1.adv.push(searchHandler);
                     helperFunctions.standard.clearPageById('page97');
+
+                    function forms() {
+                        let forms = tostring(searchHandler.forms, 'elative');
+                        if (forms === 'undefined, undefined') return 'defective';
+                        else return forms;
+                    }
 
                     html = `
                         <div>
@@ -381,7 +394,7 @@ function dictionaryPage() {
                                             <th>...</th>
                                             <td>${searchHandler.word}</td>
                                             <td>${'Adverb'}</td>
-                                            <td>${tostring(searchHandler.forms, 'elative')}</td>
+                                            <td>${forms()}</td>
                                             <td>${form[0]}</td>
                                             <td>${searchHandler.definition}</td>
                                             <td>${searchHandler.usage_notes || '...'}</td>
@@ -1295,19 +1308,42 @@ function dictionaryPage() {
                 const checkerArr = [];
                 for (const entries of Object.values(affixTypesMap.adjSuffix.rawMap)) {
                     for (const entry of Object.values(entries)) {
-                        stemMap = DICTIONARY.ALL_WORDS.MAP[entry.stem]
-                        if (stemMap && stemMap.type === 'adj') {
+                        let keyword_local = 'temp';
+                        const form_local = find(entry.stem);
+                        form_local != undefined
+                            ? keyword_local = form_local[2]
+                            : null;
+                        stemMap = DICTIONARY.ALL_WORDS.MAP[keyword_local];
+                        //console.log(stemMap, entry, form_local);
+                        if (stemMap && stemMap.type === 'adj' && stemMap.declension === entry.path.declension) {
+                            entry.form = morph(form_local[0], 'adj');
+                            entry.dic_stem = form_local[2];
+                            entry.short_path = helperFunctions.formatting.shorten_path('adj', { form: entry.form.form, Case: entry.path.case, declension: entry.path.declension, gender: entry.path.gender, number: entry.path.number });
+                            //console.log(entry);
                             affixTypesMap.adjSuffix.resultMap.push(entry);
                             affixTypesMap.adjSuffix.state = true;
                         } else {
                             pSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.PARTICLES.MAP, false) || [];
                             for (const entries2 of Object.values(pSuffix)) {
                                 for (const entry2 of Object.values(entries2)) {
+                                    let keyword_local2 = 'temp';
+                                    const form_local2 = find(entry2.stem);
+                                    form_local2 != undefined
+                                        ? keyword_local2 = form_local2[2]
+                                        : null;
+                                    stemMap2 = DICTIONARY.ALL_WORDS.MAP[keyword_local2];
+                                    //console.log(stemMap2, entry2, form_local2);
                                     entry.stem = entry2.stem;//fix affixStem for prefix.
-                                    if (DICTIONARY.ALL_WORDS.MAP[entry2.stem]) {
+                                    if (stemMap2 && stemMap2.type === 'adj' && stemMap2.declension === entry.path.declension) {
                                         if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                             checkerArr.push(entry2.short_path);
                                             console.log('pushed for el with short_path:', entry2.short_path);
+
+                                            entry.form = morph(form_local2[0], 'adj');
+                                            entry.dic_stem = form_local2[2];
+                                            entry.short_path = helperFunctions.formatting.shorten_path('adj', { form: entry.form.form, Case: entry.path.case, declension: entry.path.declension, gender: entry.path.gender, number: entry.path.number });
+                                            //console.log(entry);
+
                                             affixTypesMap.adjSuffixANDpSuffix.resultMap.particle.push(entry2);
                                         }
                                         affixTypesMap.adjSuffixANDpSuffix.resultMap.suffix.push(entry);
@@ -2076,8 +2112,8 @@ function dictionaryPage() {
                 helperFunctions.standard.clearPageById('page96');
 
 
-                const stem = affixTypesMap.adjSuffix.resultMap[0].stem;
-                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                const result = affixTypesMap.adjSuffix.resultMap[0];
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[result.dic_stem] || [];
                 const definition = stemMap.definition || '...';
                 const notes = stemMap.usage_notes || '...';
 
@@ -2094,19 +2130,21 @@ function dictionaryPage() {
                                     <th class="infoCollum">...</th>
                                     <th>Word</th>
                                     <th>Stem</th>
+                                    <th>Wordclass</th>
+                                    <th>Form</th>
                                     <th>Definition</th>
                                     <th>Usage Notes</th>
-                                    <th>Wordclass</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <th>Info</th>
                                     <td>${keyword}</td>
-                                    <td>${stem}</td>
+                                    <td>${result.stem}</td>
+                                    <td>${wordclass}</td>
+                                    <td>${result.form.form}</td>
                                     <td>${definition}</td>
                                     <td>${notes || '...'}</td>
-                                    <td>${wordclass}</td>
                                 </tr>
                             </tbody>
                         </table>
