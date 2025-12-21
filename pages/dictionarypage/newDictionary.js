@@ -335,7 +335,7 @@ function dictionaryPage() {
                                             <td>${searchHandler.word}</td>
                                             <td>${'Adjective'}</td>
                                             <td>${searchHandler.declension}</td>
-                                            <td>${searchHandler.forms || '...'}</td>
+                                            <td>${tostring(searchHandler.forms, 'elative')}</td>
                                             <td>${searchHandler.definition}</td>
                                             <td>${searchHandler.usage_notes || '...'}</td>
                                         </tr>
@@ -376,7 +376,7 @@ function dictionaryPage() {
                                             <th>...</th>
                                             <td>${searchHandler.word}</td>
                                             <td>${'Adverb'}</td>
-                                            <td>${searchHandler.forms || '...'}</td>
+                                            <td>${tostring(searchHandler.forms, 'elative')}</td>
                                             <td>${searchHandler.definition}</td>
                                             <td>${searchHandler.usage_notes || '...'}</td>
                                         </tr>

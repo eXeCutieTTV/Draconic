@@ -1509,7 +1509,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                                 <td>${el.word}</td>
                                                 <td>${'Adjective'}</td>
                                                 <td>${el.declension}</td>
-                                                <td>${el.forms || '...'}</td>
+                                                <td>${tostring(el.forms, 'elative')}</td>
                                                 <td>${el.definition}</td>
                                                 <td>${el.usage_notes || '...'}</td>
                                             </tr>
@@ -1548,7 +1548,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                                 <th>...</th>
                                                 <td>${el.word}</td>
                                                 <td>${'Adverb'}</td>
-                                                <td>${el.forms || '...'}</td>
+                                                <td>${tostring(el.forms, 'elative')}</td>
                                                 <td>${el.definition}</td>
                                                 <td>${el.usage_notes || '...'}</td>
                                             </tr>
@@ -2937,21 +2937,37 @@ function fix(word, wordclass = 'v') {
     }
     entry.forms = result;
 }
-function find(wrd) {
-    const entry = DICTIONARY.ALL_WORDS.MAP;
-    for (const a of Object.values(entry)) {
-        switch (a.type) {
-            case 'v':
-                for (const [form, word] of Object.entries(a.forms)) {
-                    if (word === wrd) {
-                        return [form, word, a.word];
-                    }
-                }
+function find(wrd) {//prob wont work for when word has multiple entries...
+    for (const b of Object.values(DICTIONARY.VERBS.MAP)) {
+        for (const [form, word] of Object.entries(b.forms)) {
+            if (word === wrd) {
+                return [form, word, b.word];
+            }
+        }
+    }
+    for (const b of Object.values(DICTIONARY.ADJECTIVES.MAP)) {
+        for (const [form, word] of Object.entries(b.forms)) {
+            if (word === wrd) {
+                return [form, word, b.word];
+            }
+        }
+    }
+    for (const b of Object.values(DICTIONARY.ADVERBS.MAP)) {
+        for (const [form, word] of Object.entries(b.forms)) {
+            if (word === wrd) {
+                return [form, word, b.word];
+            }
         }
     }
 }
-function tostring(forms_arr) {
-    const str = `${forms_arr[`${IDS.ASPECT['E']}_${IDS.TENSE['NP']}`]}, ${forms_arr[`${IDS.ASPECT['E']}_${IDS.TENSE['P']}`]}, ${forms_arr[`${IDS.ASPECT['G']}_${IDS.TENSE['NP']}`]}, ${forms_arr[`${IDS.ASPECT['G']}_${IDS.TENSE['P']}`]}`;
+function tostring(forms_arr, type = 'aspect') {
+    let str = '';
+    switch (type) {
+        case 'aspect':
+            str = `${forms_arr[`${IDS.ASPECT['E']}_${IDS.TENSE['NP']}`]}, ${forms_arr[`${IDS.ASPECT['E']}_${IDS.TENSE['P']}`]}, ${forms_arr[`${IDS.ASPECT['G']}_${IDS.TENSE['NP']}`]}, ${forms_arr[`${IDS.ASPECT['G']}_${IDS.TENSE['P']}`]}`;
+        case 'elative':
+            str = `${forms_arr.Regular}, ${forms_arr.Elative}`;
+    }
     return str;
 }
 function morph(form) {
@@ -2961,4 +2977,24 @@ function morph(form) {
         case `${[`${IDS.ASPECT['G']}_${IDS.TENSE['NP']}`]}`: return { aspect: IDS.ASPECT['G'], tense: IDS.TENSE['NP'] };
         case `${[`${IDS.ASPECT['G']}_${IDS.TENSE['P']}`]}`: return { aspect: IDS.ASPECT['G'], tense: IDS.TENSE['P'] };
     }
+}
+
+function findallwordclasses(wrd) {
+    const temp = [];
+    const result = [];
+
+    temp.push(DICTIONARY.ADJECTIVES.MAP[wrd]);
+    temp.push(DICTIONARY.ADVERBS.MAP[wrd]);
+    temp.push(DICTIONARY.AUXILIARIES.MAP[wrd]);
+    temp.push(DICTIONARY.CONJUNCTIONS.MAP[wrd]);
+    temp.push(DICTIONARY.DETERMINERS.MAP[wrd]);
+    temp.push(DICTIONARY.NOUNS.MAP[wrd]);
+    temp.push(DICTIONARY.PARTICLES.MAP[wrd]);
+    temp.push(DICTIONARY.PREPOSITIONS.MAP[wrd]);
+    temp.push(DICTIONARY.VERBS.MAP[wrd]);
+
+    for (const entry of temp) {
+        if (typeof (entry) === 'object') result.push(entry);
+    }
+    return result;
 }
