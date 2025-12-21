@@ -310,7 +310,8 @@ function dictionaryPage() {
 
             switch (wordclass) {//dont break inside each? just clear page97 inside each instead - such that all results are being pushed. // can't do it like that... // maybe switch to list of ifs, instead of switchcase?
                 case 'adj':
-                    searchHandler.short_path = searchHandler.declension;
+                    searchHandler.short_path = helperFunctions.formatting.shorten_path('adj', { declension: searchHandler.declension, form: form[0] });
+                    searchHandler.form = form[0];
                     allMatchesArray.type1.adj.push(searchHandler);
                     helperFunctions.standard.clearPageById('page97');
 
@@ -325,6 +326,7 @@ function dictionaryPage() {
                                             <th>Wordclass</th>
                                             <th>Declension</th>
                                             <th>Forms</th>
+                                            <th>Form</th>
                                             <th>Definition</th>
                                             <th>Notes</th>
                                         </tr>
@@ -336,6 +338,7 @@ function dictionaryPage() {
                                             <td>${'Adjective'}</td>
                                             <td>${searchHandler.declension}</td>
                                             <td>${tostring(searchHandler.forms, 'elative')}</td>
+                                            <td>${form[0]}</td>
                                             <td>${searchHandler.definition}</td>
                                             <td>${searchHandler.usage_notes || '...'}</td>
                                         </tr>
@@ -353,7 +356,8 @@ function dictionaryPage() {
                     helperFunctions.tablegen.populateSummaryTables(keyword, { 'Adjective-Table-Directive': false, 'Adjective-Table-Recessive': false });
                     break;
                 case 'adv':
-                    searchHandler.short_path = "stem";
+                    searchHandler.short_path = helperFunctions.formatting.shorten_path('adv', { form: form[0] });
+                    searchHandler.form = form[0];
                     allMatchesArray.type1.adv.push(searchHandler);
                     helperFunctions.standard.clearPageById('page97');
 
@@ -367,6 +371,7 @@ function dictionaryPage() {
                                             <th>Stem</th>
                                             <th>Wordclass</th>
                                             <th>Forms</th>
+                                            <th>Form</th>
                                             <th>Definition</th>
                                             <th>Notes</th>
                                         </tr>
@@ -377,6 +382,7 @@ function dictionaryPage() {
                                             <td>${searchHandler.word}</td>
                                             <td>${'Adverb'}</td>
                                             <td>${tostring(searchHandler.forms, 'elative')}</td>
+                                            <td>${form[0]}</td>
                                             <td>${searchHandler.definition}</td>
                                             <td>${searchHandler.usage_notes || '...'}</td>
                                         </tr>

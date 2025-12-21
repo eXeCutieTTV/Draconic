@@ -1275,7 +1275,8 @@ const shorten_path = function shorten_path(wordclass, {
     gender = null,
     person = null,
     Case = null,
-    declension = null
+    declension = null,
+    form = null
 } = {}) {
     let result;
     const tempArray = [];
@@ -1306,33 +1307,47 @@ const shorten_path = function shorten_path(wordclass, {
             result = `${tempArray[0]}.${tempArray[3]}.${tempArray[1]}.${person}.${tempArray[2]}`;//aspect.gender.number.person.tense.
             break;
         case 'adj':
-        case 'n':
-            //console.log(declension, gender, Case, number);
-
-            const mapArrayN = [IDS.MOODS, IDS.NUMBERS];
-            for (el of mapArrayN) {
+            const mapArrayADJ = [IDS.MOODS, IDS.NUMBERS, IDS.FORMS];
+            for (el of mapArrayADJ) {
                 for (const [short, long] of Object.entries(el)) {
-                    if (number === long) {
-                        tempArray.push(short);
-                    }
-                    if (Case === long) {
-                        tempArray.push(short);
-                    }
+                    if (number === long) tempArray.push(short);
+                    if (Case === long) tempArray.push(short);
+                    if (form === long) tempArray.push(short);
                 }
             }
 
             for (entry of Object.values(GENDERS.MAP)) {
-                if (entry.NAME === gender) {
-                    tempArray.push(entry.SHORT);
+                if (entry.NAME === gender) tempArray.push(entry.SHORT);
+            }
+            result = `${declension}.${tempArray[0]}.${tempArray[2]}.${tempArray[1]}.${tempArray[3]}`;//declension.case.gender.number
+            break;
+        case 'adv':
+
+            const mapArrayADV = [IDS.FORMS];
+            for (el of mapArrayADV) {
+                for (const [short, long] of Object.entries(el)) {
+                    if (form === long) tempArray.push(short);
                 }
+            }
+            result = `${tempArray[0]}`;
+            break;
+        case 'n':
+            const mapArrayN = [IDS.MOODS, IDS.NUMBERS];
+            for (el of mapArrayN) {
+                for (const [short, long] of Object.entries(el)) {
+                    if (number === long) tempArray.push(short);
+                    if (Case === long) tempArray.push(short);
+                }
+            }
+
+            for (entry of Object.values(GENDERS.MAP)) {
+                if (entry.NAME === gender) tempArray.push(entry.SHORT);
             }
             result = `${declension}.${tempArray[0]}.${tempArray[2]}.${tempArray[1]}`;//declension.case.gender.number
             break;
         case 'det':
             for (entry of Object.values(GENDERS.MAP)) {
-                if (entry.NAME === gender) {
-                    tempArray.push(entry.SHORT);
-                }
+                if (entry.NAME === gender) tempArray.push(entry.SHORT);
             }
             result = `${tempArray[0]}`;//gender
             break;
@@ -1499,6 +1514,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                                 <th>Wordclass</th>
                                                 <th>Declension</th>
                                                 <th>Forms</th>
+                                                <th>Form</th>
                                                 <th>Definition</th>
                                                 <th>Notes</th>
                                             </tr>
@@ -1510,6 +1526,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                                 <td>${'Adjective'}</td>
                                                 <td>${el.declension}</td>
                                                 <td>${tostring(el.forms, 'elative')}</td>
+                                                <td>${el.form}</td>
                                                 <td>${el.definition}</td>
                                                 <td>${el.usage_notes || '...'}</td>
                                             </tr>
@@ -1539,6 +1556,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                                 <th>Stem</th>
                                                 <th>Wordclass</th>
                                                 <th>Forms</th>
+                                                <th>Form</th>
                                                 <th>Definition</th>
                                                 <th>Notes</th>
                                             </tr>
@@ -1549,6 +1567,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                                 <td>${el.word}</td>
                                                 <td>${'Adverb'}</td>
                                                 <td>${tostring(el.forms, 'elative')}</td>
+                                                <td>${el.form}</td>
                                                 <td>${el.definition}</td>
                                                 <td>${el.usage_notes || '...'}</td>
                                             </tr>
@@ -2939,23 +2958,32 @@ function fix(word, wordclass = 'v') {
 }
 function find(wrd) {//prob wont work for when word has multiple entries...
     for (const b of Object.values(DICTIONARY.VERBS.MAP)) {
-        for (const [form, word] of Object.entries(b.forms)) {
-            if (word === wrd) {
-                return [form, word, b.word];
+        if (typeof (b.forms) === 'string' && b.word === wrd) return b.forms
+        else {
+            for (const [form, word] of Object.entries(b.forms)) {
+                if (word === wrd) {
+                    return [form, word, b.word];
+                }
             }
         }
     }
     for (const b of Object.values(DICTIONARY.ADJECTIVES.MAP)) {
-        for (const [form, word] of Object.entries(b.forms)) {
-            if (word === wrd) {
-                return [form, word, b.word];
+        if (typeof (b.forms) === 'string' && b.word === wrd) return b.forms
+        else {
+            for (const [form, word] of Object.entries(b.forms)) {
+                if (word === wrd) {
+                    return [form, word, b.word];
+                }
             }
         }
     }
     for (const b of Object.values(DICTIONARY.ADVERBS.MAP)) {
-        for (const [form, word] of Object.entries(b.forms)) {
-            if (word === wrd) {
-                return [form, word, b.word];
+        if (typeof (b.forms) === 'string' && b.word === wrd) return b.forms
+        else {
+            for (const [form, word] of Object.entries(b.forms)) {
+                if (word === wrd) {
+                    return [form, word, b.word];
+                }
             }
         }
     }
