@@ -247,9 +247,11 @@ function dictionaryPage() {
                                         return result;
                                     }
                                     const result = {
-                                        path: {
+                                        form: {
                                             aspect: aspectKey,
                                             tense: tenseKey,
+                                        },
+                                        path: {
                                             gender: genderKey,
                                             person: personKey,
                                             number: numberKey
@@ -302,7 +304,7 @@ function dictionaryPage() {
 
             switch (wordclass) {//dont break inside each? just clear page97 inside each instead - such that all results are being pushed. // can't do it like that... // maybe switch to list of ifs, instead of switchcase?
                 case 'adj':
-                    searchHandler.short_path = "stem";
+                    searchHandler.short_path = searchHandler.declension;
                     allMatchesArray.type1.adj.push(searchHandler);
                     helperFunctions.standard.clearPageById('page97');
 
@@ -491,7 +493,7 @@ function dictionaryPage() {
                     helperFunctions.tablegen.populateSummaryTables(keyword, { 'Determiner-Table': false });
                     break;
                 case 'n':
-                    searchHandler.short_path = "stem";
+                    searchHandler.short_path = searchHandler.declension;
                     allMatchesArray.type1.n.push(searchHandler);
                     helperFunctions.standard.clearPageById('page97');
                     const NcombinedGendersObject = GENDERS.combine(searchHandler.genders) // Key-value pairs
@@ -804,8 +806,8 @@ function dictionaryPage() {
                 const html = `
                     <tr>
                         <td>${entry.word}</td>
-                        <td>${entry.path.aspect}</td>
-                        <td>${entry.path.tense}</td>
+                        <td>${entry.form.aspect}</td>
+                        <td>${entry.form.tense}</td>
                         <td>${entry.path.gender}</td>
                         <td>${entry.path.person}</td>
                         <td>${entry.path.number}</td>

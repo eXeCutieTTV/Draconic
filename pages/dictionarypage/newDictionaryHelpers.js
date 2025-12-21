@@ -1487,7 +1487,6 @@ const displayForms = function displayForms(allMatchesArray) {
 
                 switch (td.dataset.wordclass) {
                     case 'adj':
-                        el.short_path = "stem";
 
                         pageHtml = `
                             <div>
@@ -1666,7 +1665,6 @@ const displayForms = function displayForms(allMatchesArray) {
                         helperFunctions.tablegen.populateSummaryTables(keyword, { 'Determiner-Table': false });
                         break;
                     case 'n':
-                        el.short_path = "stem";
                         const NcombinedGendersObject = GENDERS.combine(el.genders) // Key-value pairs
 
                         pageHtml = `
@@ -1768,47 +1766,84 @@ const displayForms = function displayForms(allMatchesArray) {
                         helperFunctions.standard.createPageById('page94', pageHtml);
                         break;
                     case 'v':
-                        el.short_path = "stem";
-                        pageHtml = `
-                            <div>
+                        if (td.dataset.verbtype === 'lur') {
+                            console.log('lur',el)
+
+                            pageHtml = `
                                 <div>
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th class="infoCollum">Info</th>
-                                                <th>Stem</th>
-                                                <th>Wordclass</th>
-                                                <th>Forms</th>
-                                                <th>Aspect</th>
-                                                <th>Tense</th>
-                                                <th>Definition</th>
-                                                <th>Notes</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <th>...</th>
-                                                <td>${el.dic_stem}</td>
-                                                <td>${'Verb'}</td>
-                                                <td>${tostring(el.forms)}</td>
-                                                <td>${el.form.aspect}</td>
-                                                <td>${el.form.tense}</td>
-                                                <td>${el.definition}</td>
-                                                <td>${el.usage_notes || '...'}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <div>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th class="infoCollum">Info</th>
+                                                    <th>Stem</th>
+                                                    <th>Wordclass</th>
+                                                    <th>Aspect</th>
+                                                    <th>Tense</th>
+                                                    <th>Definition</th>
+                                                    <th>Notes</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th>...</th>
+                                                    <td>${el.word}</td>
+                                                    <td>${'Verb'}</td>
+                                                    <td>${el.form.aspect}</td>
+                                                    <td>${el.form.tense}</td>
+                                                    <td>${'to be'}</td>
+                                                    <td>${'verb is irregular'}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="verbTableWrapper" style="margin-top:50px;"></div>
                                 </div>
-                                <div id="verbTableWrapper" style="margin-top:50px;"></div>
-                            </div>
-                        `;
-                        helperFunctions.standard.createPageById('page94', pageHtml);
-                        const verbTableWrapper = document.getElementById('verbTableWrapper');
+                            `;
+                            helperFunctions.standard.createPageById('page94', pageHtml);
+                            const verbTableWrapper = document.getElementById('verbTableWrapper');
+                        } else {
+                            pageHtml = `
+                                <div>
+                                    <div>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th class="infoCollum">Info</th>
+                                                    <th>Stem</th>
+                                                    <th>Wordclass</th>
+                                                    <th>Forms</th>
+                                                    <th>Aspect</th>
+                                                    <th>Tense</th>
+                                                    <th>Definition</th>
+                                                    <th>Notes</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <th>...</th>
+                                                    <td>${el.dic_stem}</td>
+                                                    <td>${'Verb'}</td>
+                                                    <td>${tostring(el.forms)}</td>
+                                                    <td>${el.form.aspect}</td>
+                                                    <td>${el.form.tense}</td>
+                                                    <td>${el.definition}</td>
+                                                    <td>${el.usage_notes || '...'}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="verbTableWrapper" style="margin-top:50px;"></div>
+                                </div>
+                            `;
+                            helperFunctions.standard.createPageById('page94', pageHtml);
+                            const verbTableWrapper = document.getElementById('verbTableWrapper');
 
-                        helperFunctions.matchtype1.neoVerbTables(true, el.dic_stem, verbTableWrapper);
-                        helperFunctions.matchtype1.neoVerbTables(false, el.dic_stem, verbTableWrapper);
+                            helperFunctions.matchtype1.neoVerbTables(true, el.dic_stem, verbTableWrapper);
+                            helperFunctions.matchtype1.neoVerbTables(false, el.dic_stem, verbTableWrapper);
 
-                        helperFunctions.tablegen.populateSummaryTables(el.dic_stem, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
+                            helperFunctions.tablegen.populateSummaryTables(el.dic_stem, { 'Verb-Table-Prefix': true, 'Verb-Table-Suffix': false });
+                        }
                         break;
                     default: console.warn(`${td.dataset.wordclass} is an invalid wordclass`);
                 }
@@ -2743,7 +2778,19 @@ const displayForms = function displayForms(allMatchesArray) {
             // ⟅(^‿^)⟆ - Shelf the elf
             switch (td.dataset.affix_amount) {
                 case '0':
-                    td.textContent = "wordclass.aspect.tense";
+                    switch (td.dataset.wordclass) {
+                        case 'v':
+                            td.textContent = "wordclass.aspect.tense";
+                            console.log('v')
+                            break;
+                        case 'adj':
+                        case 'n':
+                            td.textContent = "wordclass.declension";
+                            console.log('n')
+                            break;
+                        default:
+                            td.textContent = "wordclass.stem";
+                    }
                     break;
                 case '1':
                     switch (td.dataset.key) {
