@@ -6,6 +6,12 @@ function dictionaryPage() {
     for (const a of Object.values(DICTIONARY.VERBS.MAP)) {
         fix(a.word);
     }
+    for (const a of Object.values(DICTIONARY.ADJECTIVES.MAP)) {
+        fix(a.word, 'adj');
+    }
+    for (const a of Object.values(DICTIONARY.ADVERBS.MAP)) {
+        fix(a.word, 'adv');
+    }
     // main search function
     function search(word) {
         if (searchFLD.value.length === 0) { return; }//doesnt search if searchFLD is empty

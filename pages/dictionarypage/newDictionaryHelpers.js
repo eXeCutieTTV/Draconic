@@ -1461,7 +1461,7 @@ const displayForms = function displayForms(allMatchesArray) {
     let tableTextState = 0;
     function fixTable() {
         for (const el of tempArray.type1) {
-            console.log(el);
+            //console.log(el);
             const datastem = el.dic_stem || el.word;
             const htmlEach = `
                 <td 
@@ -1767,7 +1767,7 @@ const displayForms = function displayForms(allMatchesArray) {
                         break;
                     case 'v':
                         if (td.dataset.verbtype === 'lur') {
-                            console.log('lur',el)
+                            //console.log('lur',el)
 
                             pageHtml = `
                                 <div>
@@ -1778,6 +1778,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                                     <th class="infoCollum">Info</th>
                                                     <th>Stem</th>
                                                     <th>Wordclass</th>
+                                                    <th>Forms</th>
                                                     <th>Aspect</th>
                                                     <th>Tense</th>
                                                     <th>Definition</th>
@@ -1789,10 +1790,11 @@ const displayForms = function displayForms(allMatchesArray) {
                                                     <th>...</th>
                                                     <td>${el.word}</td>
                                                     <td>${'Verb'}</td>
+                                                    <td>${'lur, rōd, lūryχ, lyrōd'}</td>
                                                     <td>${el.form.aspect}</td>
                                                     <td>${el.form.tense}</td>
                                                     <td>${'to be'}</td>
-                                                    <td>${'verb is irregular'}</td>
+                                                    <td>${'the past gnomic form (lūrōd) usually carries a counterfactual connotation  in casual speech, the forms are typically realized as lyr, rod, lurχ, and lyrod does not take prefix suffixes; highly irregular'}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -2889,25 +2891,49 @@ const helperFunctions =
     final
 }
 
-function fix(word) {
-    const entry = DICTIONARY.ALL_WORDS.MAP[word];
-    const forms_raw = entry.forms;
-    if (forms_raw === 'defective' || forms_raw === undefined || Array.isArray(forms_raw) || typeof (forms_raw) === 'object') return;
-    function temp() {
-
-        const temp_array = forms_raw
+function fix(word, wordclass = 'v') {
+    function temp(raw) {
+        const temp_array = raw
             .split(/\s*,\s*/)
             .map(s => s.trim())
             .filter(s => s.length);
 
         return temp_array;
     }
-    const arr = temp();
-    const result = {
-        [`${IDS.ASPECT['E']}_${IDS.TENSE['NP']}`]: entry.word,
-        [`${IDS.ASPECT['E']}_${IDS.TENSE['P']}`]: arr[0],
-        [`${IDS.ASPECT['G']}_${IDS.TENSE['NP']}`]: arr[1],
-        [`${IDS.ASPECT['G']}_${IDS.TENSE['P']}`]: arr[2]
+    let result = {};
+    switch (wordclass) {
+        case 'v':
+            entry = DICTIONARY.VERBS.MAP[word];
+            forms_raw = entry.forms;
+            if (forms_raw === 'defective' || forms_raw === 'nan' || typeof (forms_raw) != 'string') return;
+            arr = temp(forms_raw);
+            result = {
+                [`${IDS.ASPECT['E']}_${IDS.TENSE['NP']}`]: entry.word,
+                [`${IDS.ASPECT['E']}_${IDS.TENSE['P']}`]: arr[0],
+                [`${IDS.ASPECT['G']}_${IDS.TENSE['NP']}`]: arr[1],
+                [`${IDS.ASPECT['G']}_${IDS.TENSE['P']}`]: arr[2]
+            }
+            break;
+        case 'adj':
+            entry = DICTIONARY.ADJECTIVES.MAP[word];
+            forms_raw = entry.forms;
+            if (forms_raw === 'defective' || forms_raw === 'nan' || typeof (forms_raw) != 'string') return;
+            arr = temp(forms_raw);
+            result = {
+                Regular: entry.word,
+                Elative: entry.forms
+            }
+            break;
+        case 'adv':
+            entry = DICTIONARY.ADVERBS.MAP[word];
+            forms_raw = entry.forms;
+            if (forms_raw === 'defective' || forms_raw === 'nan' || typeof (forms_raw) != 'string') return;
+            arr = temp(forms_raw);
+            result = {
+                Regular: entry.word,
+                Elative: entry.forms
+            }
+            break;
     }
     entry.forms = result;
 }
