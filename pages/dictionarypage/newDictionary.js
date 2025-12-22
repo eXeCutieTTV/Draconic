@@ -2821,7 +2821,7 @@ function dictionaryPage() {
             }
         });
         */
-        console.log('hey')
+        //console.log('hey')
     }
     if (document.getElementById('page99').innerHTML !== '') {
         searchBTN.addEventListener('click', () => {
@@ -2838,7 +2838,7 @@ function dictionaryPage() {
     return search;
 }
 dictionaryPage();
-let search_returned = '';
+search_returned = '';
 if (search_returned.length === 0) {
     search_returned = dictionaryPage();
 }
