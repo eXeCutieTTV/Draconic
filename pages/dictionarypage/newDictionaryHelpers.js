@@ -61,10 +61,10 @@ const createPageById = function createPageById(id, html) {
 
     pagewrapper.appendChild(page);
 
-    console.log(typeof search_returned);
+    //console.log(typeof search_returned);
     searchBTN = document.getElementById('search_button');
     searchFLD = document.getElementById('search_field');
-    console.log(searchBTN, searchFLD)
+    //console.log(searchBTN, searchFLD)
     searchBTN.addEventListener('click', () => {
         search_returned(); // /\(/o.o\)/\ - Spooky the spider
     });

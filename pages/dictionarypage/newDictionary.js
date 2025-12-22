@@ -2819,7 +2819,7 @@ function dictionaryPage() {
             }
         });
         */
-        console.log('hey')
+        //console.log('hey')
     }
     if (document.getElementById('page99').innerHTML !== '') {
         searchBTN.addEventListener('click', (ev) => {
@@ -2840,7 +2840,7 @@ search_returned = '';
 if (search_returned.length === 0) {
     search_returned = dictionaryPage();
 }
-console.log(typeof search_returned, typeof dictionaryPage);
+//console.log(typeof search_returned, typeof dictionaryPage);
 //console.log(dictionaryPage);
 
 //maybe add a 4th type? if number, then use lirioz' NUMBERS.numberToText.
