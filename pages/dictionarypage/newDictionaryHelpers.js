@@ -2216,7 +2216,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                 stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
                                 definition = stemMap.definition || '...';
                                 notes = stemMap.usage_notes || '...';
-
+                                console.log(el)
                                 pageHtml = `
                                     <div>
                                         <table>
@@ -2225,9 +2225,10 @@ const displayForms = function displayForms(allMatchesArray) {
                                                     <th class="infoCollum">...</th>
                                                     <th>Word</th>
                                                     <th>Stem</th>
+                                                    <th>Wordclass</th>
+                                                    <th>Form</th>
                                                     <th>Definition</th>
                                                     <th>Usage Notes</th>
-                                                    <th>Wordclass</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -2235,9 +2236,10 @@ const displayForms = function displayForms(allMatchesArray) {
                                                     <th>Info</th>
                                                     <td>${keyword}</td>
                                                     <td>${stem}</td>
+                                                    <td>${'Adjective'}</td>
+                                                    <td>${"result.form.form"}</td>
                                                     <td>${definition}</td>
                                                     <td>${notes || '...'}</td>
-                                                    <td>${'Adjective'}</td>
                                                 </tr>
                                             </tbody>
                                         </table>

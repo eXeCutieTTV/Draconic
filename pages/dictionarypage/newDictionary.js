@@ -1317,48 +1317,52 @@ function dictionaryPage() {
                 const checkerArr = [];
                 for (const entries of Object.values(affixTypesMap.adjSuffix.rawMap)) {
                     for (const entry of Object.values(entries)) {
-                        let keyword_local = 'temp';
-                        const form_local = find(entry.stem);
-                        form_local != undefined
-                            ? keyword_local = form_local[2]
-                            : null;
-                        stemMap = DICTIONARY.ALL_WORDS.MAP[keyword_local];
-                        //console.log(stemMap, entry, form_local);
-                        if (stemMap && stemMap.type === 'adj' && stemMap.declension === entry.path.declension) {
-                            entry.form = morph(form_local[0], 'adj');
-                            entry.dic_stem = form_local[2];
-                            entry.real_stem = form_local[1];
-                            entry.short_path = helperFunctions.formatting.shorten_path('adj', { form: entry.form.form, Case: entry.path.case, declension: entry.path.declension, gender: entry.path.gender, number: entry.path.number });
-                            //console.log(entry);
-                            affixTypesMap.adjSuffix.resultMap.push(entry);
-                            affixTypesMap.adjSuffix.state = true;
+                        const stemArr = helperFunctions.matchtype2.findStemWhenShortstem(entry.stem);
+                        if (stemArr.length > 0) {
+                            for (const stem_result of stemArr) {
+                                let keyword_local = 'temp';
+                                const form_local = find(stem_result);
+                                form_local != undefined
+                                    ? keyword_local = form_local[2]
+                                    : null;
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[keyword_local];
+                                if (stemMap && stemMap.type === 'adj' && stemMap.declension === entry.path.declension) {
+                                    entry.form = morph(form_local[0], 'adj');
+                                    entry.dic_stem = form_local[2];
+                                    entry.real_stem = form_local[1];
+                                    entry.short_path = helperFunctions.formatting.shorten_path('adj', { form: entry.form.form, Case: entry.path.case, declension: entry.path.declension, gender: entry.path.gender, number: entry.path.number });
+                                    affixTypesMap.adjSuffix.resultMap.push(entry);
+                                    affixTypesMap.adjSuffix.state = true;
+                                }
+                            }
                         } else {
                             pSuffix = helperFunctions.matchtype2.neoAffixChecker(entry.stem, DICTIONARY.PARTICLES.MAP, false) || [];
                             for (const entries2 of Object.values(pSuffix)) {
                                 for (const entry2 of Object.values(entries2)) {
-                                    let keyword_local2 = 'temp';
-                                    const form_local2 = find(entry2.stem);
-                                    form_local2 != undefined
-                                        ? keyword_local2 = form_local2[2]
-                                        : null;
-                                    stemMap2 = DICTIONARY.ALL_WORDS.MAP[keyword_local2];
-                                    //console.log(stemMap2, entry2, form_local2);
-                                    entry.stem = entry2.stem;//fix affixStem for prefix.
-                                    if (stemMap2 && stemMap2.type === 'adj' && stemMap2.declension === entry.path.declension) {
-                                        if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
-                                            checkerArr.push(entry2.short_path);
-                                            console.log('pushed for el with short_path:', entry2.short_path);
+                                    const stemArr2 = helperFunctions.matchtype2.findStemWhenShortstem(entry2.stem);
+                                    if (stemArr2.length > 0) {
+                                        for (const stem_result2 of stemArr2) {
+                                            let keyword_local2 = 'temp';
+                                            const form_local2 = find(stem_result2);
+                                            form_local2 != undefined
+                                                ? keyword_local2 = form_local2[2]
+                                                : null;
+                                            stemMap2 = DICTIONARY.ALL_WORDS.MAP[keyword_local2];
+                                            entry.stem = entry2.stem;//fix affixStem for prefix.
+                                            if (stemMap2 && stemMap2.type === 'adj' && stemMap2.declension === entry.path.declension) {
+                                                if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
+                                                    checkerArr.push(entry2.short_path);
+                                                    console.log('pushed for el with short_path:', entry2.short_path);
 
-                                            entry.form = morph(form_local2[0], 'adj');
-                                            entry.dic_stem = form_local2[2];
-                                            entry.real_stem = form_local2[1];
-                                            entry.short_path = helperFunctions.formatting.shorten_path('adj', { form: entry.form.form, Case: entry.path.case, declension: entry.path.declension, gender: entry.path.gender, number: entry.path.number });
-                                            //console.log(entry);
-
-                                            affixTypesMap.adjSuffixANDpSuffix.resultMap.particle.push(entry2);
+                                                    entry.form = morph(form_local2[0], 'adj');
+                                                    entry.dic_stem = form_local2[2];
+                                                    entry.real_stem = form_local2[1];
+                                                    affixTypesMap.adjSuffixANDpSuffix.resultMap.particle.push(entry2);
+                                                }
+                                                affixTypesMap.adjSuffixANDpSuffix.resultMap.suffix.push(entry);
+                                                affixTypesMap.adjSuffixANDpSuffix.state = true;
+                                            }
                                         }
-                                        affixTypesMap.adjSuffixANDpSuffix.resultMap.suffix.push(entry);
-                                        affixTypesMap.adjSuffixANDpSuffix.state = true;
                                     }
                                 }
                             }
