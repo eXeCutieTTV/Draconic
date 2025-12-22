@@ -2839,7 +2839,6 @@ function dictionaryPage() {
     }
     return search;
 }
-dictionaryPage();
 search_returned = '';
 if (search_returned.length === 0) {
     search_returned = dictionaryPage();
