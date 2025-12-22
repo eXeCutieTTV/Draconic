@@ -728,7 +728,7 @@ const findStemWhenShortstem = function findStemWhenShortstem(short_stem) {
             }
         } else {
             for (const obj of Object.values(result)) {
-                console.log(obj);
+                //console.log(obj);
                 if (obj.forms === undefined) {
                     if (obj.word.length === short_stem.length + 1
                         && helperFunctions.formatting.isVowel_regex.test(obj.word.slice(-1))

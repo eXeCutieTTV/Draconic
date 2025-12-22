@@ -1260,13 +1260,22 @@ function dictionaryPage() {
                                                     const stemArr2 = helperFunctions.matchtype2.findStemWhenShortstem(entry2.stem);
                                                     if (stemArr2.length > 0) {
                                                         for (const stem_result2 of stemArr2) {
-                                                            const stem_resultMap2 = DICTIONARY.ALL_WORDS.MAP[stem_result2];
+                                                            let keyword_local = 'temp';
+                                                            const form_local = find(stem_result2);
+                                                            form_local != undefined
+                                                                ? keyword_local = form_local[2]
+                                                                : null;
+                                                            const stem_resultMap2 = DICTIONARY.ALL_WORDS.MAP[keyword_local];
                                                             if (stem_resultMap2 && stem_resultMap2.type === 'adj' && stem_resultMap2.declension === entry2.path.declension) {
                                                                 entry.stem = entry2.stem;//fix stem
                                                                 if (!checkerArr.includes(entry2.short_path)) {//<- prevent pushing every possible suffix, for every possible prefix - only show possible suffixes once.
                                                                     checkerArr.push(entry2.short_path);
                                                                     console.log('pushed for el with short_path:', entry2.short_path);
+                                                                    entry2.form = morph(form_local[0], 'adj');
+                                                                    entry2.dic_stem = form_local[2];
+                                                                    entry2.real_stem = form_local[1];
                                                                     entry2.wordclass = 'adj';//idk why this is needed - but it fixes...
+                                                                    entry2.short_path = helperFunctions.formatting.shorten_path('adj', { form: entry2.form.form, Case: entry2.path.case, declension: entry2.path.declension, gender: entry2.path.gender, number: entry2.path.number });
                                                                     affixTypesMap.adjSuffixANDpPrefix.resultMap.suffix.push(entry2);
                                                                 }
                                                                 temp_stemArr23 = stemArr2;
@@ -1318,6 +1327,7 @@ function dictionaryPage() {
                         if (stemMap && stemMap.type === 'adj' && stemMap.declension === entry.path.declension) {
                             entry.form = morph(form_local[0], 'adj');
                             entry.dic_stem = form_local[2];
+                            entry.real_stem = form_local[1];
                             entry.short_path = helperFunctions.formatting.shorten_path('adj', { form: entry.form.form, Case: entry.path.case, declension: entry.path.declension, gender: entry.path.gender, number: entry.path.number });
                             //console.log(entry);
                             affixTypesMap.adjSuffix.resultMap.push(entry);
@@ -1341,6 +1351,7 @@ function dictionaryPage() {
 
                                             entry.form = morph(form_local2[0], 'adj');
                                             entry.dic_stem = form_local2[2];
+                                            entry.real_stem = form_local2[1];
                                             entry.short_path = helperFunctions.formatting.shorten_path('adj', { form: entry.form.form, Case: entry.path.case, declension: entry.path.declension, gender: entry.path.gender, number: entry.path.number });
                                             //console.log(entry);
 
@@ -2140,7 +2151,7 @@ function dictionaryPage() {
                                 <tr>
                                     <th>Info</th>
                                     <td>${keyword}</td>
-                                    <td>${result.stem}</td>
+                                    <td>${result.real_stem}</td>
                                     <td>${wordclass}</td>
                                     <td>${result.form.form}</td>
                                     <td>${definition}</td>
@@ -2167,9 +2178,8 @@ function dictionaryPage() {
                 matchType = 2;
                 helperFunctions.standard.clearPageById('page96');
 
-
-                const stem = affixTypesMap.adjSuffixANDpSuffix.resultMap.suffix[0].stem;
-                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                const result = affixTypesMap.adjSuffixANDpSuffix.resultMap.suffix[0];
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[result.dic_stem] || [];
                 const definition = stemMap.definition || '...';
                 const notes = stemMap.usage_notes || '...';
 
@@ -2185,19 +2195,21 @@ function dictionaryPage() {
                                     <th class="infoCollum">...</th>
                                     <th>Word</th>
                                     <th>Stem</th>
+                                    <th>Wordclass</th>
+                                    <th>Form</th>
                                     <th>Definition</th>
                                     <th>Usage Notes</th>
-                                    <th>Wordclass</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <th>Info</th>
                                     <td>${keyword}</td>
-                                    <td>${stem}</td>
+                                    <td>${result.real_stem}</td>
+                                    <td>${wordclass}</td>
+                                    <td>${result.form.form}</td>
                                     <td>${definition}</td>
                                     <td>${notes}</td>
-                                    <td>${wordclass}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -2608,8 +2620,8 @@ function dictionaryPage() {
             }
             else if (affixTypesMap.adjSuffixANDpPrefix.state) {
                 matchType = 2;
-                const stem = affixTypesMap.adjSuffixANDpPrefix.resultMap.suffix[0].stem;
-                const stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                const result = affixTypesMap.adjSuffixANDpPrefix.resultMap.suffix[0];
+                const stemMap = DICTIONARY.ALL_WORDS.MAP[result.dic_stem] || [];
                 const definition = stemMap.definition || '...';
                 const notes = stemMap.usage_notes || '...';
 
@@ -2622,19 +2634,21 @@ function dictionaryPage() {
                                         <th class="infoCollum">...</th>
                                         <th>Word</th>
                                         <th>Stem</th>
+                                        <th>Wordclass</th>
+                                        <th>Form</th>
                                         <th>Definition</th>
                                         <th>Usage Notes</th>
-                                        <th>Wordclass</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <th>Info</th>
                                         <td>${keyword}</td>
-                                        <td>${stem}</td>
+                                        <td>${result.real_stem}</td>
+                                        <td>${'Adjective'}</td>
+                                        <td>${result.form.form}</td>
                                         <td>${definition}</td>
                                         <td>${notes}</td>
-                                        <td>${'Adjective'}</td>
                                     </tr>
                                 </tbody>
                             </table>
