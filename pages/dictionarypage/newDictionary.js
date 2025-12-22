@@ -2687,12 +2687,98 @@ function dictionaryPage() {
             console.log('-----type3-----');
             const searchHandler = DICTIONARY.ALL_WORDS.fetchByDefinition(keyword); // Array[]
             console.log('3', 'searchHandler |', searchHandler);
-            searchHandler.forEach(entry => {
 
+            const html = `
+                <div>
+                    <div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Word</th>
+                                    <th>Wordclass</th>
+                                    <th>Forms</th>
+                                    <th>Definition</th>
+                                    <th>Usage Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matchtype3"></tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            const wrapper = document.querySelector('.pages');
+            helperFunctions.standard.createDivById('page93', wrapper, html);
+            for (const entry of searchHandler) {
+                switch (entry.type) {
+                    case 'n':
+                        for (const [gender, def] of Object.entries(GENDERS.combine(entry.genders))) {
+                            html_local = `
+                                <tr>
+                                    <td>${entry.word}</td>
+                                    <td>${entry.type} (${entry.declension})</td>
+                                    <td>${gender}</td>
+                                    <td>${def}</td>
+                                    <td>${entry.usage_notes || '...'}</td>
+                                </tr>
+                            `;
+                            helperFunctions.standard.betterTrInsert('matchtype3', html_local);
+                        }
+                        break;
+                    case 'adj':
+                    case 'adv':
+                        function forms() {
+                            let forms = tostring(entry.forms, 'elative');
+                            if (forms === 'undefined, undefined') return 'defective';
+                            else return forms;
+                        }
+                        html_local = `
+                            <tr>
+                                <td>${entry.word}</td>
+                                <td>${entry.type}</td>
+                                <td>${forms()}</td>
+                                <td>${entry.definition}</td>
+                                <td>${entry.usage_notes || '...'}</td>
+                            </tr>
+                        `;
+                        helperFunctions.standard.betterTrInsert('matchtype3', html_local);
+                        break;
+                    case 'v':
+                        function forms() {
+                            let forms = tostring(entry.forms, 'aspect');
+                            if (forms === 'undefined, undefined') return 'defective';
+                            else return forms;
+                        }
+                        html_local = `
+                            <tr>
+                                <td>${entry.word}</td>
+                                <td>${entry.type}</td>
+                                <td>${forms()}</td>
+                                <td>${entry.definition}</td>
+                                <td>${entry.usage_notes || '...'}</td>
+                            </tr>
+                        `;
+                        helperFunctions.standard.betterTrInsert('matchtype3', html_local);
+                        break;
+                    default:
+                        html_local = `
+                            <tr>
+                                <td>${entry.word}</td>
+                                <td>${entry.type}</td>
+                                <td>${""}</td>
+                                <td>${entry.definition}</td>
+                                <td>${entry.usage_notes || '...'}</td>
+                            </tr>
+                        `;
+                        helperFunctions.standard.betterTrInsert('matchtype3', html_local);
+
+                }
+                helperFunctions.standard.openPageById('page93');
+            }/*
+            searchHandler.forEach(entry => {
                 // check for type === "n" then do for () {} else do normal thingi?
                 if (entry.type === "n") {
                     for (const [gender, def] of Object.entries(GENDERS.combine(entry.genders))) {
-                        helperFunctions.matchtype3.extraTableRow(entry.word, `n ${entry.declension}`, gender, def, entry.usage_notes || '...');//TODO make <-- use insert tr instead of this goofy function.
+                        //helperFunctions.matchtype3.extraTableRow(entry.word, `n ${entry.declension}`, gender, def, entry.usage_notes || '...');//TODO make <-- use insert tr instead of this goofy function.
                     }
                 } else {
                     const type = entry.type || '...';
@@ -2709,11 +2795,10 @@ function dictionaryPage() {
                     } else (wordclassText = type);
 
                     //console.log(word, wordclassText, forms, definition, usage_notes);// <-- works.
-                    helperFunctions.matchtype3.extraTableRow(word, wordclassText, forms, definition, usage_notes);
+                    //helperFunctions.matchtype3.extraTableRow(word, wordclassText, forms, definition, usage_notes);
                 }
-            });
+            });*/
         }
-        //helperFunctions.standard.reverseSearchIdsOnSearch();
 
         console.log('all matches |', allMatchesArray);
 
@@ -2728,7 +2813,7 @@ function dictionaryPage() {
         searchBTN.addEventListener('click', () => {
             search(); // /\(/o.o\)/\ - Spooky the spider
         });
-
+ 
         searchFLD.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault(); // prevent form submission
