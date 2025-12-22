@@ -1,5 +1,4 @@
 function dictionaryPage() {
-    let search_only_once = 0;
     // /\(/o.o\)/\ - Spooky the spider
     let searchBTN = document.getElementById('search_button');
     let searchFLD = document.getElementById('search_field');
@@ -2821,10 +2820,8 @@ function dictionaryPage() {
         });
         */
         console.log('hey')
-        search_only_once = 1;
     }
-    console.log(document.getElementById('page99').innerHTML !== '' && search_only_once === 0)
-    if (document.getElementById('page99').innerHTML !== '' && search_only_once === 0) {
+    if (document.getElementById('page99').innerHTML !== '') {
         searchBTN.addEventListener('click', (ev) => {
             ev.preventDefault(); // prevent form submission
             search(); // /\(/o.o\)/\ - Spooky the spider
