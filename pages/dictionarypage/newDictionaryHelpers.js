@@ -34,13 +34,13 @@ const createPageById = function createPageById(id, html) {
     rightDiv.style.display = "inline";
     rightDiv.style.flex = "0.2";
     rightDiv.innerHTML = `
-    <div id="searchDiv" style="margin-bottom:10px;">
-        <input type="text" autocomplete="off" id="search_field" placeholder="Search..." />
-        <button id="search_button">Search</button>
-        <div id="tableSearchBtnWrapper">
-            <!--<button id="tableSearchBtn">Table is seachable</button>-->
+        <div id="searchDiv" style="margin-bottom:10px;">
+            <input class="search_field" id="search_field" autocomplete="off" type="text" placeholder="...">
+            <button class="search_button" id="search_button">Search</button>
+            <div id="tableSearchBtnWrapper">
+                <!--<button id="tableSearchBtn">Table is seachable</button>-->
+            </div>
         </div>
-    </div>
     `;
 
     const listDiv = document.createElement('div');
@@ -60,12 +60,26 @@ const createPageById = function createPageById(id, html) {
     }
 
     pagewrapper.appendChild(page);
+
+    console.log(typeof search_returned);
+    searchBTN = document.getElementById('search_button');
+    searchFLD = document.getElementById('search_field');
+    console.log(searchBTN, searchFLD)
+    searchBTN.addEventListener('click', () => {
+        search_returned(); // /\(/o.o\)/\ - Spooky the spider
+    });
+
+    searchFLD.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // prevent form submission
+            search_returned();
+        }
+    });
 }
 const openPageById = function openPageById(pageId, element) {
 
     const pageEl = document.getElementById(pageId);
     if (!pageEl) {
-        if (pageId === 'page11999') return;
         console.error(`openPage: No element found with id "${pageId}"`);
         return;
     }
@@ -85,7 +99,7 @@ const openPageById = function openPageById(pageId, element) {
     }
     // If pageId number is above 1000, highlight a constant tab
     const match = pageId.match(/\d+/); // extract number from pageId
-    if (match && parseInt(match[0], 10) > 1000) {
+    if (match && parseInt(match[0], 10) > 90) {
         const constantTab = document.getElementById('permatab'); // <-- your fixed tab's ID
         if (constantTab) {
             constantTab.classList.add('active');
@@ -2212,11 +2226,9 @@ const displayForms = function displayForms(allMatchesArray) {
                                 break;
                             case 'adj':
 
-                                stem = el.stem;
-                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[el.dic_stem] || [];
                                 definition = stemMap.definition || '...';
                                 notes = stemMap.usage_notes || '...';
-                                console.log(el)
                                 pageHtml = `
                                     <div>
                                         <table>
@@ -2235,9 +2247,9 @@ const displayForms = function displayForms(allMatchesArray) {
                                                 <tr>
                                                     <th>Info</th>
                                                     <td>${keyword}</td>
-                                                    <td>${stem}</td>
+                                                    <td>${el.real_stem}</td>
                                                     <td>${'Adjective'}</td>
-                                                    <td>${"result.form.form"}</td>
+                                                    <td>${el.form.form}</td>
                                                     <td>${definition}</td>
                                                     <td>${notes || '...'}</td>
                                                 </tr>
@@ -2583,7 +2595,7 @@ const displayForms = function displayForms(allMatchesArray) {
                                 break;
                             case 'adj':
                                 stem = suffix.stem;
-                                stemMap = DICTIONARY.ALL_WORDS.MAP[stem] || [];
+                                stemMap = DICTIONARY.ALL_WORDS.MAP[suffix.dic_stem] || [];
                                 definition = stemMap.definition || '...';
                                 notes = stemMap.usage_notes || '...';
 
@@ -2595,20 +2607,28 @@ const displayForms = function displayForms(allMatchesArray) {
                                     <div>
                                         <div>
                                             <table>
-                                                <tr>
-                                                    <th class="infoCollum">...</th>
-                                                    <th>Word</th>
-                                                    <th>Stem</th>
-                                                    <th>Wordclass</th>
-                                                    <th>Usage Notes</th>
-                                                </tr>
-                                                <tr>
-                                                    <th>Info</th>
-                                                    <td>${keyword}</td>
-                                                    <td>${stem}</td>
-                                                    <td>${'Noun'}</td>
-                                                    <td>${notes}</td>
-                                                </tr>
+                                                <thead>
+                                                    <tr>
+                                                        <th class="infoCollum">...</th>
+                                                        <th>Word</th>
+                                                        <th>Stem</th>
+                                                        <th>Wordclass</th>
+                                                        <th>Form</th>
+                                                        <th>Definition</th>
+                                                        <th>Usage Notes</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <th>Info</th>
+                                                        <td>${keyword}</td>
+                                                        <td>${suffix.real_stem}</td>
+                                                        <td>${'Adjective'}</td>
+                                                        <td>${suffix.form.form}</td>
+                                                        <td>${definition}</td>
+                                                        <td>${notes}</td>
+                                                    </tr>
+                                                </tbody>
                                             </table>
                                         </div>
                                         <div id="particleTableWrapper" style="margin-top:10px"></div>
@@ -2619,7 +2639,7 @@ const displayForms = function displayForms(allMatchesArray) {
 
                                 adjectiveTableWrapper = document.getElementById('adjectiveTableWrapper');
                                 path = suffix.path;
-                                helperFunctions.standard.resultTables.adjectiveTable(suffix.suffix, path.declension, path.declension, path.number, path.case, adjectiveTableWrapper, 'suffix');
+                                helperFunctions.standard.resultTables.adjectiveTable(suffix.suffix, path.declension, path.gender, path.number, path.case, adjectiveTableWrapper, 'suffix');
 
                                 particleTableWrapper = document.getElementById('particleTableWrapper');
                                 helperFunctions.standard.resultTables.particleTable(particle, particle_definition, particle_notes, particleTableWrapper);

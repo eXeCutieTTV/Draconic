@@ -14,6 +14,9 @@ function dictionaryPage() {
     }
     // main search function
     function search(word) {
+        searchBTN = document.getElementById('search_button');
+        searchFLD = document.getElementById('search_field');
+        console.log(searchBTN, searchFLD)
         if (searchFLD.value.length === 0) { return; }//doesnt search if searchFLD is empty
 
 
@@ -292,7 +295,7 @@ function dictionaryPage() {
         console.log(type2AffixesMap);
 
         document.getElementById('page99').innerHTML = '';
-        const pagesToClear = ['page97', 'page95', 'page96', 'dictionaryTable'];
+        const pagesToClear = ['page97', 'page95', 'page96', 'dictionaryTable', 'page94'];
         for (const page of pagesToClear) {
             helperFunctions.standard.clearPageById(page);
         }
@@ -2719,30 +2722,27 @@ function dictionaryPage() {
             helperFunctions.final.displayForms(allMatchesArray);
             //console.log('done', listDiv);
         });
+        /*
         searchBTN = document.getElementById('search_button');
         searchFLD = document.getElementById('search_field');
-        //console.log(searchBTN, searchFLD);
         searchBTN.addEventListener('click', () => {
             search(); // /\(/o.o\)/\ - Spooky the spider
         });
 
-        // === Trigger search on Enter key ===
         searchFLD.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault(); // prevent form submission
                 search();
             }
         });
+        */
+        console.log('hey')
     }
-
     if (document.getElementById('page99').innerHTML !== '') {
-        //evenlisteners vv
-        // === Search button click ===
         searchBTN.addEventListener('click', () => {
             search(); // /\(/o.o\)/\ - Spooky the spider
         });
 
-        // === Trigger search on Enter key ===
         searchFLD.addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault(); // prevent form submission
@@ -2750,8 +2750,15 @@ function dictionaryPage() {
             }
         });
     }
+    return search;
 }
 dictionaryPage();
+let search_returned = '';
+if (search_returned.length === 0) {
+    search_returned = dictionaryPage();
+}
+console.log(typeof search_returned, typeof dictionaryPage);
+//console.log(dictionaryPage);
 
 //maybe add a 4th type? if number, then use lirioz' NUMBERS.numberToText.
 //5th type is a buttonpress that just loads the entire plain dictionary.
