@@ -1,4 +1,5 @@
 function dictionaryPage() {
+    let search_only_once = 0;
     // /\(/o.o\)/\ - Spooky the spider
     let searchBTN = document.getElementById('search_button');
     let searchFLD = document.getElementById('search_field');
@@ -16,8 +17,8 @@ function dictionaryPage() {
     function search(word) {
         searchBTN = document.getElementById('search_button');
         searchFLD = document.getElementById('search_field');
-        console.log(searchBTN, searchFLD)
-        if (searchFLD.value.length === 0) { return; }//doesnt search if searchFLD is empty
+        //console.log(searchBTN, searchFLD)
+        //if (searchFLD.value.length === 0) return; //doesnt search if searchFLD is empty
 
 
         let allMatchesArray = {
@@ -42,7 +43,7 @@ function dictionaryPage() {
             }
         }
         let matchType = 3 //asume its type3, if its not then we change it - type3 detection is if(matchType === 3).
-        let keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim() : '').toLowerCase()) || word;
+        let keyword = ((searchFLD && searchFLD.value ? searchFLD.value.trim().toLowerCase() : '')) || word;
         console.log('keyword |', keyword);
         let form = find(keyword);
         console.log('form |', form);
@@ -2685,25 +2686,23 @@ function dictionaryPage() {
         }
         if (matchType === 3) {//type 3
             console.log('-----type3-----');
-            const searchHandler = DICTIONARY.ALL_WORDS.fetchByDefinition(keyword); // Array[]
+            const searchHandler = DICTIONARY.ALL_WORDS.fetchByDefinition(keyword) || DICTIONARY.ALL_WORDS.fetchByDefinition(''); // Array[]
             console.log('3', 'searchHandler |', searchHandler);
 
             const html = `
                 <div>
-                    <div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Word</th>
-                                    <th>Wordclass</th>
-                                    <th>Forms</th>
-                                    <th>Definition</th>
-                                    <th>Usage Notes</th>
-                                </tr>
-                            </thead>
-                            <tbody id="matchtype3"></tbody>
-                        </table>
-                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Word</th>
+                                <th>Wordclass</th>
+                                <th>Forms</th>
+                                <th>Definition</th>
+                                <th>Usage Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matchtype3"></tbody>
+                    </table>
                 </div>
             `;
             const wrapper = document.querySelector('.pages');
@@ -2770,10 +2769,10 @@ function dictionaryPage() {
                             </tr>
                         `;
                         helperFunctions.standard.betterTrInsert('matchtype3', html_local);
-
                 }
                 helperFunctions.standard.openPageById('page93');
-            }/*
+            }
+            /*
             searchHandler.forEach(entry => {
                 // check for type === "n" then do for () {} else do normal thingi?
                 if (entry.type === "n") {
@@ -2821,16 +2820,19 @@ function dictionaryPage() {
             }
         });
         */
-        //console.log('hey')
+        console.log('hey')
+        search_only_once = 1;
     }
-    if (document.getElementById('page99').innerHTML !== '') {
-        searchBTN.addEventListener('click', () => {
+    console.log(document.getElementById('page99').innerHTML !== '' && search_only_once === 0)
+    if (document.getElementById('page99').innerHTML !== '' && search_only_once === 0) {
+        searchBTN.addEventListener('click', (ev) => {
+            ev.preventDefault(); // prevent form submission
             search(); // /\(/o.o\)/\ - Spooky the spider
         });
 
-        searchFLD.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // prevent form submission
+        searchFLD.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter') {
+                ev.preventDefault(); // prevent form submission
                 search();
             }
         });
@@ -2848,5 +2850,3 @@ console.log(typeof search_returned, typeof dictionaryPage);
 //maybe add a 4th type? if number, then use lirioz' NUMBERS.numberToText.
 //5th type is a buttonpress that just loads the entire plain dictionary.
 //make autocorrect/examples use DICTIONARY.ALL_WORDS.MAP instead of excel file...
-//fix type3.
-//new verb form checker should be added to affixchecker instead of inside each checker?
