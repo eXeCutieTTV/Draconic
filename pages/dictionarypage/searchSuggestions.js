@@ -141,3 +141,14 @@ function searchSuggestionsLogic() {
     });
 }
 searchSuggestionsLogic(); // so constants arent redefined.
+
+function neoSuggestions() {
+    let examples = [];
+    let temp = [];
+    console.log(DICTIONARY.ALL_WORDS.MAP)
+    for (const entry of Object.values(DICTIONARY.ALL_WORDS.MAP)) {
+        //console.log(entry.word);
+        if (entry.word != undefined) temp.push(entry.word);
+    }
+    console.log(temp);
+}
