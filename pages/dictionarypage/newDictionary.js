@@ -1,3 +1,5 @@
+//import * as helperFunctions from 'pages/dictionarypage/newDictionaryHelpers.js' //need type= 'module'
+
 function dictionaryPage() {
     // /\(/o.o\)/\ - Spooky the spider
     let searchBTN = document.getElementById('search_button');

@@ -27,16 +27,6 @@ td {
     color: var(--text);
 }
 
-/*
-.alignleft th,
-.alignleft td {
-    text-align: left;
-}
-
-.tdhover tr:hover td {
-    background-color: var(--table0);
-}
-*/
 td:hover {
     background-color: var(--table0);
 }
